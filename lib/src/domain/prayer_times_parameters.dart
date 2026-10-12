@@ -11,7 +11,7 @@ double bearingFor({required double lat, required double lng}) =>
     qibla.qiblaBearingFor(latitude: lat, longitude: lng);
 /// Calculation methods offered in Settings, mapped to adhan_dart's parameters.
 ///
-/// AGENDS.md names MWL, ISNA, Egypt, Kuwait and Umm al-Qura; adhan_dart supplies
+/// AGENTS.md names MWL, ISNA, Egypt, Kuwait and Umm al-Qura; adhan_dart supplies
 /// all five, so no parameter tweaking is needed.
 enum CalculationMethod {
   muslimWorldLeague,

@@ -1,0 +1,11 @@
+# drift_dev needs to know which file declares the database before it can export
+# schema snapshots for migration tests:
+#   dart run drift_dev make-migrations
+# See test/data/migration_test.dart.
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          databases:
+            app: lib/src/data/app_database.dart

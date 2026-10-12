@@ -8,7 +8,7 @@ import 'package:awqaity/src/domain/zone_offsets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Iqama and reminder math. Nothing here touches the device or the clock: every
-/// value is a local time of day, exactly as AGENDS.md requires.
+/// value is a local time of day, exactly as AGENTS.md requires.
 void main() {
   loadTimeZoneDatabase();
 

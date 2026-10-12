@@ -59,7 +59,7 @@ class Mosque {
   bool get hasLocation => latitude != null && longitude != null;
 
   /// The schedule in force on [day]: the one with the latest effectiveFrom on or
-  /// before [day]; otherwise the schedule with no effectiveFrom (AGENDS.md).
+  /// before [day]; otherwise the schedule with no effectiveFrom (AGENTS.md).
   Schedule? scheduleFor(LocalDay day) {
     Schedule? bestDated;
     Schedule? fallback;
@@ -123,7 +123,7 @@ bool _sameSchedules(List<Schedule> a, List<Schedule> b) {
 /// One editable Iqama schedule for a mosque.
 ///
 /// Every Iqama time starts as "Not configured" — never a default, never derived
-/// from Adhan times (AGENDS.md).
+/// from Adhan times (AGENTS.md).
 class Schedule {
   Schedule({
     required this.id,

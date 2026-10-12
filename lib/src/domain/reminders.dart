@@ -6,7 +6,7 @@ import 'time_model.dart';
 ///
 /// Two independent facts, deliberately separate: an Iqama time can exist without a
 /// reminder (the user entered the time and left the reminder off), and a reminder
-/// can never exist without a time (AGENS.md).
+/// can never exist without a time (AGENTS.md).
 class ReminderOccurrence {
   const ReminderOccurrence({
     required this.prayer,

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yaml/yaml.dart';
 
 /// branding.yaml is the single source of truth for the app name and bundle id
-/// (AGENDS.md). This test fails if the generated files drift away from it, so a
+/// (AGENTS.md). This test fails if the generated files drift away from it, so a
 /// rename cannot half-land.
 void main() {
   test('generated Dart constants match branding.yaml', () {

@@ -5,7 +5,7 @@ import 'package:awqaity/src/domain/time_model.dart';
 import 'package:awqaity/src/domain/zone_offsets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Prayer times are checked against Aladhan, which AGENDS.md allows only as a
+/// Prayer times are checked against Aladhan, which AGENTS.md allows only as a
 /// dev-time test oracle.
 ///
 /// Fixtures were fetched from the Aladhan API (not from memory) with

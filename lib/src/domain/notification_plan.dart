@@ -4,7 +4,7 @@ import 'prayer.dart';
 import 'time_model.dart';
 
 /// What the platform layer must schedule. Pure data: no plugin types, so this can
-/// be unit-tested without a device (AGENDS.md quality bar).
+/// be unit-tested without a device (AGENTS.md quality bar).
 class PlannedNotification {
   const PlannedNotification({
     required this.id,

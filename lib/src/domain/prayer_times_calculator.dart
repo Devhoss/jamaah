@@ -11,7 +11,7 @@ import 'zone_offsets.dart';
 /// representation of solar time at Greenwich), so the wrapper adds the location's
 /// zone offset — DST-aware — to obtain local wall-clock times.
 ///
-/// Verified against Aladhan (dev-time oracle only, per AGENDS.md): Cairo
+/// Verified against Aladhan (dev-time oracle only, per AGENTS.md): Cairo
 /// 2026-10-12 Egyptian → 05:28 / 06:55 / 12:42 / 16:00 / 18:28 / 19:45, and
 /// London, New York, Makkah and Kuwait agree to within a minute (Asr within
 /// three, from independent shadow-length rounding).
@@ -209,7 +209,7 @@ class PrayerTimesCalculator {
   /// adhan_dart applies the chosen rule silently whenever the sun never reaches the
   /// required depression. We detect this by asking the three rules the same
   /// question: if they agree, the rule is not binding; if they disagree, it is.
-  /// AGENDS.md requires the UI to state which rule applies.
+  /// AGENTS.md requires the UI to state which rule applies.
   Set<Prayer> _prayersMovedByHighLatitudeRule(LocalDay day, double latitude) {
     final byRule = <Prayer, Set<int>>{};
     for (final rule in HighLatitudeRule.values) {
