@@ -261,8 +261,7 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    $customConstraints:
-        'NULL CHECK (sound_override IN (\'full\',\'short\',\'standard\'))',
+    $customConstraints: 'NULL CHECK (sound_override IN (\'full\',\'short\',\'standard\',\'silent\'))',
   );
   @override
   List<GeneratedColumn> get $columns => [prayer, enabled, soundOverride];

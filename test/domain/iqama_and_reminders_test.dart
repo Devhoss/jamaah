@@ -300,6 +300,19 @@ void main() {
       expect(settings.soundModeFor(Prayer.asr), AdhanSoundMode.short);
     });
 
+    test('silent is a sound mode, not a switch', () {
+      final settings = AdhanAlertSettings.defaults()
+          .withSoundMode(AdhanSoundMode.silent)
+          .withAlert(Prayer.fajr, const AdhanAlert(enabled: true))
+          .withAlert(Prayer.isha, const AdhanAlert(enabled: false));
+
+      // Three different things: a silent alert still fires, a disabled one does
+      // not, and the sound mode says nothing about either (AGENTS.md).
+      expect(settings.soundModeFor(Prayer.fajr), AdhanSoundMode.silent);
+      expect(settings.enabledPrayers, [Prayer.fajr]);
+      expect(settings.hasAnyEnabled, isTrue);
+    });
+
     test('changing the global mode does not clear per-prayer overrides', () {
       final settings = AdhanAlertSettings.defaults()
           .withSoundMode(AdhanSoundMode.short)
@@ -454,6 +467,25 @@ void main() {
 
       expect(planned.single.soundMode, AdhanSoundMode.full);
       expect(planned.single.mosqueId, isEmpty, reason: 'alerts are global');
+    });
+
+    test('a silent alert is still planned — silent is not "off"', () {
+      final planned = const NotificationPlanner().plan(
+        input(
+          alerts: AdhanAlertSettings.defaults()
+              .withSoundMode(AdhanSoundMode.silent)
+              .withAlert(Prayer.asr, const AdhanAlert(enabled: true))
+              .withAlert(Prayer.maghrib, const AdhanAlert(enabled: false)),
+          windowDays: 1,
+        ),
+      );
+
+      expect(
+        planned.map((p) => p.prayer),
+        [Prayer.asr],
+        reason: 'disabled prayers never reach the scheduler',
+      );
+      expect(planned.single.soundMode, AdhanSoundMode.silent);
     });
 
     test('iqama reminders come from the active mosque only', () {

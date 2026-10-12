@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:awqaity/src/data/app_database.dart';
+import 'package:awqaity/src/domain/adhan_alerts.dart';
 import 'package:awqaity/src/domain/prayer.dart';
 
 /// The drift migration harness.
@@ -15,7 +17,13 @@ import 'package:awqaity/src/domain/prayer.dart';
 /// generated code believes in, and that the exported snapshot the future
 /// migration tests build on stays in step with the Dart tables.
 ///
-/// When the schema changes: bump `schemaVersion`, write `onUpgrade`, run
+/// While no build of the app has reached a device, schema changes are folded back
+/// into v1: edit the tables, keep `schemaVersion` at 1, delete
+/// `drift_schema_v1.json`, then re-run `dart run drift_dev make-migrations`.
+/// `make-migrations` refuses to overwrite a snapshot that differs from the tables,
+/// which is how it notices an accidental edit to a version already in use.
+///
+/// Once v1 is on a device: bump `schemaVersion`, write `onUpgrade`, run
 /// `dart run drift_dev make-migrations` (which exports `drift_schema_v<N>.json`
 /// and, from two versions onwards, generates the verifier helper and a skeleton
 /// migration test), then add a case here that migrates the old version and
@@ -80,6 +88,24 @@ void main() {
       isNot(contains('sunrise')),
       reason: 'AGENTS.md: sunrise has no Iqama, and storage must agree',
     );
+
+    // The four sound modes are a CHECK constraint too, so a rebuilt table has to
+    // carry all of them — an app that can store only three cannot offer silent,
+    // which AGENTS.md requires to be distinct from "no notification at all".
+    final adhanAlertRows = tables.firstWhere(
+      (t) => t['name'] == 'adhan_alert_rows',
+    );
+    final soundOverride = (adhanAlertRows['columns'] as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .firstWhere((c) => c['name'] == 'sound_override');
+    final soundConstraint = soundOverride['customConstraints'] as String;
+    for (final mode in AdhanSoundMode.values) {
+      expect(
+        soundConstraint,
+        contains(mode.name),
+        reason: 'the stored sound modes must match the domain enum',
+      );
+    }
   });
 
   test('deleting a mosque cascades to its schedules and Iqama rows', () async {
@@ -146,5 +172,35 @@ void main() {
     expect(rows.map((r) => r.prayer), hasLength(6));
     expect(rows.every((r) => !r.enabled), isTrue);
     expect(rows.map((r) => r.soundOverride), everyElement(isNull));
+  });
+
+  test('a sound override outside the stored modes is rejected', () async {
+    // The CHECK constraint is the same list the domain enum holds, so a value the
+    // app cannot interpret can never reach the table.
+    expect(
+      db.customUpdate(
+        'UPDATE adhan_alert_rows SET sound_override = ? WHERE prayer = ?',
+        variables: [
+          Variable.withString('whisper'),
+          Variable.withString(Prayer.fajr.name),
+        ],
+      ),
+      throwsA(isA<SqliteException>()),
+    );
+  });
+
+  test('silent is a storable sound override', () async {
+    await db.customUpdate(
+      'UPDATE adhan_alert_rows SET sound_override = ? WHERE prayer = ?',
+      variables: [
+        Variable.withString(AdhanSoundMode.silent.storageKey),
+        Variable.withString(Prayer.fajr.name),
+      ],
+    );
+
+    final row = await (db.select(
+      db.adhanAlertRows,
+    )..where((t) => t.prayer.equals(Prayer.fajr.name))).getSingle();
+    expect(row.soundOverride, 'silent');
   });
 }

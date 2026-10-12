@@ -81,7 +81,7 @@
             "getter_name": "soundOverride",
             "moor_type": "string",
             "nullable": true,
-            "customConstraints": "NULL CHECK (sound_override IN ('full','short','standard'))",
+            "customConstraints": "NULL CHECK (sound_override IN ('full','short','standard','silent'))",
             "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
@@ -410,7 +410,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"adhan_alert_rows\" (\"prayer\" TEXT NOT NULL CHECK (prayer IN ('fajr','sunrise','dhuhr','asr','maghrib','isha')), \"enabled\" INTEGER NOT NULL DEFAULT 0 CHECK (\"enabled\" IN (0, 1)), \"sound_override\" TEXT NULL CHECK (sound_override IN ('full','short','standard')), PRIMARY KEY (\"prayer\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"adhan_alert_rows\" (\"prayer\" TEXT NOT NULL CHECK (prayer IN ('fajr','sunrise','dhuhr','asr','maghrib','isha')), \"enabled\" INTEGER NOT NULL DEFAULT 0 CHECK (\"enabled\" IN (0, 1)), \"sound_override\" TEXT NULL CHECK (sound_override IN ('full','short','standard','silent')), PRIMARY KEY (\"prayer\"));"
         }
       ]
     },

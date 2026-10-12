@@ -127,6 +127,31 @@ void main() {
       expect(stored.alertFor(Prayer.sunrise).enabled, isTrue);
     });
 
+    test('silent round-trips and stays distinct from disabled', () async {
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings(
+          defaultSoundMode: AdhanSoundMode.silent,
+          alerts: const {
+            Prayer.fajr: AdhanAlert(enabled: true),
+            Prayer.maghrib: AdhanAlert(
+              enabled: false,
+              soundModeOverride: AdhanSoundMode.silent,
+            ),
+          },
+        ),
+      );
+
+      final stored = (await settings.read()).adhanAlerts;
+      expect(stored.defaultSoundMode, AdhanSoundMode.silent);
+      expect(stored.soundModeFor(Prayer.fajr), AdhanSoundMode.silent);
+      // Silent is a sound mode, not an on/off switch: enablement is its own flag.
+      expect(stored.alertFor(Prayer.maghrib).enabled, isFalse);
+      expect(
+        stored.alertFor(Prayer.maghrib).soundModeOverride,
+        AdhanSoundMode.silent,
+      );
+    });
+
     test('clearing a sound override falls back to the global mode', () async {
       await settings.saveAdhanAlerts(
         AdhanAlertSettings(

@@ -46,8 +46,11 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
   reminderMinutesBefore, updatedAt. UI shows "Set by you · last updated <date>".
 - Schedule resolution: the schedule in force on a given date is the one with the latest effectiveFrom
   on or before that date. If none applies, the schedule with no effectiveFrom is used.
-- Adhan alert settings: global default sound mode (full | short | standard/silent) plus, per prayer,
+- Adhan alert settings: global default sound mode (full | short | standard | silent) plus, per prayer,
   enabled (all six prayers including sunrise) and an optional per-prayer sound override.
+  `standard` means the platform's default notification sound; `silent` means the notification is still
+  shown but makes no sound; `enabled=false` means no notification at all — these are three different
+  things and must never be collapsed.
 - Store times as local time of day / minutes-from-midnight, never absolute timestamps.
 
 ## Prayer times
@@ -76,12 +79,14 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 ## Notifications and Adhan sound
 - Local notifications only, rolling window (~7 days). Reschedule on app start, timezone/DST change,
   location change, and any prayer-time setting, Iqama edit or sound change.
-- Sound modes in Settings: full adhan, short adhan (first part only), standard/silent; global default
-  mode with a per-prayer override. Include preview and stop controls.
+- Sound modes in Settings: full adhan, short adhan (first part only), standard (the platform's default
+  notification sound) and silent (notification shown, no sound); global default mode with a per-prayer
+  override. Include preview and stop controls. Silent is not the same as disabled: a silent alert still
+  appears in the shade.
 - Android platform rules (iOS deferred):
   - Sounds are bound to the notification channel at creation: use separate channels per mode
-    (adhan_full, adhan_short, standard) and create a NEW channel id whenever the sound changes,
-    retiring the old one.
+    (adhan_full, adhan_short, standard, silent — silent with `sound: null` and no buzz) and create a
+    NEW channel id whenever the sound changes, retiring the old one.
   - Handle the notification permission (Android 13+) and the exact-alarm permission
     (SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM) honestly: if exact alarms are denied, degrade to inexact
     timing and say so in the UI rather than failing silently.

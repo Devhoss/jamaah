@@ -1,8 +1,15 @@
 import 'prayer.dart';
 
-/// How a reminder sounds. `standard` means "no custom sound": the platform
-/// default notification sound.
-enum AdhanSoundMode { full, short, standard }
+/// How a reminder sounds, when it is enabled at all.
+///
+/// `enabled = false` is a separate thing from any mode: no notification is shown.
+/// - [full]: the whole Adhan recording.
+/// - [short]: the opening of the Adhan only.
+/// - [standard]: the platform's default notification sound, no bundled audio.
+/// - [silent]: the notification is still shown, but makes no sound. On Android it
+///   needs its own channel with sound disabled, because a channel's sound is fixed
+///   at creation.
+enum AdhanSoundMode { full, short, standard, silent }
 
 extension AdhanSoundModeX on AdhanSoundMode {
   String get storageKey => name;

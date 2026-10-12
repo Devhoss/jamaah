@@ -61,7 +61,8 @@ class AdhanAlertRows extends Table {
 
   /// Null means "use the global default sound mode".
   TextColumn get soundOverride => text().nullable().customConstraint(
-    'NULL CHECK (sound_override IN (\'full\',\'short\',\'standard\'))',
+    'NULL CHECK (sound_override IN '
+    '(\'full\',\'short\',\'standard\',\'silent\'))',
   )();
 
   @override
