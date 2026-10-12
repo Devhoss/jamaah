@@ -42,6 +42,10 @@ abstract final class SettingKeys {
   static const ianaZone = 'iana_zone';
   static const placeLabel = 'place_label';
 
+  /// The user's own name for the saved place. Absent means the app's label for it
+  /// stands. It is the only part of a place the user can rewrite.
+  static const placeUserName = 'place_user_name';
+
   /// True when the location came from the device GPS rather than a manual pick.
   static const usesGps = 'uses_gps';
 }

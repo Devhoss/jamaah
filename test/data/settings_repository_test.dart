@@ -28,7 +28,12 @@ void main() {
       expect(snapshot.calculationMethod, CalculationMethod.muslimWorldLeague);
       expect(snapshot.madhab, Madhab.standard);
       expect(snapshot.highLatitudeRule, HighLatitudeRule.middleOfTheNight);
-      expect(snapshot.themeMode, AppThemeMode.light);
+      expect(
+        snapshot.themeMode,
+        AppThemeMode.system,
+        reason: 'a fresh install has no pick of its own, so the device decides. A '
+            'default of light here would overrule the phone the day Settings is wired.',
+      );
       expect(snapshot.minuteOffsets, isEmpty);
       expect(snapshot.activeMosqueId, isNull);
       expect(snapshot.location, isNull);
@@ -250,6 +255,73 @@ void main() {
       );
 
       expect((await settings.read()).location, isNull);
+    });
+
+    test('a device place arrives without a name of its own', () async {
+      await settings.setLocation(
+        const StoredLocation(
+          latitude: 30.0444,
+          longitude: 31.2357,
+          ianaZone: 'Africa/Cairo',
+          placeLabel: 'Africa/Cairo',
+          usesGps: true,
+        ),
+      );
+
+      expect(
+        (await settings.read()).location?.userName,
+        isNull,
+        reason: 'the zone name the device gave us is not a name the user chose',
+      );
+    });
+
+    test('a name the user gives is stored, and the device stays the source', () async {
+      await settings.setLocation(
+        const StoredLocation(
+          latitude: 30.0444,
+          longitude: 31.2357,
+          ianaZone: 'Africa/Cairo',
+          placeLabel: 'Africa/Cairo',
+          usesGps: true,
+        ),
+      );
+      await settings.renamePlace('Home');
+
+      final stored = (await settings.read()).location;
+      expect(stored?.userName, 'Home');
+      expect(stored?.ianaZone, 'Africa/Cairo');
+      expect(
+        stored?.usesGps,
+        isTrue,
+        reason: 'naming a place does not turn the device into a city list',
+      );
+    });
+
+    test('clearing the name goes back to what the app calls it', () async {
+      await settings.setLocation(
+        const StoredLocation(
+          latitude: 30.0444,
+          longitude: 31.2357,
+          ianaZone: 'Africa/Cairo',
+          placeLabel: 'Africa/Cairo',
+          usesGps: true,
+        ),
+      );
+      await settings.renamePlace('Home');
+      await settings.renamePlace(null);
+
+      expect((await settings.read()).location?.userName, isNull);
+    });
+
+    test('renaming with no place saved stores nothing', () async {
+      await settings.renamePlace('Home');
+
+      expect((await settings.read()).location, isNull);
+      expect(
+        await db.select(db.appSettings).get(),
+        isEmpty,
+        reason: 'a name without a place is a fact about nothing',
+      );
     });
   });
 

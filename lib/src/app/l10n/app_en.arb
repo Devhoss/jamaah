@@ -4,10 +4,6 @@
   "@appTitle": {
     "description": "App name shown in the OS task switcher. Keep in sync with branding.yaml."
   },
-  "wordmark": "Prayer companion",
-  "@wordmark": {
-    "description": "Neutral wordmark shown in the top bar of every screen."
-  },
   "tabToday": "Today",
   "tabMosques": "Mosques",
   "tabQibla": "Qibla",
@@ -21,8 +17,147 @@
   "@notConfigured": {
     "description": "Shown wherever an Iqama time has not been entered. Never fill an Iqama default."
   },
+  "prayerFajr": "Fajr",
+  "prayerSunrise": "Sunrise",
+  "prayerDhuhr": "Dhuhr",
+  "prayerAsr": "Asr",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+  "@prayerIsha": {
+    "description": "Names of the six daily times, in order. Transliterate rather than translate: these words are the prayer names users recognise."
+  },
+  "todayLoading": "Loading your day…",
+  "@todayLoading": {
+    "description": "Shown for the moment while the stored settings are being read. Never a blank screen."
+  },
+  "todayNeedsPlaceTitle": "Set your location",
+  "todayNeedsPlaceBody": "Prayer times are worked out for the place you are in, on this device. Choose where you are to begin.",
+  "todayChoosePlace": "Choose where you are",
+  "todayErrorTitle": "Your saved setup could not be read",
+  "@todayErrorTitle": {
+    "description": "The settings stream failed. Nothing is lost, so the message must not sound like it is."
+  },
+  "todayErrorBody": "Awqaity could not open its own data on this device. Nothing has been lost — try again, or choose your location.",
+  "todaySectionTimes": "Prayer times (Adhan)",
+  "@todaySectionTimes": {
+    "description": "Section header over the six rows. Says Adhan so it is never confused with Iqama."
+  },
+  "nextPrayerAdhan": "Next prayer · Adhan",
+  "@nextPrayerAdhan": {
+    "description": "Label of the hero card. Adhan and Iqama are separate concepts and the card names which one it is counting down to."
+  },
+  "tomorrow": "Tomorrow",
+  "tagNext": "Next",
+  "prayerAtTime": "{prayer} {time}",
+  "@prayerAtTime": {
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "countdownHours": "in {hours}h {minutes}m",
+  "@countdownHours": {
+    "description": "Used when the wait is an hour or more. Whole minutes, refreshed every minute in the foreground.",
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "countdownMinutes": "in {minutes} min",
+  "@countdownMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "nextIqamaLabel": "Next Iqama · {mosque}",
+  "@nextIqamaLabel": {
+    "description": "Sub-block of the hero card, for the active mosque only. Iqama belongs to a mosque, never to a prayer in general.",
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "rowIqama": "Iqama {time}",
+  "@rowIqama": {
+    "description": "Shown on a prayer row only when the active mosque has that Iqama time entered.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "reminderBeforeIqama": "Reminder {minutes} min before",
+  "@reminderBeforeIqama": {
+    "description": "The saved setting for this prayer's Iqama. Wording must not claim a notification has been scheduled.",
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "reminderOffForPrayer": "No reminder for this prayer",
+  "remindersAreSettingsNote": "Reminders are stored as settings. Notifications arrive in a later step.",
+  "@remindersAreSettingsNote": {
+    "description": "Honest label while the notification step has not been built: nothing here has scheduled anything."
+  },
+  "highLatitudeNote": "At this latitude, {prayers} follow the {rule} rule.",
+  "@highLatitudeNote": {
+    "description": "Quiet note added only when the high-latitude rule actually moved a time. Names the rule so the user can check it in Settings.",
+    "placeholders": {
+      "prayers": { "type": "String" },
+      "rule": { "type": "String" }
+    }
+  },
+  "twoNames": "{first} and {second}",
+  "@twoNames": {
+    "description": "Joins the two prayer names the night rule can move.",
+    "placeholders": {
+      "first": { "type": "String" },
+      "second": { "type": "String" }
+    }
+  },
+  "ruleMiddleOfTheNight": "middle of the night",
+  "ruleSeventhOfTheNight": "one seventh of the night",
+  "ruleTwilightAngle": "twilight angle",
+  "@ruleTwilightAngle": {
+    "description": "Names of the three high-latitude rules, matching the Settings choice. Lower-case: they appear inside a sentence."
+  },
+  "estimatedFromLatitudeNote": "The sun neither rises nor sets here today, so these times are estimated from {latitude}, nearer the equator.",
+  "@estimatedFromLatitudeNote": {
+    "description": "Shown when the place's own latitude has no sunrise or sunset on this day. Must name the latitude actually used.",
+    "placeholders": {
+      "latitude": { "type": "String" }
+    }
+  },
+  "noTimeToday": "no time today",
+  "@noTimeToday": {
+    "description": "A row whose time could not be worked out keeps its place on the list and admits it."
+  },
+  "timesUnavailableTitle": "No times to show for this day",
+  "timesUnavailableBody": "Here the sun does not cross the horizon today, so there is no honest prayer time to work out. Choose a nearby city, or a day with a normal sunrise.",
+  "@timesUnavailableBody": {
+    "description": "Polar day or polar night: the app says it cannot calculate rather than inventing a number."
+  },
+  "addMosqueTitle": "Add your mosque",
+  "addMosqueBody": "Pick a mosque and enter its Iqama times to see them here. We never guess them.",
+  "mosqueHasNoIqama": "{mosque} has no Iqama times yet. Tap to set them.",
+  "@mosqueHasNoIqama": {
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "reminderOnSemantics": "Iqama reminder on",
+  "@reminderOnSemantics": {
+    "description": "Screen-reader label for the bell on a row."
+  },
   "aboutBody": "Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.",
-  "nextStepPlaceholder": "Screens arrive step by step.",
+  "mosquesComingTitle": "Mosques come next",
+  "@mosquesComingTitle": {
+    "description": "Honest empty state on the Mosques tab. The tab exists so the bar matches the app being built; the copy says the feature does not."
+  },
+  "mosquesComingBody": "Adding a mosque and entering its Iqama times is the step after this one. Today already works without a mosque, and no time here is ever guessed.",
+  "qiblaComingTitle": "Qibla comes later",
+  "qiblaComingBody": "The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.",
+  "settingsComingTitle": "Settings come later",
+  "settingsComingBody": "Calculation method, Asr opinion, sounds and reminders will live here. None of them are built yet, so there is nothing honest to change.",
+  "@settingsComingBody": {
+    "description": "The gear is on every tab because the prototype puts it there; this is what it says until Settings is a real screen."
+  },
   "locationSheetTitle": "Where are you?",
   "@locationSheetTitle": {
     "description": "Title of the explanation sheet shown before any location permission is requested."
@@ -32,10 +167,16 @@
   "locationUseDevice": "Use my location",
   "locationChooseCity": "Choose a city",
   "locationRequesting": "Finding your location…",
-  "locationThisDevice": "This device",
-  "@locationThisDevice": {
-    "description": "Label for a place that came from the device rather than the bundled list."
+  "locationCurrentPlace": "Current location",
+  "@locationCurrentPlace": {
+    "description": "Label for a place that came from the device rather than the bundled list. It says what the reading is, not that we know a city name."
   },
+  "placeRenameAction": "Name this place",
+  "@placeRenameAction": {
+    "description": "Action under the saved place in the sheet, for the one part of a place the user is allowed to own."
+  },
+  "placeRenameTitle": "Give this place a name",
+  "placeRenameHint": "For example, Home",
   "locationDenied": "You declined the location permission. That is completely fine — choose your city and the times will be right.",
   "locationPermanentlyDenied": "Location is switched off for Awqaity in your device settings. You can change that there, or choose your city now.",
   "locationServiceDisabled": "Location services are turned off on this device. Choose your city, or switch location on and try again.",

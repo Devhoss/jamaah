@@ -1,6 +1,8 @@
 import 'package:timezone/data/latest_all.dart' as tz_database;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'time_model.dart';
+
 /// Loads the full IANA time zone database (598 zones).
 ///
 /// The package's default database is a *reduced* set of 341 zones that merges
@@ -38,6 +40,29 @@ abstract class ZoneOffsets {
     final instant = utcWallClock.add(Duration(minutes: offset));
     offset = offsetMinutesAt(instant);
     return offset;
+  }
+
+  /// The UTC instant at which this zone's wall clock reads [day] and [time].
+  ///
+  /// The inverse of [localMinutes], and the reason a countdown can be measured in
+  /// real elapsed minutes: the prayer times themselves are wall-clock numbers, so
+  /// turning one into an instant is what makes an autumn clock change cost the
+  /// extra hour it really costs.
+  ///
+  /// On a fall-back day a wall clock reading happens twice and this answers with
+  /// the **later** occurrence, because the two-pass lookup starts from the offset
+  /// in force once the reading has been reached. A reading inside a spring-forward
+  /// gap does not exist; it resolves to the instant just after the jump.
+  DateTime utcInstantOf({required LocalDay day, required LocalTime time}) {
+    final wall = DateTime.utc(
+      day.year,
+      day.month,
+      day.day,
+      time.hour,
+      time.minute,
+    );
+    final guess = wall.subtract(Duration(minutes: offsetMinutesAt(wall)));
+    return wall.subtract(Duration(minutes: offsetMinutesAt(guess)));
   }
 
   static int _wrap(int minutes) => ((minutes % 1440) + 1440) % 1440;

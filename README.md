@@ -111,16 +111,43 @@ chosen place is stored in settings, and whichever way it arrived, that one store
 record is what every later screen reads.
 
 Fine location is deliberately not requested yet — it belongs to nearby-mosque
-search. `test/android/manifest_test.dart` guards the manifest so a later step
+search. `test/manifest_test.dart` guards the manifest so a later step
 cannot pick up a permission by accident.
+
+## Today
+
+The first screen the user sees, and the only one that reads the stored place.
+
+- "Today" is the calendar date **in the saved place's zone**, not the device's. A
+  device on another continent still shows the right day for Cairo. DST days and the
+  day's rollover at the place's own midnight are covered by `test/domain/today_test.dart`.
+- The hero card shows the next prayer, its Adhan time and a countdown. After Isha the
+  next prayer is **tomorrow's Fajr**; between midnight and Fajr the prayer still in
+  effect is **yesterday's Isha**.
+- Six rows, sunrise muted, the current prayer highlighted, the next one distinct. An
+  Iqama line appears on a row **only when that mosque has one configured** — an
+  unconfigured prayer says so and never shows or implies a time (AGENTS.md).
+- Adhan and Iqama are visibly separate: the row's Iqama belongs to the mosque, the
+  Adhan time does not. The reminder bell reports the *setting's* state only;
+  notifications are not built yet, and nothing here claims a schedule exists.
+- A time the high-latitude rule moved is annotated; a day it cannot compute (polar)
+  is a calm message, not a blank screen.
+- Bottom navigation: Today / Mosques / Qibla, plus the gear from the prototype. The
+  two unbuilt tabs say so instead of showing fake content.
+- The minute ticker runs in the foreground only; on resume the day is re-read, so a
+  launch after midnight shows the new one.
 
 ## Tests
 
 ```bash
-flutter test       # 134 tests: prayer times, iqama/reminder math, qibla, notification planning,
-                   # storage, the placeholder city list, the location flow, the manifest guard
+flutter test       # 234 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+                   # notification planning, storage, the placeholder city list, the location
+                   # flow, the Today screen, the app shell, the manifest guard
 flutter analyze
 ```
+
+`test/README.md` explains the layout and the one drift-specific gotcha that makes a
+widget test look like it hangs.
 
 Prayer-time fixtures are pinned against the Aladhan API, used **only** as a dev-time test oracle — the app never calls it. The fixtures were fetched with `latitudeAdjustmentMethod=1` (middle of the night) so the comparison is against the same astronomical definition `adhan_dart` implements.
 
@@ -134,7 +161,8 @@ recording replaces it.
 ## Not yet built
 
 Nothing ships until its step is done. Built so far: the domain layer, the drift
-storage layer with its repositories, and the location flow (device coarse location
-plus the placeholder city list). The remaining build order is Today screen →
-mosque and Iqama → discovery → notifications and sound → Settings → Qibla. The
-mosque and Iqama step writes through `MosqueRepository`, which is already tested.
+storage layer with its repositories, the location flow (device coarse location plus
+the placeholder city list), and the Today screen with its bottom navigation. The
+remaining build order is mosque and Iqama → discovery → notifications and sound →
+Settings → Qibla. The mosque and Iqama step writes through `MosqueRepository`, which
+is already tested; Mosques and Qibla currently show honest "comes next" states.

@@ -100,12 +100,6 @@ abstract class AppLocalizations {
   /// **'Awqaity'**
   String get appTitle;
 
-  /// Neutral wordmark shown in the top bar of every screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Prayer companion'**
-  String get wordmark;
-
   /// No description provided for @tabToday.
   ///
   /// In en, this message translates to:
@@ -166,17 +160,269 @@ abstract class AppLocalizations {
   /// **'Not configured'**
   String get notConfigured;
 
+  /// No description provided for @prayerFajr.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr'**
+  String get prayerFajr;
+
+  /// No description provided for @prayerSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get prayerSunrise;
+
+  /// No description provided for @prayerDhuhr.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhuhr'**
+  String get prayerDhuhr;
+
+  /// No description provided for @prayerAsr.
+  ///
+  /// In en, this message translates to:
+  /// **'Asr'**
+  String get prayerAsr;
+
+  /// No description provided for @prayerMaghrib.
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib'**
+  String get prayerMaghrib;
+
+  /// Names of the six daily times, in order. Transliterate rather than translate: these words are the prayer names users recognise.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha'**
+  String get prayerIsha;
+
+  /// Shown for the moment while the stored settings are being read. Never a blank screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your day…'**
+  String get todayLoading;
+
+  /// No description provided for @todayNeedsPlaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location'**
+  String get todayNeedsPlaceTitle;
+
+  /// No description provided for @todayNeedsPlaceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times are worked out for the place you are in, on this device. Choose where you are to begin.'**
+  String get todayNeedsPlaceBody;
+
+  /// No description provided for @todayChoosePlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where you are'**
+  String get todayChoosePlace;
+
+  /// The settings stream failed. Nothing is lost, so the message must not sound like it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved setup could not be read'**
+  String get todayErrorTitle;
+
+  /// No description provided for @todayErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Awqaity could not open its own data on this device. Nothing has been lost — try again, or choose your location.'**
+  String get todayErrorBody;
+
+  /// Section header over the six rows. Says Adhan so it is never confused with Iqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times (Adhan)'**
+  String get todaySectionTimes;
+
+  /// Label of the hero card. Adhan and Iqama are separate concepts and the card names which one it is counting down to.
+  ///
+  /// In en, this message translates to:
+  /// **'Next prayer · Adhan'**
+  String get nextPrayerAdhan;
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// No description provided for @tagNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tagNext;
+
+  /// No description provided for @prayerAtTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} {time}'**
+  String prayerAtTime(String prayer, String time);
+
+  /// Used when the wait is an hour or more. Whole minutes, refreshed every minute in the foreground.
+  ///
+  /// In en, this message translates to:
+  /// **'in {hours}h {minutes}m'**
+  String countdownHours(int hours, int minutes);
+
+  /// No description provided for @countdownMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'in {minutes} min'**
+  String countdownMinutes(int minutes);
+
+  /// Sub-block of the hero card, for the active mosque only. Iqama belongs to a mosque, never to a prayer in general.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Iqama · {mosque}'**
+  String nextIqamaLabel(String mosque);
+
+  /// Shown on a prayer row only when the active mosque has that Iqama time entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama {time}'**
+  String rowIqama(String time);
+
+  /// The saved setting for this prayer's Iqama. Wording must not claim a notification has been scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder {minutes} min before'**
+  String reminderBeforeIqama(int minutes);
+
+  /// No description provided for @reminderOffForPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminder for this prayer'**
+  String get reminderOffForPrayer;
+
+  /// Honest label while the notification step has not been built: nothing here has scheduled anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are stored as settings. Notifications arrive in a later step.'**
+  String get remindersAreSettingsNote;
+
+  /// Quiet note added only when the high-latitude rule actually moved a time. Names the rule so the user can check it in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'At this latitude, {prayers} follow the {rule} rule.'**
+  String highLatitudeNote(String prayers, String rule);
+
+  /// Joins the two prayer names the night rule can move.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second}'**
+  String twoNames(String first, String second);
+
+  /// No description provided for @ruleMiddleOfTheNight.
+  ///
+  /// In en, this message translates to:
+  /// **'middle of the night'**
+  String get ruleMiddleOfTheNight;
+
+  /// No description provided for @ruleSeventhOfTheNight.
+  ///
+  /// In en, this message translates to:
+  /// **'one seventh of the night'**
+  String get ruleSeventhOfTheNight;
+
+  /// Names of the three high-latitude rules, matching the Settings choice. Lower-case: they appear inside a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'twilight angle'**
+  String get ruleTwilightAngle;
+
+  /// Shown when the place's own latitude has no sunrise or sunset on this day. Must name the latitude actually used.
+  ///
+  /// In en, this message translates to:
+  /// **'The sun neither rises nor sets here today, so these times are estimated from {latitude}, nearer the equator.'**
+  String estimatedFromLatitudeNote(String latitude);
+
+  /// A row whose time could not be worked out keeps its place on the list and admits it.
+  ///
+  /// In en, this message translates to:
+  /// **'no time today'**
+  String get noTimeToday;
+
+  /// No description provided for @timesUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No times to show for this day'**
+  String get timesUnavailableTitle;
+
+  /// Polar day or polar night: the app says it cannot calculate rather than inventing a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Here the sun does not cross the horizon today, so there is no honest prayer time to work out. Choose a nearby city, or a day with a normal sunrise.'**
+  String get timesUnavailableBody;
+
+  /// No description provided for @addMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your mosque'**
+  String get addMosqueTitle;
+
+  /// No description provided for @addMosqueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a mosque and enter its Iqama times to see them here. We never guess them.'**
+  String get addMosqueBody;
+
+  /// No description provided for @mosqueHasNoIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque} has no Iqama times yet. Tap to set them.'**
+  String mosqueHasNoIqama(String mosque);
+
+  /// Screen-reader label for the bell on a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama reminder on'**
+  String get reminderOnSemantics;
+
   /// No description provided for @aboutBody.
   ///
   /// In en, this message translates to:
   /// **'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.'**
   String get aboutBody;
 
-  /// No description provided for @nextStepPlaceholder.
+  /// Honest empty state on the Mosques tab. The tab exists so the bar matches the app being built; the copy says the feature does not.
   ///
   /// In en, this message translates to:
-  /// **'Screens arrive step by step.'**
-  String get nextStepPlaceholder;
+  /// **'Mosques come next'**
+  String get mosquesComingTitle;
+
+  /// No description provided for @mosquesComingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding a mosque and entering its Iqama times is the step after this one. Today already works without a mosque, and no time here is ever guessed.'**
+  String get mosquesComingBody;
+
+  /// No description provided for @qiblaComingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla comes later'**
+  String get qiblaComingTitle;
+
+  /// No description provided for @qiblaComingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.'**
+  String get qiblaComingBody;
+
+  /// No description provided for @settingsComingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings come later'**
+  String get settingsComingTitle;
+
+  /// The gear is on every tab because the prototype puts it there; this is what it says until Settings is a real screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method, Asr opinion, sounds and reminders will live here. None of them are built yet, so there is nothing honest to change.'**
+  String get settingsComingBody;
 
   /// Title of the explanation sheet shown before any location permission is requested.
   ///
@@ -214,11 +460,29 @@ abstract class AppLocalizations {
   /// **'Finding your location…'**
   String get locationRequesting;
 
-  /// Label for a place that came from the device rather than the bundled list.
+  /// Label for a place that came from the device rather than the bundled list. It says what the reading is, not that we know a city name.
   ///
   /// In en, this message translates to:
-  /// **'This device'**
-  String get locationThisDevice;
+  /// **'Current location'**
+  String get locationCurrentPlace;
+
+  /// Action under the saved place in the sheet, for the one part of a place the user is allowed to own.
+  ///
+  /// In en, this message translates to:
+  /// **'Name this place'**
+  String get placeRenameAction;
+
+  /// No description provided for @placeRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this place a name'**
+  String get placeRenameTitle;
+
+  /// No description provided for @placeRenameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Home'**
+  String get placeRenameHint;
 
   /// No description provided for @locationDenied.
   ///

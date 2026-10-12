@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
 
 /// The prototype's `.row`: a 56dp-minimum list row inside a bordered, rounded
@@ -57,21 +58,43 @@ class AppRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ink = AppInk.of(context);
+    Widget body = Row(
+      children: [
+        if (leading != null) ...[
+          leading!,
+          // The prototype's `.row{gap:12px}`. The gap belongs to the row rather than
+          // to each call site, so a marker never ends up touching the name beside it.
+          const SizedBox(width: AppSpace.md),
+        ],
+        if (title != null) Expanded(child: title!),
+        ?trailing,
+      ],
+    );
+
+    if (muted) {
+      // The row's own texts inherit their colour, so one merge mutes name, time and
+      // icon together instead of each call site picking a grey.
+      body = DefaultTextStyle.merge(
+        style: TextStyle(color: ink.muted),
+        child: IconTheme.merge(
+          data: IconThemeData(color: ink.muted),
+          child: body,
+        ),
+      );
+    }
+
     final content = Container(
       constraints: const BoxConstraints(minHeight: 56),
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg, vertical: 12),
-      color: selected ? colorScheme.primaryContainer : null,
-      child: Row(
-        children: [
-          ?leading,
-          if (title != null) Expanded(child: title!),
-          ?trailing,
-        ],
-      ),
+      color: selected ? ink.sage : null,
+      child: body,
     );
 
-    if (onTap == null) return content;
+    // One row, one announcement. A tappable row already merges through InkResponse;
+    // a static row would otherwise leave its name, times and bell to be merged into
+    // whatever enclosing node the list builds.
+    if (onTap == null) return Semantics(container: true, child: content);
     return InkWell(
       onTap: onTap,
       child: content,
@@ -129,10 +152,16 @@ class AppChip extends StatelessWidget {
               Icon(icon, size: 16),
               const SizedBox(width: 5),
             ],
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: AppType.bodySize,
+            // A pill keeps its shape: a long place name at a large text size
+            // truncates here and reads in full in the sheet it opens.
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: AppType.bodySize,
+                ),
               ),
             ),
           ],

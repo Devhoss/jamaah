@@ -8,6 +8,7 @@ import '../../domain/place.dart';
 import '../components/app_widgets.dart';
 import 'city_list_page.dart';
 import 'location_controller.dart';
+import 'place_copy.dart';
 
 /// The place question, asked the way AGENTS.md requires: explain first, then ask.
 ///
@@ -62,11 +63,13 @@ class _LocationSheet extends ConsumerWidget {
               const SizedBox(height: AppSpace.lg),
               AppPrompt(
                 children: [
-                  Text(
-                    l10n.currentPlaceLabel(
-                      place.fromDevice
-                          ? l10n.locationThisDevice
-                          : place.displayName,
+                  Text(l10n.currentPlaceLabel(placeLabel(l10n, place))),
+                  const SizedBox(height: AppSpace.sm),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton(
+                      onPressed: () => _rename(context, controller, l10n, place),
+                      child: Text(l10n.placeRenameAction),
                     ),
                   ),
                 ],
@@ -108,6 +111,70 @@ class _LocationSheet extends ConsumerWidget {
   }
 }
 
+/// The one part of a place the user owns is its name, so it is the one edit the
+/// sheet offers. Saving closes the flow the same way acquiring or choosing does;
+/// Today's chip is the way back in.
+Future<void> _rename(
+  BuildContext context,
+  LocationRequestController controller,
+  AppLocalizations l10n,
+  Place current,
+) async {
+  final name = await showDialog<String>(
+    context: context,
+    builder: (_) => _RenameDialog(l10n: l10n, current: current),
+  );
+  if (name == null) return;
+  await controller.rename(name);
+  if (context.mounted) Navigator.of(context).pop();
+}
+
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({required this.l10n, required this.current});
+
+  final AppLocalizations l10n;
+  final Place current;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final TextEditingController _text =
+      TextEditingController(text: widget.current.userName ?? '');
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    return AlertDialog(
+      title: Text(l10n.placeRenameTitle),
+      content: TextField(
+        controller: _text,
+        autofocus: true,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: InputDecoration(labelText: l10n.placeRenameHint),
+        onSubmitted: (value) => Navigator.of(context).pop(value),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_text.text),
+          child: Text(l10n.save),
+        ),
+      ],
+    );
+  }
+}
+
 /// The calm message for one failure, plus the extra action that helps with it.
 class _FailureNotice extends ConsumerWidget {
   const _FailureNotice({required this.failure});
@@ -117,13 +184,7 @@ class _FailureNotice extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final message = switch (failure) {
-      PlaceFailure.denied => l10n.locationDenied,
-      PlaceFailure.permanentlyDenied => l10n.locationPermanentlyDenied,
-      PlaceFailure.serviceDisabled => l10n.locationServiceDisabled,
-      PlaceFailure.timeout => l10n.locationTimeout,
-      PlaceFailure.unavailable => l10n.locationUnavailable,
-    };
+    final message = placeFailureMessage(l10n, failure);
 
     return AppPrompt(
       children: [

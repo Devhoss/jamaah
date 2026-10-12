@@ -13,44 +13,9 @@ import 'package:awqaity/src/domain/place.dart';
 import 'package:awqaity/src/domain/placeholder_places.dart';
 import 'package:awqaity/src/features/components/app_widgets.dart';
 import 'package:awqaity/src/features/location/city_list_page.dart';
-
-/// A stand-in for the device. No test in this file touches geolocator or
-/// flutter_timezone: every path is driven through this fake (AGENTS.md quality
-/// bar), which also records how often the app dared to ask.
-class FakePlaceSource implements PlaceSource {
-  FakePlaceSource(this.reading);
-
-  PlaceReading reading;
-  int requestCount = 0;
-  int settingsOpenCount = 0;
-
-  @override
-  Future<PlaceReading> requestPlace() async {
-    requestCount++;
-    return reading;
-  }
-
-  @override
-  Future<void> openSystemSettings() async {
-    settingsOpenCount++;
-  }
-}
-
-const cairo = Place(
-  displayName: 'Cairo, Egypt',
-  latitude: 30.0444,
-  longitude: 31.2357,
-  ianaZone: 'Africa/Cairo',
-  fromDevice: false,
-);
-
-const devicePlace = Place(
-  displayName: 'Africa/Cairo',
-  latitude: 30.0444,
-  longitude: 31.2357,
-  ianaZone: 'Africa/Cairo',
-  fromDevice: true,
-);
+import 'package:awqaity/src/features/today/today_screen.dart';
+import '../../helpers/fake_place_source.dart';
+import '../../helpers/test_app.dart';
 
 void main() {
   final t = AppLocalizationsEn();
@@ -67,21 +32,6 @@ void main() {
 
   tearDown(() => db.close());
 
-  /// [testWidgets] plus the one thing every drift-backed widget test needs here.
-  ///
-  /// Unmounting the [ProviderScope] cancels the settings stream, and closing a
-  /// drift stream schedules a zero-duration cleanup timer. Fake async only runs a
-  /// timer once time moves, so leaving it to the framework teardown reports
-  /// "A Timer is still pending". Detaching and flushing at the end of the body
-  /// keeps the real database in the test instead of swapping it for a fake.
-  void testApp(String description, Future<void> Function(WidgetTester) body) {
-    testWidgets(description, (tester) async {
-      await body(tester);
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump(const Duration(seconds: 1));
-    });
-  }
-
   Widget harness() => ProviderScope(
     overrides: [
       appDatabaseProvider.overrideWithValue(db),
@@ -90,15 +40,21 @@ void main() {
     child: const AwqaityApp(),
   );
 
-  /// Open the sheet the way the user does: tap the prompt on the shell screen.
+  /// Open the sheet the way the user does: answer the place question on Today.
   Future<void> openSheet(WidgetTester tester) async {
     await tester.pumpWidget(harness());
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(AppPrompt));
+    await tester.tap(find.text(t.todayChoosePlace));
     await tester.pumpAndSettle();
   }
 
   Future<StoredLocation?> stored() async => (await settings.read()).location;
+
+  /// A failure the user cannot read is a silent failure, and this one is read twice:
+  /// the sheet keeps it while the city list is in reach, and Today keeps it after the
+  /// sheet closes. Today's own copy is asserted in the Today suite.
+  void expectFailureCopy(WidgetTester tester, String message) =>
+      expect(find.text(message), findsWidgets);
 
   /// The unfiltered list is taller than the 800x600 test viewport, so a row far
   /// down the list has to be scrolled in before a tap can land on it.
@@ -144,10 +100,11 @@ void main() {
       expect(storedLocation.usesGps, isTrue);
       expect(
         find.descendant(
-          of: find.byType(ScaffoldPlaceholder),
-          matching: find.text(t.currentPlaceLabel(t.locationThisDevice)),
+          of: find.byType(TodayScreen),
+          matching: find.text(t.locationCurrentPlace),
         ),
         findsOneWidget,
+        reason: 'Today names the place whose times it is showing',
       );
     });
 
@@ -166,6 +123,64 @@ void main() {
       expect(storedLocation.ianaZone, 'Africa/Cairo');
       expect(storedLocation.usesGps, isFalse);
     });
+
+    testApp('a saved place can be given the name the user chooses', (
+      tester,
+    ) async {
+      source = FakePlaceSource(const PlaceFound(devicePlace));
+      await openSheet(tester);
+      await tester.tap(find.text(t.locationUseDevice));
+      await tester.pumpAndSettle();
+
+      // Today now calls it "Current location"; the chip is the way back to the sheet.
+      expect(find.text(t.locationCurrentPlace), findsOneWidget);
+      await tester.tap(find.text(t.locationCurrentPlace));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(t.placeRenameAction));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Home');
+      await tester.tap(find.text(t.save));
+      await tester.pumpAndSettle();
+
+      expect((await stored())?.userName, 'Home');
+      expect(find.text('Home'), findsOneWidget);
+      expect(
+        find.text(t.locationCurrentPlace),
+        findsNothing,
+        reason: 'their own name replaces ours everywhere at once',
+      );
+    });
+
+    testApp('an empty name hands the place back to the app', (tester) async {
+      source = FakePlaceSource(const PlaceFound(devicePlace));
+      await openSheet(tester);
+      await tester.tap(find.text(t.locationUseDevice));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.locationCurrentPlace));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.placeRenameAction));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Home');
+      await tester.tap(find.text(t.save));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.placeRenameAction));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '   ');
+      await tester.tap(find.text(t.save));
+      await tester.pumpAndSettle();
+
+      expect((await stored())?.userName, isNull);
+      expect(find.text(t.locationCurrentPlace), findsOneWidget);
+      expect(
+        (await stored())?.usesGps,
+        isTrue,
+        reason: 'renaming never changes where the place came from',
+      );
+    });
   });
 
   group('every way the device can say no', () {
@@ -181,7 +196,7 @@ void main() {
     ) async {
       await failWith(tester, PlaceFailure.denied);
 
-      expect(find.text(t.locationDenied), findsOneWidget);
+      expectFailureCopy(tester, t.locationDenied);
       expect(find.text(t.locationChooseCity), findsOneWidget);
       expect(await stored(), isNull, reason: 'a failure stores nothing');
     });
@@ -189,7 +204,7 @@ void main() {
     testApp('permanently denied offers the system settings', (tester) async {
       await failWith(tester, PlaceFailure.permanentlyDenied);
 
-      expect(find.text(t.locationPermanentlyDenied), findsOneWidget);
+      expectFailureCopy(tester, t.locationPermanentlyDenied);
       expect(find.text(t.locationOpenSettings), findsOneWidget);
 
       await tester.tap(find.text(t.locationOpenSettings));
@@ -200,19 +215,19 @@ void main() {
 
     testApp('location services off is named as such', (tester) async {
       await failWith(tester, PlaceFailure.serviceDisabled);
-      expect(find.text(t.locationServiceDisabled), findsOneWidget);
+      expectFailureCopy(tester, t.locationServiceDisabled);
       expect(find.text(t.locationChooseCity), findsOneWidget);
     });
 
     testApp('a timeout is named as such', (tester) async {
       await failWith(tester, PlaceFailure.timeout);
-      expect(find.text(t.locationTimeout), findsOneWidget);
+      expectFailureCopy(tester, t.locationTimeout);
       expect(find.text(t.locationChooseCity), findsOneWidget);
     });
 
     testApp('anything else still routes to the city list', (tester) async {
       await failWith(tester, PlaceFailure.unavailable);
-      expect(find.text(t.locationUnavailable), findsOneWidget);
+      expectFailureCopy(tester, t.locationUnavailable);
       expect(find.text(t.locationChooseCity), findsOneWidget);
     });
   });
@@ -287,10 +302,11 @@ void main() {
 
     expect(
       find.descendant(
-        of: find.byType(ScaffoldPlaceholder),
-        matching: find.text(t.currentPlaceLabel(t.locationThisDevice)),
+        of: find.byType(TodayScreen),
+        matching: find.text(t.locationCurrentPlace),
       ),
       findsOneWidget,
+      reason: 'the chip is built from what the database holds, not from memory',
     );
     expect(
       source.requestCount,

@@ -15,6 +15,7 @@ class StoredLocation {
     required this.ianaZone,
     required this.placeLabel,
     required this.usesGps,
+    this.userName,
   });
 
   final double latitude;
@@ -27,6 +28,10 @@ class StoredLocation {
   /// What the UI shows in the location chip.
   final String placeLabel;
 
+  /// The user's own name for the place, if they gave one. It wins over
+  /// [placeLabel] in the UI and is the only part of a place they can edit.
+  final String? userName;
+
   /// True when the device supplied this place, false when the user picked it from
   /// the bundled list — which is a labelled placeholder, so the UI says which.
   final bool usesGps;
@@ -36,6 +41,7 @@ class StoredLocation {
   /// The same place as a domain object, for the UI and the prayer-time calculator.
   Place toPlace() => Place(
     displayName: placeLabel,
+    userName: userName,
     latitude: latitude,
     longitude: longitude,
     ianaZone: ianaZone,
@@ -49,11 +55,12 @@ class StoredLocation {
       other.longitude == longitude &&
       other.ianaZone == ianaZone &&
       other.placeLabel == placeLabel &&
+      other.userName == userName &&
       other.usesGps == usesGps;
 
   @override
   int get hashCode =>
-      Object.hash(latitude, longitude, ianaZone, placeLabel, usesGps);
+      Object.hash(latitude, longitude, ianaZone, placeLabel, userName, usesGps);
 }
 
 /// Theme preference, stored as text and mapped to Flutter's ThemeMode by the UI.
@@ -94,7 +101,7 @@ class AppSettingsSnapshot {
 /// Every value has a documented default, so a missing or unreadable row degrades
 /// to that default instead of throwing: a corrupt setting must never stop the app
 /// from showing prayer times. Defaults match AGENTS.md — MWL, Standard asr,
-/// middleOfTheNight, light theme, no Adhan alert enabled, no location.
+/// middleOfTheNight, the device's own theme, no Adhan alert enabled, no location.
 class SettingsRepository {
   SettingsRepository(this._db);
 
@@ -105,7 +112,7 @@ class SettingsRepository {
     madhab: Madhab.standard,
     highLatitudeRule: HighLatitudeRule.middleOfTheNight,
     minuteOffsets: {},
-    themeMode: AppThemeMode.light,
+    themeMode: AppThemeMode.system,
     adhanAlerts: AdhanAlertSettings(),
   );
 
@@ -136,7 +143,7 @@ class SettingsRepository {
       themeMode: _enumOrDefault(
         AppThemeMode.values,
         values[SettingKeys.themeMode],
-        AppThemeMode.light,
+        AppThemeMode.system,
       ),
       adhanAlerts: _adhanAlerts(values, alerts),
       activeMosqueId: values[SettingKeys.activeMosqueId],
@@ -226,6 +233,7 @@ class SettingsRepository {
           SettingKeys.longitude,
           SettingKeys.ianaZone,
           SettingKeys.placeLabel,
+          SettingKeys.placeUserName,
           SettingKeys.usesGps,
         ]) {
           await (_db.delete(_db.appSettings)
@@ -237,8 +245,34 @@ class SettingsRepository {
         await _put(SettingKeys.longitude, location.longitude.toString());
         await _put(SettingKeys.ianaZone, location.ianaZone);
         await _put(SettingKeys.placeLabel, location.placeLabel);
+        final userName = location.userName;
+        if (userName != null) {
+          await _put(SettingKeys.placeUserName, userName);
+        }
         await _put(SettingKeys.usesGps, location.usesGps ? 'true' : 'false');
       });
+
+  /// Give the saved place the user's own name, or clear it with null so the app's
+  /// label comes back. Nothing else about the place changes: the coordinates,
+  /// zone and source stay exactly as they were.
+  ///
+  /// A no-op when no place is stored — a name with no place behind it would be a
+  /// setting the UI has no way to show or undo.
+  Future<void> renamePlace(String? name) async {
+    final trimmed = name?.trim();
+    final existing = (await read()).location;
+    if (existing == null) return;
+    await setLocation(
+      StoredLocation(
+        latitude: existing.latitude,
+        longitude: existing.longitude,
+        ianaZone: existing.ianaZone,
+        placeLabel: existing.placeLabel,
+        userName: (trimmed == null || trimmed.isEmpty) ? null : trimmed,
+        usesGps: existing.usesGps,
+      ),
+    );
+  }
 
   Future<void> _put(String key, String value) => _db
       .into(_db.appSettings)
@@ -285,6 +319,7 @@ class SettingsRepository {
       longitude: lng,
       ianaZone: zone,
       placeLabel: values[SettingKeys.placeLabel] ?? zone,
+      userName: values[SettingKeys.placeUserName],
       usesGps: values[SettingKeys.usesGps] == 'true',
     );
   }
@@ -301,6 +336,7 @@ extension PlaceStorage on Place {
     longitude: longitude,
     ianaZone: ianaZone,
     placeLabel: displayName,
+    userName: userName,
     usesGps: fromDevice,
   );
 }

@@ -51,6 +51,11 @@ class LocationRequestController extends Notifier<LocationRequestState> {
   /// permission, and is where every failure routes to.
   Future<void> choose(Place place) => _store(place);
 
+  /// The user's own name for the saved place; blank gives it back to the app.
+  /// Only the name changes — the coordinates, zone and source stay as they are.
+  Future<void> rename(String name) =>
+      ref.read(settingsRepositoryProvider).renamePlace(name);
+
   /// The permanently-denied escape hatch.
   Future<void> openSystemSettings() =>
       ref.read(placeSourceProvider).openSystemSettings();

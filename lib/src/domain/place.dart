@@ -9,10 +9,15 @@ class Place {
     required this.longitude,
     required this.ianaZone,
     required this.fromDevice,
+    this.userName,
   });
 
   /// What the UI shows, e.g. "Cairo, Egypt" or the label for the device itself.
   final String displayName;
+
+  /// The name the user chose for this place, if they chose one. It replaces
+  /// [displayName] everywhere, because "Home" is what they called it.
+  final String? userName;
 
   final double latitude;
   final double longitude;
@@ -28,6 +33,7 @@ class Place {
   bool operator ==(Object other) =>
       other is Place &&
       other.displayName == displayName &&
+      other.userName == userName &&
       other.latitude == latitude &&
       other.longitude == longitude &&
       other.ianaZone == ianaZone &&
@@ -35,7 +41,14 @@ class Place {
 
   @override
   int get hashCode =>
-      Object.hash(displayName, latitude, longitude, ianaZone, fromDevice);
+      Object.hash(
+        displayName,
+        userName,
+        latitude,
+        longitude,
+        ianaZone,
+        fromDevice,
+      );
 
   @override
   String toString() =>

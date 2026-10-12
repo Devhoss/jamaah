@@ -1,4 +1,4 @@
-package dev.awqaity.awqaity
+package dev.awqaity.app
 
 import io.flutter.embedding.android.FlutterActivity
 

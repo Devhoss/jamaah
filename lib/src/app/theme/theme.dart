@@ -29,7 +29,7 @@ abstract final class AppTheme {
   static ThemeData dark() => _base(
     colorScheme: const ColorScheme.dark(
       primary: AppColors.darkPrimary,
-      onPrimary: AppColors.darkPrimary,
+      onPrimary: AppColors.onPrimary,
       surface: AppColors.darkSurface,
       onSurface: AppColors.darkInk,
       error: AppColors.darkDestructive,
@@ -72,6 +72,7 @@ abstract final class AppTheme {
       splashColor: sage.withValues(alpha: 0.4),
       highlightColor: sage.withValues(alpha: 0.3),
       textTheme: _textTheme(base.textTheme, ink, muted),
+      extensions: [AppInk(muted: muted, sage: sage)],
       appBarTheme: AppBarTheme(
         backgroundColor: bg,
         foregroundColor: ink,
@@ -165,7 +166,6 @@ abstract final class AppTheme {
         borderRadius: BorderRadius.circular(AppRadius.input),
         borderSide: BorderSide(color: color, width: width),
       );
-
   static TextTheme _textTheme(TextTheme base, Color ink, Color muted) => base
       .copyWith(
         headlineLarge: base.headlineLarge?.copyWith(
@@ -199,4 +199,36 @@ abstract final class AppTheme {
         ),
       )
       .apply(bodyColor: ink, displayColor: ink);
+}
+
+/// The two prototype tones a [ColorScheme] does not carry: the muted ink used for
+/// secondary text and sunrise, and the sage wash behind the prayer in force.
+///
+/// Widgets read these through [of] so they stay correct in the dark theme instead
+/// of reaching for [AppColors] directly.
+@immutable
+class AppInk extends ThemeExtension<AppInk> {
+  const AppInk({required this.muted, required this.sage});
+
+  final Color muted;
+  final Color sage;
+
+  static AppInk of(BuildContext context) =>
+      Theme.of(context).extension<AppInk>() ??
+      const AppInk(muted: AppColors.lightMuted, sage: AppColors.lightSage);
+
+  @override
+  AppInk copyWith({Color? muted, Color? sage}) => AppInk(
+    muted: muted ?? this.muted,
+    sage: sage ?? this.sage,
+  );
+
+  @override
+  AppInk lerp(ThemeExtension<AppInk>? other, double t) {
+    if (other is! AppInk) return this;
+    return AppInk(
+      muted: Color.lerp(muted, other.muted, t)!,
+      sage: Color.lerp(sage, other.sage, t)!,
+    );
+  }
 }
