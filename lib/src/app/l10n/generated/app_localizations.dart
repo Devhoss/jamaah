@@ -177,6 +177,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Screens arrive step by step.'**
   String get nextStepPlaceholder;
+
+  /// Title of the explanation sheet shown before any location permission is requested.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are you?'**
+  String get locationSheetTitle;
+
+  /// No description provided for @locationSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Awqaity works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.'**
+  String get locationSheetBody;
+
+  /// No description provided for @locationSheetCoarse.
+  ///
+  /// In en, this message translates to:
+  /// **'We ask for approximate location — city level, never your exact position. Times across one city differ by only a few minutes.'**
+  String get locationSheetCoarse;
+
+  /// No description provided for @locationUseDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get locationUseDevice;
+
+  /// No description provided for @locationChooseCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a city'**
+  String get locationChooseCity;
+
+  /// No description provided for @locationRequesting.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location…'**
+  String get locationRequesting;
+
+  /// Label for a place that came from the device rather than the bundled list.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get locationThisDevice;
+
+  /// No description provided for @locationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You declined the location permission. That is completely fine — choose your city and the times will be right.'**
+  String get locationDenied;
+
+  /// No description provided for @locationPermanentlyDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is switched off for Awqaity in your device settings. You can change that there, or choose your city now.'**
+  String get locationPermanentlyDenied;
+
+  /// No description provided for @locationServiceDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are turned off on this device. Choose your city, or switch location on and try again.'**
+  String get locationServiceDisabled;
+
+  /// No description provided for @locationTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device did not answer in time. You can try again, or choose your city.'**
+  String get locationTimeout;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location could not be read right now. Choose your city instead.'**
+  String get locationUnavailable;
+
+  /// No description provided for @locationOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app settings'**
+  String get locationOpenSettings;
+
+  /// No description provided for @locationTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get locationTryAgain;
+
+  /// No description provided for @cityListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a city'**
+  String get cityListTitle;
+
+  /// No description provided for @cityListPlaceholderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This list ships with the app, so it works with no network. It is a placeholder — a starting point, not a directory. Pick the city nearest to you.'**
+  String get cityListPlaceholderNote;
+
+  /// No description provided for @cityListSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get cityListSearchHint;
+
+  /// No description provided for @cityListNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No city matches that. Choose the nearest one — prayer times differ by only a few minutes.'**
+  String get cityListNoMatches;
+
+  /// Shown where the app names the place its times come from.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times for {place}'**
+  String currentPlaceLabel(String place);
 }
 
 class _AppLocalizationsDelegate

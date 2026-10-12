@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../domain/adhan_alerts.dart';
+import '../domain/place.dart';
 import '../domain/prayer.dart';
 import '../domain/prayer_times_parameters.dart';
 import '../domain/zone_offsets.dart';
@@ -26,10 +27,20 @@ class StoredLocation {
   /// What the UI shows in the location chip.
   final String placeLabel;
 
-  /// True when the device GPS supplied this place, false for a manual pick.
+  /// True when the device supplied this place, false when the user picked it from
+  /// the bundled list — which is a labelled placeholder, so the UI says which.
   final bool usesGps;
 
   ZoneOffsets get offsets => zoneOffsetsFor(ianaZone);
+
+  /// The same place as a domain object, for the UI and the prayer-time calculator.
+  Place toPlace() => Place(
+    displayName: placeLabel,
+    latitude: latitude,
+    longitude: longitude,
+    ianaZone: ianaZone,
+    fromDevice: usesGps,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -281,4 +292,15 @@ class SettingsRepository {
 
 extension _FirstOrNull<T> on Iterable<T> {
   T? get firstOrNull => isEmpty ? null : first;
+}
+
+/// Storing the place the user ended up with.
+extension PlaceStorage on Place {
+  StoredLocation toStored() => StoredLocation(
+    latitude: latitude,
+    longitude: longitude,
+    ianaZone: ianaZone,
+    placeLabel: displayName,
+    usesGps: fromDevice,
+  );
 }

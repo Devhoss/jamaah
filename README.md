@@ -89,10 +89,36 @@ time — a CHECK constraint in `schedule_prayers` and a guard in `MosqueReposito
 both enforce it. Deleting a mosque clears the active-mosque setting in the same
 transaction, so reminders never point at a mosque that is gone.
 
+## Location
+
+Prayer times need a place, and a place needs three things: coordinates, an IANA
+time zone, and a label. The app gets them two ways, in this order:
+
+1. **The device, coarse only.** `DevicePlaceSource` asks for
+   `ACCESS_COARSE_LOCATION` at city level, after the explanation sheet — the
+   permission dialog is never the first thing a user sees. The time zone comes from
+   `flutter_timezone`, so the stored place is DST-correct rather than a fixed offset.
+2. **The bundled list.** `lib/src/domain/placeholder_places.dart` is a labelled
+   placeholder: roughly 95 cities with a wide regional spread, chosen so the app
+   works with no network, no account and no permission. `test/domain/place_list_test.dart`
+   fails if any zone name is missing from the time zone database or any expected
+   offset is wrong, because a silent typo there shifts every prayer time.
+
+Denied, permanently denied (with a link to the app's system settings), location
+services off, timeout, or any other platform failure: each shows its own calm
+message and keeps "Choose a city" in reach. Nothing falls through silently. The
+chosen place is stored in settings, and whichever way it arrived, that one stored
+record is what every later screen reads.
+
+Fine location is deliberately not requested yet — it belongs to nearby-mosque
+search. `test/android/manifest_test.dart` guards the manifest so a later step
+cannot pick up a permission by accident.
+
 ## Tests
 
 ```bash
-flutter test       # 111 tests: prayer times, iqama/reminder math, qibla, notification planning, storage
+flutter test       # 134 tests: prayer times, iqama/reminder math, qibla, notification planning,
+                   # storage, the placeholder city list, the location flow, the manifest guard
 flutter analyze
 ```
 
@@ -107,7 +133,8 @@ recording replaces it.
 
 ## Not yet built
 
-Nothing ships until its step is done. Built so far: the domain layer and the drift
-storage layer with its repositories. The remaining build order is Today screen →
+Nothing ships until its step is done. Built so far: the domain layer, the drift
+storage layer with its repositories, and the location flow (device coarse location
+plus the placeholder city list). The remaining build order is Today screen →
 mosque and Iqama → discovery → notifications and sound → Settings → Qibla. The
 mosque and Iqama step writes through `MosqueRepository`, which is already tested.

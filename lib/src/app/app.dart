@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/components/app_widgets.dart';
+import '../features/location/location_sheet.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'providers.dart';
 import 'theme/theme.dart';
+import 'theme/tokens.dart';
 
 /// Theme mode is a real setting; Settings gets its own switch in step 6.
 class ThemeModeController extends Notifier<ThemeMode> {
@@ -52,15 +56,45 @@ class ScaffoldPlaceholder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final place = ref.watch(currentPlaceProvider);
+    final placeLabel = place == null
+        ? null
+        : l10n.currentPlaceLabel(
+            place.fromDevice ? l10n.locationThisDevice : place.displayName,
+          );
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.wordmark)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            l10n.nextStepPlaceholder,
-            textAlign: TextAlign.center,
-          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.xxl),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Text(
+                  l10n.nextStepPlaceholder,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            // The location flow is the first thing a fresh install has to answer,
+            // so it is reachable from here until the Today screen owns it.
+            AppPrompt(
+              onTap: () => showLocationSheet(context),
+              children: [
+                Text(
+                  l10n.locationSheetTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: AppSpace.sm),
+                Text(
+                  placeLabel ?? l10n.locationSheetBody,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpace.xxl),
+          ],
         ),
       ),
     );

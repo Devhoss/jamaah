@@ -1,4 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+      Added here when they are actually needed, not before.
+
+      INTERNET is required by mosque discovery and place search, which come later;
+      it is declared now because release builds must never be the first place it
+      shows up missing.
+      ACCESS_COARSE_LOCATION is city-level only — the Today screen's "where are
+      you?". ACCESS_FINE_LOCATION is deliberately absent: the app has no feature
+      that needs it yet (AGENTS.md). POST_NOTIFICATIONS and the exact-alarm
+      permissions land with the notifications step, in the same commit as the code
+      that asks for them.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"

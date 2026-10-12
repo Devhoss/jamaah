@@ -22,5 +22,38 @@
     "description": "Shown wherever an Iqama time has not been entered. Never fill an Iqama default."
   },
   "aboutBody": "Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.",
-  "nextStepPlaceholder": "Screens arrive step by step."
+  "nextStepPlaceholder": "Screens arrive step by step.",
+  "locationSheetTitle": "Where are you?",
+  "@locationSheetTitle": {
+    "description": "Title of the explanation sheet shown before any location permission is requested."
+  },
+  "locationSheetBody": "Awqaity works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.",
+  "locationSheetCoarse": "We ask for approximate location — city level, never your exact position. Times across one city differ by only a few minutes.",
+  "locationUseDevice": "Use my location",
+  "locationChooseCity": "Choose a city",
+  "locationRequesting": "Finding your location…",
+  "locationThisDevice": "This device",
+  "@locationThisDevice": {
+    "description": "Label for a place that came from the device rather than the bundled list."
+  },
+  "locationDenied": "You declined the location permission. That is completely fine — choose your city and the times will be right.",
+  "locationPermanentlyDenied": "Location is switched off for Awqaity in your device settings. You can change that there, or choose your city now.",
+  "locationServiceDisabled": "Location services are turned off on this device. Choose your city, or switch location on and try again.",
+  "locationTimeout": "Your device did not answer in time. You can try again, or choose your city.",
+  "locationUnavailable": "Your location could not be read right now. Choose your city instead.",
+  "locationOpenSettings": "Open app settings",
+  "locationTryAgain": "Try again",
+  "cityListTitle": "Choose a city",
+  "cityListPlaceholderNote": "This list ships with the app, so it works with no network. It is a placeholder — a starting point, not a directory. Pick the city nearest to you.",
+  "cityListSearchHint": "Search",
+  "cityListNoMatches": "No city matches that. Choose the nearest one — prayer times differ by only a few minutes.",
+  "currentPlaceLabel": "Prayer times for {place}",
+  "@currentPlaceLabel": {
+    "description": "Shown where the app names the place its times come from.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  }
 }
