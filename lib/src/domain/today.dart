@@ -224,14 +224,25 @@ int _minutesUntil(LocalMoment moment, LocalDay day, LocalTime time) =>
         .difference(moment.utcInstant)
         .inMinutes;
 
-/// The active mosque's Iqama for the prayer the card is counting down to.
-class NextIqama {
-  const NextIqama({
+/// The active mosque's Iqama, as the Today card can honestly state it.
+///
+/// Three answers that are not variations of one another: a time still ahead, a day
+/// whose entered times are all behind the clock, and a mosque with nothing entered
+/// at all. The last two need different responses from the app, so the type keeps
+/// them apart rather than letting both collapse into "nothing to show".
+sealed class NextIqama {
+  const NextIqama();
+}
+
+/// The earliest Iqama still ahead of the moment, whichever of the five it is.
+final class IqamaUpcoming extends NextIqama {
+  const IqamaUpcoming({
     required this.prayer,
     required this.mosqueName,
     required this.on,
     required this.at,
     required this.minutesUntil,
+    required this.isTomorrow,
     required this.reminderEnabled,
     required this.reminderMinutesBefore,
   });
@@ -239,12 +250,15 @@ class NextIqama {
   final Prayer prayer;
   final String mosqueName;
 
-  /// The day the Iqama falls on — tomorrow once Isha has passed.
+  /// The day the Iqama falls on — tomorrow once the day's times have run out.
   final LocalDay on;
   final LocalTime at;
 
-  /// Real minutes from the moment to [at].
+  /// Real minutes from the moment to [at], so a day that changes its clocks is
+  /// counted at the length it really has.
   final int minutesUntil;
+
+  final bool isTomorrow;
 
   /// The reminder *settings*. Nothing here implies a notification was scheduled;
   /// the notifications step owns that.
@@ -252,32 +266,85 @@ class NextIqama {
   final int reminderMinutesBefore;
 }
 
-/// Reads the mosque's Iqama for [TodayReading.next], or null when there is nothing
-/// honest to show.
+/// The mosque has Iqama times, but none is still ahead today and no Fajr time is
+/// entered for tomorrow either.
+final class IqamaNoneLeftToday extends NextIqama {
+  const IqamaNoneLeftToday({required this.mosqueName});
+
+  /// The mosque the finished day belongs to, so the card can name it rather than
+  /// leave the sentence standing on its own.
+  final String mosqueName;
+}
+
+/// Nothing entered: no active mosque, or one whose schedule is still all "Not
+/// configured". The app never shows a time the user has not given it (AGENTS.md).
+final class IqamaNotConfigured extends NextIqama {
+  const IqamaNotConfigured();
+}
+
+/// Reads the mosque's Iqama times around [TodayReading.moment].
 ///
-/// Null when there is no active mosque, when the day has no times, or when that
-/// prayer's Iqama has not been entered — the app never shows a time the user has
-/// not given it, and never borrows another prayer's (AGENTS.md).
-NextIqama? readNextIqama({required Mosque? mosque, required TodayReading today}) {
-  final next = today.next;
-  if (mosque == null || next == null) return null;
+/// The next Iqama is the earliest one the user has entered that is still ahead —
+/// which can belong to a prayer whose Adhan is already behind the clock, because a
+/// jama'ah is its mosque's own time and has nothing to wait for the Adhan. Only when
+/// the day's entered times have all run out does the card reach for tomorrow's Fajr,
+/// and it reads that day's schedule to do so.
+///
+/// Nothing here consults the calculated Adhan times: an Iqama is the user's own data
+/// (AGENTS.md), so it is never a guess and never borrowed from another prayer.
+NextIqama readNextIqama({
+  required Mosque? mosque,
+  required TodayReading today,
+}) {
+  if (mosque == null) return const IqamaNotConfigured();
+  final moment = today.moment;
+  final tomorrow = moment.day.addDays(1);
+  final todaySchedule = mosque.scheduleFor(moment.day);
+  final tomorrowSchedule = mosque.scheduleFor(tomorrow);
 
-  // After Isha the next prayer is tomorrow's Fajr, so tomorrow's schedule in force
-  // is the one that answers, not today's.
-  final entry = mosque.scheduleFor(next.on)?.iqamaFor(next.prayer);
-  if (entry == null || !entry.isConfigured) return null;
+  IqamaUpcoming? earliest;
+  for (final prayer in Prayer.iqamaPrayers) {
+    final entry = todaySchedule?.iqamaFor(prayer);
+    final at = entry?.iqama;
+    if (entry == null || at == null) continue;
+    final until = _minutesUntil(moment, moment.day, at);
+    // Measured in real minutes rather than on the wall clock, so an hour the day
+    // has already lived through on a clock-changing morning is not offered again.
+    if (until <= 0) continue;
+    if (earliest == null || until < earliest.minutesUntil) {
+      earliest = IqamaUpcoming(
+        prayer: prayer,
+        mosqueName: mosque.name,
+        on: moment.day,
+        at: at,
+        minutesUntil: until,
+        isTomorrow: false,
+        reminderEnabled: entry.reminderEnabled,
+        reminderMinutesBefore: entry.reminderMinutesBefore,
+      );
+    }
+  }
+  if (earliest != null) return earliest;
 
-  final iqama = entry.iqama!;
-  final minutesUntil = _minutesUntil(today.moment, next.on, iqama);
-  if (minutesUntil <= 0) return null;
+  final fajrEntry = tomorrowSchedule?.iqamaFor(Prayer.fajr);
+  final fajrAt = fajrEntry?.iqama;
+  if (fajrEntry != null && fajrAt != null) {
+    return IqamaUpcoming(
+      prayer: Prayer.fajr,
+      mosqueName: mosque.name,
+      on: tomorrow,
+      at: fajrAt,
+      minutesUntil: _minutesUntil(moment, tomorrow, fajrAt),
+      isTomorrow: true,
+      reminderEnabled: fajrEntry.reminderEnabled,
+      reminderMinutesBefore: fajrEntry.reminderMinutesBefore,
+    );
+  }
 
-  return NextIqama(
-    prayer: next.prayer,
-    mosqueName: mosque.name,
-    on: next.on,
-    at: iqama,
-    minutesUntil: minutesUntil,
-    reminderEnabled: entry.reminderEnabled,
-    reminderMinutesBefore: entry.reminderMinutesBefore,
-  );
+  final anythingEntered =
+      (todaySchedule?.configuredCount ?? 0) > 0 ||
+      (tomorrowSchedule?.configuredCount ?? 0) > 0;
+  return anythingEntered
+      ? IqamaNoneLeftToday(mosqueName: mosque.name)
+      : const IqamaNotConfigured();
 }

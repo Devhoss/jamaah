@@ -113,6 +113,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get noIqamaLeftToday => 'No more Iqama times today.';
+
+  @override
   String rowIqama(String time) {
     return 'Iqama $time';
   }

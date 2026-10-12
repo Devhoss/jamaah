@@ -2,25 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Where the app gets "now".
-///
-/// An interface rather than `DateTime.now()` at the call sites because the whole
-/// time-handling risk of the Today screen (midnight rollover, DST days, tomorrow's
-/// Fajr after Isha) is only testable if the clock can be handed in.
-abstract interface class AppClock {
-  /// The current instant, in UTC. Every reading in the app converts from this, so
-  /// a device set to the wrong zone changes the day only at the place's own
-  /// midnight rather than scrambling the times.
-  DateTime nowUtc();
-}
+import '../domain/app_clock.dart';
 
-/// The device's own clock — the only implementation production ever uses.
-class DeviceClock implements AppClock {
-  const DeviceClock();
-
-  @override
-  DateTime nowUtc() => DateTime.now().toUtc();
-}
+export '../domain/app_clock.dart';
 
 final appClockProvider = Provider<AppClock>((ref) => const DeviceClock());
 

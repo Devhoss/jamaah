@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../domain/app_clock.dart';
 import '../domain/mosque.dart';
 import '../domain/prayer.dart';
 import '../domain/time_model.dart';
@@ -23,9 +24,13 @@ class IqamaNotAllowedException implements Exception {
 /// Every Iqama time the user has not entered stays "Not configured": nothing here
 /// writes a default, and nothing derives an Iqama from an Adhan time.
 class MosqueRepository {
-  MosqueRepository(this._db);
+  /// [clock] decides which day a schedule is in force for and what stamp a write
+  /// carries. It is injected rather than read from the wall here, because a stored
+  /// schedule belongs to a date and that date has to be knowable from a test.
+  MosqueRepository(this._db, {AppClock? clock}) : _clock = clock ?? const DeviceClock();
 
   final AppDatabase _db;
+  final AppClock _clock;
 
   /// Saved mosques, newest first.
   Future<List<Mosque>> saved() async {
@@ -100,9 +105,12 @@ class MosqueRepository {
   }) async {
     if (!prayer.canHaveIqama) throw IqamaNotAllowedException(prayer);
 
+    final now = _clock.nowUtc();
     final mosque = await requireById(mosqueId);
-    final day = LocalDay.fromDateTime(DateTime.now());
-    final schedule = mosque.scheduleFor(day) ?? Schedule.empty(mosqueId: mosqueId);
+    // Resolved on the device's own calendar day, since that is the day the user is
+    // editing a mosque's schedule for; the place's prayer day is the reading side.
+    final schedule = mosque.scheduleFor(LocalDay.fromDateTime(now.toLocal())) ??
+        Schedule.empty(mosqueId: mosqueId, updatedAt: now);
 
     final updated = schedule.withPrayer(
       PrayerIqama(
@@ -113,6 +121,7 @@ class MosqueRepository {
             reminderEnabled,
         reminderMinutesBefore: reminderMinutesBefore,
       ),
+      updatedAt: now,
     );
 
     await _db.transaction(() async {

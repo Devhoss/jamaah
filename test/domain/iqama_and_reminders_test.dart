@@ -260,6 +260,29 @@ void main() {
         const LocalTime(18 * 60),
       );
     });
+
+    test('nothing is in force while every schedule is still in the future', () {
+      // The case the check above cannot cover: there is no current schedule to
+      // fall back to. Showing the future one would put times on screen that the
+      // user has not entered for this day, so the honest answer is that there is
+      // no schedule yet.
+      final next = Schedule.empty(mosqueId: 'm1')
+          .withPrayer(iqama(Prayer.maghrib, at: 17 * 60 + 30))
+          .copyWith(effectiveFrom: const LocalDay(2027, 1, 1));
+
+      final mosque = mosqueWith([next]);
+
+      expect(
+        mosque.scheduleFor(const LocalDay(2026, 12, 31)),
+        isNull,
+        reason: 'a schedule that starts tomorrow is not today\'s, even alone',
+      );
+      expect(
+        mosque.scheduleFor(const LocalDay(2027, 1, 1)),
+        isNotNull,
+        reason: 'it does answer on the day it starts',
+      );
+    });
   });
 
   group('adhan alert settings', () {

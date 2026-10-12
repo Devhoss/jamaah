@@ -96,12 +96,19 @@ void main() {
     ),
   );
 
+  /// Riverpod keeps its container when a `ProviderScope` is merely updated, so an
+  /// app opened a second time in one test would still read the clock from the first
+  /// opening. Each opening gets its own key: that is the app starting again, at the
+  /// instant the test has moved the fake clock to.
+  int openings = 0;
+
   /// The app on a device that reads 24-hour unless the test says otherwise.
   Widget harness({
     VoidCallback? onOpenMosques,
     bool dark = false,
     bool use24Hour = true,
   }) => ProviderScope(
+    key: ValueKey('app-${++openings}'),
     overrides: baseOverrides(),
     child: appShell(
       onOpenMosques: onOpenMosques,
@@ -251,6 +258,38 @@ void main() {
       '${hour % 12 == 0 ? 12 : hour % 12}:'
       '${minute.toString().padLeft(2, '0')}'
       '\u202F${hour < 12 ? 'AM' : 'PM'}';
+
+  /// Minutes from midnight, read off a 24-hour row.
+  int minutesOf(String hhmm) =>
+      int.parse(hhmm.substring(0, 2)) * 60 + int.parse(hhmm.substring(3));
+
+  /// Minutes from midnight, written the way a 24-hour device shows it.
+  String clockOf(int minutes) =>
+      '${(minutes ~/ 60).toString().padLeft(2, '0')}:'
+      '${(minutes % 60).toString().padLeft(2, '0')}';
+
+  /// The whole day with the active mosque's Iqama times as given, read at [instant].
+  Future<void> openWithMosque(
+    WidgetTester tester,
+    Map<Prayer, LocalTime> iqamas, {
+    required DateTime instant,
+    bool use24Hour = true,
+  }) async {
+    clock.instant = instant;
+    await settings.setLocation(cairo.toStored());
+    final mosque = await mosques.add(
+      name: 'Masjid al-Nour',
+      address: '12 Garden Road',
+      source: MosqueSource.manual,
+    );
+    for (final entry in iqamas.entries) {
+      await mosques.setIqama(mosque.id, entry.key, entry.value);
+    }
+    await settings.setActiveMosqueId(mosque.id);
+
+    await tester.pumpWidget(harness(use24Hour: use24Hour));
+    await tester.pumpAndSettle();
+  }
 
   /// The whole day with one Dhuhr Iqama entered, at 10:00 in Cairo.
   Future<void> openWithIqama(
@@ -611,6 +650,11 @@ void main() {
     expect(find.text(t.mosqueHasNoIqama('Masjid al-Nour')), findsOneWidget);
     expect(find.text(t.addMosqueTitle), findsNothing);
     expect(find.text(t.nextIqamaLabel('Masjid al-Nour')), findsNothing);
+    expect(
+      find.text(t.noIqamaLeftToday),
+      findsNothing,
+      reason: 'a schedule that has never been entered is not a day that has run out',
+    );
 
     await tester.tap(find.text(t.mosqueHasNoIqama('Masjid al-Nour')));
     await tester.pump();
@@ -652,6 +696,112 @@ void main() {
         reason: '${prayer.name} has no Iqama entered, so it shows nothing',
       );
     }
+  });
+
+  testApp('the next Iqama is the earliest one left, not the Adhan\'s own', (
+    tester,
+  ) async {
+    // Read where the evening actually falls here, then sit two minutes after Maghrib.
+    await openAt(tester, DateTime.utc(2026, 10, 12, 14, 0));
+    final maghrib = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.maghrib)));
+    final isha = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.isha)));
+    final offset = zoneOffsetsFor(cairo.ianaZone)
+        .offsetMinutesAt(DateTime.utc(2026, 10, 12, 14, 0));
+
+    await openWithMosque(
+      tester,
+      {
+        Prayer.maghrib: LocalTime(maghrib + 10),
+        Prayer.isha: LocalTime(isha + 25),
+      },
+      instant: DateTime.utc(
+        2026,
+        10,
+        12,
+      ).add(Duration(minutes: maghrib + 2 - offset)),
+    );
+
+    expect(
+      rowMarkedNext(tester),
+      prayerName(t, Prayer.isha),
+      reason: 'the Adhan in front of the user is still Isha',
+    );
+    expect(
+      find.text(
+        t.prayerAtTime(prayerName(t, Prayer.maghrib), clockOf(maghrib + 10)),
+      ),
+      findsOneWidget,
+      reason: "the jama'ah that has not happened yet is the next Iqama, even "
+          "though its own Adhan is behind the clock",
+    );
+    expect(
+      find.text(t.prayerAtTime(prayerName(t, Prayer.isha), clockOf(isha + 25))),
+      findsNothing,
+    );
+  });
+
+  testApp('the day\'s last Iqama behind it says there are no more today', (
+    tester,
+  ) async {
+    await openAt(tester, DateTime.utc(2026, 10, 12, 14, 0));
+    final isha = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.isha)));
+    final offset = zoneOffsetsFor(cairo.ianaZone)
+        .offsetMinutesAt(DateTime.utc(2026, 10, 12, 14, 0));
+
+    await openWithMosque(
+      tester,
+      {Prayer.isha: LocalTime(isha + 5)},
+      instant: DateTime.utc(
+        2026,
+        10,
+        12,
+      ).add(Duration(minutes: isha + 30 - offset)),
+    );
+
+    expect(find.text(t.noIqamaLeftToday), findsOneWidget);
+    expect(
+      find.text('Masjid al-Nour'),
+      findsOneWidget,
+      reason: 'the sentence is about a named mosque, not the app in general',
+    );
+    expect(find.text(t.nextIqamaLabel('Masjid al-Nour')), findsNothing);
+    expect(
+      textMatching(RegExp('^${t.rowIqama('')}$clockReading')),
+      findsOneWidget,
+      reason: 'the row keeps the time the user entered',
+    );
+  });
+
+  testApp('after the day\'s Iqamas, tomorrow\'s Fajr is labelled tomorrow', (
+    tester,
+  ) async {
+    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+    final fajr = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.fajr)));
+    final offset = zoneOffsetsFor(cairo.ianaZone)
+        .offsetMinutesAt(DateTime.utc(2026, 10, 12, 7, 0));
+
+    // Mid-morning with only a Fajr time entered: today\'s is gone, so the hand-over
+    // to tomorrow is the one honest thing the card can say.
+    await openWithMosque(
+      tester,
+      {Prayer.fajr: LocalTime(fajr + 12)},
+      instant: DateTime.utc(
+        2026,
+        10,
+        12,
+      ).add(Duration(minutes: fajr + 40 - offset)),
+    );
+
+    expect(
+      rowMarkedNext(tester),
+      prayerName(t, Prayer.dhuhr),
+      reason: 'the Adhan ahead is Dhuhr, not tomorrow\'s Fajr',
+    );
+    expect(find.text(t.tomorrow), findsOneWidget);
+    expect(
+      find.text(t.prayerAtTime(prayerName(t, Prayer.fajr), clockOf(fajr + 12))),
+      findsOneWidget,
+    );
   });
 
   testApp('a 24-hour device shows four digits and no marker', (tester) async {

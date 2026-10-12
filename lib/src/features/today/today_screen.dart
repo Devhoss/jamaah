@@ -165,11 +165,6 @@ class _HeroCard extends StatelessWidget {
     // answers; the card then has nothing honest to count down to.
     if (next == null) return const SizedBox(height: AppSpace.lg);
 
-    final label = TextStyle(
-      fontSize: 13,
-      color: AppColors.onPrimary.withValues(alpha: 0.78),
-    );
-
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: AppSpace.lg),
@@ -187,8 +182,8 @@ class _HeroCard extends StatelessWidget {
             // a Wrap keeps both readable whatever the text size.
             spacing: AppSpace.sm,
             children: [
-              Text(l10n.nextPrayerAdhan, style: label),
-              if (next.isTomorrow) Text(l10n.tomorrow, style: label),
+              Text(l10n.nextPrayerAdhan, style: _heroLabel),
+              if (next.isTomorrow) Text(l10n.tomorrow, style: _heroLabel),
             ],
           ),
           Text(
@@ -201,48 +196,63 @@ class _HeroCard extends StatelessWidget {
               color: AppColors.onPrimary,
             ),
           ),
-          Text(_countdown(l10n, next.minutesUntil), style: label),
-          if (iqama != null) _iqamaBlock(l10n, iqama!),
+          Text(_countdown(l10n, next.minutesUntil), style: _heroLabel),
+          if (iqama != null) _iqamaBlock(context, iqama!),
         ],
       ),
     );
   }
 
-  Widget _iqamaBlock(AppLocalizations l10n, NextIqama iqama) {
-    final onPrimary = AppColors.onPrimary;
-    final label = TextStyle(fontSize: 13, color: onPrimary.withValues(alpha: 0.78));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  /// The mosque's own Iqama line, under the divider that keeps it off the Adhan.
+  ///
+  /// The three readings the domain answers with are said differently here on
+  /// purpose. Nothing entered is the prompt below the card's business; a day whose
+  /// entered times have all run out is a sentence the user needs to see.
+  Widget _iqamaBlock(BuildContext context, NextIqama result) => switch (result) {
+    IqamaNotConfigured() => const SizedBox.shrink(),
+    IqamaNoneLeftToday(:final mosqueName) => _IqamaDivider(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            top: AppSpace.lg,
-            bottom: AppSpace.sm,
-          ),
-          child: Divider(
-            height: 1,
-            thickness: 1,
-            color: onPrimary.withValues(alpha: 0.28),
+        Text(mosqueName, style: _heroLabel),
+        const SizedBox(height: 2),
+        Text(
+          AppLocalizations.of(context).noIqamaLeftToday,
+          style: TextStyle(
+            fontSize: AppType.bodySize,
+            color: AppColors.onPrimary,
           ),
         ),
-        Text(l10n.nextIqamaLabel(iqama.mosqueName), style: label),
+      ],
+    ),
+    final IqamaUpcoming next => _upcomingIqama(context, next),
+  };
+
+  Widget _upcomingIqama(BuildContext context, IqamaUpcoming iqama) {
+    final l10n = AppLocalizations.of(context);
+
+    return _IqamaDivider(
+      children: [
+        Text(l10n.nextIqamaLabel(iqama.mosqueName), style: _heroLabel),
         const SizedBox(height: 2),
         Wrap(
           spacing: AppSpace.sm,
           children: [
             Text(
-              l10n.prayerAtTime(prayerName(l10n, iqama.prayer), clock.time(iqama.at)),
+              l10n.prayerAtTime(
+                prayerName(l10n, iqama.prayer),
+                clock.time(iqama.at),
+              ),
               style: TextStyle(
                 fontSize: AppType.bodySize + 1,
                 fontWeight: FontWeight.w600,
-                color: onPrimary,
+                color: AppColors.onPrimary,
               ),
             ),
             Text(
               '· ${_countdown(l10n, iqama.minutesUntil)}',
-              style: TextStyle(fontSize: AppType.bodySize, color: onPrimary),
+              style: TextStyle(fontSize: AppType.bodySize, color: AppColors.onPrimary),
             ),
+            // The day the card counted through, said the same way as the Adhan's.
+            if (iqama.isTomorrow) Text(l10n.tomorrow, style: _heroLabel),
           ],
         ),
         const SizedBox(height: 2),
@@ -250,14 +260,43 @@ class _HeroCard extends StatelessWidget {
           iqama.reminderEnabled
               ? l10n.reminderBeforeIqama(iqama.reminderMinutesBefore)
               : l10n.reminderOffForPrayer,
-          style: label,
+          style: _heroLabel,
         ),
         const SizedBox(height: 2),
-        Text(l10n.remindersAreSettingsNote, style: label),
+        Text(l10n.remindersAreSettingsNote, style: _heroLabel),
       ],
     );
   }
 }
+
+/// The line that separates the mosque's time from the Adhan above it.
+class _IqamaDivider extends StatelessWidget {
+  const _IqamaDivider({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(top: AppSpace.lg, bottom: AppSpace.sm),
+        child: Divider(
+          height: 1,
+          thickness: 1,
+          color: AppColors.onPrimary.withValues(alpha: 0.28),
+        ),
+      ),
+      ...children,
+    ],
+  );
+}
+
+/// The softened small line the hero card uses for everything it does not shout.
+final TextStyle _heroLabel = TextStyle(
+  fontSize: 13,
+  color: AppColors.onPrimary.withValues(alpha: 0.78),
+);
 
 String _countdown(AppLocalizations l10n, int minutes) =>
     minutes >= 60

@@ -124,6 +124,12 @@ The first screen the user sees, and the only one that reads the stored place.
 - The hero card shows the next prayer, its Adhan time and a countdown. After Isha the
   next prayer is **tomorrow's Fajr**; between midnight and Fajr the prayer still in
   effect is **yesterday's Isha**.
+- Under it, the mosque's **next Iqama is the earliest one still ahead**, whatever
+  prayer it belongs to — a Maghrib jama'ah ten minutes away is the next Iqama even
+  though the Adhan in front of the user is Isha's. When the day's entered times have
+  all run out the card shows tomorrow's Fajr Iqama labelled "Tomorrow", or "No more
+  Iqama times today." if that is not configured either. A mosque with nothing entered
+  is a different answer from a day that has finished, and is never filled in.
 - Six rows, sunrise muted, the current prayer highlighted, the next one distinct. An
   Iqama line appears on a row **only when that mosque has one configured** — an
   unconfigured prayer says so and never shows or implies a time (AGENTS.md).
@@ -140,7 +146,7 @@ The first screen the user sees, and the only one that reads the stored place.
 ## Tests
 
 ```bash
-flutter test       # 234 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 243 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

@@ -11,6 +11,7 @@ import 'package:awqaity/src/domain/mosque.dart';
 import 'package:awqaity/src/domain/prayer.dart';
 import 'package:awqaity/src/domain/prayer_times_parameters.dart';
 import 'package:awqaity/src/domain/time_model.dart';
+import 'package:awqaity/src/domain/today.dart';
 import 'package:awqaity/src/domain/zone_offsets.dart';
 
 /// The wiring between the domain's injected clock and the stored settings: which
@@ -28,8 +29,9 @@ void main() {
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
     settings = SettingsRepository(db);
-    mosques = MosqueRepository(db);
     clock = _FakeClock(DateTime.utc(2026, 10, 12, 9, 0));
+    // The same clock the screen reads, which is how the provider wires it.
+    mosques = MosqueRepository(db, clock: clock);
     addTearDown(db.close);
   });
 
@@ -124,7 +126,7 @@ void main() {
     expect(container.read(todayProvider)!.day.day, isNot(first));
   });
 
-  test('the card shows the active mosque\'s Iqama for the prayer ahead', () async {
+  test('the card shows the active mosque\'s earliest remaining Iqama', () async {
     await saveCairo();
     final probe = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
     await settled(probe);
@@ -146,9 +148,10 @@ void main() {
     await settled(container);
 
     final iqama = container.read(nextIqamaProvider);
-    expect(iqama?.prayer, next.prayer);
-    expect(iqama?.at, LocalTime(next.at.minutes + 10));
-    expect(iqama?.mosqueName, 'Masjid al-Nour');
+    expect(iqama, isA<IqamaUpcoming>());
+    expect((iqama as IqamaUpcoming).prayer, next.prayer);
+    expect(iqama.at, LocalTime(next.at.minutes + 10));
+    expect(iqama.mosqueName, 'Masjid al-Nour');
   });
 
   test('switching the active mosque switches the Iqama', () async {
@@ -178,13 +181,14 @@ void main() {
     await settings.setActiveMosqueId(first.id);
     final withFirst = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
     await settled(withFirst);
-    expect(withFirst.read(nextIqamaProvider)?.at, firstIqama);
+    expect((withFirst.read(nextIqamaProvider) as IqamaUpcoming).at, firstIqama);
 
     await settings.setActiveMosqueId(second.id);
     final withSecond = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
     await settled(withSecond);
-    expect(withSecond.read(nextIqamaProvider)?.mosqueName, 'Second');
-    expect(withSecond.read(nextIqamaProvider)?.at, secondIqama);
+    final switched = withSecond.read(nextIqamaProvider) as IqamaUpcoming;
+    expect(switched.mosqueName, 'Second');
+    expect(switched.at, secondIqama);
   });
 
   test('a mosque with no Iqama times leaves the card alone', () async {
@@ -199,7 +203,7 @@ void main() {
     final container = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
     await settled(container);
 
-    expect(container.read(nextIqamaProvider), isNull);
+    expect(container.read(nextIqamaProvider), isA<IqamaNotConfigured>());
     // The rows show the same thing: nothing was invented for them.
     expect(container.read(activeMosqueScheduleProvider)?.configuredCount, 0);
     expect(container.read(activeMosqueProvider)?.name, 'New one');

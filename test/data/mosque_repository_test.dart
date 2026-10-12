@@ -7,6 +7,7 @@ import 'package:awqaity/src/data/settings_repository.dart';
 import 'package:awqaity/src/domain/mosque.dart';
 import 'package:awqaity/src/domain/prayer.dart';
 import 'package:awqaity/src/domain/time_model.dart';
+import '../helpers/fake_clock.dart';
 
 void main() {
   late AppDatabase db;
@@ -204,6 +205,77 @@ void main() {
             .iqamaFor(Prayer.fajr)
             .iqama,
         const LocalTime(360),
+      );
+    });
+  });
+
+  group('the clock a write is stamped with', () {
+    /// The repository on a clock the test owns, so neither the day it resolves nor
+    /// the stamp it writes depends on when the suite happened to run.
+    MosqueRepository onClock(DateTime instant) =>
+        MosqueRepository(db, clock: FixedClock(instant));
+
+    test('the schedule stamp is the injected clock', () async {
+      final instant = DateTime.utc(2026, 10, 12, 9, 30);
+      final added = await onClock(instant).add(
+        name: 'Masjid al-Nasr',
+        address: '1 Example Road',
+        source: MosqueSource.manual,
+      );
+      final updated = await onClock(
+        instant,
+      ).setIqama(added.id, Prayer.fajr, LocalTime.of(5, 40));
+
+      expect(
+        updated.updatedAt,
+        instant,
+        reason: 'AGENTS.md: "Set by you · last updated <date>" must be readable '
+            'and reproducible, which a wall-clock read of the test machine is not',
+      );
+
+      final stored = await onClock(instant).byId(added.id);
+      expect(
+        stored!.schedules.single.updatedAt.millisecondsSinceEpoch,
+        instant.millisecondsSinceEpoch,
+        reason: 'the stamp survives the round trip through storage',
+      );
+    });
+
+    test('the write lands on the schedule in force on the clock\'s day', () async {
+      final seeded = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '1 Example Road',
+        source: MosqueSource.manual,
+      );
+      final ramadan = Schedule.empty(
+        mosqueId: seeded.id,
+        effectiveFrom: const LocalDay(2027, 1, 1),
+      );
+      await mosques.save(
+        seeded.copyWith(schedules: [seeded.schedules.single, ramadan]),
+      );
+
+      // Editing on a June 2027 day: the dated schedule is the one in force then, so
+      // that is the one the entry belongs to — not whatever the device's own date
+      // happened to be when the suite ran.
+      final future = onClock(DateTime.utc(2027, 6, 1, 12, 0));
+      await future.setIqama(seeded.id, Prayer.fajr, LocalTime.of(5, 5));
+
+      final stored = await future.byId(seeded.id);
+      expect(
+        stored!
+            .scheduleFor(const LocalDay(2027, 6, 1))!
+            .iqamaFor(Prayer.fajr)
+            .iqama,
+        const LocalTime(5 * 60 + 5),
+      );
+      expect(
+        stored
+            .scheduleFor(const LocalDay(2026, 10, 12))!
+            .iqamaFor(Prayer.fajr)
+            .isConfigured,
+        isFalse,
+        reason: 'the schedule before Ramadan was left alone',
       );
     });
   });

@@ -280,6 +280,12 @@ abstract class AppLocalizations {
   /// **'Next Iqama · {mosque}'**
   String nextIqamaLabel(String mosque);
 
+  /// The mosque has Iqama times, every one of them is behind the clock, and no Fajr time is entered for tomorrow. Not the same as a schedule that has never been configured, which gets its own prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'No more Iqama times today.'**
+  String get noIqamaLeftToday;
+
   /// Shown on a prayer row only when the active mosque has that Iqama time entered.
   ///
   /// In en, this message translates to:

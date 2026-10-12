@@ -35,5 +35,9 @@ has no listener, so a test that waits for a setting to change must actually watc
   `AppLocalizationsEn()` instead of typing literals — a copy change then fails loudly
   at the copy, not in twelve tests.
 - Dates and clocks are injected. A test that depends on when it ran is a bug.
+- A `ProviderScope` keeps its container when the widget is merely updated, so a test
+  that opens the app a second time reads the clock from the first opening. The Today
+  harness gives every opening its own key; copy that whenever a test re-opens the app
+  after moving time or writing settings.
 - Anything the user can reach by tapping a permission denial needs the failure path
   tested with a fake behind the interface, never with a real plugin call.

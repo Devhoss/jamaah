@@ -343,109 +343,232 @@ void main() {
       );
     }
 
-    test('the next prayer shows its Iqama and counts down to it', () {
-      final dhuhrIqama = cairoToday.timeOf(Prayer.dhuhr)! + 12;
-      final reading = atCairo(cairoToday.timeOf(Prayer.fajr)! + 60);
-      final next = readNextIqama(
-        mosque: mosque({Prayer.dhuhr: LocalTime(dhuhrIqama)}),
-        today: reading,
+    /// The card's answer at [minutesOfDay] on Cairo's 12 October, for [times].
+    NextIqama at(
+      int minutesOfDay,
+      Map<Prayer, LocalTime> times, {
+      Set<Prayer> reminders = const {},
+      int? before,
+      LocalDay? effectiveFrom,
+    }) => readNextIqama(
+      mosque: mosque(
+        times,
+        reminders: reminders,
+        before: before,
+        effectiveFrom: effectiveFrom,
+      ),
+      today: atCairo(minutesOfDay),
+    );
+
+    /// The one answer that carries a time, or the test fails on what it got.
+    IqamaUpcoming upcoming(NextIqama result) => result is IqamaUpcoming
+        ? result
+        : (fail('expected an upcoming Iqama, got $result'));
+
+    test('before the first Iqama of the day, that one is the next', () {
+      final fajr = cairoToday.timeOf(Prayer.fajr)!;
+      final next = upcoming(
+        at(fajr + 5, {
+          Prayer.fajr: LocalTime(fajr + 12),
+          Prayer.dhuhr: LocalTime(cairoToday.timeOf(Prayer.dhuhr)!),
+        }),
       );
 
-      expect(next?.prayer, Prayer.dhuhr);
-      expect(next?.at, LocalTime(dhuhrIqama));
-      expect(next?.on, const LocalDay(2026, 10, 12));
-      expect(next?.minutesUntil, dhuhrIqama - (cairoToday.timeOf(Prayer.fajr)! + 60));
+      expect(next.prayer, Prayer.fajr);
+      expect(next.at, LocalTime(fajr + 12));
+      expect(next.on, const LocalDay(2026, 10, 12));
+      expect(next.isTomorrow, isFalse);
+      expect(next.minutesUntil, 12 - 5);
+      expect(next.mosqueName, 'Masjid al-Nour');
     });
 
-    test('an unconfigured Iqama shows nothing, never a guessed time', () {
-      final reading = atCairo(cairoToday.timeOf(Prayer.fajr)! + 60);
-      final next = readNextIqama(mosque: mosque({}), today: reading);
+    test('between two Iqamas, the earliest one still ahead wins', () {
+      final fajr = cairoToday.timeOf(Prayer.fajr)!;
+      final dhuhr = cairoToday.timeOf(Prayer.dhuhr)!;
+      final asr = cairoToday.timeOf(Prayer.asr)!;
 
-      expect(next, isNull);
-    });
-
-    test('a prayer with no Iqama of its own does not borrow the next one', () {
-      // Only Isha is configured; at mid-morning the prayer in front of the user is
-      // Dhuhr, whose Iqama they have not entered.
-      final reading = atCairo(cairoToday.timeOf(Prayer.fajr)! + 60);
-      final next = readNextIqama(
-        mosque: mosque({Prayer.isha: const LocalTime(20 * 60)}),
-        today: reading,
+      // An hour after Fajr's Iqama, with three entered: the answer is the sooner
+      // of the two that remain, not the prayer the Adhan countdown is on.
+      final next = upcoming(
+        at(fajr + 60, {
+          Prayer.fajr: LocalTime(fajr + 12),
+          Prayer.dhuhr: LocalTime(dhuhr + 20),
+          Prayer.asr: LocalTime(asr + 5),
+        }),
       );
 
-      expect(next, isNull);
+      expect(next.prayer, Prayer.dhuhr);
+      expect(next.at, LocalTime(dhuhr + 20));
+      expect(next.minutesUntil, dhuhr + 20 - (fajr + 60));
+    });
+
+    test('a prayer whose Adhan has passed can still have its Iqama ahead', () {
+      final maghrib = cairoToday.timeOf(Prayer.maghrib)!;
+      final isha = cairoToday.timeOf(Prayer.isha)!;
+      final now = maghrib + 2;
+
+      expect(
+        atCairo(now).next?.prayer,
+        Prayer.isha,
+        reason: 'the Adhan in front of the user is Isha',
+      );
+
+      // Maghrib's jama'ah is still ten minutes away, so it is the next Iqama even
+      // though its own Adhan is behind the clock (the prototype counts it this way).
+      final next = upcoming(
+        at(now, {
+          Prayer.maghrib: LocalTime(now + 10),
+          Prayer.isha: LocalTime(isha + 25),
+        }),
+      );
+
+      expect(next.prayer, Prayer.maghrib);
+      expect(next.minutesUntil, 10);
+    });
+
+    test('an entered Iqama belongs to its own prayer, never to another', () {
+      // Only Isha is entered; mid-morning therefore has exactly one Iqama left.
+      final next = upcoming(
+        at(cairoToday.timeOf(Prayer.fajr)! + 60, {
+          Prayer.isha: const LocalTime(20 * 60),
+        }),
+      );
+
+      expect(next.prayer, Prayer.isha);
+      expect(next.at, const LocalTime(20 * 60));
+      expect(next.isTomorrow, isFalse);
     });
 
     test('reminder settings travel with it, as settings only', () {
-      final reading = atCairo(cairoToday.timeOf(Prayer.fajr)! + 60);
-      final next = readNextIqama(
-        mosque: mosque(
+      final next = upcoming(
+        at(
+          cairoToday.timeOf(Prayer.fajr)! + 60,
           {Prayer.dhuhr: LocalTime(cairoToday.timeOf(Prayer.dhuhr)! + 12)},
           reminders: {Prayer.dhuhr},
           before: 20,
         ),
-        today: reading,
       );
 
-      expect(next?.reminderEnabled, isTrue);
-      expect(next?.reminderMinutesBefore, 20);
+      expect(next.reminderEnabled, isTrue);
+      expect(next.reminderMinutesBefore, 20);
     });
 
-    test('after Isha the card uses tomorrow schedule and crosses midnight', () {
+    test('after the last Iqama today, tomorrow\'s Fajr is labelled tomorrow', () {
       final isha = cairoToday.timeOf(Prayer.isha)!;
-      final reading = atCairo(isha + 30);
-      final tomorrow = cairo.forDay(const LocalDay(2026, 10, 13));
-      final tomorrowFajr = tomorrow.timeOf(Prayer.fajr)!;
-
-      final next = readNextIqama(
-        mosque: mosque({Prayer.fajr: LocalTime(tomorrowFajr + 15)}),
-        today: reading,
+      final next = upcoming(
+        at(isha + 30, {
+          Prayer.isha: LocalTime(isha + 12),
+          Prayer.fajr: const LocalTime(5 * 60 + 40),
+        }),
       );
 
-      expect(next?.prayer, Prayer.fajr);
-      expect(next?.on, const LocalDay(2026, 10, 13));
-      expect(next?.minutesUntil, 1440 - (isha + 30) + tomorrowFajr + 15);
+      expect(next.prayer, Prayer.fajr);
+      expect(next.on, const LocalDay(2026, 10, 13));
+      expect(next.isTomorrow, isTrue);
+      expect(next.at, const LocalTime(5 * 60 + 40));
+      expect(next.minutesUntil, 1440 - (isha + 30) + 5 * 60 + 40);
     });
 
-    test('a schedule that starts tomorrow is the one used for tomorrow', () {
-      final reading = atCairo(cairoToday.timeOf(Prayer.isha)! + 30);
-      final next = readNextIqama(
-        mosque: mosque(
-          {Prayer.fajr: const LocalTime(5 * 60)},
-          effectiveFrom: const LocalDay(2026, 10, 13),
-        ),
-        today: reading,
+    test('after the last Iqama today with no Fajr entered, none are left', () {
+      final isha = cairoToday.timeOf(Prayer.isha)!;
+      expect(
+        at(isha + 30, {
+          Prayer.isha: LocalTime(isha + 12),
+          Prayer.maghrib: LocalTime(cairoToday.timeOf(Prayer.maghrib)! + 8),
+        }),
+        isA<IqamaNoneLeftToday>(),
       );
-
-      expect(next?.at, const LocalTime(5 * 60));
     });
 
-    test('an Iqama that has already passed is not the next one', () {
+    test('an Iqama already reached is not offered as the next one', () {
       // The user entered a Dhuhr Iqama earlier than the calculated Adhan, and now
       // sits between them: a countdown to it would read backwards.
       final dhuhr = cairoToday.timeOf(Prayer.dhuhr)!;
-      final reading = atCairo(dhuhr + 5);
-      final next = readNextIqama(
-        mosque: mosque({Prayer.dhuhr: LocalTime(dhuhr - 10)}),
-        today: reading,
+      expect(
+        at(dhuhr + 5, {Prayer.dhuhr: LocalTime(dhuhr - 10)}),
+        isA<IqamaNoneLeftToday>(),
+      );
+    });
+
+    test('a mosque with nothing entered is not the same as a finished day', () {
+      final reading = atCairo(cairoToday.timeOf(Prayer.fajr)! + 60);
+
+      expect(at(cairoToday.timeOf(Prayer.fajr)! + 60, {}), isA<IqamaNotConfigured>());
+      expect(
+        readNextIqama(mosque: null, today: reading),
+        isA<IqamaNotConfigured>(),
+        reason: 'no active mosque is the same honest answer as no entered times',
+      );
+    });
+
+    test('a schedule that starts tomorrow is the one used for tomorrow', () {
+      final next = upcoming(
+        at(
+          cairoToday.timeOf(Prayer.isha)! + 30,
+          {Prayer.fajr: const LocalTime(5 * 60)},
+          effectiveFrom: const LocalDay(2026, 10, 13),
+        ),
       );
 
-      expect(next, isNull);
+      expect(next.at, const LocalTime(5 * 60));
+      expect(next.isTomorrow, isTrue);
     });
 
-    test('no mosque means no Iqama on the card', () {
-      final reading = atCairo(cairoToday.timeOf(Prayer.fajr)! + 60);
-      expect(readNextIqama(mosque: null, today: reading), isNull);
-    });
-
-    test('a day with no times has no Iqama countdown either', () {
+    test('the Iqama reading comes from the mosque, not from the day\'s times', () {
+      // A polar day with no computable Adhan times: the mosque's own entered times
+      // are still the user's data, and the screen has its own notice for the day.
       final reading = readToday(
         calculator: _NoTimesCalculator(),
         moment: momentAt('Arctic/Longyearbyen', DateTime.utc(2026, 12, 21, 12)),
       );
+      final next = upcoming(
+        readNextIqama(
+          mosque: mosque({Prayer.isha: const LocalTime(20 * 60)}),
+          today: reading,
+        ),
+      );
+
+      expect(next.prayer, Prayer.isha);
       expect(
-        readNextIqama(mosque: mosque({Prayer.fajr: const LocalTime(5 * 60)}), today: reading),
-        isNull,
+        next.minutesUntil,
+        20 * 60 - reading.moment.minutesOfDay,
+        reason: 'counted on the place\'s own clock, which is 15:00 here',
+      );
+    });
+
+    test('a day that changes its clocks costs the hour it really costs', () {
+      // Europe/London on Saturday 24 October 2026, 22:30 on its own wall clock:
+      // every Iqama of the day is behind it, so the card hands over to tomorrow's
+      // Fajr — and tomorrow is the Sunday the clocks go back an hour.
+      final london = zoneOffsetsFor('Europe/London');
+      final reading = TodayReading(
+        day: const PrayerDay(day: LocalDay(2026, 10, 24), times: {}),
+        moment: LocalMoment.inZone(
+          zone: london,
+          utcInstant: london.utcInstantOf(
+            day: const LocalDay(2026, 10, 24),
+            time: const LocalTime(22 * 60 + 30),
+          ),
+        ),
+      );
+
+      final next = upcoming(
+        readNextIqama(
+          mosque: mosque({
+            Prayer.fajr: const LocalTime(5 * 60 + 40),
+            Prayer.isha: const LocalTime(20 * 60),
+          }),
+          today: reading,
+        ),
+      );
+
+      expect(next.prayer, Prayer.fajr);
+      expect(next.isTomorrow, isTrue);
+      expect(
+        next.minutesUntil,
+        8 * 60 + 10,
+        reason: '22:30 BST to 05:40 GMT is eight hours and ten minutes, though '
+            'the two wall clocks alone would say seven and ten',
       );
     });
   });

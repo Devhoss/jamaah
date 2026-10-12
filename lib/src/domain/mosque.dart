@@ -60,6 +60,11 @@ class Mosque {
 
   /// The schedule in force on [day]: the one with the latest effectiveFrom on or
   /// before [day]; otherwise the schedule with no effectiveFrom (AGENTS.md).
+  ///
+  /// A schedule dated later than [day] is never returned, not even when it is the
+  /// only one: a mosque whose next schedule has not started yet has no schedule for
+  /// that day, and showing the future one would put times on screen that the user
+  /// did not enter for it.
   Schedule? scheduleFor(LocalDay day) {
     Schedule? bestDated;
     Schedule? fallback;
@@ -74,7 +79,7 @@ class Mosque {
         }
       }
     }
-    return bestDated ?? fallback ?? schedules.firstOrNull;
+    return bestDated ?? fallback;
   }
 
   Mosque copyWith({
@@ -134,14 +139,21 @@ class Schedule {
   });
 
   /// A fresh schedule where all five prayers are unconfigured.
-  factory Schedule.empty({String? mosqueId, LocalDay? effectiveFrom}) => Schedule(
+  ///
+  /// A caller that has a clock of its own passes [updatedAt], so the stamp on a
+  /// stored schedule comes from the same injected time everything else reads.
+  factory Schedule.empty({
+    String? mosqueId,
+    LocalDay? effectiveFrom,
+    DateTime? updatedAt,
+  }) => Schedule(
     id: _uuid.v4(),
     mosqueId: mosqueId ?? '',
     effectiveFrom: effectiveFrom,
     prayers: {
       for (final p in Prayer.iqamaPrayers) p: PrayerIqama(prayer: p),
     },
-    updatedAt: DateTime.now(),
+    updatedAt: updatedAt ?? DateTime.now(),
   );
 
   final String id;
@@ -179,9 +191,9 @@ class Schedule {
   );
 
   /// Replaces one prayer's entry, stamping [updatedAt].
-  Schedule withPrayer(PrayerIqama updated) => copyWith(
+  Schedule withPrayer(PrayerIqama updated, {DateTime? updatedAt}) => copyWith(
     prayers: {...prayers, updated.prayer: updated},
-    updatedAt: DateTime.now(),
+    updatedAt: updatedAt,
   );
 
   @override
@@ -254,8 +266,4 @@ class PrayerIqama {
   @override
   int get hashCode =>
       Object.hash(prayer, iqama, reminderEnabled, reminderMinutesBefore);
-}
-
-extension _FirstOrNull<T> on List<T> {
-  T? get firstOrNull => isEmpty ? null : first;
 }

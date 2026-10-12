@@ -48,7 +48,12 @@ final currentPlaceProvider = Provider<Place?>((ref) {
 });
 
 final mosqueRepositoryProvider = Provider<MosqueRepository>(
-  (ref) => MosqueRepository(ref.watch(appDatabaseProvider)),
+  (ref) => MosqueRepository(
+    ref.watch(appDatabaseProvider),
+    // The same clock the screen reads, so the schedule a write lands on and the
+    // schedule the card reads are resolved from one time.
+    clock: ref.watch(appClockProvider),
+  ),
 );
 
 /// Every mosque the user saved, with its Iqama schedules.
@@ -119,8 +124,8 @@ final activeMosqueScheduleProvider = Provider<Schedule?>((ref) {
   return mosque.scheduleFor(day);
 });
 
-/// The active mosque's Iqama for the prayer being counted down to, or null when the
-/// user has not entered one — the card then shows the Adhan alone.
+/// What the card can say about the active mosque's Iqama times, or null until the
+/// app has a place to read a day from.
 final nextIqamaProvider = Provider<NextIqama?>((ref) {
   final today = ref.watch(todayProvider);
   if (today == null) return null;

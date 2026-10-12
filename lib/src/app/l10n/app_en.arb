@@ -76,6 +76,10 @@
       "mosque": { "type": "String" }
     }
   },
+  "noIqamaLeftToday": "No more Iqama times today.",
+  "@noIqamaLeftToday": {
+    "description": "The mosque has Iqama times, every one of them is behind the clock, and no Fajr time is entered for tomorrow. Not the same as a schedule that has never been configured, which gets its own prompt."
+  },
   "rowIqama": "Iqama {time}",
   "@rowIqama": {
     "description": "Shown on a prayer row only when the active mosque has that Iqama time entered.",
