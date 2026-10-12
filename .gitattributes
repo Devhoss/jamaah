@@ -1,0 +1,20 @@
+# Normalise line endings: LF in the repository, the platform default in the
+# working copy. Without this, Windows checkouts report text files as modified
+# when their stored LF content and the working copy disagree.
+* text=auto
+
+# Shell and Gradle wrapper scripts must stay LF — cmd.exe cannot run CRLF
+# shebang files and some tools reject a stray \r.
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Nothing below is text; keep bytes exactly as committed.
+*.png binary
+*.jpg binary
+*.ttf binary
+*.wav binary
+*.mp3 binary
+*.jar binary
+*.aar binary
+*.zip binary
+*.gz binary

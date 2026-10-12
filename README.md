@@ -43,6 +43,15 @@ flutter run --dart-define-from-file=.env
 
 `.env` is git-ignored. Keys never go in source. `DISCOVERY_PROVIDER` selects `google` (default) or `osm`.
 
+**Machine-specific Gradle workarounds are not committed.** If a build fails inside
+the NDK, it is usually because `flutter.ndkVersion` points at an SDK package that
+is only partially installed on that machine. Fix it locally by setting
+`ndkVersion = "<an installed NDK>"` in `android/app/build.gradle.kts` (check
+`<sdk>/ndk/` for what is there) — the app has no native code, so any recent NDK
+works. Do not commit that edit. Likewise, if Kotlin's incremental compilation
+fails to close its caches, put `kotlin.incremental=false` in
+`~/.gradle/gradle.properties`, never in `android/gradle.properties`.
+
 ## Branding
 
 `branding.yaml` is the single source of truth for the app name and application id.
