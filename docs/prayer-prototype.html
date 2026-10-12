@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prayer Companion — Prototype</title>
+<style>
+:root{--bg:#FAF7F0;--sf:#FFFDF8;--ink:#1B2A22;--mut:#6B7A70;--g:#1F4D3A;--on:#fff;--sage:#DCE6DA;--line:#E8E3D6;--warn:#B8741A;box-sizing:border-box}
+:root[data-theme=dark]{--bg:#0F1713;--sf:#17221B;--ink:#E8EFE9;--mut:#93A398;--g:#3F8F69;--sage:#223A2D;--line:#25332A}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;background:#d9d6cc;color:var(--ink);display:flex;align-items:center;justify-content:center}
+#app{position:relative;width:100%;height:100%;max-width:100%;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+@media(min-width:480px){#app{width:392px;height:min(820px,96vh);border-radius:36px;border:8px solid #1b1b1b;box-shadow:0 20px 60px #0004}}
+#scr{flex:1;overflow-y:auto;padding:8px 20px 24px}
+.top{display:flex;justify-content:space-between;align-items:center;margin:6px 0 14px}
+.wm{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.ib{background:none;border:0;color:var(--ink);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.ib:active{background:var(--sage)}
+h1{font-size:28px;font-weight:600;letter-spacing:-.02em}
+h2{font-size:13px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin:22px 0 8px}
+.sub{color:var(--mut);font-size:14px;margin-top:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--sf);border-radius:99px;padding:8px 13px;font-size:14px;cursor:pointer;color:var(--ink)}
+.hero{background:var(--g);color:#fff;border-radius:22px;padding:20px;margin-top:14px}
+.hero small{opacity:.75;font-size:13px}.hero .big{font-size:40px;font-weight:600;letter-spacing:-.03em;margin:2px 0}
+.hero .iq{margin-top:14px;padding-top:12px;border-top:1px solid #fff3;font-size:14px;line-height:1.4}
+.rows{background:var(--sf);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:56px;border-bottom:1px solid var(--line);cursor:default}
+.row:last-child{border:0}.row.cur{background:var(--sage)}.row.nx .nm{font-weight:700}
+.row .nm{flex:1;font-size:17px}.row .t{font-size:17px;font-variant-numeric:tabular-nums}
+.row .q{font-size:12px;color:var(--mut);text-align:right}
+.row.sun{color:var(--mut)}.dot{width:8px;height:8px;border-radius:50%;background:transparent}.nx .dot{background:var(--g)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border-radius:14px;border:1px solid var(--line);background:var(--sf);color:var(--ink);font-size:16px;font-weight:600;cursor:pointer;margin-top:10px}
+.btn.p{background:var(--g);color:var(--on);border-color:var(--g)}.btn:disabled{opacity:.4}
+.btn.sm{min-height:38px;width:auto;padding:0 14px;font-size:14px;margin:0}
+.btn.d{color:#B3392B}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:10px}
+.prompt{border:1px dashed var(--mut);border-radius:16px;padding:14px;margin-top:12px;font-size:14px;color:var(--mut);cursor:pointer;line-height:1.4}
+.tag{font-size:11px;padding:3px 8px;border-radius:99px;background:var(--sage);color:var(--ink);margin-left:6px;white-space:nowrap}
+.tag.w{background:#F3E3C8;color:#7a4b08}
+.mrow{display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer}.mrow:last-child{border:0}
+.mrow b{font-size:16px;display:block}.mrow span.s{font-size:13px;color:var(--mut)}
+#nav{display:flex;border-top:1px solid var(--line);background:var(--sf);padding-bottom:env(safe-area-inset-bottom,0px)}
+#nav button{flex:1;background:none;border:0;padding:10px 0 12px;color:var(--mut);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-height:56px}
+#nav button.on{color:var(--g);font-weight:700}:root[data-theme=dark] #nav button.on{color:#8FCBA6}
+.ov{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;z-index:5;padding-top:env(safe-area-inset-top,0px)}
+.ov .body{flex:1;overflow-y:auto;padding:0 20px 24px}
+.scrim{position:absolute;inset:0;background:#0007;z-index:9;display:flex;align-items:flex-end}
+.sheet{background:var(--bg);width:100%;border-radius:24px 24px 0 0;padding:18px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:90%;overflow-y:auto}
+.sheet h3{font-size:20px;margin-bottom:2px}
+input[type=text],input[type=time],input[type=number],select{width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--sf);color:var(--ink);padding:0 14px;font-size:17px;margin-top:8px}
+input[type=time]{font-size:28px;text-align:center;min-height:64px}
+.seg{display:flex;gap:8px;margin-top:8px}.seg button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--sf);color:var(--ink);font-size:15px;cursor:pointer}
+.seg button.on{background:var(--g);color:var(--on);border-color:var(--g)}
+.sw{width:50px;height:30px;border-radius:99px;background:var(--line);position:relative;border:0;flex:none;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--g)}.sw.on::after{left:23px}
+.sum{background:var(--sage);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:14px;line-height:1.4}
+.map{position:relative;height:300px;border-radius:18px;border:1px solid var(--line);background:repeating-linear-gradient(0deg,transparent 0 39px,var(--line) 39px 40px),repeating-linear-gradient(90deg,transparent 0 39px,var(--line) 39px 40px),var(--sf);overflow:hidden}
+.pin{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:var(--g);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;border:0;cursor:pointer}
+.you{position:absolute;width:14px;height:14px;border-radius:50%;background:#2F7AE5;border:3px solid #fff;transform:translate(-50%,-50%)}
+.plain{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:14px;cursor:pointer;margin-top:12px;padding:8px}
+.note{font-size:12px;color:var(--mut);margin-top:10px;line-height:1.4}
+</style></head><body>
+<div id="app"><div id="scr"></div><nav id="nav"></nav><div id="ov"></div><div id="sh"></div></div>
+<script>
+const NM={fajr:'Fajr',sunrise:'Sunrise',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'};
+const P=['fajr','dhuhr','asr','maghrib','isha'],ORD=['fajr','sunrise','dhuhr','asr','maghrib','isha'];
+const LOCS={'London':119,'New York':58,'Toronto':55,'Cairo':136,'Jakarta':295};
+const NEAR=[
+{id:'n1',name:'Masjid Al-Huda',addr:'12 Garden Rd (sample)',dist:'0.4 km',x:62,y:38},
+{id:'n2',name:'Al-Noor Community Centre',addr:'85 Park Lane (sample)',dist:'0.9 km',x:30,y:60},
+{id:'n3',name:'Masjid As-Salam',addr:'3 Station St (sample)',dist:'1.3 km',x:75,y:70},
+{id:'n4',name:'Islamic Centre of Eastside',addr:'240 Mill Ave (sample)',dist:'2.1 km',x:20,y:25},
+{id:'n5',name:'Masjid Ar-Rahma',addr:'7 Orchard Close (sample)',dist:'2.8 km',x:85,y:20},
+{id:'n6',name:'University Prayer Hall',addr:'Campus Way (sample)',dist:'3.5 km',x:48,y:84}];
+const R0=()=>({on:true,min:10});
+const S={tab:'today',view:null,nearby:null,sheet:null,loc:'London',method:'MWL',asr:'Standard',adj:{},notif:true,gps:true,theme:'light',hd:0,qs:'ready',
+mosques:[{id:'n2',name:'Al-Noor Community Centre',addr:'85 Park Lane (sample)',dist:'0.9 km',demo:true,
+iq:{fajr:345,dhuhr:780,asr:975,maghrib:1074,isha:1200},rem:{fajr:{on:true,min:15},dhuhr:{on:false,min:10},asr:R0(),maghrib:R0(),isha:{on:true,min:5}}}],active:'n2'};
+const IC={bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/>',pin:'<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',today:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',mosque:'<path d="M4 21V11l4-3 4 3v10M12 21V6l4-4 4 4v15M2 21h20"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-4 0 2-6z"/>',check:'<path d="M5 12l5 5 9-10"/>'};
+const ic=(n,s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f=m=>{m=((m%1440)+1440)%1440;const h=Math.floor(m/60),n=m%60;return(h%12||12)+':'+String(n).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const tm=s=>{const[a,b]=s.split(':');return +a*60+ +b};
+const hm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const now=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
+const dur=m=>m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+' min';
+const find=id=>S.mosques.find(m=>m.id==id)||NEAR.find(m=>m.id==id);
+const act=()=>S.mosques.find(m=>m.id==S.active);
+const saved=id=>S.mosques.some(m=>m.id==id);
+function times(){const t={fajr:312,sunrise:398,dhuhr:725,asr:928,maghrib:1069,isha:1152};
+const o={MWL:[0,0],ISNA:[8,-6],Egypt:[-6,-2],'Umm al-Qura':[-2,15]}[S.method];t.fajr+=o[0];t.isha+=o[1];if(S.asr=='Hanafi')t.asr+=50;
+for(const k in t)t[k]+=S.adj[k]||0;return t}
+function nextInfo(t){const n=now();for(const k of ORD)if(t[k]>n)return{k,in:t[k]-n};return{k:'fajr',in:t.fajr+1440-n}}
+function summ(m,p){const q=m.iq[p],r=m.rem[p];if(q==null)return NM[p]+' · Iqama not configured';
+return NM[p]+' · '+f(q)+' Iqama · '+(r.on?'Reminder at '+f(q-r.min):'Reminder off')}
+function nextIq(m){const n=now();let b=null;for(const p of P){const q=m.iq[p];if(q!=null&&q>n&&(!b||q<m.iq[b]))b=p}return b}
+
+function today(){const t=times(),nx=nextInfo(t),m=act(),d=new Date();
+const g=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});let h='';try{h=d.toLocaleDateString('en-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'})}catch(e){}
+const ni=ORD.indexOf(nx.k),cur=ni==0?'isha':ORD[ni-1];
+let iq='';if(m){const p=nextIq(m);const cnt=P.filter(x=>m.iq[x]!=null).length;
+iq=p?`<div class="iq"><small>Next Iqama · ${esc(m.name)}</small><br><b>${NM[p]} ${f(m.iq[p])}</b> · in ${dur(m.iq[p]-now())}<br><small>${m.rem[p].on?'Reminder at '+f(m.iq[p]-m.rem[p].min):'Reminder off for this prayer'}</small></div>`
+:`<div class="iq"><small>${esc(m.name)}</small><br>${cnt?'No more Iqama times today.':'Iqama schedule not configured yet.'}</div>`}
+const rows=ORD.map(k=>{const q=m&&k!='sunrise'?m.iq[k]:null,r=m&&k!='sunrise'?m.rem[k]:null;
+return `<div class="row ${k=='sunrise'?'sun':''} ${cur==k&&k!='sunrise'?'cur':''} ${nx.k==k?'nx':''}"><span class="dot"></span><span class="nm">${NM[k]}</span>
+<span class="q">${q!=null?'Iqama '+f(q)+(r.on&&S.notif?' '+ic('bell',12):''):''}</span><span class="t">${f(t[k])}</span></div>`}).join('');
+return `<div class="top"><span class="wm">Prayer companion</span><button class="ib" onclick="sheet({type:'set'})">${ic('gear')}</button></div>
+<h1>${g}</h1><div class="sub">${h}</div>
+<div style="margin-top:12px"><span class="chip" onclick="sheet({type:'loc'})">${ic('pin',16)} ${S.loc} ▾</span></div>
+<div class="hero"><small>Next prayer · Adhan</small><div class="big">${NM[nx.k]} ${f(t[nx.k])}</div><small>in ${dur(nx.in)}</small>${iq}</div>
+${!m?`<div class="prompt" onclick="go('mosques')"><b style="color:var(--ink)">Add your mosque</b><br>Pick a mosque and enter its Iqama times to see them here. We never guess them.</div>`
+:P.every(p=>m.iq[p]==null)?`<div class="prompt" onclick="openM('${m.id}')">${esc(m.name)} has no Iqama times yet. Tap to set them.</div>`:''}
+<h2>Prayer times (Adhan)</h2><div class="rows">${rows}</div>
+<div class="note">${S.notif?'Iqama reminders on (simulated).':'Notifications off in settings.'} Times are illustrative prototype data, not real calculations.</div>`}
+
+function mosques(){const sv=S.mosques.map(m=>{const n=P.filter(p=>m.iq[p]!=null).length;
+return `<div class="mrow" onclick="openM('${m.id}')"><div style="flex:1"><b>${esc(m.name)}${m.id==S.active?'<span class="tag">Active</span>':''}</b><span class="s">${n==5?'Iqama set':n?n+' of 5 Iqama set':'Iqama not configured'}</span></div><span style="color:var(--mut)">›</span></div>`}).join('');
+return `<div class="top"><span class="wm">Prayer companion</span><button class="ib" onclick="sheet({type:'set'})">${ic('gear')}</button></div><h1>Mosques</h1>
+<div class="sub">Iqama times belong to each mosque.</div>
+<button class="btn p" onclick="S.nearby={step:S.gps?'list':'perm',q:'',mode:'list'};render()">${ic('search',18)} Find nearby mosques</button>
+<button class="btn" onclick="sheet({type:'add',name:'',addr:''})">+ Add a mosque manually</button>
+<h2>Saved</h2>${S.mosques.length?`<div class="rows">${sv}</div>`:`<div class="card sub">No saved mosques yet. Find one nearby or add it manually, then enter its Iqama times.</div>`}
+<div class="note">Mosque names in this prototype are simulated samples, not real or verified places.</div>`}
+
+function detail(){const m=find(S.view),sv=saved(m.id),a=S.active==m.id;
+const t=times();
+const rows=sv?P.map(p=>{const q=m.iq[p],r=m.rem[p];
+return `<div class="row" style="cursor:pointer;flex-wrap:wrap" onclick="edit('${m.id}','${p}')"><span class="nm">${NM[p]}<br><span class="s" style="font-size:12px;color:var(--mut)">Adhan ${f(t[p])}</span></span>
+${q==null?'<span class="tag w">Not configured</span>':`<span class="t">${f(q)}</span>`}
+<button class="sw ${r.on&&q!=null?'on':''}" ${q==null?'disabled style="opacity:.4"':''} onclick="event.stopPropagation();tog('${m.id}','${p}')" aria-label="Reminder"></button>
+<div style="flex-basis:100%;font-size:12px;color:var(--mut)">${summ(m,p)}</div></div>`}).join(''):'';
+return `<div class="top"><button class="ib" onclick="S.view=null;render()">${ic('back')}</button><span></span><span style="width:44px"></span></div>
+<h1>${esc(m.name)}</h1><div class="sub">${esc(m.addr)} · ${m.dist}</div>
+${m.demo?'<div style="margin-top:8px"><span class="tag w" style="margin:0">Illustrative sample schedule</span></div>':''}
+<div style="display:flex;gap:10px;margin-top:6px">
+<button class="btn ${sv?'':'p'}" onclick="saveM('${m.id}')">${sv?ic('check',18)+' Saved':'Save mosque'}</button>
+${sv?`<button class="btn ${a?'':'p'}" ${a?'disabled':''} onclick="S.active='${m.id}';render()">${a?'Active':'Set as active'}</button>`:''}</div>
+${sv?`<h2>Iqama schedule · ${esc(m.name)}</h2><div class="rows">${rows}</div>
+<div class="note">Tap a row to edit. Iqama times are set by this mosque and are not derived from Adhan times. Sunrise has no Iqama.</div>
+<button class="btn d" onclick="rmM('${m.id}')">Remove mosque</button>`:`<div class="card sub">Save this mosque to configure its Iqama schedule. It will start as “Not configured”.</div>`}`}
+
+function nearby(){const n=S.nearby;let b='';
+if(n.step=='perm')b=`<div class="card"><h3>Find mosques near you</h3><p class="sub" style="margin-top:8px;line-height:1.5">We use your location once to list nearby mosques. It's not stored or shared. You can also search by name or place instead.</p>
+<button class="btn p" onclick="S.gps=true;S.nearby.step='list';render()">Allow location (simulated)</button></div>
+<h2>Or enter a place</h2><input type="text" id="mq" placeholder="City or neighbourhood"><button class="btn" onclick="S.gps=false;S.nearby.step='list';render()">Search by place</button>`;
+else b=`<input type="text" id="mq" placeholder="Search name or location" value="${esc(n.q)}" oninput="S.nearby.q=this.value;fill()" style="margin:0">
+<div class="seg"><button class="${n.mode=='list'?'on':''}" onclick="S.nearby.mode='list';render()">List</button><button class="${n.mode=='map'?'on':''}" onclick="S.nearby.mode='map';render()">Map</button></div>
+<div id="nl" style="margin-top:12px"></div><div class="note">Simulated results ${S.gps?'near your (simulated) location':'for your search'}. Not real or verified mosques.</div>`;
+return `<div class="top" style="padding:8px 8px 0"><button class="ib" onclick="S.nearby=null;render()">${ic('x')}</button><b>Nearby mosques</b><span style="width:44px"></span></div><div class="body">${b}</div>`}
+function fill(){const q=S.nearby.q.toLowerCase(),l=NEAR.filter(m=>(m.name+m.addr).toLowerCase().includes(q)),e=document.getElementById('nl');if(!e)return;
+if(!l.length){e.innerHTML='<div class="card sub">No matches. Try another name, or add the mosque manually.</div>';return}
+e.innerHTML=S.nearby.mode=='map'?`<div class="map"><span class="you" style="left:50%;top:50%"></span>${l.map((m,i)=>`<button class="pin" style="left:${m.x}%;top:${m.y}%" onclick="openM('${m.id}')">${NEAR.indexOf(m)+1}</button>`).join('')}</div><div class="note">Tap a pin to open details. Map is a schematic mock.</div>`
+:`<div class="rows">${l.map(m=>`<div class="mrow" onclick="openM('${m.id}')"><div style="flex:1"><b>${esc(m.name)}${saved(m.id)?'<span class="tag">Saved</span>':''}</b><span class="s">${m.addr} · ${m.dist}</span></div><span style="color:var(--mut)">›</span></div>`).join('')}</div>`}
+
+function qibla(){const b=LOCS[S.loc],d=((b-S.hd)%360+360)%360,al=Math.min(d,360-d)<=3;let body='';
+if(S.qs=='unavail')body=`<div class="card" style="text-align:center;margin-top:18px"><div style="font-size:15px;color:var(--mut)">Compass unavailable</div><div style="font-size:48px;font-weight:600;margin:6px 0">${b}°</div><p class="sub" style="line-height:1.5">Qibla is ${b}° clockwise from true north for ${S.loc}. Use any compass or map app and face that bearing.</p></div>`;
+else if(S.qs=='calib')body=`<div class="card" style="text-align:center;margin-top:18px"><h3>Calibrate compass</h3><p class="sub" style="margin:8px 0;line-height:1.5">Move your phone in a slow figure-8 away from metal objects.</p><button class="btn p" onclick="S.qs='ready';render()">Done (simulated)</button></div>`;
+else{const ticks=[...Array(36)].map((_,i)=>`<line x1="130" y1="14" x2="130" y2="${i%9?20:26}" transform="rotate(${i*10} 130 130)" stroke="currentColor" stroke-width="${i%9?1:2}" opacity=".6"/>`).join('');
+body=`<div style="text-align:center;margin-top:16px"><svg viewBox="0 0 260 260" width="270" height="270" style="color:var(--ink)"><circle cx="130" cy="130" r="122" fill="var(--sf)" stroke="var(--line)" stroke-width="2"/>
+<g style="transform:rotate(${-S.hd}deg);transform-origin:130px 130px;transition:transform .25s">${ticks}<text x="130" y="48" text-anchor="middle" font-size="16" fill="currentColor" font-weight="700">N</text><text x="130" y="224" text-anchor="middle" font-size="14" fill="currentColor" opacity=".6">S</text>
+<g style="transform:rotate(${b}deg);transform-origin:130px 130px"><circle cx="130" cy="72" r="14" fill="${al?'#2f9e63':'var(--g)'}"/><rect x="123" y="65" width="14" height="14" fill="#fff" rx="2"/></g></g>
+<path d="M130 2l-9 14h18z" fill="var(--g)"/></svg>
+<div style="font-size:40px;font-weight:600">${b}°</div><div class="sub">${al?'Aligned with Qibla':'Qibla bearing · turn to align'}</div></div>
+<h2>Prototype: simulate device heading</h2><input type="range" min="0" max="359" value="${S.hd}" oninput="S.hd=+this.value;qibla_upd()" style="width:100%;height:36px"><div class="note">Heading ${S.hd}°. A real device would supply this from its sensor.</div>`}
+return `<div class="top"><span class="wm">Prayer companion</span><button class="ib" onclick="sheet({type:'set'})">${ic('gear')}</button></div><h1>Qibla</h1><div class="sub">From ${S.loc} (illustrative bearing)</div>${body}
+<h2>Preview states</h2><div class="seg"><button class="${S.qs=='ready'?'on':''}" onclick="S.qs='ready';render()">Ready</button><button class="${S.qs=='calib'?'on':''}" onclick="S.qs='calib';render()">Calibrate</button><button class="${S.qs=='unavail'?'on':''}" onclick="S.qs='unavail';render()">No sensor</button></div>`}
+function qibla_upd(){const y=document.getElementById('scr').scrollTop;render();document.getElementById('scr').scrollTop=y}
+
+/* sheets */
+function sheet(s){S.sheet=s;render()}
+function edit(mid,p){const m=find(mid),r=m.rem[p];sheet({type:'edit',mid,p,time:m.iq[p]!=null?hm(m.iq[p]):'',on:r.on,min:r.min,cust:![5,10,15].includes(r.min)})}
+function sheetHtml(){const e=S.sheet;if(!e)return'';let b='';
+if(e.type=='edit'){const m=find(e.mid);b=`<h3>${NM[e.p]} Iqama</h3><div class="sub">Editing ${esc(m.name)}</div>
+<input type="time" value="${e.time}" onchange="S.sheet.time=this.value;render()">
+<div class="seg" style="align-items:center;margin-top:16px"><span style="flex:1;font-size:16px">Remind me before Iqama</span><button class="sw ${e.on?'on':''}" style="flex:none;min-height:30px;border:0" onclick="S.sheet.on=!S.sheet.on;render()"></button></div>
+${e.on?`<div class="seg">${[5,10,15].map(v=>`<button class="${!e.cust&&e.min==v?'on':''}" onclick="S.sheet.min=${v};S.sheet.cust=false;render()">${v} min</button>`).join('')}<button class="${e.cust?'on':''}" onclick="S.sheet.cust=true;render()">Custom</button></div>
+${e.cust?`<input type="number" min="1" max="120" value="${e.min}" oninput="S.sheet.min=Math.max(1,+this.value||1);pv()" placeholder="Minutes before">`:''}`:''}
+<div class="sum" id="pv">${sumE()}</div>
+<div style="display:flex;gap:10px"><button class="btn" onclick="sheet(null)">Cancel</button><button class="btn p" ${e.time?'':'disabled'} onclick="saveE()">Save</button></div>
+${m.iq[e.p]!=null?`<button class="plain" onclick="clr()">Clear Iqama time</button>`:''}`}
+if(e.type=='add')b=`<h3>Add a mosque</h3><div class="sub">Its Iqama schedule will start as “Not configured”.</div><input type="text" placeholder="Mosque name" value="${esc(e.name)}" oninput="S.sheet.name=this.value;ab()"><input type="text" placeholder="Address or area (optional)" value="${esc(e.addr)}" oninput="S.sheet.addr=this.value">
+<div style="display:flex;gap:10px"><button class="btn" onclick="sheet(null)">Cancel</button><button class="btn p" id="ab" ${e.name.trim()?'':'disabled'} onclick="addM()">Add</button></div>`;
+if(e.type=='loc')b=`<h3>Location</h3><div class="sub">Choose a sample city (simulated).</div>${Object.keys(LOCS).map(c=>`<button class="btn ${c==S.loc?'p':''}" onclick="S.loc='${c}';sheet(null)">${c}</button>`).join('')}`;
+if(e.type=='set'){const o=(l,id,opts,v)=>`<h2>${l}</h2><select onchange="${id}=this.value;render()">${opts.map(x=>`<option ${x==v?'selected':''}>${x}</option>`).join('')}</select>`;
+b=`<div style="display:flex;justify-content:space-between;align-items:center"><h3>Settings</h3><button class="ib" onclick="sheet(null)">${ic('x')}</button></div>
+${o('Calculation method','S.method',['MWL','ISNA','Egypt','Umm al-Qura'],S.method)}${o('Asr method','S.asr',['Standard','Hanafi'],S.asr)}
+<h2>Manual adjustments (minutes)</h2><div class="rows">${ORD.map(k=>`<div class="row"><span class="nm">${NM[k]}</span><button class="btn sm" onclick="adj('${k}',-1)">−</button><b style="width:34px;text-align:center">${S.adj[k]||0}</b><button class="btn sm" onclick="adj('${k}',1)">+</button></div>`).join('')}</div>
+<h2>Preferences</h2><div class="rows"><div class="row"><span class="nm">Use device location (simulated)</span><button class="sw ${S.gps?'on':''}" onclick="S.gps=!S.gps;render()"></button></div>
+<div class="row"><span class="nm">Iqama notifications (simulated)</span><button class="sw ${S.notif?'on':''}" onclick="S.notif=!S.notif;render()"></button></div>
+<div class="row"><span class="nm">Dark theme</span><button class="sw ${S.theme=='dark'?'on':''}" onclick="S.theme=S.theme=='dark'?'light':'dark';render()"></button></div></div>
+<h2>About</h2><div class="note">Early design prototype. No name or branding is final. All times, mosques and bearings are simulated; no real permissions, network requests or notifications are used. Iqama times are set per mosque from the Mosques tab.</div>`}
+return `<div class="scrim" onclick="if(event.target==this)sheet(null)"><div class="sheet">${b}</div></div>`}
+function sumE(){const e=S.sheet;if(!e.time)return'Choose an Iqama time to see the reminder summary.';const q=tm(e.time);return `${NM[e.p]} · ${f(q)} Iqama · `+(e.on?'Reminder at '+f(q-e.min):'Reminder off')}
+function pv(){document.getElementById('pv').textContent=sumE()}
+function ab(){document.getElementById('ab').disabled=!S.sheet.name.trim()}
+function adj(k,d){S.adj[k]=(S.adj[k]||0)+d;render()}
+function saveE(){const e=S.sheet,m=find(e.mid);m.iq[e.p]=tm(e.time);m.rem[e.p]={on:e.on,min:e.min};S.sheet=null;render()}
+function clr(){const e=S.sheet,m=find(e.mid);m.iq[e.p]=null;S.sheet=null;render()}
+function tog(mid,p){const r=find(mid).rem[p];r.on=!r.on;render()}
+function saveM(id){if(saved(id))return;const n=NEAR.find(m=>m.id==id);S.mosques.push({...n,iq:{fajr:null,dhuhr:null,asr:null,maghrib:null,isha:null},rem:{fajr:R0(),dhuhr:R0(),asr:R0(),maghrib:R0(),isha:R0()}});if(!S.active)S.active=id;render()}
+function rmM(id){S.mosques=S.mosques.filter(m=>m.id!=id);if(S.active==id)S.active=S.mosques[0]?S.mosques[0].id:null;S.view=null;render()}
+function addM(){const e=S.sheet,id='u'+Date.now();S.mosques.push({id,name:e.name.trim(),addr:e.addr.trim()||'Added manually',dist:'—',iq:{fajr:null,dhuhr:null,asr:null,maghrib:null,isha:null},rem:{fajr:R0(),dhuhr:R0(),asr:R0(),maghrib:R0(),isha:R0()}});if(!S.active)S.active=id;S.sheet=null;S.view=id;render()}
+function openM(id){S.view=id;S.nearby=null;S.tab='mosques';render()}
+function go(t){S.tab=t;S.view=null;render()}
+function render(){document.documentElement.dataset.theme=S.theme;
+const sc=document.getElementById('scr');
+sc.innerHTML=S.view?detail():S.tab=='today'?today():S.tab=='mosques'?mosques():qibla();
+document.getElementById('nav').innerHTML=[['today','Today'],['mosques','Mosques'],['qibla','Qibla']].map(([k,l])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')">${ic(k=='today'?'today':k=='mosques'?'mosque':'compass')}${l}</button>`).join('');
+document.getElementById('ov').innerHTML=S.nearby?`<div class="ov">${nearby()}</div>`:'';
+if(S.nearby&&S.nearby.step=='list')fill();
+document.getElementById('sh').innerHTML=sheetHtml()}
+render();setInterval(()=>{if(!S.sheet&&!S.nearby&&S.tab=='today'&&!S.view){const y=document.getElementById('scr').scrollTop;render();document.getElementById('scr').scrollTop=y}},30000);
+</script></body></html>

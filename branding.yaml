@@ -1,0 +1,12 @@
+# Single source of truth for app name, bundle id and branding.
+# tool/sync_branding.dart turns this into:
+#   lib/src/app/branding.g.dart              (Dart constants used by the app)
+#   android/app/branding.properties          (Gradle: applicationId)
+#   android/app/src/main/res/values/branding.xml  (Gradle: app label)
+# Secrets never belong here; they live in the untracked .env only.
+app:
+  name: Awqaity
+  # Placeholder. Final bundle id is an open decision in AGENTS.md.
+  application_id: dev.awqaity.app
+  description: "Know when to pray. Know when your mosque starts. Get reminded on time."
+wordmark: Awqaity

@@ -1,0 +1,26 @@
+{
+  "@@locale": "en",
+  "appTitle": "Awqaity",
+  "@appTitle": {
+    "description": "App name shown in the OS task switcher. Keep in sync with branding.yaml."
+  },
+  "wordmark": "Prayer companion",
+  "@wordmark": {
+    "description": "Neutral wordmark shown in the top bar of every screen."
+  },
+  "tabToday": "Today",
+  "tabMosques": "Mosques",
+  "tabQibla": "Qibla",
+  "settings": "Settings",
+  "close": "Close",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "remove": "Remove",
+  "notConfigured": "Not configured",
+  "@notConfigured": {
+    "description": "Shown wherever an Iqama time has not been entered. Never fill an Iqama default."
+  },
+  "aboutBody": "Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.",
+  "nextStepPlaceholder": "Screens arrive step by step."
+}
