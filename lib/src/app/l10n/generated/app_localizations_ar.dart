@@ -1380,6 +1380,172 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get inFlightTitle => 'على متن الطائرة';
+
+  @override
+  String get inFlightCardTitle => 'على متن رحلة؟';
+
+  @override
+  String get inFlightCardBody =>
+      'مواقيت الصلاة والقبلة على متن الطائرة، من GPS ودون اتصال.';
+
+  @override
+  String get inFlightExplainBody =>
+      'يستخدم التطبيق GPS في هاتفك، وهو يعمل في وضع الطيران، لمعرفة مكان الطائرة. يحتاج إلى الموقع الدقيق، ويعمل أفضل بجانب النافذة. لا يُرسل أي شيء.';
+
+  @override
+  String get inFlightStart => 'تشغيل GPS';
+
+  @override
+  String get inFlightWaiting => 'بانتظار GPS… المقعد بجانب النافذة يساعد.';
+
+  @override
+  String get inFlightServiceOff =>
+      'الموقع متوقف في هذا الهاتف. شغّله لاستخدام GPS على متن الطائرة.';
+
+  @override
+  String get inFlightNeedsPrecise =>
+      'يحتاج وضع الطيران إلى الموقع الدقيق. حاول مرة أخرى واختر «دقيق».';
+
+  @override
+  String get inFlightPermanentlyDenied =>
+      'الموقع الدقيق متوقف لهذا التطبيق. يمكنك السماح به من إعدادات التطبيق.';
+
+  @override
+  String get inFlightOpenSettings => 'فتح إعدادات التطبيق';
+
+  @override
+  String get inFlightTryAgain => 'حاول مرة أخرى';
+
+  @override
+  String inFlightAltitudeSpeed(String altitude, String speed) {
+    return '$altitude م · $speed كم/س';
+  }
+
+  @override
+  String inFlightFixAge(String ago) {
+    return 'قراءة GPS $ago';
+  }
+
+  @override
+  String inFlightFixLost(String ago) {
+    return 'انقطع GPS. تُعرض آخر قراءة، $ago.';
+  }
+
+  @override
+  String inFlightNow(String prayer) {
+    return 'الآن: $prayer';
+  }
+
+  @override
+  String get inFlightNoneNow => 'لا صلاة حان وقتها الآن';
+
+  @override
+  String inFlightNext(String prayer, String countdown) {
+    return 'التالية: $prayer، $countdown';
+  }
+
+  @override
+  String inFlightOnPhone(String time) {
+    return '$time على ساعة هاتفك';
+  }
+
+  @override
+  String inFlightSunsetLater(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ$minutes دقيقة.',
+      many: 'من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ$minutes دقيقة.',
+      few: 'من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ$minutes دقائق.',
+      two: 'من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقتين.',
+      one: 'من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String inFlightSunriseEarlier(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ$minutes دقيقة.',
+      many: 'من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ$minutes دقيقة.',
+      few: 'من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ$minutes دقائق.',
+      two: 'من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقتين.',
+      one: 'من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get inFlightMovingNote =>
+      'المواقيت لمكان الطائرة الآن، وتتغير مع تقدّمها؛ وتبقى هذه الشاشة محدّثة ما دامت مفتوحة.';
+
+  @override
+  String get inFlightTimesHeader => 'مواقيت اليوم على متن الطائرة، بساعة هاتفك';
+
+  @override
+  String get inFlightQiblaHeader => 'القبلة على متن الطائرة';
+
+  @override
+  String inFlightQiblaRight(String degrees) {
+    return '$degrees° إلى يمين مقدّمة الطائرة';
+  }
+
+  @override
+  String inFlightQiblaLeft(String degrees) {
+    return '$degrees° إلى يسار مقدّمة الطائرة';
+  }
+
+  @override
+  String get inFlightQiblaAhead => 'أمامك مباشرة';
+
+  @override
+  String get inFlightQiblaBehind => 'خلفك، باتجاه ذيل الطائرة';
+
+  @override
+  String inFlightHeadingGps(String degrees) {
+    return 'باتجاه سير الطائرة من GPS، $degrees°';
+  }
+
+  @override
+  String inFlightHeadingManual(String degrees) {
+    return 'بالاتجاه الذي أدخلته، $degrees°';
+  }
+
+  @override
+  String get inFlightNoCourse =>
+      'الطائرة لا تتحرك بعد، فلا يوجد اتجاه سير. يمكنك إدخال الاتجاه من خريطة الشاشة أمامك.';
+
+  @override
+  String get inFlightEnterHeading => 'إدخال الاتجاه';
+
+  @override
+  String get inFlightUseGps => 'استخدام اتجاه GPS';
+
+  @override
+  String get inFlightHeadingLabel => 'الاتجاه من خريطة الشاشة أمامك (0–359°)';
+
+  @override
+  String get inFlightHeadingError => 'بين 0 و359';
+
+  @override
+  String inFlightQiblaBearing(String degrees) {
+    return 'اتجاه القبلة $degrees° من الشمال الحقيقي';
+  }
+
+  @override
+  String get inFlightCompassNote =>
+      'بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يُستخدم اتجاه الطائرة بدلًا منها.';
+
+  @override
+  String get inFlightDiagramLabel =>
+      'الطائرة من الأعلى ومقدّمتها للأعلى. يشير السهم إلى القبلة.';
+
+  @override
   String zoneNoteHere(String placeOffset, String phoneOffset) {
     return 'المواقيت بالتوقيت المحلي حيث أنت ($placeOffset)، وساعة هاتفك على $phoneOffset.';
   }

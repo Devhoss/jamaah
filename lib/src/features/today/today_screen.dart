@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../flight/in_flight_page.dart';
 import '../../app/clock.dart';
 import '../../app/clock_format.dart';
 import '../../app/date_labels.dart';
@@ -105,6 +106,31 @@ class TodayScreen extends ConsumerWidget {
             now: ref.watch(minuteClockProvider),
           ),
         if (_zoneNote(ref, l10n, place) case final note?) _Note(note),
+        // In-flight mode lives under travel mode (docs/in-flight-mode.md).
+        if (settings.requireValue.travel.travelMode)
+          AppPrompt(
+            onTap: () => openInFlight(context),
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.flight_takeoff),
+                  const SizedBox(width: AppSpace.sm),
+                  Expanded(
+                    child: Text(
+                      l10n.inFlightCardTitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+              const SizedBox(height: AppSpace.xs),
+              Text(
+                l10n.inFlightCardBody,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
         if (hasTimes) ...[
           _HeroCard(
             today: today,

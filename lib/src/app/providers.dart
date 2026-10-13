@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/app_database.dart';
 import '../data/device_place_source.dart';
 import '../data/discovery/app_identity.dart';
+import '../data/flight_gps.dart';
 import '../data/discovery/discovery_session.dart';
 import '../data/discovery/google_places_provider.dart';
 import '../data/discovery/osm_provider.dart';
@@ -42,6 +43,9 @@ final appSettingsProvider = StreamProvider<AppSettingsSnapshot>(
 ///
 /// A [PlaceSource] rather than the geolocator types, so nothing above this line
 /// touches a plugin and every failure path stays testable.
+/// GPS aboard, for in-flight mode; overridden with a fake in tests.
+final flightGpsProvider = Provider<FlightGps>((ref) => const DeviceFlightGps());
+
 final placeSourceProvider = Provider<PlaceSource>(
   (ref) => const DevicePlaceSource(),
 );

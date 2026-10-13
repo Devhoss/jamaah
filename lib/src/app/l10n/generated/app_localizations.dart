@@ -2202,6 +2202,228 @@ abstract class AppLocalizations {
   /// **'Times are local time in {place} ({placeOffset}). Your phone\'s clock is on {phoneOffset}.'**
   String zoneNotePlace(String place, String placeOffset, String phoneOffset);
 
+  /// No description provided for @inFlightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'In flight'**
+  String get inFlightTitle;
+
+  /// No description provided for @inFlightCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On a flight?'**
+  String get inFlightCardTitle;
+
+  /// No description provided for @inFlightCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times and the Qibla aboard, from GPS, with no network.'**
+  String get inFlightCardBody;
+
+  /// No description provided for @inFlightExplainBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Jama’ah uses your phone\'s GPS, which works in airplane mode, to find where the aircraft is. It needs precise location, and works best by a window. Nothing is sent anywhere.'**
+  String get inFlightExplainBody;
+
+  /// No description provided for @inFlightStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start GPS'**
+  String get inFlightStart;
+
+  /// No description provided for @inFlightWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for GPS… A window seat helps.'**
+  String get inFlightWaiting;
+
+  /// No description provided for @inFlightServiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is off on this phone. Turn it on to use GPS aboard.'**
+  String get inFlightServiceOff;
+
+  /// No description provided for @inFlightNeedsPrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'In-flight mode needs precise location. Try again and choose “Precise”.'**
+  String get inFlightNeedsPrecise;
+
+  /// No description provided for @inFlightPermanentlyDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise location is turned off for Jama’ah. You can allow it in the app\'s settings.'**
+  String get inFlightPermanentlyDenied;
+
+  /// No description provided for @inFlightOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app settings'**
+  String get inFlightOpenSettings;
+
+  /// No description provided for @inFlightTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get inFlightTryAgain;
+
+  /// No description provided for @inFlightAltitudeSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'{altitude} m · {speed} km/h'**
+  String inFlightAltitudeSpeed(String altitude, String speed);
+
+  /// No description provided for @inFlightFixAge.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS fix {ago}'**
+  String inFlightFixAge(String ago);
+
+  /// No description provided for @inFlightFixLost.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS lost. Showing the last fix, from {ago}.'**
+  String inFlightFixLost(String ago);
+
+  /// No description provided for @inFlightNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now: {prayer}'**
+  String inFlightNow(String prayer);
+
+  /// No description provided for @inFlightNoneNow.
+  ///
+  /// In en, this message translates to:
+  /// **'No prayer is due now'**
+  String get inFlightNoneNow;
+
+  /// No description provided for @inFlightNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {prayer}, {countdown}'**
+  String inFlightNext(String prayer, String countdown);
+
+  /// No description provided for @inFlightOnPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} on your phone'**
+  String inFlightOnPhone(String time);
+
+  /// No description provided for @inFlightSunsetLater.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{From up here the sun sets 1 min later than on the ground below.} other{From up here the sun sets {minutes} min later than on the ground below.}}'**
+  String inFlightSunsetLater(int minutes);
+
+  /// No description provided for @inFlightSunriseEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{From up here the sun rises 1 min earlier than on the ground below.} other{From up here the sun rises {minutes} min earlier than on the ground below.}}'**
+  String inFlightSunriseEarlier(int minutes);
+
+  /// No description provided for @inFlightMovingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For where the aircraft is now. As it flies on, these times change; this screen keeps them up to date while it is open.'**
+  String get inFlightMovingNote;
+
+  /// No description provided for @inFlightTimesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Today aboard, on your phone\'s clock'**
+  String get inFlightTimesHeader;
+
+  /// No description provided for @inFlightQiblaHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla aboard'**
+  String get inFlightQiblaHeader;
+
+  /// No description provided for @inFlightQiblaRight.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° to the right of the nose'**
+  String inFlightQiblaRight(String degrees);
+
+  /// No description provided for @inFlightQiblaLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° to the left of the nose'**
+  String inFlightQiblaLeft(String degrees);
+
+  /// No description provided for @inFlightQiblaAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight ahead'**
+  String get inFlightQiblaAhead;
+
+  /// No description provided for @inFlightQiblaBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind you, towards the tail'**
+  String get inFlightQiblaBehind;
+
+  /// No description provided for @inFlightHeadingGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Using the aircraft\'s GPS course, {degrees}°'**
+  String inFlightHeadingGps(String degrees);
+
+  /// No description provided for @inFlightHeadingManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Using your heading, {degrees}°'**
+  String inFlightHeadingManual(String degrees);
+
+  /// No description provided for @inFlightNoCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'The aircraft isn\'t moving yet, so there is no course. You can enter the heading from the seat-back map.'**
+  String get inFlightNoCourse;
+
+  /// No description provided for @inFlightEnterHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter heading'**
+  String get inFlightEnterHeading;
+
+  /// No description provided for @inFlightUseGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Use GPS course'**
+  String get inFlightUseGps;
+
+  /// No description provided for @inFlightHeadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Heading from the seat-back map (0–359°)'**
+  String get inFlightHeadingLabel;
+
+  /// No description provided for @inFlightHeadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 0 and 359'**
+  String get inFlightHeadingError;
+
+  /// No description provided for @inFlightQiblaBearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla bearing {degrees}° from true north'**
+  String inFlightQiblaBearing(String degrees);
+
+  /// No description provided for @inFlightCompassNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone\'s compass isn\'t reliable inside an aircraft, so this uses the aircraft\'s direction instead.'**
+  String get inFlightCompassNote;
+
+  /// No description provided for @inFlightDiagramLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Aircraft seen from above, nose up. The arrow points to the Qibla.'**
+  String get inFlightDiagramLabel;
+
   /// No description provided for @zoneNoteHere.
   ///
   /// In en, this message translates to:

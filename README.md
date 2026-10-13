@@ -280,6 +280,15 @@ regions read from the parameters the calculator uses), the **Asr method**
 - When the place's clock and the phone's differ, Today says so: "Times are local time in
   London (UTC+1). Your phone's clock is on UTC+3." Notifications always fire at the
   right moment either way; only the clock they are shown against differs.
+- **In flight** (phase 1; plan in `docs/in-flight-mode.md`): with travel mode on, Today
+  shows "On a flight?". The screen reads GPS from the platform's location manager (works
+  in airplane mode, no network), only while open and only after the user starts it, and
+  shows: the prayer now and the next one (countdown and time on the phone's clock), with
+  sunrise and Maghrib as seen from the aircraft (horizon dip at altitude,
+  `domain/in_flight.dart`); the day's times aboard; and the Qibla relative to the
+  aircraft's nose from the GPS course, or a heading typed in from the seat-back map. The
+  phone's compass is not used aboard. Phase 2 (projection along the route, in-flight
+  notifications) is next.
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 

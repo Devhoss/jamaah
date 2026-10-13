@@ -864,6 +864,79 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get settingsHijri => arabicDigits(super.settingsHijri);
 
   @override
+  String get inFlightTitle => arabicDigits(super.inFlightTitle);
+
+  @override
+  String get inFlightCardTitle => arabicDigits(super.inFlightCardTitle);
+
+  @override
+  String get inFlightCardBody => arabicDigits(super.inFlightCardBody);
+
+  @override
+  String get inFlightExplainBody => arabicDigits(super.inFlightExplainBody);
+
+  @override
+  String get inFlightStart => arabicDigits(super.inFlightStart);
+
+  @override
+  String get inFlightWaiting => arabicDigits(super.inFlightWaiting);
+
+  @override
+  String get inFlightServiceOff => arabicDigits(super.inFlightServiceOff);
+
+  @override
+  String get inFlightNeedsPrecise => arabicDigits(super.inFlightNeedsPrecise);
+
+  @override
+  String get inFlightPermanentlyDenied =>
+      arabicDigits(super.inFlightPermanentlyDenied);
+
+  @override
+  String get inFlightOpenSettings => arabicDigits(super.inFlightOpenSettings);
+
+  @override
+  String get inFlightTryAgain => arabicDigits(super.inFlightTryAgain);
+
+  @override
+  String get inFlightNoneNow => arabicDigits(super.inFlightNoneNow);
+
+  @override
+  String get inFlightMovingNote => arabicDigits(super.inFlightMovingNote);
+
+  @override
+  String get inFlightTimesHeader => arabicDigits(super.inFlightTimesHeader);
+
+  @override
+  String get inFlightQiblaHeader => arabicDigits(super.inFlightQiblaHeader);
+
+  @override
+  String get inFlightQiblaAhead => arabicDigits(super.inFlightQiblaAhead);
+
+  @override
+  String get inFlightQiblaBehind => arabicDigits(super.inFlightQiblaBehind);
+
+  @override
+  String get inFlightNoCourse => arabicDigits(super.inFlightNoCourse);
+
+  @override
+  String get inFlightEnterHeading => arabicDigits(super.inFlightEnterHeading);
+
+  @override
+  String get inFlightUseGps => arabicDigits(super.inFlightUseGps);
+
+  @override
+  String get inFlightHeadingLabel => arabicDigits(super.inFlightHeadingLabel);
+
+  @override
+  String get inFlightHeadingError => arabicDigits(super.inFlightHeadingError);
+
+  @override
+  String get inFlightCompassNote => arabicDigits(super.inFlightCompassNote);
+
+  @override
+  String get inFlightDiagramLabel => arabicDigits(super.inFlightDiagramLabel);
+
+  @override
   String get hijriAsCalculated => arabicDigits(super.hijriAsCalculated);
 
   @override
@@ -1306,6 +1379,56 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String zoneNotePlace(String place, String placeOffset, String phoneOffset) =>
       arabicDigits(super.zoneNotePlace(place, placeOffset, phoneOffset));
+
+  @override
+  String inFlightAltitudeSpeed(String altitude, String speed) =>
+      arabicDigits(super.inFlightAltitudeSpeed(altitude, speed));
+
+  @override
+  String inFlightFixAge(String ago) => arabicDigits(super.inFlightFixAge(ago));
+
+  @override
+  String inFlightFixLost(String ago) =>
+      arabicDigits(super.inFlightFixLost(ago));
+
+  @override
+  String inFlightNow(String prayer) => arabicDigits(super.inFlightNow(prayer));
+
+  @override
+  String inFlightNext(String prayer, String countdown) =>
+      arabicDigits(super.inFlightNext(prayer, countdown));
+
+  @override
+  String inFlightOnPhone(String time) =>
+      arabicDigits(super.inFlightOnPhone(time));
+
+  @override
+  String inFlightSunsetLater(int minutes) =>
+      arabicDigits(super.inFlightSunsetLater(minutes));
+
+  @override
+  String inFlightSunriseEarlier(int minutes) =>
+      arabicDigits(super.inFlightSunriseEarlier(minutes));
+
+  @override
+  String inFlightQiblaRight(String degrees) =>
+      arabicDigits(super.inFlightQiblaRight(degrees));
+
+  @override
+  String inFlightQiblaLeft(String degrees) =>
+      arabicDigits(super.inFlightQiblaLeft(degrees));
+
+  @override
+  String inFlightHeadingGps(String degrees) =>
+      arabicDigits(super.inFlightHeadingGps(degrees));
+
+  @override
+  String inFlightHeadingManual(String degrees) =>
+      arabicDigits(super.inFlightHeadingManual(degrees));
+
+  @override
+  String inFlightQiblaBearing(String degrees) =>
+      arabicDigits(super.inFlightQiblaBearing(degrees));
 
   @override
   String zoneNoteHere(String placeOffset, String phoneOffset) =>

@@ -1278,6 +1278,166 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get inFlightTitle => 'In flight';
+
+  @override
+  String get inFlightCardTitle => 'On a flight?';
+
+  @override
+  String get inFlightCardBody =>
+      'Prayer times and the Qibla aboard, from GPS, with no network.';
+
+  @override
+  String get inFlightExplainBody =>
+      'Jama’ah uses your phone\'s GPS, which works in airplane mode, to find where the aircraft is. It needs precise location, and works best by a window. Nothing is sent anywhere.';
+
+  @override
+  String get inFlightStart => 'Start GPS';
+
+  @override
+  String get inFlightWaiting => 'Waiting for GPS… A window seat helps.';
+
+  @override
+  String get inFlightServiceOff =>
+      'Location is off on this phone. Turn it on to use GPS aboard.';
+
+  @override
+  String get inFlightNeedsPrecise =>
+      'In-flight mode needs precise location. Try again and choose “Precise”.';
+
+  @override
+  String get inFlightPermanentlyDenied =>
+      'Precise location is turned off for Jama’ah. You can allow it in the app\'s settings.';
+
+  @override
+  String get inFlightOpenSettings => 'Open app settings';
+
+  @override
+  String get inFlightTryAgain => 'Try again';
+
+  @override
+  String inFlightAltitudeSpeed(String altitude, String speed) {
+    return '$altitude m · $speed km/h';
+  }
+
+  @override
+  String inFlightFixAge(String ago) {
+    return 'GPS fix $ago';
+  }
+
+  @override
+  String inFlightFixLost(String ago) {
+    return 'GPS lost. Showing the last fix, from $ago.';
+  }
+
+  @override
+  String inFlightNow(String prayer) {
+    return 'Now: $prayer';
+  }
+
+  @override
+  String get inFlightNoneNow => 'No prayer is due now';
+
+  @override
+  String inFlightNext(String prayer, String countdown) {
+    return 'Next: $prayer, $countdown';
+  }
+
+  @override
+  String inFlightOnPhone(String time) {
+    return '$time on your phone';
+  }
+
+  @override
+  String inFlightSunsetLater(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'From up here the sun sets $minutes min later than on the ground below.',
+      one: 'From up here the sun sets 1 min later than on the ground below.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String inFlightSunriseEarlier(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'From up here the sun rises $minutes min earlier than on the ground below.',
+      one: 'From up here the sun rises 1 min earlier than on the ground below.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get inFlightMovingNote =>
+      'For where the aircraft is now. As it flies on, these times change; this screen keeps them up to date while it is open.';
+
+  @override
+  String get inFlightTimesHeader => 'Today aboard, on your phone\'s clock';
+
+  @override
+  String get inFlightQiblaHeader => 'Qibla aboard';
+
+  @override
+  String inFlightQiblaRight(String degrees) {
+    return '$degrees° to the right of the nose';
+  }
+
+  @override
+  String inFlightQiblaLeft(String degrees) {
+    return '$degrees° to the left of the nose';
+  }
+
+  @override
+  String get inFlightQiblaAhead => 'Straight ahead';
+
+  @override
+  String get inFlightQiblaBehind => 'Behind you, towards the tail';
+
+  @override
+  String inFlightHeadingGps(String degrees) {
+    return 'Using the aircraft\'s GPS course, $degrees°';
+  }
+
+  @override
+  String inFlightHeadingManual(String degrees) {
+    return 'Using your heading, $degrees°';
+  }
+
+  @override
+  String get inFlightNoCourse =>
+      'The aircraft isn\'t moving yet, so there is no course. You can enter the heading from the seat-back map.';
+
+  @override
+  String get inFlightEnterHeading => 'Enter heading';
+
+  @override
+  String get inFlightUseGps => 'Use GPS course';
+
+  @override
+  String get inFlightHeadingLabel => 'Heading from the seat-back map (0–359°)';
+
+  @override
+  String get inFlightHeadingError => 'Between 0 and 359';
+
+  @override
+  String inFlightQiblaBearing(String degrees) {
+    return 'Qibla bearing $degrees° from true north';
+  }
+
+  @override
+  String get inFlightCompassNote =>
+      'The phone\'s compass isn\'t reliable inside an aircraft, so this uses the aircraft\'s direction instead.';
+
+  @override
+  String get inFlightDiagramLabel =>
+      'Aircraft seen from above, nose up. The arrow points to the Qibla.';
+
+  @override
   String zoneNoteHere(String placeOffset, String phoneOffset) {
     return 'Times are local time where you are ($placeOffset). Your phone\'s clock is on $phoneOffset.';
   }
