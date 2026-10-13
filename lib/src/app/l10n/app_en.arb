@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Awqaity",
+  "appTitle": "Jama’ah",
   "@appTitle": {
     "description": "App name shown in the OS task switcher. Keep in sync with branding.yaml."
   },
@@ -37,7 +37,7 @@
   "@todayErrorTitle": {
     "description": "The settings stream failed. Nothing is lost, so the message must not sound like it is."
   },
-  "todayErrorBody": "Awqaity could not open its own data on this device. Nothing has been lost — try again, or choose your location.",
+  "todayErrorBody": "Jama’ah could not open its own data on this device. Nothing has been lost — try again, or choose your location.",
   "todaySectionTimes": "Prayer times (Adhan)",
   "@todaySectionTimes": {
     "description": "Section header over the six rows. Says Adhan so it is never confused with Iqama."
@@ -166,7 +166,7 @@
   "@locationSheetTitle": {
     "description": "Title of the explanation sheet shown before any location permission is requested."
   },
-  "locationSheetBody": "Awqaity works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.",
+  "locationSheetBody": "Jama’ah works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.",
   "locationSheetCoarse": "We ask for approximate location — city level, never your exact position. Times across one city differ by only a few minutes.",
   "locationUseDevice": "Use my location",
   "locationChooseCity": "Choose a city",
@@ -182,7 +182,7 @@
   "placeRenameTitle": "Give this place a name",
   "placeRenameHint": "For example, Home",
   "locationDenied": "You declined the location permission. That is completely fine — choose your city and the times will be right.",
-  "locationPermanentlyDenied": "Location is switched off for Awqaity in your device settings. You can change that there, or choose your city now.",
+  "locationPermanentlyDenied": "Location is switched off for Jama’ah in your device settings. You can change that there, or choose your city now.",
   "locationServiceDisabled": "Location services are turned off on this device. Choose your city, or switch location on and try again.",
   "locationTimeout": "Your device did not answer in time. You can try again, or choose your city.",
   "locationUnavailable": "Your location could not be read right now. Choose your city instead.",

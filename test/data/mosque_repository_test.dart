@@ -1,12 +1,12 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/data/app_database.dart';
-import 'package:awqaity/src/data/mosque_repository.dart';
-import 'package:awqaity/src/data/settings_repository.dart';
-import 'package:awqaity/src/domain/mosque.dart';
-import 'package:awqaity/src/domain/prayer.dart';
-import 'package:awqaity/src/domain/time_model.dart';
+import 'package:jamaah/src/data/app_database.dart';
+import 'package:jamaah/src/data/mosque_repository.dart';
+import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/domain/mosque.dart';
+import 'package:jamaah/src/domain/prayer.dart';
+import 'package:jamaah/src/domain/time_model.dart';
 import '../helpers/fake_clock.dart';
 
 void main() {

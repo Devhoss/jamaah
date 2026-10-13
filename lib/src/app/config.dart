@@ -44,5 +44,5 @@ class AppConfig {
       '${googleConfigured ? "set" : "missing"})';
 
   /// Logged at start-up so we always know which provider served a session.
-  void logProvider() => debugPrint('Awqaity discovery provider: $this');
+  void logProvider() => debugPrint('Jamaah discovery provider: $this');
 }

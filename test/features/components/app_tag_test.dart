@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/app/theme/theme.dart';
-import 'package:awqaity/src/app/theme/tokens.dart';
-import 'package:awqaity/src/features/components/app_widgets.dart';
+import 'package:jamaah/src/app/theme/theme.dart';
+import 'package:jamaah/src/app/theme/tokens.dart';
+import 'package:jamaah/src/features/components/app_widgets.dart';
 import '../../helpers/test_app.dart';
 
 /// The small status pill is the one component that paints its own background *and*

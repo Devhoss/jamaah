@@ -4,9 +4,13 @@
 #   android/app/branding.properties          (Gradle: applicationId)
 #   android/app/src/main/res/values/branding.xml  (Gradle: app label)
 # Secrets never belong here; they live in the untracked .env only.
+#
+# The display name uses the typographic apostrophe U+2019 (’), not ASCII '.
+# Identifiers (application id, Dart package, Kotlin package) stay plain ASCII:
+# "jamaah".
 app:
-  name: Awqaity
+  name: Jama’ah
   # Placeholder. Final bundle id is an open decision in AGENTS.md.
-  application_id: dev.awqaity.app
+  application_id: dev.jamaah.app
   description: "Know when to pray. Know when your mosque starts. Get reminded on time."
-wordmark: Awqaity
+wordmark: Jama’ah

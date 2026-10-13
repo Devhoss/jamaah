@@ -2,17 +2,17 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/app/clock.dart';
-import 'package:awqaity/src/app/providers.dart';
-import 'package:awqaity/src/data/app_database.dart';
-import 'package:awqaity/src/data/mosque_repository.dart';
-import 'package:awqaity/src/data/settings_repository.dart';
-import 'package:awqaity/src/domain/mosque.dart';
-import 'package:awqaity/src/domain/prayer.dart';
-import 'package:awqaity/src/domain/prayer_times_parameters.dart';
-import 'package:awqaity/src/domain/time_model.dart';
-import 'package:awqaity/src/domain/today.dart';
-import 'package:awqaity/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/app/clock.dart';
+import 'package:jamaah/src/app/providers.dart';
+import 'package:jamaah/src/data/app_database.dart';
+import 'package:jamaah/src/data/mosque_repository.dart';
+import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/domain/mosque.dart';
+import 'package:jamaah/src/domain/prayer.dart';
+import 'package:jamaah/src/domain/prayer_times_parameters.dart';
+import 'package:jamaah/src/domain/time_model.dart';
+import 'package:jamaah/src/domain/today.dart';
+import 'package:jamaah/src/domain/zone_offsets.dart';
 
 /// The wiring between the domain's injected clock and the stored settings: which
 /// day the app reads, and which mosque's Iqama belongs on the card.

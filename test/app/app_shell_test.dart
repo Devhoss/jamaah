@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/app/app.dart';
-import 'package:awqaity/src/app/branding.g.dart';
-import 'package:awqaity/src/app/clock.dart';
-import 'package:awqaity/src/app/l10n/generated/app_localizations_en.dart';
-import 'package:awqaity/src/app/providers.dart';
-import 'package:awqaity/src/data/app_database.dart';
-import 'package:awqaity/src/data/settings_repository.dart';
-import 'package:awqaity/src/domain/place.dart';
-import 'package:awqaity/src/domain/zone_offsets.dart';
-import 'package:awqaity/src/features/components/app_widgets.dart';
+import 'package:jamaah/src/app/app.dart';
+import 'package:jamaah/src/app/branding.g.dart';
+import 'package:jamaah/src/app/clock.dart';
+import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
+import 'package:jamaah/src/app/providers.dart';
+import 'package:jamaah/src/data/app_database.dart';
+import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/domain/place.dart';
+import 'package:jamaah/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/features/components/app_widgets.dart';
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_place_source.dart';
 import '../helpers/test_app.dart';
@@ -45,7 +45,7 @@ void main() {
       placeSourceProvider.overrideWithValue(source),
       appClockProvider.overrideWithValue(clock),
     ],
-    child: const AwqaityApp(),
+    child: const JamaahApp(),
   );
 
   Future<void> open(WidgetTester tester, {bool withPlace = false}) async {

@@ -1,4 +1,4 @@
-package dev.awqaity.app
+package dev.jamaah.app
 
 import io.flutter.embedding.android.FlutterActivity
 

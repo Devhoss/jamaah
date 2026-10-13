@@ -13,7 +13,7 @@ val brandingProps = Properties().apply {
     val f = rootProject.file("app/branding.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }
-val brandingApplicationId = brandingProps.getProperty("applicationId", "dev.awqaity.app")
+val brandingApplicationId = brandingProps.getProperty("applicationId", "dev.jamaah.app")
 
 android {
     namespace = brandingApplicationId

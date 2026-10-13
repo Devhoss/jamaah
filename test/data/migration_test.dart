@@ -6,9 +6,9 @@ import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/data/app_database.dart';
-import 'package:awqaity/src/domain/adhan_alerts.dart';
-import 'package:awqaity/src/domain/prayer.dart';
+import 'package:jamaah/src/data/app_database.dart';
+import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/prayer.dart';
 
 /// The drift migration harness.
 ///

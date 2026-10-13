@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:awqaity/src/app/clock_format.dart';
-import 'package:awqaity/src/domain/time_model.dart';
+import 'package:jamaah/src/app/clock_format.dart';
+import 'package:jamaah/src/domain/time_model.dart';
 
 /// The one place a time of day becomes text.
 ///

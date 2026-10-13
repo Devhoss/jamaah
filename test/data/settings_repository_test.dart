@@ -1,12 +1,12 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/data/app_database.dart';
-import 'package:awqaity/src/data/settings_repository.dart';
-import 'package:awqaity/src/domain/adhan_alerts.dart';
-import 'package:awqaity/src/domain/prayer.dart';
-import 'package:awqaity/src/domain/prayer_times_parameters.dart';
-import 'package:awqaity/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/data/app_database.dart';
+import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/prayer.dart';
+import 'package:jamaah/src/domain/prayer_times_parameters.dart';
+import 'package:jamaah/src/domain/zone_offsets.dart';
 
 void main() {
   late AppDatabase db;

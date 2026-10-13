@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:awqaity/src/app/branding.g.dart';
+import 'package:jamaah/src/app/branding.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guards the Android manifest against permissions that no code asks for.

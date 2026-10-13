@@ -1,4 +1,4 @@
-import 'package:awqaity/src/domain/place.dart';
+import 'package:jamaah/src/domain/place.dart';
 
 /// A stand-in for the device. No widget test in this repository touches geolocator
 /// or flutter_timezone: every path is driven through this fake (AGENTS.md quality

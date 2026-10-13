@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:awqaity/src/app/branding.g.dart';
+import 'package:jamaah/src/app/branding.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaml/yaml.dart';
 
@@ -22,10 +22,20 @@ void main() {
       'android/app/branding.properties',
     ).readAsStringSync();
     expect(props, contains('applicationId=$kApplicationId'));
-    expect(props, contains('appName=$kAppName'));
+    // Java reads .properties as ISO-8859-1, so the ’ must arrive escaped.
+    expect(props, contains(r'appName=Jama\u2019ah'));
   });
 
-  test('the app name is Awqaity', () {
-    expect(kAppName, 'Awqaity');
+  test('the Android label carries the name unescaped and unmangled', () {
+    final xml = File(
+      'android/app/src/main/res/values/branding.xml',
+    ).readAsStringSync();
+    expect(xml, contains('<string name="app_name">Jama’ah</string>'));
+  });
+
+  test('the app name is Jama’ah, with identifiers in plain ASCII', () {
+    expect(kAppName, 'Jama’ah');
+    expect(kWordmark, 'Jama’ah');
+    expect(kApplicationId, 'dev.jamaah.app');
   });
 }

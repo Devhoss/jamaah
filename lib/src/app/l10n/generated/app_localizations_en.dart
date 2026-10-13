@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Awqaity';
+  String get appTitle => 'Jama’ah';
 
   @override
   String get tabToday => 'Today';
@@ -78,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayErrorBody =>
-      'Awqaity could not open its own data on this device. Nothing has been lost — try again, or choose your location.';
+      'Jama’ah could not open its own data on this device. Nothing has been lost — try again, or choose your location.';
 
   @override
   String get todaySectionTimes => 'Prayer times (Adhan)';
@@ -211,7 +211,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationSheetBody =>
-      'Awqaity works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.';
+      'Jama’ah works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.';
 
   @override
   String get locationSheetCoarse =>
@@ -244,7 +244,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationPermanentlyDenied =>
-      'Location is switched off for Awqaity in your device settings. You can change that there, or choose your city now.';
+      'Location is switched off for Jama’ah in your device settings. You can change that there, or choose your city now.';
 
   @override
   String get locationServiceDisabled =>

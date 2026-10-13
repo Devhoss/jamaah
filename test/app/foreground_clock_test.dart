@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/app/clock.dart';
-import 'package:awqaity/src/app/foreground_clock.dart';
+import 'package:jamaah/src/app/clock.dart';
+import 'package:jamaah/src/app/foreground_clock.dart';
 
 /// The foreground half of the minute ticker: the countdown moves while the screen
 /// is on, stops when the app is not, and catches up the moment it is.

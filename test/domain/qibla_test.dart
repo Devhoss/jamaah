@@ -1,4 +1,4 @@
-import 'package:awqaity/src/domain/qibla.dart';
+import 'package:jamaah/src/domain/qibla.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The Qibla bearing is a great-circle initial bearing to the Kaaba

@@ -1,10 +1,10 @@
-import 'package:awqaity/src/domain/adhan_alerts.dart';
-import 'package:awqaity/src/domain/mosque.dart';
-import 'package:awqaity/src/domain/notification_plan.dart';
-import 'package:awqaity/src/domain/prayer.dart';
-import 'package:awqaity/src/domain/reminders.dart';
-import 'package:awqaity/src/domain/time_model.dart';
-import 'package:awqaity/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/mosque.dart';
+import 'package:jamaah/src/domain/notification_plan.dart';
+import 'package:jamaah/src/domain/prayer.dart';
+import 'package:jamaah/src/domain/reminders.dart';
+import 'package:jamaah/src/domain/time_model.dart';
+import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Iqama and reminder math. Nothing here touches the device or the clock: every

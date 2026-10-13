@@ -175,7 +175,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   /// The app's own database, created lazily on first use.
-  AppDatabase.open() : this(driftDatabase(name: 'awqaity'));
+  AppDatabase.open() : this(driftDatabase(name: 'jamaah'));
 
   @override
   int get schemaVersion => 1;

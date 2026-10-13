@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// App name shown in the OS task switcher. Keep in sync with branding.yaml.
   ///
   /// In en, this message translates to:
-  /// **'Awqaity'**
+  /// **'Jama’ah'**
   String get appTitle;
 
   /// No description provided for @tabToday.
@@ -229,7 +229,7 @@ abstract class AppLocalizations {
   /// No description provided for @todayErrorBody.
   ///
   /// In en, this message translates to:
-  /// **'Awqaity could not open its own data on this device. Nothing has been lost — try again, or choose your location.'**
+  /// **'Jama’ah could not open its own data on this device. Nothing has been lost — try again, or choose your location.'**
   String get todayErrorBody;
 
   /// Section header over the six rows. Says Adhan so it is never confused with Iqama.
@@ -439,7 +439,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationSheetBody.
   ///
   /// In en, this message translates to:
-  /// **'Awqaity works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.'**
+  /// **'Jama’ah works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.'**
   String get locationSheetBody;
 
   /// No description provided for @locationSheetCoarse.
@@ -499,7 +499,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationPermanentlyDenied.
   ///
   /// In en, this message translates to:
-  /// **'Location is switched off for Awqaity in your device settings. You can change that there, or choose your city now.'**
+  /// **'Location is switched off for Jama’ah in your device settings. You can change that there, or choose your city now.'**
   String get locationPermanentlyDenied;
 
   /// No description provided for @locationServiceDisabled.

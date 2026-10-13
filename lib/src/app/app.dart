@@ -28,8 +28,8 @@ final isDarkThemeProvider = Provider<bool>(
   (ref) => ref.watch(themeModeProvider) == ThemeMode.dark,
 );
 
-class AwqaityApp extends ConsumerWidget {
-  const AwqaityApp({super.key});
+class JamaahApp extends ConsumerWidget {
+  const JamaahApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

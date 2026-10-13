@@ -1,6 +1,6 @@
-# AGENTS.md — Awqaity
+# AGENTS.md — Jama’ah
 
-Awqaity is a minimal Muslim prayer companion (Flutter, Android, offline-first).
+Jama’ah is a minimal Muslim prayer companion (Flutter, Android, offline-first).
 iOS is deferred: keep the domain layer platform-neutral so iOS can be added later, but do not spend
 effort on iOS build config, permissions or platform limits for now.
 Principle: "Know when to pray. Know when your mosque starts. Get reminded on time."
@@ -36,7 +36,8 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 - On-device: adhan_dart (times), geolocator, flutter_compass, drift/SQLite, flutter_local_notifications,
   just_audio or audioplayers (full adhan). Substitute equivalents if justified.
 - App name, bundle ID and branding live in one config location. Logo/branding undecided: neutral wordmark.
-- Branding source: branding.yaml (app name "Awqaity", placeholder application id dev.awqaity.app).
+- Branding source: branding.yaml (app name "Jama’ah" with the typographic apostrophe U+2019; identifiers
+  stay ASCII: placeholder application id dev.jamaah.app, Dart package jamaah).
   tool/sync_branding.dart generates the Dart values and applies the Android/iOS values. Keys and
   other secrets live only in an untracked .env and reach the app via --dart-define.
 

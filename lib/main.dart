@@ -9,5 +9,5 @@ void main() {
   // Prayer times are local wall-clock times, so the IANA database has to be loaded
   // before anything asks for an offset.
   loadTimeZoneDatabase();
-  runApp(const ProviderScope(child: AwqaityApp()));
+  runApp(const ProviderScope(child: JamaahApp()));
 }

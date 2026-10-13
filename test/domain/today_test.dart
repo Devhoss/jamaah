@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/domain/mosque.dart';
-import 'package:awqaity/src/domain/prayer.dart';
-import 'package:awqaity/src/domain/prayer_times_calculator.dart';
-import 'package:awqaity/src/domain/time_model.dart';
-import 'package:awqaity/src/domain/today.dart';
-import 'package:awqaity/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/domain/mosque.dart';
+import 'package:jamaah/src/domain/prayer.dart';
+import 'package:jamaah/src/domain/prayer_times_calculator.dart';
+import 'package:jamaah/src/domain/time_model.dart';
+import 'package:jamaah/src/domain/today.dart';
+import 'package:jamaah/src/domain/zone_offsets.dart';
 
 /// The riskiest part of the app, tested with a clock we hand in rather than one
 /// the device supplies (AGENTS.md quality bar).

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/domain/placeholder_places.dart';
-import 'package:awqaity/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/domain/placeholder_places.dart';
+import 'package:jamaah/src/domain/zone_offsets.dart';
 
 /// Guards the bundled placeholder list.
 ///

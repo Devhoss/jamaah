@@ -3,13 +3,13 @@
 // Keep in sync with test/tool/branding_sync_test.dart.
 
 /// The user-facing app name.
-const String kAppName = 'Awqaity';
+const String kAppName = 'Jama’ah';
 
 /// Android application id / bundle id placeholder.
-const String kApplicationId = 'dev.awqaity.app';
+const String kApplicationId = 'dev.jamaah.app';
 
 /// One-line description used in stores and About.
 const String kAppDescription = 'Know when to pray. Know when your mosque starts. Get reminded on time.';
 
 /// Neutral wordmark shown in the top bar.
-const String kWordmark = 'Awqaity';
+const String kWordmark = 'Jama’ah';

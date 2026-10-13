@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:awqaity/src/app/l10n/generated/app_localizations_en.dart';
-import 'package:awqaity/src/domain/place.dart';
-import 'package:awqaity/src/features/location/place_copy.dart';
+import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
+import 'package:jamaah/src/domain/place.dart';
+import 'package:jamaah/src/features/location/place_copy.dart';
 
 /// What a saved place is called. The chip on Today and the line in the sheet read
 /// from here, so they cannot disagree about whose name is showing.
