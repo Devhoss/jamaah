@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:jamaah/src/data/notifications/notification_sync.dart';
 import 'package:jamaah/src/domain/notification_channels.dart';
 
@@ -40,7 +42,16 @@ class FakeNotificationGateway implements NotificationGateway {
   @override
   Future<List<PendingItem>> pending() async => [
     for (final item in scheduled.values)
-      PendingItem(id: item.id, title: item.title, body: item.body),
+      PendingItem(
+        id: item.id,
+        title: item.title,
+        body: item.body,
+        // What the real gateway writes, so screens can read time and kind.
+        payload: jsonEncode({
+          'at': item.at.toUtc().toIso8601String(),
+          'kind': item.planned.kind.name,
+        }),
+      ),
   ];
 
   @override

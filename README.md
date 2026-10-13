@@ -226,7 +226,7 @@ The first screen the user sees, and the only one that reads the stored place.
 ## Tests
 
 ```bash
-flutter test       # 423 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 427 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -46,158 +47,197 @@ class _Snapshot {
 }
 
 class _ScheduledNotificationsPageState
-    extends ConsumerState<ScheduledNotificationsPage>
-    with WidgetsBindingObserver {
-  late Future<_Snapshot> _snapshot = _read();
+    extends ConsumerState<ScheduledNotificationsPage> {
+  _Snapshot? _data;
+  late final AppLifecycleListener _lifecycle;
+
+  /// Re-reads the permissions every second while one is missing.
+  ///
+  /// The answer to a permission request does not always reach the app (and a
+  /// permission can be granted from system settings without one), so the screen
+  /// asks the system directly instead of waiting for a reply. It stops as soon as
+  /// both are granted, so it costs nothing in the normal case.
+  Timer? _watch;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycle = AppLifecycleListener(onResume: _reload);
+    _reload();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _watch?.cancel();
+    _lifecycle.dispose();
     super.dispose();
   }
 
-  /// Coming back from the system settings page: read the permissions again.
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _refresh();
-  }
-
-  Future<_Snapshot> _read() async {
+  Future<void> _reload() async {
     final gateway = ref.read(notificationGatewayProvider);
-    return _Snapshot(
+    final data = _Snapshot(
       pending: await gateway.pending(),
       enabled: await gateway.notificationsEnabled(),
       exact: await gateway.canScheduleExact(),
     );
+    if (!mounted) return;
+    final gained =
+        _data != null &&
+        ((data.enabled && !_data!.enabled) || (data.exact && !_data!.exact));
+    setState(() => _data = data);
+    _watchWhileMissing(data);
+    // A permission that just arrived changes what can be scheduled (exact
+    // timing, or anything at all), so the schedule is rebuilt with it.
+    if (gained) await _rescheduleNow();
   }
 
-  void _refresh() => setState(() => _snapshot = _read());
+  void _watchWhileMissing(_Snapshot data) {
+    final missing = !data.enabled || !data.exact;
+    if (!missing) {
+      _watch?.cancel();
+      _watch = null;
+    } else {
+      _watch ??= Timer.periodic(const Duration(seconds: 1), (_) => _recheck());
+    }
+  }
+
+  Future<void> _recheck() async {
+    final gateway = ref.read(notificationGatewayProvider);
+    final enabled = await gateway.notificationsEnabled();
+    final exact = await gateway.canScheduleExact();
+    final data = _data;
+    if (!mounted || data == null) return;
+    if (enabled != data.enabled || exact != data.exact) await _reload();
+  }
 
   Future<void> _rescheduleNow() async {
     await ref.read(notificationSchedulerProvider.notifier).syncNow();
-    _refresh();
+    if (!mounted) return;
+    final gateway = ref.read(notificationGatewayProvider);
+    final pending = await gateway.pending();
+    final data = _data;
+    if (!mounted || data == null) return;
+    setState(
+      () => _data = _Snapshot(
+        pending: pending,
+        enabled: data.enabled,
+        exact: data.exact,
+      ),
+    );
   }
 
-  Future<void> _allowNotifications() async {
-    await ref
-        .read(localNotificationsGatewayProvider)
-        .requestNotificationPermission();
-    await _rescheduleNow();
-  }
+  // The requests are started, not awaited: the watch above notices the result.
+  void _allowNotifications() => unawaited(
+    ref.read(notificationPermissionActionsProvider).requestNotifications(),
+  );
 
-  Future<void> _allowExact() async {
-    await ref.read(localNotificationsGatewayProvider).requestExactAlarms();
-    await _rescheduleNow();
-  }
+  void _allowExact() => unawaited(
+    ref.read(notificationPermissionActionsProvider).requestExactAlarms(),
+  );
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final ink = AppInk.of(context);
+    final data = _data;
+    // A sync that finishes while the screen is open (a setting changed, the app
+    // came back) changes the list, so it is read again.
+    ref.listen(notificationSchedulerProvider, (before, after) {
+      if (before?.report != after.report) _reload();
+    });
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.scheduledTitle)),
-      body: FutureBuilder<_Snapshot>(
-        future: _snapshot,
-        builder: (context, snap) {
-          final data = snap.data;
-          if (data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final items = [...data.pending]
-            ..sort((a, b) => _at(a).compareTo(_at(b)));
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpace.xxl,
-              AppSpace.sm,
-              AppSpace.xxl,
-              AppSpace.xxl,
-            ),
+      body: data == null
+          ? const Center(child: CircularProgressIndicator())
+          : _body(context, data, l10n, theme, ink),
+    );
+  }
+
+  Widget _body(
+    BuildContext context,
+    _Snapshot data,
+    AppLocalizations l10n,
+    ThemeData theme,
+    AppInk ink,
+  ) {
+    final items = [...data.pending]..sort((a, b) => _at(a).compareTo(_at(b)));
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.xxl,
+        AppSpace.sm,
+        AppSpace.xxl,
+        AppSpace.xxl,
+      ),
+      children: [
+        if (!data.enabled) ...[
+          AppPrompt(
             children: [
-              if (!data.enabled) ...[
-                AppPrompt(
-                  children: [
-                    Text(
-                      l10n.scheduledNotificationsOff,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpace.sm),
-                FilledButton(
-                  onPressed: _allowNotifications,
-                  child: Text(l10n.scheduledAllowNotifications),
-                ),
-                const SizedBox(height: AppSpace.md),
-              ],
-              if (!data.exact) ...[
-                AppPrompt(
-                  children: [
-                    Text(
-                      l10n.scheduledExactOff,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpace.sm),
-                OutlinedButton(
-                  onPressed: _allowExact,
-                  child: Text(l10n.scheduledAllowExact),
-                ),
-                const SizedBox(height: AppSpace.md),
-              ],
               Text(
-                l10n.scheduledCount(items.length),
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: AppSpace.md),
-              if (items.isEmpty)
-                AppPrompt(
-                  children: [
-                    Text(
-                      l10n.scheduledNothing,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                )
-              else
-                AppRows(
-                  children: [
-                    for (final item in items)
-                      _PendingRow(item: item, at: _at(item)),
-                  ],
-                ),
-              const SizedBox(height: AppSpace.lg),
-              Text(
-                l10n.scheduledBatteryHint,
-                style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-              ),
-              const SizedBox(height: AppSpace.sm),
-              Wrap(
-                spacing: AppSpace.md,
-                runSpacing: AppSpace.sm,
-                children: [
-                  OutlinedButton(
-                    onPressed: () => Geolocator.openAppSettings(),
-                    child: Text(l10n.scheduledOpenAppSettings),
-                  ),
-                  TextButton(
-                    onPressed: _rescheduleNow,
-                    child: Text(l10n.scheduledRescheduleNow),
-                  ),
-                ],
+                l10n.scheduledNotificationsOff,
+                style: theme.textTheme.bodyMedium,
               ),
             ],
-          );
-        },
-      ),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          FilledButton(
+            onPressed: _allowNotifications,
+            child: Text(l10n.scheduledAllowNotifications),
+          ),
+          const SizedBox(height: AppSpace.md),
+        ],
+        if (!data.exact) ...[
+          AppPrompt(
+            children: [
+              Text(l10n.scheduledExactOff, style: theme.textTheme.bodyMedium),
+            ],
+          ),
+          const SizedBox(height: AppSpace.sm),
+          OutlinedButton(
+            onPressed: _allowExact,
+            child: Text(l10n.scheduledAllowExact),
+          ),
+          const SizedBox(height: AppSpace.md),
+        ],
+        Text(
+          l10n.scheduledCount(items.length),
+          style: theme.textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (items.isEmpty)
+          AppPrompt(
+            children: [
+              Text(l10n.scheduledNothing, style: theme.textTheme.bodyMedium),
+            ],
+          )
+        else
+          AppRows(
+            children: [
+              for (final item in items) _PendingRow(item: item, at: _at(item)),
+            ],
+          ),
+        const SizedBox(height: AppSpace.lg),
+        Text(
+          l10n.scheduledBatteryHint,
+          style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+        ),
+        const SizedBox(height: AppSpace.sm),
+        Wrap(
+          spacing: AppSpace.md,
+          runSpacing: AppSpace.sm,
+          children: [
+            OutlinedButton(
+              onPressed: () => Geolocator.openAppSettings(),
+              child: Text(l10n.scheduledOpenAppSettings),
+            ),
+            TextButton(
+              onPressed: _rescheduleNow,
+              child: Text(l10n.scheduledRescheduleNow),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

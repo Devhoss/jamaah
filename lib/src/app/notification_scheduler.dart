@@ -288,3 +288,24 @@ final notificationPermissionRequestProvider = Provider<Future<void> Function()>(
     }
   },
 );
+
+/// The two system requests the scheduled-notifications screen can make,
+/// overridable so a test can stand in for the platform.
+class NotificationPermissionActions {
+  const NotificationPermissionActions({
+    required this.requestNotifications,
+    required this.requestExactAlarms,
+  });
+
+  final Future<void> Function() requestNotifications;
+  final Future<void> Function() requestExactAlarms;
+}
+
+final notificationPermissionActionsProvider =
+    Provider<NotificationPermissionActions>((ref) {
+      final gateway = ref.watch(localNotificationsGatewayProvider);
+      return NotificationPermissionActions(
+        requestNotifications: gateway.requestNotificationPermission,
+        requestExactAlarms: gateway.requestExactAlarms,
+      );
+    });
