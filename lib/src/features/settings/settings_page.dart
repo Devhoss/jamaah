@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
+import '../../app/location_follower.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
+import '../../domain/place.dart';
 import '../../domain/prayer.dart';
 import '../components/app_widgets.dart';
 import '../mosques/mosque_detail_page.dart';
@@ -106,6 +108,12 @@ class SettingsPage extends ConsumerWidget {
           AppRows(
             children: [
               SwitchListTile(
+                title: Text(l10n.settingsFollowLocation),
+                subtitle: Text(l10n.settingsFollowLocationHint),
+                value: travel.followLocation,
+                onChanged: (on) => _setFollow(context, ref, on),
+              ),
+              SwitchListTile(
                 title: Text(l10n.settingsTravelMode),
                 subtitle: Text(l10n.settingsTravelModeHint),
                 value: travel.travelMode,
@@ -151,6 +159,30 @@ class SettingsPage extends ConsumerWidget {
             style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Turning following on is the user's tap, so the location dialog may show
+  /// now; if the device says no, following stays off and the reason is shown.
+  Future<void> _setFollow(BuildContext context, WidgetRef ref, bool on) async {
+    final follower = ref.read(locationFollowerProvider);
+    if (!on) {
+      await follower.disable();
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final failure = await follower.enable();
+    if (failure == null) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          failure == PlaceFailure.denied ||
+                  failure == PlaceFailure.permanentlyDenied
+              ? l10n.followDenied
+              : l10n.followUnavailable,
+        ),
       ),
     );
   }

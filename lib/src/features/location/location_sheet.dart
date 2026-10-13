@@ -8,6 +8,7 @@ import '../../domain/place.dart';
 import '../components/app_widgets.dart';
 import 'city_list_page.dart';
 import 'location_controller.dart';
+import 'preview_city_page.dart';
 import 'place_copy.dart';
 
 /// The place question, asked the way AGENTS.md requires: explain first, then ask.
@@ -34,8 +35,10 @@ class _LocationSheet extends ConsumerWidget {
     final controller = ref.read(locationRequestProvider.notifier);
     final place = ref.watch(currentPlaceProvider);
 
+    // Scrolls when it does not fit: a phone screen at a large text size, or
+    // with a saved place (rename and preview add rows).
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           AppSpace.xxl,
           0,
@@ -104,6 +107,19 @@ class _LocationSheet extends ConsumerWidget {
               },
               child: Text(l10n.locationChooseCity),
             ),
+            if (place != null) ...[
+              const SizedBox(height: AppSpace.sm),
+              TextButton.icon(
+                // Looks somewhere else without moving the saved place.
+                onPressed: () {
+                  final navigator = Navigator.of(context);
+                  navigator.pop();
+                  previewAnotherCity(navigator.context);
+                },
+                icon: const Icon(Icons.travel_explore),
+                label: Text(l10n.previewCity),
+              ),
+            ],
           ],
         ),
       ),

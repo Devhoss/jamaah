@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/clock.dart';
 import '../../app/clock_format.dart';
 import '../../app/date_labels.dart';
 import '../../app/l10n/generated/app_localizations.dart';
@@ -89,6 +90,12 @@ class TodayScreen extends ConsumerWidget {
             onTap: () => showLocationSheet(context),
           ),
         ),
+        if (settings.requireValue.travel.followLocation)
+          _FollowLine(
+            checkedAt: settings.requireValue.placeCheckedAt,
+            failed: settings.requireValue.placeCheckFailed,
+            now: ref.watch(minuteClockProvider),
+          ),
         if (hasTimes) ...[
           _HeroCard(
             today: today,
@@ -646,6 +653,49 @@ class _PausedNote extends StatelessWidget {
           Expanded(
             child: Text(
               text,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: ink.muted),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Follow my location": how fresh the place is, or that it could not be updated.
+class _FollowLine extends StatelessWidget {
+  const _FollowLine({
+    required this.checkedAt,
+    required this.failed,
+    required this.now,
+  });
+
+  final DateTime? checkedAt;
+  final bool failed;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final ink = AppInk.of(context);
+    final checked = checkedAt;
+    if (checked == null && !failed) return const SizedBox.shrink();
+    final ago = checked == null ? '' : agoLabel(l10n, checked, now);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.sm),
+      child: Row(
+        children: [
+          Icon(
+            failed ? Icons.location_disabled : Icons.my_location,
+            size: 16,
+            color: ink.muted,
+          ),
+          const SizedBox(width: AppSpace.sm),
+          Expanded(
+            child: Text(
+              failed ? l10n.followingStale(ago) : l10n.followingUpdated(ago),
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: ink.muted),

@@ -57,6 +57,11 @@ abstract final class SettingKeys {
   static const travelMode = 'travel_mode';
   static const pauseIqamaReminders = 'pause_iqama_reminders';
   static const followLocation = 'follow_location';
+
+  /// "Follow my location": when the device last confirmed the place (Unix ms),
+  /// and whether the latest try failed (the last place is then still in use).
+  static const placeCheckedAt = 'place_checked_at';
+  static const placeCheckFailed = 'place_check_failed';
 }
 
 /// Per-prayer Adhan alert config: enabled flag, an optional sound override, and

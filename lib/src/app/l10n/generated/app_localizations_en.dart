@@ -912,4 +912,60 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get alertStopHint =>
       'Stop it from the notification, or turn the phone face down.';
+
+  @override
+  String get settingsFollowLocation => 'Follow my location';
+
+  @override
+  String get settingsFollowLocationHint =>
+      'When you open the app, your place updates to where you are, so times follow you between cities and time zones.';
+
+  @override
+  String get followDenied =>
+      'Location wasn\'t allowed, so the app can\'t follow you. You can still choose a city.';
+
+  @override
+  String get followUnavailable =>
+      'Your location couldn\'t be read right now, so following stays off. Try again in a moment.';
+
+  @override
+  String followingUpdated(String ago) {
+    return 'Following your location · updated $ago';
+  }
+
+  @override
+  String followingStale(String ago) {
+    return 'Couldn\'t update your location. Using the last one, from $ago.';
+  }
+
+  @override
+  String get agoJustNow => 'just now';
+
+  @override
+  String agoMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String agoHours(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String agoDays(int count) {
+    return '$count d ago';
+  }
+
+  @override
+  String get previewCity => 'Preview another city';
+
+  @override
+  String previewTitle(String place) {
+    return '$place';
+  }
+
+  @override
+  String previewNote(String place, String current) {
+    return 'Prayer times for $place. Your own place stays $current.';
+  }
 }

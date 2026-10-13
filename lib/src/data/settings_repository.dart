@@ -79,6 +79,8 @@ class AppSettingsSnapshot {
     this.travel = const TravelSettings(),
     this.activeMosqueId,
     this.location,
+    this.placeCheckedAt,
+    this.placeCheckFailed = false,
   });
 
   final CalculationMethod calculationMethod;
@@ -99,6 +101,13 @@ class AppSettingsSnapshot {
 
   /// Null on a fresh install, before the user grants location or picks a place.
   final StoredLocation? location;
+
+  /// "Follow my location": when the device last confirmed where the phone is.
+  final DateTime? placeCheckedAt;
+
+  /// True when the latest try to follow the device failed, so the saved place
+  /// may be out of date. Shown on Today, never silent.
+  final bool placeCheckFailed;
 }
 
 /// Reads and writes the stored settings.
@@ -158,6 +167,13 @@ class SettingsRepository {
       ),
       activeMosqueId: values[SettingKeys.activeMosqueId],
       location: _location(values),
+      placeCheckedAt: switch (int.tryParse(
+        values[SettingKeys.placeCheckedAt] ?? '',
+      )) {
+        final ms? => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true),
+        null => null,
+      },
+      placeCheckFailed: values[SettingKeys.placeCheckFailed] == 'true',
     );
   }
 
@@ -234,6 +250,19 @@ class SettingsRepository {
               .into(_db.adhanAlertRows)
               .insert(row, onConflict: DoUpdate((_) => row));
         }
+      });
+
+  /// Records a "Follow my location" check: [at] when the device answered, and
+  /// whether this try [failed] (then [at] is left as it was).
+  Future<void> markPlaceChecked({DateTime? at, required bool failed}) =>
+      _db.transaction(() async {
+        if (at != null) {
+          await _put(
+            SettingKeys.placeCheckedAt,
+            '${at.toUtc().millisecondsSinceEpoch}',
+          );
+        }
+        await _put(SettingKeys.placeCheckFailed, '$failed');
       });
 
   /// Travel mode and its manual Iqama pause. The pause is kept when travel mode

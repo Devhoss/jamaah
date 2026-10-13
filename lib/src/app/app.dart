@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_shell.dart';
 import 'foreground_clock.dart';
+import 'location_follower.dart';
 import 'notification_scheduler.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'theme/theme.dart';
@@ -37,16 +38,18 @@ class JamaahApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return ForegroundClock(
-      child: NotificationsKeeper(
-        child: MaterialApp(
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: themeMode,
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-          home: const AppShell(),
+      child: FollowLocationKeeper(
+        child: NotificationsKeeper(
+          child: MaterialApp(
+            onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: themeMode,
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const AppShell(),
+          ),
         ),
       ),
     );

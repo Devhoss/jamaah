@@ -184,6 +184,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
   }
 
   Future<void> _syncOnce() async {
+    if (!ref.mounted) return;
     final settings = ref.read(appSettingsProvider).value;
     final calculator = ref.read(prayerTimesCalculatorProvider);
     final zone = ref.read(placeZoneProvider);
@@ -235,9 +236,12 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               },
       );
       debugPrint('Notifications: $report');
+      // The app (or a test) may have closed while the platform was answering.
+      if (!ref.mounted) return;
       state = NotificationSyncState(report: report);
     } on Object catch (error) {
       debugPrint('Notifications: sync failed: $error');
+      if (!ref.mounted) return;
       state = NotificationSyncState(report: state.report, error: error);
     }
   }

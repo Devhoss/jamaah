@@ -1579,6 +1579,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop it from the notification, or turn the phone face down.'**
   String get alertStopHint;
+
+  /// No description provided for @settingsFollowLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow my location'**
+  String get settingsFollowLocation;
+
+  /// No description provided for @settingsFollowLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When you open the app, your place updates to where you are, so times follow you between cities and time zones.'**
+  String get settingsFollowLocationHint;
+
+  /// No description provided for @followDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location wasn\'t allowed, so the app can\'t follow you. You can still choose a city.'**
+  String get followDenied;
+
+  /// No description provided for @followUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location couldn\'t be read right now, so following stays off. Try again in a moment.'**
+  String get followUnavailable;
+
+  /// No description provided for @followingUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Following your location · updated {ago}'**
+  String followingUpdated(String ago);
+
+  /// Following is on but the latest try failed (in the air, location off). Never silent.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update your location. Using the last one, from {ago}.'**
+  String followingStale(String ago);
+
+  /// No description provided for @agoJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get agoJustNow;
+
+  /// No description provided for @agoMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String agoMinutes(int count);
+
+  /// No description provided for @agoHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String agoHours(int count);
+
+  /// No description provided for @agoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} d ago'**
+  String agoDays(int count);
+
+  /// No description provided for @previewCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview another city'**
+  String get previewCity;
+
+  /// No description provided for @previewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{place}'**
+  String previewTitle(String place);
+
+  /// No description provided for @previewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times for {place}. Your own place stays {current}.'**
+  String previewNote(String place, String current);
 }
 
 class _AppLocalizationsDelegate

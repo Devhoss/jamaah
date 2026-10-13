@@ -104,6 +104,11 @@ abstract interface class PlaceSource {
   /// explanation sheet has to be on screen first.
   Future<PlaceReading> requestPlace();
 
+  /// The device's coarse location only if permission was already given: never
+  /// shows a dialog. "Follow my location" uses it when the app opens or comes
+  /// back, which is not a moment the user asked for anything.
+  Future<PlaceReading> currentPlaceIfAllowed();
+
   /// Open this app's page in the system settings, for the permanently-denied case.
   ///
   /// Best effort: if the platform cannot, it returns normally and the UI has

@@ -236,10 +236,23 @@ The first screen the user sees, and the only one that reads the stored place.
 - Sounds are generated **placeholders** (`tool/generate_placeholder_tones.dart`);
   see `docs/audio-licence.md` for the candidates and how to swap a recording in.
 
+## Travel
+
+- **Follow my location** (Settings → Travel): each time the app opens or comes back,
+  it reads the device's coarse location **without asking** (the permission is asked
+  only when the switch is turned on) and replaces the saved place when the phone is
+  more than 10 km away or in another time zone (`place_follow.dart`). The place,
+  "today" and every scheduled notification follow. Today shows "Following your
+  location · updated 2 h ago", or says plainly when it could not update and the
+  last place is in use.
+- **Travel mode** can pause Iqama reminders by hand; Adhan alerts never pause.
+- **Preview another city** (location sheet): any city's times for today, without
+  moving the saved place or touching notifications.
+
 ## Tests
 
 ```bash
-flutter test       # 452 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 468 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

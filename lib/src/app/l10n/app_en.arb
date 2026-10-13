@@ -599,5 +599,55 @@
   "settingsFullScreenHint": "When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too.",
   "settingsFullScreenDenied": "Your phone doesn't allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification.",
   "settingsFullScreenAllow": "Allow full-screen alerts",
-  "alertStopHint": "Stop it from the notification, or turn the phone face down."
+  "alertStopHint": "Stop it from the notification, or turn the phone face down.",
+  "settingsFollowLocation": "Follow my location",
+  "settingsFollowLocationHint": "When you open the app, your place updates to where you are, so times follow you between cities and time zones.",
+  "followDenied": "Location wasn't allowed, so the app can't follow you. You can still choose a city.",
+  "followUnavailable": "Your location couldn't be read right now, so following stays off. Try again in a moment.",
+  "followingUpdated": "Following your location · updated {ago}",
+  "@followingUpdated": {
+    "placeholders": {
+      "ago": { "type": "String" }
+    }
+  },
+  "followingStale": "Couldn't update your location. Using the last one, from {ago}.",
+  "@followingStale": {
+    "description": "Following is on but the latest try failed (in the air, location off). Never silent.",
+    "placeholders": {
+      "ago": { "type": "String" }
+    }
+  },
+  "agoJustNow": "just now",
+  "agoMinutes": "{count} min ago",
+  "@agoMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "agoHours": "{count} h ago",
+  "@agoHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "agoDays": "{count} d ago",
+  "@agoDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "previewCity": "Preview another city",
+  "previewTitle": "{place}",
+  "@previewTitle": {
+    "placeholders": {
+      "place": { "type": "String" }
+    }
+  },
+  "previewNote": "Prayer times for {place}. Your own place stays {current}.",
+  "@previewNote": {
+    "placeholders": {
+      "place": { "type": "String" },
+      "current": { "type": "String" }
+    }
+  }
 }

@@ -41,7 +41,21 @@ class DevicePlaceSource implements PlaceSource {
         grant.canAsk ? PlaceFailure.denied : PlaceFailure.permanentlyDenied,
       );
     }
+    return _read();
+  }
 
+  @override
+  Future<PlaceReading> currentPlaceIfAllowed() async {
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return const PlaceRejected(PlaceFailure.serviceDisabled);
+    }
+    final grant = await permissions.status();
+    if (!grant.any) return const PlaceRejected(PlaceFailure.denied);
+    return _read();
+  }
+
+  /// One coarse fix and the device's zone, every failure as a value.
+  Future<PlaceReading> _read() async {
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(

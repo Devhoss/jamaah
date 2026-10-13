@@ -38,3 +38,12 @@ String movedPrayerNames(AppLocalizations l10n, Set<Prayer> moved) {
     _ => names.first,
   };
 }
+
+/// "just now", "12 min ago", "6 h ago", "2 d ago".
+String agoLabel(AppLocalizations l10n, DateTime then, DateTime now) {
+  final minutes = now.difference(then).inMinutes;
+  if (minutes < 1) return l10n.agoJustNow;
+  if (minutes < 60) return l10n.agoMinutes(minutes);
+  if (minutes < 48 * 60) return l10n.agoHours(minutes ~/ 60);
+  return l10n.agoDays(minutes ~/ (24 * 60));
+}

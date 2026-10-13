@@ -20,6 +20,16 @@ class FakePlaceSource implements PlaceSource {
   Future<void> openSystemSettings() async {
     settingsOpenCount++;
   }
+
+  /// What a silent check finds; falls back to [reading].
+  PlaceReading? silentReading;
+  int silentCount = 0;
+
+  @override
+  Future<PlaceReading> currentPlaceIfAllowed() async {
+    silentCount++;
+    return silentReading ?? reading;
+  }
 }
 
 /// A city from the bundled list.
