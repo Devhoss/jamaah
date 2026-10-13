@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/features/settings/adhan_recordings_page.dart';
+import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/audio_preview.dart';
 import 'package:jamaah/src/app/clock.dart';
@@ -375,6 +377,44 @@ void main() {
 
       expect(gateway.adhanAlarmsById, isNotEmpty);
       expect(gateway.scheduled, isEmpty);
+    });
+  });
+
+  group('the full Adhan recording', () {
+    testApp('each recording plays here, and choosing one saves it', (
+      tester,
+    ) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsFullRecording);
+      expect(find.byType(AdhanRecordingsPage), findsOneWidget);
+
+      await tap(tester, find.byTooltip(t.recordingPlayLabel('Makkah')));
+      expect(preview.played.last, adhanRecordingById('makkah').asset);
+      expect(find.byTooltip(t.recordingStopLabel('Makkah')), findsOneWidget);
+
+      await tapText(tester, 'Makkah');
+      expect((await settings.read()).adhanAlerts.fullRecording, 'makkah');
+
+      final stopsBefore = preview.stops;
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(preview.stops, greaterThan(stopsBefore),
+          reason: 'leaving the page stops a recording it started');
+      expect(find.text('Makkah'), findsOneWidget,
+          reason: 'Settings names the chosen recording');
+    });
+
+    testApp('the full Adhan preview plays the chosen recording', (
+      tester,
+    ) async {
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings.defaults().copyWith(fullRecording: 'saber'),
+      );
+      await open(tester);
+      await openPrayer(tester, Prayer.fajr);
+      await tap(tester, find.text(t.alertPreview).first);
+      expect(preview.played.single, adhanRecordingById('saber').asset);
     });
   });
 

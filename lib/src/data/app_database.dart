@@ -52,6 +52,7 @@ abstract final class SettingKeys {
 
   /// Show the Adhan full screen when the phone is idle. Absent means off.
   static const adhanFullScreen = 'adhan_full_screen';
+  static const adhanFullRecording = 'adhan_full_recording';
 
   /// Travel mode and its manual Iqama pause (decided 2026-10-13). Absent means off.
   static const travelMode = 'travel_mode';

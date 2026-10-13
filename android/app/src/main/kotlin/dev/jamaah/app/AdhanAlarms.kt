@@ -18,8 +18,10 @@ data class AdhanAlarm(
     val atMillis: Long,
     val title: String,
     val body: String,
-    /** "full" or "short": which bundled recording plays. */
+    /** "full", "short", "standard" or "silent". */
     val sound: String,
+    /** Full only: the Flutter asset path of the chosen recording. */
+    val recording: String,
     val ringInSilent: Boolean,
     val fullScreen: Boolean,
     val vibrate: Boolean,
@@ -34,6 +36,7 @@ data class AdhanAlarm(
         .put("title", title)
         .put("body", body)
         .put("sound", sound)
+        .put("recording", recording)
         .put("ringInSilent", ringInSilent)
         .put("fullScreen", fullScreen)
         .put("vibrate", vibrate)
@@ -47,6 +50,7 @@ data class AdhanAlarm(
             title = o.optString("title"),
             body = o.optString("body"),
             sound = o.optString("sound", "full"),
+            recording = o.optString("recording", ""),
             ringInSilent = o.optBoolean("ringInSilent"),
             fullScreen = o.optBoolean("fullScreen"),
             vibrate = o.optBoolean("vibrate", true),
@@ -60,6 +64,7 @@ data class AdhanAlarm(
             title = m["title"] as? String ?: "",
             body = m["body"] as? String ?: "",
             sound = m["sound"] as? String ?: "full",
+            recording = m["recording"] as? String ?: "",
             ringInSilent = m["ringInSilent"] == true,
             fullScreen = m["fullScreen"] == true,
             vibrate = m["vibrate"] != false,

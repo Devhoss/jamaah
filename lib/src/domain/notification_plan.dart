@@ -1,4 +1,5 @@
 import 'adhan_alerts.dart';
+import 'adhan_recordings.dart';
 import 'mosque.dart';
 import 'prayer.dart';
 import 'time_model.dart';
@@ -17,6 +18,7 @@ class PlannedNotification {
     this.ringInSilent = false,
     this.fullScreen = false,
     this.minutesBefore,
+    this.recordingAsset,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -45,6 +47,9 @@ class PlannedNotification {
 
   /// For reminders: how many minutes ahead of the Adhan or Iqama this fires.
   final int? minutesBefore;
+
+  /// Full Adhan only: the bundled recording the app plays.
+  final String? recordingAsset;
 
   /// True when the reminder has already fired and must not be re-scheduled.
   bool isInPast(DateTime now) => at.isBefore(now);
@@ -145,6 +150,9 @@ class NotificationPlanner {
             // Ringing in silent only means something for a recording that plays.
             ringInSilent: plays && alert.ringInSilent,
             fullScreen: input.adhanAlerts.fullScreen,
+            recordingAsset: mode == AdhanSoundMode.full
+                ? adhanRecordingById(input.adhanAlerts.fullRecording).asset
+                : null,
           ),
         );
       }

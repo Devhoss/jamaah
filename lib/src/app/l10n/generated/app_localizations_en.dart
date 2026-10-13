@@ -810,11 +810,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertFullHint =>
-      'Plays the whole Adhan. For now this is a placeholder tone until a recording is chosen.';
+      'Plays the whole Adhan, in the recording chosen in Settings.';
 
   @override
   String get alertShortHint =>
-      'Plays the opening of the Adhan (a placeholder tone for now).';
+      'Plays the opening of the Adhan, about 8 seconds.';
 
   @override
   String get alertStandardHint => 'Your phone\'s usual notification sound.';
@@ -911,6 +911,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppearanceSection => 'Appearance';
+
+  @override
+  String get settingsFullRecording => 'Full Adhan recording';
+
+  @override
+  String get recordingsTitle => 'Full Adhan recording';
+
+  @override
+  String get recordingsBody =>
+      'Plays for every alert set to Full Adhan. Short Adhan is the opening of Naghshbandi.';
+
+  @override
+  String get recordingPlay => 'Play';
+
+  @override
+  String get recordingStop => 'Stop';
+
+  @override
+  String recordingPlayLabel(String name) {
+    return 'Play $name';
+  }
+
+  @override
+  String recordingStopLabel(String name) {
+    return 'Stop $name';
+  }
 
   @override
   String get settingsTheme => 'Theme';

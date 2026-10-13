@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../domain/adhan_alerts.dart';
+import '../domain/adhan_recordings.dart';
 import '../domain/place.dart';
 import '../domain/prayer.dart';
 import '../domain/prayer_times_parameters.dart';
@@ -267,6 +268,7 @@ class SettingsRepository {
           alerts.defaultSoundMode.storageKey,
         );
         await _put(SettingKeys.adhanFullScreen, '${alerts.fullScreen}');
+        await _put(SettingKeys.adhanFullRecording, alerts.fullRecording);
         for (final prayer in Prayer.adhanPrayers) {
           final alert = alerts.alertFor(prayer);
           final row = AdhanAlertRowsCompanion.insert(
@@ -379,6 +381,9 @@ class SettingsRepository {
         values[SettingKeys.adhanDefaultSoundMode],
       ),
       fullScreen: values[SettingKeys.adhanFullScreen] == 'true',
+      fullRecording: adhanRecordingById(
+        values[SettingKeys.adhanFullRecording],
+      ).id,
       alerts: {
         for (final prayer in Prayer.adhanPrayers)
           if (byPrayer[prayer.name] case final row?)

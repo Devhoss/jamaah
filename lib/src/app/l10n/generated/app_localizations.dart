@@ -1403,13 +1403,13 @@ abstract class AppLocalizations {
   /// No description provided for @alertFullHint.
   ///
   /// In en, this message translates to:
-  /// **'Plays the whole Adhan. For now this is a placeholder tone until a recording is chosen.'**
+  /// **'Plays the whole Adhan, in the recording chosen in Settings.'**
   String get alertFullHint;
 
   /// No description provided for @alertShortHint.
   ///
   /// In en, this message translates to:
-  /// **'Plays the opening of the Adhan (a placeholder tone for now).'**
+  /// **'Plays the opening of the Adhan, about 8 seconds.'**
   String get alertShortHint;
 
   /// No description provided for @alertStandardHint.
@@ -1585,6 +1585,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Appearance'**
   String get settingsAppearanceSection;
+
+  /// No description provided for @settingsFullRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Adhan recording'**
+  String get settingsFullRecording;
+
+  /// No description provided for @recordingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Adhan recording'**
+  String get recordingsTitle;
+
+  /// No description provided for @recordingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Plays for every alert set to Full Adhan. Short Adhan is the opening of Naghshbandi.'**
+  String get recordingsBody;
+
+  /// No description provided for @recordingPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get recordingPlay;
+
+  /// No description provided for @recordingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get recordingStop;
+
+  /// No description provided for @recordingPlayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {name}'**
+  String recordingPlayLabel(String name);
+
+  /// No description provided for @recordingStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name}'**
+  String recordingStopLabel(String name);
 
   /// No description provided for @settingsTheme.
   ///

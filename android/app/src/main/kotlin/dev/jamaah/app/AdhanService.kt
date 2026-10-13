@@ -93,13 +93,17 @@ class AdhanService : Service(), SensorEventListener {
         // A full-screen page stays up for at least a minute, even when the sound
         // is short (or there is none), so it can be seen and dismissed.
         if (alarm.fullScreen) handler.postDelayed(minimumEnd, 60_000L)
+        val shortAdhan = Uri.parse("android.resource://$packageName/${R.raw.adhan_short}")
         val source: Uri? = when (alarm.sound) {
-            "full" -> Uri.parse("android.resource://$packageName/${R.raw.adhan_full_placeholder}")
-            "short" -> Uri.parse("android.resource://$packageName/${R.raw.adhan_short_placeholder}")
+            // The full recording is read from the Flutter assets below; the
+            // short Adhan stands in if there is none.
+            "full" -> if (alarm.recording.isEmpty()) shortAdhan else null
+            "short" -> shortAdhan
             "standard" -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             else -> null // silent: shown, not heard
         }
-        if (source == null) {
+        val fromAssets = alarm.sound == "full" && alarm.recording.isNotEmpty()
+        if (source == null && !fromAssets) {
             if (!alarm.fullScreen) finish()
             startFlipWatch()
             return
@@ -112,7 +116,11 @@ class AdhanService : Service(), SensorEventListener {
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build(),
                 )
-                setDataSource(this@AdhanService, source)
+                if (fromAssets) {
+                    setAssetSource(this, alarm.recording, shortAdhan)
+                } else {
+                    setDataSource(this@AdhanService, source!!)
+                }
                 setOnCompletionListener { soundEnded() }
                 setOnErrorListener { _, _, _ -> finish(); true }
                 prepare()
@@ -124,6 +132,21 @@ class AdhanService : Service(), SensorEventListener {
         }
 
         startFlipWatch()
+    }
+
+    /**
+     * Points [player] at a Flutter asset. Flutter packs its assets under
+     * flutter_assets/ in the APK, stored uncompressed for audio, so the file can
+     * be opened in place. Falls back to the short Adhan if it cannot be read.
+     */
+    private fun setAssetSource(player: MediaPlayer, asset: String, fallback: Uri) {
+        try {
+            assets.openFd("flutter_assets/$asset").use { fd ->
+                player.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
+            }
+        } catch (e: Exception) {
+            player.setDataSource(this, fallback)
+        }
     }
 
     /** Turning the phone face down stops it. */

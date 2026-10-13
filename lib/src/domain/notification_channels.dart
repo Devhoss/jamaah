@@ -52,7 +52,7 @@ enum ChannelGroup { adhan, preAdhan, iqama }
 /// Bumped whenever a bundled sound file changes. The version is part of every
 /// Adhan channel id, so a new recording gets new channels and the old ones are
 /// retired, instead of Android quietly keeping the old sound.
-const kAdhanToneVersion = 1;
+const kAdhanToneVersion = 2;
 
 /// Every channel id this app creates starts with this, so stale ones can be found
 /// and removed without touching anything else.

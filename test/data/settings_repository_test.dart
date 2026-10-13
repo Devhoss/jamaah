@@ -1,6 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
@@ -459,6 +460,27 @@ void main() {
         "('${SettingKeys.travelMode}', 'true')",
       );
       expect((await settings.read()).travel.travelMode, isFalse);
+    });
+
+    test('the full Adhan recording round-trips, and an unknown one is the '
+        'default', () async {
+      expect(
+        (await settings.read()).adhanAlerts.fullRecording,
+        kDefaultAdhanRecording,
+      );
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings.defaults().copyWith(fullRecording: 'minshawi'),
+      );
+      expect((await settings.read()).adhanAlerts.fullRecording, 'minshawi');
+
+      await db.customStatement(
+        "UPDATE app_settings SET value = 'gone' "
+        "WHERE key = '${SettingKeys.adhanFullRecording}'",
+      );
+      expect(
+        (await settings.read()).adhanAlerts.fullRecording,
+        kDefaultAdhanRecording,
+      );
     });
 
     test('the theme choice round-trips', () async {

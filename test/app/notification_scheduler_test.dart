@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
 import 'package:jamaah/src/app/notification_scheduler.dart';
@@ -72,6 +73,45 @@ void main() {
         );
         expect(n.at, expected, reason: '$day');
       }
+    });
+
+    test('a full Adhan carries the chosen recording; other modes none', () {
+      final zone = zoneOffsetsFor('Africa/Cairo');
+      List<PlannedNotification> planFor(AdhanAlertSettings alerts) =>
+          buildNotificationPlan(
+            calculator: calculatorFor(30.0444, 31.2357, zone),
+            zone: zone,
+            nowUtc: DateTime.utc(2026, 10, 13, 0, 0),
+            alerts: alerts,
+            travel: const TravelSettings(),
+            activeMosque: null,
+          );
+      final alerts = AdhanAlertSettings.defaults()
+          .withAlert(
+            Prayer.fajr,
+            const AdhanAlert(
+              enabled: true,
+              soundModeOverride: AdhanSoundMode.full,
+            ),
+          )
+          .withAlert(
+            Prayer.dhuhr,
+            const AdhanAlert(
+              enabled: true,
+              soundModeOverride: AdhanSoundMode.short,
+            ),
+          )
+          .copyWith(fullRecording: 'makkah');
+
+      final plan = planFor(alerts);
+      expect(
+        plan.where((n) => n.prayer == Prayer.fajr).map((n) => n.recordingAsset),
+        everyElement(adhanRecordingById('makkah').asset),
+      );
+      expect(
+        plan.where((n) => n.prayer == Prayer.dhuhr).map((n) => n.recordingAsset),
+        everyElement(isNull),
+      );
     });
 
     test('a daylight-saving change inside the window is honoured', () {

@@ -13,6 +13,7 @@ import '../../app/theme/tokens.dart';
 import '../../data/notifications/notification_sync.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
+import '../../domain/adhan_recordings.dart';
 import '../../domain/iqama_editing.dart';
 import '../../domain/notification_channels.dart';
 import '../../domain/notification_plan.dart';
@@ -48,10 +49,20 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
   final _custom = TextEditingController();
   bool _sent = false;
 
+  // Kept from initState: dispose must not read providers (the page is
+  // already unmounted by then).
+  late final AudioPreview _preview;
+
+  @override
+  void initState() {
+    super.initState();
+    _preview = ref.read(audioPreviewProvider);
+  }
+
   @override
   void dispose() {
     _custom.dispose();
-    if (_previewing != null) ref.read(audioPreviewProvider).stop();
+    if (_previewing != null) unawaited(_preview.stop());
     super.dispose();
   }
 
@@ -64,13 +75,18 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
       );
 
   Future<void> _togglePreview(AdhanSoundMode mode) async {
-    final preview = ref.read(audioPreviewProvider);
+    final preview = _preview;
     if (_previewing == mode) {
       await preview.stop();
       if (mounted) setState(() => _previewing = null);
       return;
     }
-    final asset = previewAssetFor(mode);
+    final asset = previewAssetFor(
+      mode,
+      fullRecording:
+          ref.read(appSettingsProvider).value?.adhanAlerts.fullRecording ??
+          kDefaultAdhanRecording,
+    );
     if (asset == null) return;
     setState(() => _previewing = mode);
     // Not awaited: it completes when the sound ends, and the page stays usable
@@ -99,6 +115,9 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
           alert.ringInSilent &&
           (mode == AdhanSoundMode.full || mode == AdhanSoundMode.short),
       fullScreen: alerts.fullScreen,
+      recordingAsset: mode == AdhanSoundMode.full
+          ? adhanRecordingById(alerts.fullRecording).asset
+          : null,
     );
     await ref.read(notificationPermissionRequestProvider)();
     final item = ScheduledItem(

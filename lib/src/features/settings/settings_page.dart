@@ -10,10 +10,12 @@ import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
+import '../../domain/adhan_recordings.dart';
 import '../../domain/place.dart';
 import '../../domain/prayer.dart';
 import '../components/app_widgets.dart';
 import '../mosques/mosque_detail_page.dart';
+import 'adhan_recordings_page.dart';
 import 'prayer_alert_page.dart';
 import 'prayer_time_settings.dart';
 import 'scheduled_notifications_page.dart';
@@ -111,6 +113,15 @@ class SettingsPage extends ConsumerWidget {
                 title: _TwoLines(
                   first: l10n.settingsDefaultSound,
                   second: soundModeName(l10n, alerts.defaultSoundMode),
+                ),
+                trailing: Icon(Icons.chevron_right, color: ink.muted),
+              ),
+              AppRow(
+                leading: null,
+                onTap: () => openAdhanRecordings(context),
+                title: _TwoLines(
+                  first: l10n.settingsFullRecording,
+                  second: adhanRecordingById(alerts.fullRecording).name,
                 ),
                 trailing: Icon(Icons.chevron_right, color: ink.muted),
               ),

@@ -242,8 +242,10 @@ regions read from the parameters the calculator uses), the **Asr method**
   `AdhanActivity` (a plain native page over the lock screen with a large Stop).
   When it ends, a normal notification stays. Android 14+ can withhold full-screen
   alerts; Settings then says so and links to the permission.
-- Sounds are generated **placeholders** (`tool/generate_placeholder_tones.dart`);
-  see `docs/audio-licence.md` for the candidates and how to swap a recording in.
+- **Settings → Full Adhan recording** chooses one of 17 bundled recordings, each
+  playable there first (`adhan_recordings.dart`). The short Adhan is the first 8 s
+  of Naghshbandi. Their source and licence are still to be recorded:
+  see `docs/audio-licence.md`.
 
 ## Travel
 

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:jamaah/src/app/branding.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/adhan_recordings.dart';
+
 /// Guards the Android manifest against permissions that no code asks for.
 ///
 /// A declared permission is a promise to the user, so the file is checked the way
@@ -130,11 +132,11 @@ void main() {
   });
 
   test('the sounds and icon the code names exist, and are kept in release', () {
-    for (final path in const [
-      'android/app/src/main/res/raw/adhan_short_placeholder.wav',
+    for (final path in [
+      'android/app/src/main/res/raw/adhan_short.ogg',
       'android/app/src/main/res/drawable/ic_stat_jamaah.xml',
-      'assets/audio/adhan_short_placeholder.wav',
-      'assets/audio/adhan_full_placeholder.wav',
+      kShortAdhanAsset,
+      for (final r in adhanRecordings) r.asset,
     ]) {
       expect(File(path).existsSync(), isTrue, reason: path);
     }
@@ -143,7 +145,18 @@ void main() {
       allOf(contains('@raw/adhan_*'), contains('@drawable/ic_stat_jamaah')),
       reason: 'resource shrinking cannot see names used only from Dart',
     );
-    expect(File('pubspec.yaml').readAsStringSync(), contains('assets/audio/'));
+    expect(
+      File('pubspec.yaml').readAsStringSync(),
+      allOf(
+        contains(RegExp(r'- assets/audio/\s')),
+        contains('- assets/audio/short/'),
+      ),
+    );
+    expect(
+      File('android/app/src/main/res/raw/adhan_short.ogg').readAsBytesSync(),
+      File(kShortAdhanAsset).readAsBytesSync(),
+      reason: 'the preview plays exactly what the notification plays',
+    );
   });
 
   test(
@@ -164,10 +177,12 @@ void main() {
       expect(text, contains('android:showWhenLocked="true"'));
       expect(text, contains('android:name=".AdhanAlarmReceiver"'));
       expect(text, contains('android:name=".AdhanBootReceiver"'));
+      // The full recording is read from the Flutter assets in place.
       expect(
-        File('android/app/src/main/res/raw/adhan_full_placeholder.wav')
-            .existsSync(),
-        isTrue,
+        File(
+          'android/app/src/main/kotlin/dev/jamaah/app/AdhanService.kt',
+        ).readAsStringSync(),
+        contains('flutter_assets/'),
       );
     },
   );

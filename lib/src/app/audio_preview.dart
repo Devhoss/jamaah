@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../domain/adhan_alerts.dart';
+import '../domain/adhan_recordings.dart';
 
 /// Plays a bundled sound for "Preview" in the alert settings, and stops it.
 abstract interface class AudioPreview {
@@ -11,10 +12,13 @@ abstract interface class AudioPreview {
 }
 
 /// The bundled sound each Adhan mode plays, or null when the mode has none of
-/// its own (the platform's sound, or silence).
-String? previewAssetFor(AdhanSoundMode mode) => switch (mode) {
-  AdhanSoundMode.full => 'assets/audio/adhan_full_placeholder.wav',
-  AdhanSoundMode.short => 'assets/audio/adhan_short_placeholder.wav',
+/// its own (the platform's sound, or silence). Full plays [fullRecording].
+String? previewAssetFor(
+  AdhanSoundMode mode, {
+  String fullRecording = kDefaultAdhanRecording,
+}) => switch (mode) {
+  AdhanSoundMode.full => adhanRecordingById(fullRecording).asset,
+  AdhanSoundMode.short => kShortAdhanAsset,
   AdhanSoundMode.standard || AdhanSoundMode.silent => null,
 };
 

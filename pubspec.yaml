@@ -77,10 +77,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # Generated PLACEHOLDER tones (tool/generate_placeholder_tones.dart), played by
-  # the app for preview and the full Adhan. See docs/audio-licence.md.
+  # The Adhan recordings and the short Adhan, played by the app for preview and
+  # the full Adhan. Source and licence: docs/audio-licence.md.
   assets:
     - assets/audio/
+    - assets/audio/short/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

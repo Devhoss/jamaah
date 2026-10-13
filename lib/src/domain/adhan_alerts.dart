@@ -1,4 +1,5 @@
 import 'iqama_editing.dart';
+import 'adhan_recordings.dart';
 import 'prayer.dart';
 
 /// How a reminder sounds, when it is enabled at all.
@@ -29,6 +30,7 @@ class AdhanAlertSettings {
     this.defaultSoundMode = AdhanSoundMode.standard,
     this.alerts = const {},
     this.fullScreen = false,
+    this.fullRecording = kDefaultAdhanRecording,
   });
 
   /// Starting point used for a fresh install: nothing enabled.
@@ -44,14 +46,20 @@ class AdhanAlertSettings {
   /// Per-prayer alerts. Absent entries mean "disabled, use the default mode".
   final Map<Prayer, AdhanAlert> alerts;
 
+  /// Which bundled recording "Full Adhan" plays ([AdhanRecording.id]), for
+  /// every prayer.
+  final String fullRecording;
+
   AdhanAlertSettings copyWith({
     AdhanSoundMode? defaultSoundMode,
     Map<Prayer, AdhanAlert>? alerts,
     bool? fullScreen,
+    String? fullRecording,
   }) => AdhanAlertSettings(
     defaultSoundMode: defaultSoundMode ?? this.defaultSoundMode,
     alerts: alerts ?? this.alerts,
     fullScreen: fullScreen ?? this.fullScreen,
+    fullRecording: fullRecording ?? this.fullRecording,
   );
 
   /// The alert for [prayer]. Sunrise stays disabled unless explicitly turned on.
@@ -79,10 +87,12 @@ class AdhanAlertSettings {
       other is AdhanAlertSettings &&
       other.defaultSoundMode == defaultSoundMode &&
       other.fullScreen == fullScreen &&
+      other.fullRecording == fullRecording &&
       _sameAlerts(other.alerts, alerts);
 
   @override
-  int get hashCode => Object.hash(defaultSoundMode, fullScreen, alerts.length);
+  int get hashCode =>
+      Object.hash(defaultSoundMode, fullScreen, fullRecording, alerts.length);
 }
 
 bool _sameAlerts(Map<Prayer, AdhanAlert> a, Map<Prayer, AdhanAlert> b) {

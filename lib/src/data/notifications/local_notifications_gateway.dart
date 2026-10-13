@@ -25,7 +25,7 @@ class LocalNotificationsGateway implements NotificationGateway {
   bool _ready = false;
 
   /// The bundled short Adhan, in android/app/src/main/res/raw.
-  static const adhanShortRaw = 'adhan_short_placeholder';
+  static const adhanShortRaw = 'adhan_short';
 
   /// A plain status-bar icon, in android/app/src/main/res/drawable.
   static const statusIcon = 'ic_stat_jamaah';
@@ -166,6 +166,7 @@ class LocalNotificationsGateway implements NotificationGateway {
     'title': item.title,
     'body': item.body,
     'sound': (item.planned.soundMode ?? AdhanSoundMode.standard).name,
+    'recording': item.planned.recordingAsset ?? '',
     'ringInSilent': item.planned.ringInSilent,
     'fullScreen': item.planned.fullScreen,
     'vibrate': item.planned.vibrate,
