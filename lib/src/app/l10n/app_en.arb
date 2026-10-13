@@ -152,11 +152,6 @@
   "aboutBody": "Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.",
   "qiblaComingTitle": "Qibla comes later",
   "qiblaComingBody": "The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.",
-  "settingsComingTitle": "Settings come later",
-  "settingsComingBody": "Calculation method, Asr opinion, sounds and reminders will live here. None of them are built yet, so there is nothing honest to change.",
-  "@settingsComingBody": {
-    "description": "The gear is on every tab because the prototype puts it there; this is what it says until Settings is a real screen."
-  },
   "locationSheetTitle": "Where are you?",
   "@locationSheetTitle": {
     "description": "Title of the explanation sheet shown before any location permission is requested."
@@ -515,5 +510,88 @@
   "scheduledOpenAppSettings": "Open app settings",
   "kindAdhan": "Adhan",
   "kindPreAdhan": "Reminder before Adhan",
-  "kindIqama": "Iqama reminder"
+  "kindIqama": "Iqama reminder",
+  "settingsTitle": "Settings",
+  "settingsAdhanSection": "Adhan alerts",
+  "settingsDefaultSound": "Default sound",
+  "settingsDefaultSoundHint": "Used by every prayer that doesn't choose its own.",
+  "settingsAlertOff": "Off",
+  "settingsAlertOn": "On · {sound}",
+  "@settingsAlertOn": {
+    "placeholders": {
+      "sound": { "type": "String" }
+    }
+  },
+  "settingsAlertReminderOnly": "Reminder only · {minutes} min before",
+  "@settingsAlertReminderOnly": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "settingsAlertOnWithReminder": "On · {sound} · reminder {minutes} min before",
+  "@settingsAlertOnWithReminder": {
+    "placeholders": {
+      "sound": { "type": "String" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "settingsIqamaSection": "Iqama reminders",
+  "settingsIqamaBody": "Iqama times and their reminders belong to each mosque. Set them on the mosque.",
+  "settingsIqamaOpenActive": "Open {mosque}",
+  "@settingsIqamaOpenActive": {
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "settingsIqamaNoMosque": "Add a mosque to set Iqama reminders.",
+  "settingsTravelSection": "Travel",
+  "settingsTravelMode": "Travel mode",
+  "settingsTravelModeHint": "For when you're away from your mosque. Adhan alerts keep following the place you're in.",
+  "settingsPauseIqama": "Pause Iqama reminders",
+  "settingsPauseIqamaHint": "Your mosque's Iqama reminders stay off while travel mode is on. Your Iqama times are kept.",
+  "settingsPauseIqamaNeedsTravel": "Turn on travel mode to pause them.",
+  "settingsNotificationsSection": "Notifications",
+  "settingsComingLater": "Calculation method, Asr opinion and minute adjustments arrive in the next Settings step.",
+  "iqamaPausedNote": "Iqama reminders are paused while you're travelling.",
+  "@iqamaPausedNote": {
+    "description": "Shown on Today and on the mosque page while travel mode's pause is on, so a silent reminder is never a mystery."
+  },
+  "alertPageTitle": "{prayer}",
+  "@alertPageTitle": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "alertAdhanSwitch": "Adhan alert",
+  "alertAdhanSwitchHint": "A notification at the Adhan time.",
+  "alertSunriseHint": "Sunrise is not a prayer. An alert marks the end of the time for Fajr.",
+  "alertSoundHeader": "Sound",
+  "alertUseDefault": "Default ({sound})",
+  "@alertUseDefault": {
+    "placeholders": {
+      "sound": { "type": "String" }
+    }
+  },
+  "alertSilentHint": "Shown in your notifications without any sound. Turning the alert off is different: then nothing shows.",
+  "alertFullHint": "Plays the whole Adhan. For now this is a placeholder tone until a recording is chosen.",
+  "alertShortHint": "Plays the opening of the Adhan (a placeholder tone for now).",
+  "alertStandardHint": "Your phone's usual notification sound.",
+  "alertPreview": "Preview",
+  "alertStopPreview": "Stop",
+  "alertVibrate": "Vibrate",
+  "alertRingInSilent": "Ring when the phone is on silent",
+  "alertRingInSilentHint": "Plays through the alarm volume, so you hear it even on silent. Off by default, so nothing surprises you in a quiet room.",
+  "alertRingInSilentNeedsAdhan": "Only for the full or short Adhan.",
+  "alertReminderHeader": "Reminder before the Adhan",
+  "alertReminderHint": "A separate heads-up, even if the Adhan alert itself is off.",
+  "alertReminderNone": "None",
+  "alertTryIt": "Send a test notification",
+  "alertTrySent": "Sent. Check your notifications.",
+  "notifTestTitle": "{prayer} · test",
+  "@notifTestTitle": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "notifTestBody": "This is how this alert will sound."
 }

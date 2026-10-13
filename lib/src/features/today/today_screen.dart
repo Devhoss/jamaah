@@ -104,6 +104,9 @@ class TodayScreen extends ConsumerWidget {
             onOpenMosques: onOpenMosques,
             onOpenMosque: onOpenMosque,
           ),
+          if (settings.requireValue.travel.iqamaRemindersPaused &&
+              ref.watch(activeMosqueProvider) != null)
+            _PausedNote(text: l10n.iqamaPausedNote),
           AppSectionHeader(l10n.todaySectionTimes),
           _PrayerRows(today: today, schedule: schedule, clock: clock),
           _TodayNotes(
@@ -621,6 +624,35 @@ class _TodayNotice extends StatelessWidget {
         const SizedBox(height: AppSpace.md),
         FilledButton(onPressed: onAction, child: Text(actionLabel)),
       ],
+    );
+  }
+}
+
+/// Travel mode's pause, said where the reminders would otherwise be expected.
+class _PausedNote extends StatelessWidget {
+  const _PausedNote({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = AppInk.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.md),
+      child: Row(
+        children: [
+          Icon(Icons.notifications_paused_outlined, size: 18, color: ink.muted),
+          const SizedBox(width: AppSpace.sm),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: ink.muted),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

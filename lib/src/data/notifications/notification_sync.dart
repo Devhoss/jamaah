@@ -50,6 +50,9 @@ abstract interface class NotificationGateway {
   /// Schedules or replaces the notification with this id.
   Future<void> schedule(ScheduledItem item, {required bool exact});
 
+  /// Shows [item] straight away on its channel, for "send a test notification".
+  Future<void> showNow(ScheduledItem item);
+
   /// False when Android denies exact alarms: notifications then use inexact
   /// timing, and the UI must say so (AGENTS.md).
   Future<bool> canScheduleExact();

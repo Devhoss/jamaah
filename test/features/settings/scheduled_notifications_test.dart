@@ -19,6 +19,7 @@ import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/settings/scheduled_notifications_page.dart';
+
 import '../../helpers/fake_clock.dart';
 import '../../helpers/fake_notification_gateway.dart';
 import '../../helpers/fake_place_source.dart';
@@ -162,7 +163,10 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.scheduledCount(gateway.scheduled.length)), findsOneWidget);
+    expect(
+      find.text(t.scheduledCount(gateway.scheduled.length)),
+      findsOneWidget,
+    );
     final titles = tester
         .widgetList<Text>(find.text(t.notifIqamaTitle(t.prayerAsr, 10)))
         .length;

@@ -13,6 +13,7 @@ import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/components/app_widgets.dart';
+import 'package:jamaah/src/features/settings/settings_page.dart';
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_place_source.dart';
 import '../helpers/test_app.dart';
@@ -149,7 +150,7 @@ void main() {
     );
   });
 
-  testApp('the gear opens Settings and admits it is not built yet', (
+  testApp('the gear opens Settings, and says what is still to come', (
     tester,
   ) async {
     await open(tester);
@@ -157,8 +158,10 @@ void main() {
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.settingsComingTitle), findsOneWidget);
-    expect(find.text(t.settingsComingBody), findsOneWidget);
+    expect(find.byType(SettingsPage), findsOneWidget);
+    expect(find.text(t.settingsAdhanSection.toUpperCase()), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(t.settingsComingLater), 300);
+    expect(find.text(t.settingsComingLater), findsOneWidget);
   });
 
   testApp('every destination and the gear is big enough to press', (

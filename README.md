@@ -220,13 +220,18 @@ The first screen the user sees, and the only one that reads the stored place.
   Exact alarms: when Android denies them, timing falls back to inexact and the app
   says so. **Gear → Scheduled notifications** lists what the phone has actually
   scheduled, with both permissions and battery guidance.
+- **Gear → Settings**: the default sound, and a page per prayer (Adhan alert,
+  sound with preview, vibrate, ring in silent, reminder before the Adhan, a test
+  notification). Changes save at once. Iqama reminders are only linked to the
+  active mosque, never edited here. Travel mode and its pause live here too, and
+  Today and the mosque page say when reminders are paused.
 - Sounds are generated **placeholders** (`tool/generate_placeholder_tones.dart`);
   see `docs/audio-licence.md` for the candidates and how to swap a recording in.
 
 ## Tests
 
 ```bash
-flutter test       # 427 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 442 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

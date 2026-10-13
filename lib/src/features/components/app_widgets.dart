@@ -13,10 +13,12 @@ class AppRows extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final divider = Theme.of(context).dividerColor;
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border.all(color: divider),
+    // A Material rather than a coloured box: rows and list tiles draw their ink
+    // ripples on the nearest Material, and a box painted over it hid them.
+    return Material(
+      color: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: divider),
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       clipBehavior: Clip.antiAlias,

@@ -64,6 +64,15 @@ class FakeNotificationGateway implements NotificationGateway {
     exactFlags[item.id] = exact;
   }
 
+  /// Notifications shown immediately ("send a test notification").
+  final shownNow = <ScheduledItem>[];
+
+  @override
+  Future<void> showNow(ScheduledItem item) async {
+    await ensureChannels([item.channel]);
+    shownNow.add(item);
+  }
+
   @override
   Future<bool> canScheduleExact() async => exact;
 

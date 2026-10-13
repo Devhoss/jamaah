@@ -44,8 +44,10 @@ class MosqueDetailPage extends ConsumerWidget {
       return Scaffold(appBar: AppBar());
     }
 
-    final isActive =
-        ref.watch(appSettingsProvider).value?.activeMosqueId == mosque.id;
+    final settings = ref.watch(appSettingsProvider).value;
+    final isActive = settings?.activeMosqueId == mosque.id;
+    final paused =
+        isActive && (settings?.travel.iqamaRemindersPaused ?? false);
     final day = ref.watch(scheduleDayProvider);
     final schedule = mosque.scheduleFor(day);
     final today = ref.watch(todayProvider);
@@ -87,6 +89,27 @@ class MosqueDetailPage extends ConsumerWidget {
                 ),
               ],
             ),
+          if (paused) ...[
+            const SizedBox(height: AppSpace.sm),
+            Row(
+              children: [
+                Icon(
+                  Icons.notifications_paused_outlined,
+                  size: 18,
+                  color: ink.muted,
+                ),
+                const SizedBox(width: AppSpace.sm),
+                Expanded(
+                  child: Text(
+                    l10n.iqamaPausedNote,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: ink.muted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: AppSpace.sm),
           Wrap(
             spacing: AppSpace.md,

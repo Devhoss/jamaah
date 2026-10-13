@@ -193,13 +193,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.';
 
   @override
-  String get settingsComingTitle => 'Settings come later';
-
-  @override
-  String get settingsComingBody =>
-      'Calculation method, Asr opinion, sounds and reminders will live here. None of them are built yet, so there is nothing honest to change.';
-
-  @override
   String get locationSheetTitle => 'Where are you?';
 
   @override
@@ -739,4 +732,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kindIqama => 'Iqama reminder';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAdhanSection => 'Adhan alerts';
+
+  @override
+  String get settingsDefaultSound => 'Default sound';
+
+  @override
+  String get settingsDefaultSoundHint =>
+      'Used by every prayer that doesn\'t choose its own.';
+
+  @override
+  String get settingsAlertOff => 'Off';
+
+  @override
+  String settingsAlertOn(String sound) {
+    return 'On · $sound';
+  }
+
+  @override
+  String settingsAlertReminderOnly(int minutes) {
+    return 'Reminder only · $minutes min before';
+  }
+
+  @override
+  String settingsAlertOnWithReminder(String sound, int minutes) {
+    return 'On · $sound · reminder $minutes min before';
+  }
+
+  @override
+  String get settingsIqamaSection => 'Iqama reminders';
+
+  @override
+  String get settingsIqamaBody =>
+      'Iqama times and their reminders belong to each mosque. Set them on the mosque.';
+
+  @override
+  String settingsIqamaOpenActive(String mosque) {
+    return 'Open $mosque';
+  }
+
+  @override
+  String get settingsIqamaNoMosque => 'Add a mosque to set Iqama reminders.';
+
+  @override
+  String get settingsTravelSection => 'Travel';
+
+  @override
+  String get settingsTravelMode => 'Travel mode';
+
+  @override
+  String get settingsTravelModeHint =>
+      'For when you\'re away from your mosque. Adhan alerts keep following the place you\'re in.';
+
+  @override
+  String get settingsPauseIqama => 'Pause Iqama reminders';
+
+  @override
+  String get settingsPauseIqamaHint =>
+      'Your mosque\'s Iqama reminders stay off while travel mode is on. Your Iqama times are kept.';
+
+  @override
+  String get settingsPauseIqamaNeedsTravel =>
+      'Turn on travel mode to pause them.';
+
+  @override
+  String get settingsNotificationsSection => 'Notifications';
+
+  @override
+  String get settingsComingLater =>
+      'Calculation method, Asr opinion and minute adjustments arrive in the next Settings step.';
+
+  @override
+  String get iqamaPausedNote =>
+      'Iqama reminders are paused while you\'re travelling.';
+
+  @override
+  String alertPageTitle(String prayer) {
+    return '$prayer';
+  }
+
+  @override
+  String get alertAdhanSwitch => 'Adhan alert';
+
+  @override
+  String get alertAdhanSwitchHint => 'A notification at the Adhan time.';
+
+  @override
+  String get alertSunriseHint =>
+      'Sunrise is not a prayer. An alert marks the end of the time for Fajr.';
+
+  @override
+  String get alertSoundHeader => 'Sound';
+
+  @override
+  String alertUseDefault(String sound) {
+    return 'Default ($sound)';
+  }
+
+  @override
+  String get alertSilentHint =>
+      'Shown in your notifications without any sound. Turning the alert off is different: then nothing shows.';
+
+  @override
+  String get alertFullHint =>
+      'Plays the whole Adhan. For now this is a placeholder tone until a recording is chosen.';
+
+  @override
+  String get alertShortHint =>
+      'Plays the opening of the Adhan (a placeholder tone for now).';
+
+  @override
+  String get alertStandardHint => 'Your phone\'s usual notification sound.';
+
+  @override
+  String get alertPreview => 'Preview';
+
+  @override
+  String get alertStopPreview => 'Stop';
+
+  @override
+  String get alertVibrate => 'Vibrate';
+
+  @override
+  String get alertRingInSilent => 'Ring when the phone is on silent';
+
+  @override
+  String get alertRingInSilentHint =>
+      'Plays through the alarm volume, so you hear it even on silent. Off by default, so nothing surprises you in a quiet room.';
+
+  @override
+  String get alertRingInSilentNeedsAdhan => 'Only for the full or short Adhan.';
+
+  @override
+  String get alertReminderHeader => 'Reminder before the Adhan';
+
+  @override
+  String get alertReminderHint =>
+      'A separate heads-up, even if the Adhan alert itself is off.';
+
+  @override
+  String get alertReminderNone => 'None';
+
+  @override
+  String get alertTryIt => 'Send a test notification';
+
+  @override
+  String get alertTrySent => 'Sent. Check your notifications.';
+
+  @override
+  String notifTestTitle(String prayer) {
+    return '$prayer · test';
+  }
+
+  @override
+  String get notifTestBody => 'This is how this alert will sound.';
 }

@@ -406,18 +406,6 @@ abstract class AppLocalizations {
   /// **'The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.'**
   String get qiblaComingBody;
 
-  /// No description provided for @settingsComingTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings come later'**
-  String get settingsComingTitle;
-
-  /// The gear is on every tab because the prototype puts it there; this is what it says until Settings is a real screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Calculation method, Asr opinion, sounds and reminders will live here. None of them are built yet, so there is nothing honest to change.'**
-  String get settingsComingBody;
-
   /// Title of the explanation sheet shown before any location permission is requested.
   ///
   /// In en, this message translates to:
@@ -1291,6 +1279,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Iqama reminder'**
   String get kindIqama;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsAdhanSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan alerts'**
+  String get settingsAdhanSection;
+
+  /// No description provided for @settingsDefaultSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Default sound'**
+  String get settingsDefaultSound;
+
+  /// No description provided for @settingsDefaultSoundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by every prayer that doesn\'t choose its own.'**
+  String get settingsDefaultSoundHint;
+
+  /// No description provided for @settingsAlertOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsAlertOff;
+
+  /// No description provided for @settingsAlertOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On · {sound}'**
+  String settingsAlertOn(String sound);
+
+  /// No description provided for @settingsAlertReminderOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder only · {minutes} min before'**
+  String settingsAlertReminderOnly(int minutes);
+
+  /// No description provided for @settingsAlertOnWithReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'On · {sound} · reminder {minutes} min before'**
+  String settingsAlertOnWithReminder(String sound, int minutes);
+
+  /// No description provided for @settingsIqamaSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama reminders'**
+  String get settingsIqamaSection;
+
+  /// No description provided for @settingsIqamaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama times and their reminders belong to each mosque. Set them on the mosque.'**
+  String get settingsIqamaBody;
+
+  /// No description provided for @settingsIqamaOpenActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {mosque}'**
+  String settingsIqamaOpenActive(String mosque);
+
+  /// No description provided for @settingsIqamaNoMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a mosque to set Iqama reminders.'**
+  String get settingsIqamaNoMosque;
+
+  /// No description provided for @settingsTravelSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get settingsTravelSection;
+
+  /// No description provided for @settingsTravelMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel mode'**
+  String get settingsTravelMode;
+
+  /// No description provided for @settingsTravelModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For when you\'re away from your mosque. Adhan alerts keep following the place you\'re in.'**
+  String get settingsTravelModeHint;
+
+  /// No description provided for @settingsPauseIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause Iqama reminders'**
+  String get settingsPauseIqama;
+
+  /// No description provided for @settingsPauseIqamaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mosque\'s Iqama reminders stay off while travel mode is on. Your Iqama times are kept.'**
+  String get settingsPauseIqamaHint;
+
+  /// No description provided for @settingsPauseIqamaNeedsTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on travel mode to pause them.'**
+  String get settingsPauseIqamaNeedsTravel;
+
+  /// No description provided for @settingsNotificationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsSection;
+
+  /// No description provided for @settingsComingLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method, Asr opinion and minute adjustments arrive in the next Settings step.'**
+  String get settingsComingLater;
+
+  /// Shown on Today and on the mosque page while travel mode's pause is on, so a silent reminder is never a mystery.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama reminders are paused while you\'re travelling.'**
+  String get iqamaPausedNote;
+
+  /// No description provided for @alertPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer}'**
+  String alertPageTitle(String prayer);
+
+  /// No description provided for @alertAdhanSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan alert'**
+  String get alertAdhanSwitch;
+
+  /// No description provided for @alertAdhanSwitchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification at the Adhan time.'**
+  String get alertAdhanSwitchHint;
+
+  /// No description provided for @alertSunriseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise is not a prayer. An alert marks the end of the time for Fajr.'**
+  String get alertSunriseHint;
+
+  /// No description provided for @alertSoundHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get alertSoundHeader;
+
+  /// No description provided for @alertUseDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default ({sound})'**
+  String alertUseDefault(String sound);
+
+  /// No description provided for @alertSilentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown in your notifications without any sound. Turning the alert off is different: then nothing shows.'**
+  String get alertSilentHint;
+
+  /// No description provided for @alertFullHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plays the whole Adhan. For now this is a placeholder tone until a recording is chosen.'**
+  String get alertFullHint;
+
+  /// No description provided for @alertShortHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plays the opening of the Adhan (a placeholder tone for now).'**
+  String get alertShortHint;
+
+  /// No description provided for @alertStandardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s usual notification sound.'**
+  String get alertStandardHint;
+
+  /// No description provided for @alertPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get alertPreview;
+
+  /// No description provided for @alertStopPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get alertStopPreview;
+
+  /// No description provided for @alertVibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate'**
+  String get alertVibrate;
+
+  /// No description provided for @alertRingInSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring when the phone is on silent'**
+  String get alertRingInSilent;
+
+  /// No description provided for @alertRingInSilentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plays through the alarm volume, so you hear it even on silent. Off by default, so nothing surprises you in a quiet room.'**
+  String get alertRingInSilentHint;
+
+  /// No description provided for @alertRingInSilentNeedsAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for the full or short Adhan.'**
+  String get alertRingInSilentNeedsAdhan;
+
+  /// No description provided for @alertReminderHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder before the Adhan'**
+  String get alertReminderHeader;
+
+  /// No description provided for @alertReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A separate heads-up, even if the Adhan alert itself is off.'**
+  String get alertReminderHint;
+
+  /// No description provided for @alertReminderNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get alertReminderNone;
+
+  /// No description provided for @alertTryIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a test notification'**
+  String get alertTryIt;
+
+  /// No description provided for @alertTrySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Check your notifications.'**
+  String get alertTrySent;
+
+  /// No description provided for @notifTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · test'**
+  String notifTestTitle(String prayer);
+
+  /// No description provided for @notifTestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is how this alert will sound.'**
+  String get notifTestBody;
 }
 
 class _AppLocalizationsDelegate

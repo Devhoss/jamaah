@@ -106,6 +106,17 @@ class LocalNotificationsGateway implements NotificationGateway {
   }
 
   @override
+  Future<void> showNow(ScheduledItem item) async {
+    await ensureChannels([item.channel]);
+    await _plugin.show(
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      notificationDetails: _details(item.channel),
+    );
+  }
+
+  @override
   Future<void> schedule(ScheduledItem item, {required bool exact}) async {
     await _init();
     final c = item.channel;
@@ -122,25 +133,27 @@ class LocalNotificationsGateway implements NotificationGateway {
         'channel': c.id,
         'kind': item.planned.kind.name,
       }),
-      notificationDetails: NotificationDetails(
-        android: AndroidNotificationDetails(
-          c.id,
-          channelName(c),
-          icon: statusIcon,
-          importance: Importance.high,
-          priority: Priority.high,
-          playSound: c.sound != ChannelSound.none,
-          sound: _sound(c),
-          enableVibration: c.vibrate,
-          audioAttributesUsage: _usage(c),
-          category: c.group == ChannelGroup.adhan
-              ? AndroidNotificationCategory.alarm
-              : AndroidNotificationCategory.reminder,
-          visibility: NotificationVisibility.public,
-        ),
-      ),
+      notificationDetails: _details(c),
     );
   }
+
+  NotificationDetails _details(ChannelSpec c) => NotificationDetails(
+    android: AndroidNotificationDetails(
+      c.id,
+      channelName(c),
+      icon: statusIcon,
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: c.sound != ChannelSound.none,
+      sound: _sound(c),
+      enableVibration: c.vibrate,
+      audioAttributesUsage: _usage(c),
+      category: c.group == ChannelGroup.adhan
+          ? AndroidNotificationCategory.alarm
+          : AndroidNotificationCategory.reminder,
+      visibility: NotificationVisibility.public,
+    ),
+  );
 
   @override
   Future<bool> canScheduleExact() async {

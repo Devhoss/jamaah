@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/components/app_widgets.dart';
 import '../features/mosques/mosque_detail_page.dart';
 import '../features/mosques/mosques_screen.dart';
-import '../features/settings/scheduled_notifications_page.dart';
+import '../features/settings/settings_page.dart';
 import '../features/today/today_screen.dart';
 import 'branding.g.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -50,7 +50,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: l10n.settings,
-            onPressed: () => showSettingsSheet(context),
+            onPressed: () => openSettings(context),
           ),
         ],
       ),
@@ -108,62 +108,6 @@ class _ComingSoon extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-/// The gear the prototype puts on every tab. Settings is a later step, so this says
-/// what will live here instead of opening a screen full of controls that do nothing.
-Future<void> showSettingsSheet(BuildContext context) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => const _SettingsSheet(),
-    );
-
-class _SettingsSheet extends StatelessWidget {
-  const _SettingsSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.settingsComingTitle,
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            const SizedBox(height: AppSpace.md),
-            Text(l10n.settingsComingBody),
-            const SizedBox(height: AppSpace.lg),
-            OutlinedButton.icon(
-              onPressed: () {
-                final navigator = Navigator.of(context);
-                navigator.pop();
-                navigator.push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const ScheduledNotificationsPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.notifications_none),
-              label: Text(l10n.scheduledTitle),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
