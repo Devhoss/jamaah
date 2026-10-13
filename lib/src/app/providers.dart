@@ -2,8 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/app_database.dart';
 import '../data/device_place_source.dart';
+import '../data/discovery/app_identity.dart';
+import '../data/discovery/discovery_session.dart';
+import '../data/discovery/google_places_provider.dart';
+import '../data/discovery/osm_provider.dart';
 import '../data/mosque_repository.dart';
 import '../data/settings_repository.dart';
+import '../domain/discovery.dart';
 import '../domain/mosque.dart';
 import '../domain/place.dart';
 import '../domain/time_model.dart';
@@ -11,6 +16,7 @@ import '../domain/prayer_times_calculator.dart';
 import '../domain/today.dart';
 import '../domain/zone_offsets.dart';
 import 'clock.dart';
+import 'config.dart';
 
 /// App-level wiring.
 ///
@@ -149,4 +155,36 @@ final nextIqamaProvider = Provider<NextIqama?>((ref) {
   final today = ref.watch(todayProvider);
   if (today == null) return null;
   return readNextIqama(mosque: ref.watch(activeMosqueProvider), today: today);
+});
+
+/// `--dart-define-from-file=.env` values: which discovery provider, and the key.
+final appConfigProvider = Provider<AppConfig>((ref) {
+  final config = AppConfig.fromEnvironment();
+  config.logProvider();
+  return config;
+});
+
+/// The installed app's package and signing certificate, for the Places key's
+/// Android-app restriction.
+final appIdentityProvider = Provider<AppIdentitySource>(
+  (ref) => PlatformAppIdentitySource(),
+);
+
+/// OpenStreetMap, always available: it is the fallback when the Google key is
+/// missing or refused, and the provider itself when DISCOVERY_PROVIDER=osm.
+final osmDiscoveryProvider = Provider<MosqueDiscoveryProvider>(
+  (ref) => DiscoverySession(OpenStreetMapProvider()),
+);
+
+/// The configured provider (AGENTS.md: DISCOVERY_PROVIDER=google|osm, Google by
+/// default), wrapped in a session that caches, de-duplicates and caps requests.
+final mosqueDiscoveryProvider = Provider<MosqueDiscoveryProvider>((ref) {
+  final config = ref.watch(appConfigProvider);
+  if (config.discoveryProvider == 'osm') return ref.watch(osmDiscoveryProvider);
+  return DiscoverySession(
+    GooglePlacesProvider(
+      apiKey: config.googlePlacesApiKey,
+      identity: ref.watch(appIdentityProvider),
+    ),
+  );
 });

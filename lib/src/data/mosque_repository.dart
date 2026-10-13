@@ -267,6 +267,16 @@ class MosqueRepository {
     return row == null ? null : _load(row);
   }
 
+  /// The saved mosque with this provider place id, if any — how a search result
+  /// knows it is already saved.
+  Future<Mosque?> byPlaceId(String placeId) async {
+    final row = await (_db.select(_db.mosques)
+          ..where((t) => t.placeId.equals(placeId))
+          ..limit(1))
+        .getSingleOrNull();
+    return row == null ? null : _load(row);
+  }
+
   Future<Mosque> requireById(String id) async =>
       (await byId(id)) ??
       (throw ArgumentError.value(id, 'mosqueId', 'No saved mosque has this id'));

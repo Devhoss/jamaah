@@ -503,6 +503,27 @@ void main() {
     });
   });
 
+  group('finding a saved mosque by its provider id', () {
+    test('a saved search result is found by its place id', () async {
+      final added = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '1 Example Road',
+        source: MosqueSource.google,
+        placeId: 'ChIJ-example',
+      );
+      expect((await mosques.byPlaceId('ChIJ-example'))?.id, added.id);
+    });
+
+    test('an unknown place id finds nothing', () async {
+      await mosques.add(
+        name: 'By hand',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      expect(await mosques.byPlaceId('ChIJ-other'), isNull);
+    });
+  });
+
   group('adding by hand', () {
     test('the name and address are trimmed', () async {
       final added = await mosques.add(
