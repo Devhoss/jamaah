@@ -1111,6 +1111,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check the name and address — they come from {provider}, not from the mosque. Its Iqama times start as “Not configured”.'**
   String saveMosqueBody(String provider);
+
+  /// No description provided for @soundModeFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Adhan'**
+  String get soundModeFull;
+
+  /// No description provided for @soundModeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short Adhan'**
+  String get soundModeShort;
+
+  /// The phone's own default notification sound.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard sound'**
+  String get soundModeStandard;
+
+  /// Shown in the notification shade with no sound. Not the same as turned off.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent'**
+  String get soundModeSilent;
+
+  /// No description provided for @channelAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan · {sound}'**
+  String channelAdhan(String sound);
+
+  /// No description provided for @channelNoVibration.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · no vibration'**
+  String channelNoVibration(String name);
+
+  /// No description provided for @channelAlarmVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · alarm volume'**
+  String channelAlarmVolume(String name);
+
+  /// No description provided for @channelPreAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders before the Adhan'**
+  String get channelPreAdhan;
+
+  /// No description provided for @channelIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama reminders'**
+  String get channelIqama;
+
+  /// No description provided for @notifAdhanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer}'**
+  String notifAdhanTitle(String prayer);
+
+  /// No description provided for @notifAdhanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s time for {prayer}.'**
+  String notifAdhanBody(String prayer);
+
+  /// No description provided for @notifSunriseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The sun is rising. The time for Fajr has ended.'**
+  String get notifSunriseBody;
+
+  /// No description provided for @notifPreAdhanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} in {minutes} min'**
+  String notifPreAdhanTitle(String prayer, int minutes);
+
+  /// No description provided for @notifPreAdhanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A reminder before the Adhan.'**
+  String get notifPreAdhanBody;
+
+  /// No description provided for @notifPreSunriseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The time for Fajr ends at sunrise.'**
+  String get notifPreSunriseBody;
+
+  /// No description provided for @notifIqamaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Iqama in {minutes} min'**
+  String notifIqamaTitle(String prayer, int minutes);
+
+  /// No description provided for @notifIqamaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'At {mosque}.'**
+  String notifIqamaBody(String mosque);
+
+  /// No description provided for @scheduledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled notifications'**
+  String get scheduledTitle;
+
+  /// No description provided for @scheduledCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} scheduled for the next 7 days'**
+  String scheduledCount(int count);
+
+  /// No description provided for @scheduledNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is scheduled. Turn on an Adhan alert, or an Iqama reminder on your mosque.'**
+  String get scheduledNothing;
+
+  /// No description provided for @scheduledNotificationsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for Jama’ah, so nothing will show. You can allow them now.'**
+  String get scheduledNotificationsOff;
+
+  /// No description provided for @scheduledExactOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact alarms aren\'t allowed, so notifications may arrive a few minutes late. You can allow them in settings.'**
+  String get scheduledExactOff;
+
+  /// No description provided for @scheduledAllowNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get scheduledAllowNotifications;
+
+  /// No description provided for @scheduledAllowExact.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow exact alarms'**
+  String get scheduledAllowExact;
+
+  /// No description provided for @scheduledRescheduleNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule now'**
+  String get scheduledRescheduleNow;
+
+  /// No description provided for @scheduledBatteryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Some phones stop reminders to save battery. If one doesn\'t arrive, set Jama’ah\'s battery use to Unrestricted in the phone\'s app settings.'**
+  String get scheduledBatteryHint;
+
+  /// No description provided for @scheduledOpenAppSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app settings'**
+  String get scheduledOpenAppSettings;
+
+  /// No description provided for @kindAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan'**
+  String get kindAdhan;
+
+  /// No description provided for @kindPreAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder before Adhan'**
+  String get kindPreAdhan;
+
+  /// No description provided for @kindIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama reminder'**
+  String get kindIqama;
 }
 
 class _AppLocalizationsDelegate

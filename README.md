@@ -201,10 +201,32 @@ The first screen the user sees, and the only one that reads the stored place.
   coordinates (Google allows caching those for 30 days only); an OpenStreetMap
   mosque keeps both.
 
+## Notifications
+
+- Three independent kinds: **Adhan alerts** and optional **reminders before the
+  Adhan** (global, per prayer, sunrise included) and **Iqama reminders** (the active
+  mosque only). Travel mode can pause Iqama reminders by hand; Adhan alerts never
+  pause.
+- `buildNotificationPlan` makes a 7-day plan from the saved place (its own zone,
+  DST-aware), the settings and the active mosque. `NotificationSync` makes the
+  phone's scheduled set match it exactly: future items only, stale ones cancelled,
+  stable ids so a re-run never duplicates. `NotificationScheduler` re-syncs on start,
+  on resume, and whenever settings, mosques, Iqama times, the place or the day
+  change.
+- Android channels fix their sound at creation, so the channel id encodes sound
+  mode, vibration, alarm volume and the tone version (`notification_channels.dart`);
+  unused app channels are retired. Silent is its own channel, shown with no sound.
+- Notification permission is asked for when the user turns a reminder or alert on.
+  Exact alarms: when Android denies them, timing falls back to inexact and the app
+  says so. **Gear → Scheduled notifications** lists what the phone has actually
+  scheduled, with both permissions and battery guidance.
+- Sounds are generated **placeholders** (`tool/generate_placeholder_tones.dart`);
+  see `docs/audio-licence.md` for the candidates and how to swap a recording in.
+
 ## Tests
 
 ```bash
-flutter test       # 397 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 423 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

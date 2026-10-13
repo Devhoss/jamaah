@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/components/app_widgets.dart';
 import '../features/mosques/mosque_detail_page.dart';
 import '../features/mosques/mosques_screen.dart';
+import '../features/settings/scheduled_notifications_page.dart';
 import '../features/today/today_screen.dart';
 import 'branding.g.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -146,6 +147,20 @@ class _SettingsSheet extends StatelessWidget {
             ),
             const SizedBox(height: AppSpace.md),
             Text(l10n.settingsComingBody),
+            const SizedBox(height: AppSpace.lg),
+            OutlinedButton.icon(
+              onPressed: () {
+                final navigator = Navigator.of(context);
+                navigator.pop();
+                navigator.push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ScheduledNotificationsPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.notifications_none),
+              label: Text(l10n.scheduledTitle),
+            ),
           ],
         ),
       ),

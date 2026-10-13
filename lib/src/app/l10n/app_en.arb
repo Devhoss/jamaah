@@ -432,5 +432,88 @@
     "placeholders": {
       "provider": { "type": "String" }
     }
-  }
+  },
+  "soundModeFull": "Full Adhan",
+  "soundModeShort": "Short Adhan",
+  "soundModeStandard": "Standard sound",
+  "@soundModeStandard": {
+    "description": "The phone's own default notification sound."
+  },
+  "soundModeSilent": "Silent",
+  "@soundModeSilent": {
+    "description": "Shown in the notification shade with no sound. Not the same as turned off."
+  },
+  "channelAdhan": "Adhan · {sound}",
+  "@channelAdhan": {
+    "placeholders": {
+      "sound": { "type": "String" }
+    }
+  },
+  "channelNoVibration": "{name} · no vibration",
+  "@channelNoVibration": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "channelAlarmVolume": "{name} · alarm volume",
+  "@channelAlarmVolume": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "channelPreAdhan": "Reminders before the Adhan",
+  "channelIqama": "Iqama reminders",
+  "notifAdhanTitle": "{prayer}",
+  "@notifAdhanTitle": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "notifAdhanBody": "It's time for {prayer}.",
+  "@notifAdhanBody": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "notifSunriseBody": "The sun is rising. The time for Fajr has ended.",
+  "notifPreAdhanTitle": "{prayer} in {minutes} min",
+  "@notifPreAdhanTitle": {
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "notifPreAdhanBody": "A reminder before the Adhan.",
+  "notifPreSunriseBody": "The time for Fajr ends at sunrise.",
+  "notifIqamaTitle": "{prayer} Iqama in {minutes} min",
+  "@notifIqamaTitle": {
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "notifIqamaBody": "At {mosque}.",
+  "@notifIqamaBody": {
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "scheduledTitle": "Scheduled notifications",
+  "scheduledCount": "{count} scheduled for the next 7 days",
+  "@scheduledCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "scheduledNothing": "Nothing is scheduled. Turn on an Adhan alert, or an Iqama reminder on your mosque.",
+  "scheduledNotificationsOff": "Notifications are turned off for Jama’ah, so nothing will show. You can allow them now.",
+  "scheduledExactOff": "Exact alarms aren't allowed, so notifications may arrive a few minutes late. You can allow them in settings.",
+  "scheduledAllowNotifications": "Allow notifications",
+  "scheduledAllowExact": "Allow exact alarms",
+  "scheduledRescheduleNow": "Reschedule now",
+  "scheduledBatteryHint": "Some phones stop reminders to save battery. If one doesn't arrive, set Jama’ah's battery use to Unrestricted in the phone's app settings.",
+  "scheduledOpenAppSettings": "Open app settings",
+  "kindAdhan": "Adhan",
+  "kindPreAdhan": "Reminder before Adhan",
+  "kindIqama": "Iqama reminder"
 }

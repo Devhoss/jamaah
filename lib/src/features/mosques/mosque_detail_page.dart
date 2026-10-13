@@ -5,6 +5,7 @@ import '../../app/clock_format.dart';
 import '../../app/date_labels.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
+import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
@@ -284,9 +285,14 @@ class _IqamaRow extends ConsumerWidget {
               // No Iqama time, no reminder (AGENTS.md); the line under the name
               // says what to do instead.
               onChanged: entry.isConfigured
-                  ? (on) => ref
-                        .read(mosqueRepositoryProvider)
-                        .setReminderEnabled(mosque.id, prayer, enabled: on)
+                  ? (on) async {
+                      await ref
+                          .read(mosqueRepositoryProvider)
+                          .setReminderEnabled(mosque.id, prayer, enabled: on);
+                      if (on) {
+                        await ref.read(notificationPermissionRequestProvider)();
+                      }
+                    }
                   : null,
             ),
           ),

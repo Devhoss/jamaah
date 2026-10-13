@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Notification sounds are referenced by name from Dart, which resource shrinking
+     cannot see, so release builds would otherwise strip them. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/adhan_*,@drawable/ic_stat_jamaah" />

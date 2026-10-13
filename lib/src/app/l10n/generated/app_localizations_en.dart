@@ -626,4 +626,117 @@ class AppLocalizationsEn extends AppLocalizations {
   String saveMosqueBody(String provider) {
     return 'Check the name and address — they come from $provider, not from the mosque. Its Iqama times start as “Not configured”.';
   }
+
+  @override
+  String get soundModeFull => 'Full Adhan';
+
+  @override
+  String get soundModeShort => 'Short Adhan';
+
+  @override
+  String get soundModeStandard => 'Standard sound';
+
+  @override
+  String get soundModeSilent => 'Silent';
+
+  @override
+  String channelAdhan(String sound) {
+    return 'Adhan · $sound';
+  }
+
+  @override
+  String channelNoVibration(String name) {
+    return '$name · no vibration';
+  }
+
+  @override
+  String channelAlarmVolume(String name) {
+    return '$name · alarm volume';
+  }
+
+  @override
+  String get channelPreAdhan => 'Reminders before the Adhan';
+
+  @override
+  String get channelIqama => 'Iqama reminders';
+
+  @override
+  String notifAdhanTitle(String prayer) {
+    return '$prayer';
+  }
+
+  @override
+  String notifAdhanBody(String prayer) {
+    return 'It\'s time for $prayer.';
+  }
+
+  @override
+  String get notifSunriseBody =>
+      'The sun is rising. The time for Fajr has ended.';
+
+  @override
+  String notifPreAdhanTitle(String prayer, int minutes) {
+    return '$prayer in $minutes min';
+  }
+
+  @override
+  String get notifPreAdhanBody => 'A reminder before the Adhan.';
+
+  @override
+  String get notifPreSunriseBody => 'The time for Fajr ends at sunrise.';
+
+  @override
+  String notifIqamaTitle(String prayer, int minutes) {
+    return '$prayer Iqama in $minutes min';
+  }
+
+  @override
+  String notifIqamaBody(String mosque) {
+    return 'At $mosque.';
+  }
+
+  @override
+  String get scheduledTitle => 'Scheduled notifications';
+
+  @override
+  String scheduledCount(int count) {
+    return '$count scheduled for the next 7 days';
+  }
+
+  @override
+  String get scheduledNothing =>
+      'Nothing is scheduled. Turn on an Adhan alert, or an Iqama reminder on your mosque.';
+
+  @override
+  String get scheduledNotificationsOff =>
+      'Notifications are turned off for Jama’ah, so nothing will show. You can allow them now.';
+
+  @override
+  String get scheduledExactOff =>
+      'Exact alarms aren\'t allowed, so notifications may arrive a few minutes late. You can allow them in settings.';
+
+  @override
+  String get scheduledAllowNotifications => 'Allow notifications';
+
+  @override
+  String get scheduledAllowExact => 'Allow exact alarms';
+
+  @override
+  String get scheduledRescheduleNow => 'Reschedule now';
+
+  @override
+  String get scheduledBatteryHint =>
+      'Some phones stop reminders to save battery. If one doesn\'t arrive, set Jama’ah\'s battery use to Unrestricted in the phone\'s app settings.';
+
+  @override
+  String get scheduledOpenAppSettings => 'Open app settings';
+
+  @override
+  String get kindAdhan => 'Adhan';
+
+  @override
+  String get kindPreAdhan => 'Reminder before Adhan';
+
+  @override
+  String get kindIqama => 'Iqama reminder';
 }

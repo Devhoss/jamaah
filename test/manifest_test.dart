@@ -29,9 +29,20 @@ void main() {
       contains('android.permission.ACCESS_FINE_LOCATION'),
       reason: 'precise location, asked for only by "Find nearby mosques"',
     );
-    for (final deferred in const [
+    for (final notifications in const [
       'android.permission.POST_NOTIFICATIONS',
       'android.permission.SCHEDULE_EXACT_ALARM',
+      'android.permission.RECEIVE_BOOT_COMPLETED',
+    ]) {
+      expect(
+        text,
+        contains(notifications),
+        reason: 'local notifications, on the minute, restored after a reboot',
+      );
+    }
+    for (final deferred in const [
+      // Play reserves it for alarm-clock and calendar apps; the app uses
+      // SCHEDULE_EXACT_ALARM and says so when it is denied (AGENTS.md).
       'android.permission.USE_EXACT_ALARM',
     ]) {
       expect(
@@ -94,5 +105,39 @@ void main() {
           file.path,
     ];
     expect(offenders, isEmpty);
+  });
+
+  test('scheduled notifications fire and survive a reboot', () {
+    final text = File(manifest).readAsStringSync();
+    expect(
+      text,
+      contains(
+        'com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver',
+      ),
+    );
+    expect(
+      text,
+      contains(
+        'com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver',
+      ),
+    );
+    expect(text, contains('android.intent.action.BOOT_COMPLETED'));
+  });
+
+  test('the sounds and icon the code names exist, and are kept in release', () {
+    for (final path in const [
+      'android/app/src/main/res/raw/adhan_short_placeholder.wav',
+      'android/app/src/main/res/drawable/ic_stat_jamaah.xml',
+      'assets/audio/adhan_short_placeholder.wav',
+      'assets/audio/adhan_full_placeholder.wav',
+    ]) {
+      expect(File(path).existsSync(), isTrue, reason: path);
+    }
+    expect(
+      File('android/app/src/main/res/raw/keep.xml').readAsStringSync(),
+      allOf(contains('@raw/adhan_*'), contains('@drawable/ic_stat_jamaah')),
+      reason: 'resource shrinking cannot see names used only from Dart',
+    );
+    expect(File('pubspec.yaml').readAsStringSync(), contains('assets/audio/'));
   });
 }

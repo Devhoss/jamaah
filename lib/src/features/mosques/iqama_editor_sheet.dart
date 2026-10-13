@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/clock_format.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
+import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
@@ -148,6 +149,7 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
           reminderMinutesBefore:
               _minutes ?? widget.current.reminderMinutesBefore,
         );
+    if (_reminderOn) await ref.read(notificationPermissionRequestProvider)();
     if (mounted) Navigator.of(context).pop();
   }
 

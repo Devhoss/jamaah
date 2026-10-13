@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon: a plain crescent. Android draws only the alpha, so it must be
+     a single-colour shape (the launcher icon would show as a white square). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M14.5,3A9,9 0 1,0 21,17.6 7.2,7.2 0 1,1 14.5,3Z" />
+</vector>
