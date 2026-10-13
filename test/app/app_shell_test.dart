@@ -19,8 +19,8 @@ import '../helpers/fake_place_source.dart';
 import '../helpers/test_app.dart';
 
 /// The shell around the screens: three destinations, the settings gear the
-/// prototype puts on every tab, and an honest answer on the tabs whose feature has
-/// not been built yet.
+/// prototype puts on every tab, and an honest answer where there is nothing to
+/// show yet.
 void main() {
   final t = AppLocalizationsEn();
 
@@ -135,14 +135,14 @@ void main() {
     expect(find.text(t.addMosqueManually), findsOneWidget);
   });
 
-  testApp('Qibla says the same kind of truth, with no bearing on show', (
+  testApp('Qibla without a place asks for one, with no bearing on show', (
     tester,
   ) async {
     await open(tester);
     await goTo(tester, t.tabQibla);
 
-    expect(find.text(t.qiblaComingTitle), findsOneWidget);
-    expect(find.text(t.qiblaComingBody), findsOneWidget);
+    expect(find.text(t.qiblaNeedsPlaceTitle), findsOneWidget);
+    expect(find.text(t.todayChoosePlace), findsOneWidget);
     expect(
       textMatchingDegrees(),
       findsNothing,

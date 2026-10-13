@@ -268,6 +268,20 @@ regions read from the parameters the calculator uses), the **Asr method**
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 
+## Qibla
+
+- The bearing is the great-circle bearing from the saved place to the Kaaba
+  (`domain/qibla.dart`), worked out on the device and shown whether or not there is a
+  compass, with the distance.
+- The dial turns with the phone (`flutter_compass`). Android's compass reads magnetic
+  north, so the heading is corrected to true north with the declination from Android's
+  World Magnetic Model (`GeomagneticField`, method channel `dev.jamaah.app/compass`,
+  offline); the screen says which north it is measuring from.
+- Within 3° it says "Facing the Qibla" with one light haptic tap. Low compass accuracy
+  shows a calibration note with figure-8 instructions. A compass that says nothing for
+  3 s is treated as missing: the bearing stays, with how to use it with any compass.
+- The compass only runs while the Qibla tab is open.
+
 ## Tests
 
 ```bash

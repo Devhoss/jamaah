@@ -388,17 +388,125 @@ abstract class AppLocalizations {
   /// **'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.'**
   String get aboutBody;
 
-  /// No description provided for @qiblaComingTitle.
+  /// No description provided for @qiblaFrom.
   ///
   /// In en, this message translates to:
-  /// **'Qibla comes later'**
-  String get qiblaComingTitle;
+  /// **'From {place}'**
+  String qiblaFrom(String place);
 
-  /// No description provided for @qiblaComingBody.
+  /// No description provided for @qiblaDegrees.
   ///
   /// In en, this message translates to:
-  /// **'The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.'**
-  String get qiblaComingBody;
+  /// **'{degrees}°'**
+  String qiblaDegrees(String degrees);
+
+  /// No description provided for @qiblaFromNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° from true north'**
+  String qiblaFromNorth(String degrees);
+
+  /// No description provided for @qiblaTurnRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn {degrees}° right'**
+  String qiblaTurnRight(String degrees);
+
+  /// No description provided for @qiblaTurnLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn {degrees}° left'**
+  String qiblaTurnLeft(String degrees);
+
+  /// No description provided for @qiblaAligned.
+  ///
+  /// In en, this message translates to:
+  /// **'Facing the Qibla'**
+  String get qiblaAligned;
+
+  /// No description provided for @qiblaDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km to the Kaaba'**
+  String qiblaDistance(String distance);
+
+  /// No description provided for @qiblaHoldFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone flat, away from metal and magnets.'**
+  String get qiblaHoldFlat;
+
+  /// No description provided for @qiblaDeclinationNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured from true north. The compass reads magnetic north, so {degrees}° is corrected for here.'**
+  String qiblaDeclinationNote(String degrees);
+
+  /// No description provided for @qiblaMagneticNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured from magnetic north, which can differ from true north by a few degrees.'**
+  String get qiblaMagneticNote;
+
+  /// No description provided for @qiblaNeedsCalibration.
+  ///
+  /// In en, this message translates to:
+  /// **'The compass isn’t accurate right now.'**
+  String get qiblaNeedsCalibration;
+
+  /// No description provided for @qiblaCalibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'How to calibrate'**
+  String get qiblaCalibrate;
+
+  /// No description provided for @qiblaCalibrateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibrate the compass'**
+  String get qiblaCalibrateTitle;
+
+  /// No description provided for @qiblaCalibrateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Move your phone in a slow figure-8 a few times, away from metal objects and magnets. The direction settles once the compass is accurate.'**
+  String get qiblaCalibrateBody;
+
+  /// No description provided for @qiblaCalibrateDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get qiblaCalibrateDone;
+
+  /// No description provided for @qiblaNoCompassTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass unavailable'**
+  String get qiblaNoCompassTitle;
+
+  /// No description provided for @qiblaNoCompassBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Qibla is {degrees}° clockwise from true north for {place}. Use any compass or map app and face that bearing.'**
+  String qiblaNoCompassBody(String degrees, String place);
+
+  /// No description provided for @qiblaNeedsPlaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location'**
+  String get qiblaNeedsPlaceTitle;
+
+  /// No description provided for @qiblaNeedsPlaceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The direction of the Qibla is worked out on this device from where you are. Choose where you are to begin.'**
+  String get qiblaNeedsPlaceBody;
+
+  /// No description provided for @qiblaDialLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass. The Qibla is {degrees}° from true north.'**
+  String qiblaDialLabel(String degrees);
 
   /// Title of the explanation sheet shown before any location permission is requested.
   ///

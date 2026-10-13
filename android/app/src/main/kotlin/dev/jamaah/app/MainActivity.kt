@@ -3,6 +3,7 @@ package dev.jamaah.app
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.GeomagneticField
 import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -81,6 +82,30 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "status" -> result.success(locationStatus())
                     "request" -> requestLocation(call.argument<Boolean>("precise") == true, result)
+                    else -> result.notImplemented()
+                }
+            }
+
+        // The compass reads magnetic north; the Qibla bearing is from true
+        // north. Android's World Magnetic Model gives the difference, offline.
+        MethodChannel(messenger, "dev.jamaah.app/compass")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "declination" -> {
+                        val lat = call.argument<Double>("latitude")
+                        val lng = call.argument<Double>("longitude")
+                        if (lat == null || lng == null) {
+                            result.error("args", "latitude and longitude are required", null)
+                        } else {
+                            val field = GeomagneticField(
+                                lat.toFloat(),
+                                lng.toFloat(),
+                                0f,
+                                System.currentTimeMillis(),
+                            )
+                            result.success(field.declination.toDouble())
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }

@@ -44,6 +44,14 @@ bool isAligned(
   return magnitude <= toleranceDegrees;
 }
 
+/// The heading against true north, from a compass that reads magnetic north.
+///
+/// Qibla bearings are from true north, and an Android compass reads magnetic
+/// north: [declination] (east positive, from the platform's World Magnetic
+/// Model) is what lies between them, up to several degrees in most places.
+double trueHeading(double magneticHeading, double declination) =>
+    ((magneticHeading + declination) % 360 + 360) % 360;
+
 /// Great-circle distance to the Kaaba in kilometres (haversine).
 double distanceKm({required double latitude, required double longitude}) {
   final phi1 = _radians(latitude);

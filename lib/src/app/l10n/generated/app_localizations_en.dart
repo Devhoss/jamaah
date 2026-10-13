@@ -182,11 +182,86 @@ class AppLocalizationsEn extends AppLocalizations {
       'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.';
 
   @override
-  String get qiblaComingTitle => 'Qibla comes later';
+  String qiblaFrom(String place) {
+    return 'From $place';
+  }
 
   @override
-  String get qiblaComingBody =>
-      'The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.';
+  String qiblaDegrees(String degrees) {
+    return '$degrees°';
+  }
+
+  @override
+  String qiblaFromNorth(String degrees) {
+    return '$degrees° from true north';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return 'Turn $degrees° right';
+  }
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'Turn $degrees° left';
+  }
+
+  @override
+  String get qiblaAligned => 'Facing the Qibla';
+
+  @override
+  String qiblaDistance(String distance) {
+    return '$distance km to the Kaaba';
+  }
+
+  @override
+  String get qiblaHoldFlat =>
+      'Hold your phone flat, away from metal and magnets.';
+
+  @override
+  String qiblaDeclinationNote(String degrees) {
+    return 'Measured from true north. The compass reads magnetic north, so $degrees° is corrected for here.';
+  }
+
+  @override
+  String get qiblaMagneticNote =>
+      'Measured from magnetic north, which can differ from true north by a few degrees.';
+
+  @override
+  String get qiblaNeedsCalibration => 'The compass isn’t accurate right now.';
+
+  @override
+  String get qiblaCalibrate => 'How to calibrate';
+
+  @override
+  String get qiblaCalibrateTitle => 'Calibrate the compass';
+
+  @override
+  String get qiblaCalibrateBody =>
+      'Move your phone in a slow figure-8 a few times, away from metal objects and magnets. The direction settles once the compass is accurate.';
+
+  @override
+  String get qiblaCalibrateDone => 'Done';
+
+  @override
+  String get qiblaNoCompassTitle => 'Compass unavailable';
+
+  @override
+  String qiblaNoCompassBody(String degrees, String place) {
+    return 'The Qibla is $degrees° clockwise from true north for $place. Use any compass or map app and face that bearing.';
+  }
+
+  @override
+  String get qiblaNeedsPlaceTitle => 'Set your location';
+
+  @override
+  String get qiblaNeedsPlaceBody =>
+      'The direction of the Qibla is worked out on this device from where you are. Choose where you are to begin.';
+
+  @override
+  String qiblaDialLabel(String degrees) {
+    return 'Compass. The Qibla is $degrees° from true north.';
+  }
 
   @override
   String get locationSheetTitle => 'Where are you?';

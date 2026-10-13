@@ -142,4 +142,15 @@ void main() {
       );
     });
   });
+
+  group('true heading', () {
+    test('an east declination is added to the magnetic heading', () {
+      expect(trueHeading(100, 5), 105);
+    });
+
+    test('a west declination is subtracted, and wraps past north', () {
+      expect(trueHeading(2, -5), 357);
+      expect(trueHeading(358, 5), 3);
+    });
+  });
 }

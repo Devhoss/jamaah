@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../features/components/app_widgets.dart';
 import '../features/mosques/mosque_detail_page.dart';
 import '../features/mosques/mosques_screen.dart';
+import '../features/qibla/qibla_screen.dart';
 import '../features/settings/settings_page.dart';
 import '../features/today/today_screen.dart';
 import 'branding.g.dart';
@@ -16,9 +16,8 @@ import 'theme/tokens.dart';
 /// underneath.
 ///
 /// Which tab is showing is nobody's business but the shell's, so it is local state
-/// rather than a provider; the screens themselves stay unaware of each other. Qibla
-/// is still an honest empty state — its feature comes in a later step, and AGENTS.md
-/// would rather say so than show a screen that pretends to work.
+/// rather than a provider; the screens themselves stay unaware of each other. Only
+/// the showing tab is built, so the compass runs only while Qibla is open.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
@@ -63,7 +62,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           onOpenMosque: (id) => openMosqueDetail(context, id),
         ),
         1 => const MosquesScreen(),
-        _ => _ComingSoon(title: l10n.qiblaComingTitle, body: l10n.qiblaComingBody),
+        _ => const QiblaScreen(),
       },
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
@@ -111,31 +110,6 @@ class _TravelModeButton extends ConsumerWidget {
       ),
       tooltip: on ? l10n.travelModeTurnOff : l10n.travelModeTurnOn,
       onPressed: () => setTravelMode(context, ref, !on),
-    );
-  }
-}
-
-/// The one screen a tab whose feature is not built yet can honestly be.
-class _ComingSoon extends StatelessWidget {
-  const _ComingSoon({required this.title, required this.body});
-
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpace.xxl),
-      children: [
-        const SizedBox(height: AppSpace.xxl),
-        AppPrompt(
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: AppSpace.sm),
-            Text(body, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
-      ],
     );
   }
 }
