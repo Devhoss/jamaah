@@ -30,6 +30,7 @@ abstract final class SettingKeys {
   static const highLatitudeRule = 'high_latitude_rule';
   static const themeMode = 'theme_mode';
   static const appLanguage = 'app_language';
+  static const hijriAdjustDays = 'hijri_adjust_days';
 
   /// The mosque whose Iqama schedule drives reminders. Null or absent means no
   /// active mosque, which is what a fresh install has.

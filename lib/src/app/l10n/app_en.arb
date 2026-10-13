@@ -753,6 +753,13 @@
   "settingsAsr": "Asr method",
   "settingsHighLatitude": "Higher latitudes",
   "settingsAdjustments": "Manual adjustments",
+  "settingsHijri": "Hijri date",
+  "hijriAsCalculated": "As calculated (Umm al-Qura)",
+  "hijriLater": "{days, plural, =1{1 day later} other{{days} days later}}",
+  "@hijriLater": {"placeholders": {"days": {"type": "int"}}},
+  "hijriEarlier": "{days, plural, =1{1 day earlier} other{{days} days earlier}}",
+  "@hijriEarlier": {"placeholders": {"days": {"type": "int"}}},
+  "hijriAdjustNote": "Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date.",
   "methodAngles": "Fajr {fajr}° · Isha {isha}°",
   "@methodAngles": {
     "placeholders": {

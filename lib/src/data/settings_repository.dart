@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../domain/adhan_alerts.dart';
 import '../domain/adhan_recordings.dart';
+import '../domain/hijri.dart';
 import '../domain/place.dart';
 import '../domain/prayer.dart';
 import '../domain/prayer_times_parameters.dart';
@@ -81,6 +82,7 @@ class AppSettingsSnapshot {
     this.customAngles = const CustomAngles(),
     required this.themeMode,
     this.language = AppLanguage.system,
+    this.hijriAdjustDays = 0,
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
     this.jamaahReminders = const JamaahReminderSettings(),
@@ -102,6 +104,9 @@ class AppSettingsSnapshot {
 
   final AppThemeMode themeMode;
   final AppLanguage language;
+
+  /// Days the Hijri date is moved from the calculated one (−2…+2).
+  final int hijriAdjustDays;
   final AdhanAlertSettings adhanAlerts;
 
   /// Travel mode and its manual Iqama pause.
@@ -177,6 +182,9 @@ class SettingsRepository {
         AppLanguage.values,
         values[SettingKeys.appLanguage],
         AppLanguage.system,
+      ),
+      hijriAdjustDays: clampHijriAdjust(
+        int.tryParse(values[SettingKeys.hijriAdjustDays] ?? '') ?? 0,
       ),
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
@@ -276,6 +284,9 @@ class SettingsRepository {
 
   Future<void> setLanguage(AppLanguage language) =>
       _put(SettingKeys.appLanguage, language.name);
+
+  Future<void> setHijriAdjustDays(int days) =>
+      _put(SettingKeys.hijriAdjustDays, '${clampHijriAdjust(days)}');
 
   /// Passing null clears the active mosque, which is what stops every Iqama
   /// reminder (AGENTS.md: switching the active mosque switches the schedule that

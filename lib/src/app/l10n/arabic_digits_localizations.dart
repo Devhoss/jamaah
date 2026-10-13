@@ -861,6 +861,15 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get settingsAdjustments => arabicDigits(super.settingsAdjustments);
 
   @override
+  String get settingsHijri => arabicDigits(super.settingsHijri);
+
+  @override
+  String get hijriAsCalculated => arabicDigits(super.hijriAsCalculated);
+
+  @override
+  String get hijriAdjustNote => arabicDigits(super.hijriAdjustNote);
+
+  @override
   String get methodUmmAlQuraRamadan =>
       arabicDigits(super.methodUmmAlQuraRamadan);
 
@@ -1293,6 +1302,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String previewNote(String place, String current) =>
       arabicDigits(super.previewNote(place, current));
+
+  @override
+  String hijriLater(int days) => arabicDigits(super.hijriLater(days));
+
+  @override
+  String hijriEarlier(int days) => arabicDigits(super.hijriEarlier(days));
 
   @override
   String methodAngles(String fajr, String isha) =>

@@ -275,6 +275,13 @@ regions read from the parameters the calculator uses), the **Asr method**
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 
+## Hijri date
+
+- Settings → Prayer times → **Hijri date**: move the Hijri date by up to two days either
+  way (`domain/hijri.dart`), to match countries such as Kuwait that start months by moon
+  sighting. Each choice is shown as the date it gives. It moves Today's Hijri line and,
+  with Umm al-Qura, the days that get Ramadan's 120-minute Isha; nothing else.
+
 ## Languages
 
 - **English and Arabic** (Settings → Language: the phone's, English or العربية). Changes

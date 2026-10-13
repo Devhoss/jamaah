@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/app/date_labels.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
@@ -171,6 +172,29 @@ void main() {
 
     expect((await settings.read()).madhab, Madhab.hanafi);
     expect(timeOf(tester, Prayer.asr), greaterThan(standard));
+  });
+
+  testApp('the Hijri date moves by the chosen days, on Today too', (
+    tester,
+  ) async {
+    await open(tester);
+    final base = DateLabels.hijri(DateTime(2026, 10, 12), 'en');
+    final earlier = DateLabels.hijri(
+      DateTime(2026, 10, 12),
+      'en',
+      adjustDays: -1,
+    );
+    expect(base, isNot(earlier));
+    expect(find.text(base), findsOneWidget, reason: 'the row shows today');
+
+    await tapText(tester, t.settingsHijri);
+    expect(find.text(t.hijriAsCalculated), findsOneWidget);
+    await tapText(tester, t.hijriEarlier(1));
+
+    expect((await settings.read()).hijriAdjustDays, -1);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text(earlier), findsOneWidget);
   });
 
   testApp('the higher-latitude rule is chosen with what it does', (

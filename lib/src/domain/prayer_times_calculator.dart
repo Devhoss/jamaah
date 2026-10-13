@@ -1,5 +1,5 @@
 import 'package:adhan_dart/adhan_dart.dart' as adhan;
-import 'package:hijri/hijri_calendar.dart';
+import 'hijri.dart';
 
 import 'prayer.dart';
 import 'prayer_times_parameters.dart';
@@ -27,6 +27,7 @@ class PrayerTimesCalculator {
     this.minuteOffsets = const {},
     this.polarCircleResolution = adhan.PolarCircleResolution.unresolved,
     this.customAngles = const CustomAngles(),
+    this.hijriAdjustDays = 0,
   });
 
   final double latitude;
@@ -44,6 +45,10 @@ class PrayerTimesCalculator {
 
   /// The user's angles, used when [method] is [CalculationMethod.custom].
   final CustomAngles customAngles;
+
+  /// The Hijri date adjustment, so Ramadan starts on the day the user's
+  /// country announces (see hijri.dart).
+  final int hijriAdjustDays;
 
   /// How the library should treat polar regions. Left at `unresolved` because the
   /// library's detectors do not fire for the midnight-sun case (see
@@ -75,6 +80,7 @@ class PrayerTimesCalculator {
     polarCircleResolution:
         polarCircleResolution ?? this.polarCircleResolution,
     customAngles: customAngles ?? this.customAngles,
+    hijriAdjustDays: hijriAdjustDays,
   );
 
   /// Times for [day] in the location's local wall clock.
@@ -120,12 +126,14 @@ class PrayerTimesCalculator {
     );
   }
 
-  /// Umm al-Qura's Isha moves from 90 to 120 minutes after Maghrib in Ramadan.
-  /// The tabular Hijri calendar can be a day off local moon sighting; the
-  /// manual Isha adjustment covers that day.
+  /// Umm al-Qura's Isha moves from 90 to 120 minutes after Maghrib in Ramadan,
+  /// as the user's Hijri date (with its adjustment) counts Ramadan.
   bool _isRamadan(LocalDay day) =>
       method == CalculationMethod.ummAlQura &&
-      HijriCalendar.fromDate(DateTime(day.year, day.month, day.day)).hMonth ==
+      hijriFor(
+            DateTime(day.year, day.month, day.day),
+            adjustDays: hijriAdjustDays,
+          ).hMonth ==
           9;
 
   ({DateTime date, adhan.Coordinates coordinates, adhan.CalculationParameters params})

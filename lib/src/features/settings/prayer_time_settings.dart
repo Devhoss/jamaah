@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/hijri.dart';
+import '../../app/date_labels.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
@@ -175,8 +177,50 @@ class PrayerTimesSettingsSection extends ConsumerWidget {
             MaterialPageRoute<void>(builder: (_) => const AdjustmentsPage()),
           ),
         ),
+        row(
+          l10n.settingsHijri,
+          _hijriToday(context, ref, settings.hijriAdjustDays),
+          () => _chooseHijri(context, ref, settings.hijriAdjustDays),
+        ),
       ],
     );
+  }
+
+  /// Today's Hijri date with [adjustDays], as Today shows it.
+  String _hijriToday(BuildContext context, WidgetRef ref, int adjustDays) {
+    final today = ref.read(todayProvider)?.day.day;
+    final date = today == null
+        ? DateTime.now()
+        : DateTime(today.year, today.month, today.day);
+    return DateLabels.hijri(
+      date,
+      Localizations.localeOf(context).toLanguageTag(),
+      adjustDays: adjustDays,
+    );
+  }
+
+  Future<void> _chooseHijri(
+    BuildContext context,
+    WidgetRef ref,
+    int current,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    String label(int days) => switch (days) {
+      0 => l10n.hijriAsCalculated,
+      > 0 => l10n.hijriLater(days),
+      _ => l10n.hijriEarlier(-days),
+    };
+    final chosen = await _chooseFrom<int>(
+      context,
+      current: current,
+      options: [
+        for (var d = -kMaxHijriAdjustDays; d <= kMaxHijriAdjustDays; d++)
+          (d, _hijriToday(context, ref, d), label(d)),
+      ],
+      note: l10n.hijriAdjustNote,
+    );
+    if (chosen == null || chosen == current) return;
+    await ref.read(settingsRepositoryProvider).setHijriAdjustDays(chosen);
   }
 
   Future<void> _chooseAsr(

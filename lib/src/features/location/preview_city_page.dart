@@ -56,6 +56,7 @@ class PreviewCityPage extends ConsumerWidget {
       highLatitudeRule: settings.highLatitudeRule,
       minuteOffsets: settings.minuteOffsets,
       customAngles: settings.customAngles,
+      hijriAdjustDays: settings.hijriAdjustDays,
     );
     final today = readToday(
       calculator: calculator,

@@ -1372,6 +1372,44 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsAdjustments => 'تعديلات يدوية';
 
   @override
+  String get settingsHijri => 'التاريخ الهجري';
+
+  @override
+  String get hijriAsCalculated => 'كما هو محسوب (أم القرى)';
+
+  @override
+  String hijriLater(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'متأخر $days يومًا',
+      many: 'متأخر $days يومًا',
+      few: 'متأخر $days أيام',
+      two: 'متأخر يومين',
+      one: 'متأخر يومًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hijriEarlier(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'متقدم $days يومًا',
+      many: 'متقدم $days يومًا',
+      few: 'متقدم $days أيام',
+      two: 'متقدم يومين',
+      one: 'متقدم يومًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hijriAdjustNote =>
+      'طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ.';
+
+  @override
   String methodAngles(String fajr, String isha) {
     return 'الفجر $fajr° · العشاء $isha°';
   }

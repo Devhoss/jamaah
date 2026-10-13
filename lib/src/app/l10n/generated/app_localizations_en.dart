@@ -1270,6 +1270,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAdjustments => 'Manual adjustments';
 
   @override
+  String get settingsHijri => 'Hijri date';
+
+  @override
+  String get hijriAsCalculated => 'As calculated (Umm al-Qura)';
+
+  @override
+  String hijriLater(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days later',
+      one: '1 day later',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hijriEarlier(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days earlier',
+      one: '1 day earlier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hijriAdjustNote =>
+      'Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan\'s later Isha follows this date.';
+
+  @override
   String methodAngles(String fajr, String isha) {
     return 'Fajr $fajr° · Isha $isha°';
   }

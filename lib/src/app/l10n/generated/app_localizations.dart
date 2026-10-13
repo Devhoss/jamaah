@@ -2190,6 +2190,36 @@ abstract class AppLocalizations {
   /// **'Manual adjustments'**
   String get settingsAdjustments;
 
+  /// No description provided for @settingsHijri.
+  ///
+  /// In en, this message translates to:
+  /// **'Hijri date'**
+  String get settingsHijri;
+
+  /// No description provided for @hijriAsCalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'As calculated (Umm al-Qura)'**
+  String get hijriAsCalculated;
+
+  /// No description provided for @hijriLater.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day later} other{{days} days later}}'**
+  String hijriLater(int days);
+
+  /// No description provided for @hijriEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day earlier} other{{days} days earlier}}'**
+  String hijriEarlier(int days);
+
+  /// No description provided for @hijriAdjustNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan\'s later Isha follows this date.'**
+  String get hijriAdjustNote;
+
   /// No description provided for @methodAngles.
   ///
   /// In en, this message translates to:

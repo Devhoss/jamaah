@@ -98,6 +98,7 @@ final prayerTimesCalculatorProvider = Provider<PrayerTimesCalculator?>((ref) {
     highLatitudeRule: settings.highLatitudeRule,
     minuteOffsets: settings.minuteOffsets,
     customAngles: settings.customAngles,
+    hijriAdjustDays: settings.hijriAdjustDays,
   );
 });
 

@@ -83,7 +83,10 @@ class TodayScreen extends ConsumerWidget {
         AppSpace.xxl,
       ),
       children: [
-        _DayHeader(day: today.day.day),
+        _DayHeader(
+          day: today.day.day,
+          hijriAdjustDays: settings.requireValue.hijriAdjustDays,
+        ),
         const SizedBox(height: AppSpace.md),
         Align(
           alignment: AlignmentDirectional.centerStart,
@@ -139,9 +142,10 @@ class TodayScreen extends ConsumerWidget {
 /// The Hijri line comes from the place's own calendar day, so it cannot slip a day
 /// when the device and the place are on different dates.
 class _DayHeader extends StatelessWidget {
-  const _DayHeader({required this.day});
+  const _DayHeader({required this.day, required this.hijriAdjustDays});
 
   final LocalDay day;
+  final int hijriAdjustDays;
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +163,7 @@ class _DayHeader extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         Text(
-          DateLabels.hijri(date, locale),
+          DateLabels.hijri(date, locale, adjustDays: hijriAdjustDays),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],

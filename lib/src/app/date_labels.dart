@@ -1,6 +1,7 @@
 import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart';
 
+import '../domain/hijri.dart';
 import 'l10n/digits.dart';
 
 /// Formats the Gregorian and Hijri dates shown under the Today title.
@@ -17,8 +18,8 @@ abstract final class DateLabels {
     locale,
   ).format(date);
 
-  static String hijri(DateTime date, String locale) {
-    final calendar = HijriCalendar.fromDate(date);
+  static String hijri(DateTime date, String locale, {int adjustDays = 0}) {
+    final calendar = hijriFor(date, adjustDays: adjustDays);
     // The package knows 'ar' and 'en' only, not a full tag like ar-EG.
     final language = locale.split(RegExp('[-_]')).first;
     HijriCalendar.setLocal(language == 'ar' ? 'ar' : 'en');
