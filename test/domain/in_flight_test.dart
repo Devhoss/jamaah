@@ -130,6 +130,12 @@ void main() {
       expect(t.next, Prayer.dhuhr);
     });
 
+    test('after midnight, before Fajr, it is still Isha', () {
+      final t = at(DateTime.utc(2026, 10, 13, 23, 28)); // 02:28 Cairo
+      expect(t.current, Prayer.isha);
+      expect(t.next, Prayer.fajr);
+    });
+
     test('after Isha the next is tomorrow’s Fajr', () {
       final t = at(DateTime.utc(2026, 10, 14, 20, 0)); // 23:00 Cairo
       expect(t.current, Prayer.isha);

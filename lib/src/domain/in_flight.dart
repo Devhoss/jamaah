@@ -160,8 +160,8 @@ class InFlightTimes {
   /// seen from the aircraft, and tomorrow's Fajr after Isha.
   final Map<Prayer, DateTime> times;
 
-  /// The prayer whose time it is now; null between sunrise and Dhuhr, or
-  /// before Fajr.
+  /// The prayer whose time it is now: Isha until Fajr, then each in turn;
+  /// null between sunrise and Dhuhr, when no prayer is due.
   final Prayer? current;
 
   /// The next time to come, and when (UTC).
@@ -217,8 +217,9 @@ InFlightTimes inFlightTimes({
     times[Prayer.sunrise] = times[Prayer.sunrise]!.add(sunriseShift);
   }
 
-  // Order of the day; after Isha, tomorrow's Fajr is next.
-  Prayer? current;
+  // Order of the day; after Isha, tomorrow's Fajr is next. Before today's
+  // Fajr it is still last night's Isha: its time runs until Fajr.
+  Prayer? current = Prayer.isha;
   Prayer? next;
   DateTime? nextAt;
   for (final prayer in Prayer.adhanPrayers) {
