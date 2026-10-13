@@ -20,6 +20,7 @@ class PlannedNotification {
     this.minutesBefore,
     this.recordingAsset,
     this.reminderSound,
+    this.shortAdhan,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -54,6 +55,10 @@ class PlannedNotification {
 
   /// Jama’ah (Iqama) reminders only: what they play.
   final ReminderSound? reminderSound;
+
+  /// Adhan alerts only: the short clip (the channel sound for full and short,
+  /// and what the app plays for a short Adhan shown full screen).
+  final ShortAdhan? shortAdhan;
 
   /// True when the reminder has already fired and must not be re-scheduled.
   bool isInPast(DateTime now) => at.isBefore(now);
@@ -158,9 +163,14 @@ class NotificationPlanner {
             // Ringing in silent only means something for a recording that plays.
             ringInSilent: plays && alert.ringInSilent,
             fullScreen: input.adhanAlerts.fullScreen,
-            recordingAsset: mode == AdhanSoundMode.full
-                ? adhanRecordingById(input.adhanAlerts.fullRecording).asset
-                : null,
+            recordingAsset: switch (mode) {
+              AdhanSoundMode.full => adhanRecordingById(
+                input.adhanAlerts.fullRecording,
+              ).asset,
+              AdhanSoundMode.short => input.adhanAlerts.shortAdhan.asset,
+              _ => null,
+            },
+            shortAdhan: input.adhanAlerts.shortAdhan,
           ),
         );
       }

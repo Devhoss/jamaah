@@ -483,6 +483,17 @@ void main() {
       );
     });
 
+    test('the short Adhan clip round-trips', () async {
+      expect(
+        (await settings.read()).adhanAlerts.shortAdhan,
+        ShortAdhan.naghshbandi,
+      );
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings.defaults().copyWith(shortAdhan: ShortAdhan.hayya),
+      );
+      expect((await settings.read()).adhanAlerts.shortAdhan, ShortAdhan.hayya);
+    });
+
     test('Jama’ah reminders chime and vibrate until changed', () async {
       expect(
         (await settings.read()).jamaahReminders,

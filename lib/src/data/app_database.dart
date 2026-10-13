@@ -53,6 +53,7 @@ abstract final class SettingKeys {
   /// Show the Adhan full screen when the phone is idle. Absent means off.
   static const adhanFullScreen = 'adhan_full_screen';
   static const adhanFullRecording = 'adhan_full_recording';
+  static const adhanShortClip = 'adhan_short_clip';
   static const jamaahReminderSound = 'jamaah_reminder_sound';
   static const jamaahReminderVibrate = 'jamaah_reminder_vibrate';
 

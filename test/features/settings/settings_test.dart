@@ -428,8 +428,10 @@ void main() {
       expect(find.text(t.reminderSoundChime), findsOneWidget);
 
       await tapText(tester, t.settingsReminderSound);
-      await tap(tester, find.text(t.alertPreview).last);
+      await tap(tester, find.text(t.alertPreview).first);
       expect(preview.played.last, 'assets/audio/chime/reminder_chime.wav');
+      await tap(tester, find.text(t.alertPreview).last);
+      expect(preview.played.last, kHayyaAsset);
 
       await tapText(tester, t.soundModeStandard);
       expect(
@@ -459,6 +461,41 @@ void main() {
       expect(shown.title, 'حيّ على الصلاة');
       expect(shown.channel.sound, ChannelSound.none);
       expect(find.text(t.settingsReminderTestSent), findsOneWidget);
+    });
+  });
+
+  group('short Adhan', () {
+    testApp('حيّ على الصلاة can be chosen, previewed, and reaches the channel', (
+      tester,
+    ) async {
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings.defaults().withAlert(
+          Prayer.fajr,
+          const AdhanAlert(
+            enabled: true,
+            soundModeOverride: AdhanSoundMode.short,
+          ),
+        ),
+      );
+      await open(tester);
+      await openSettingsPage(tester);
+      expect(find.text(t.shortAdhanNaghshbandi), findsOneWidget);
+
+      await tapText(tester, t.settingsShortAdhan);
+      await tap(tester, find.text(t.alertPreview).last);
+      expect(preview.played.last, kHayyaAsset);
+      await tapText(tester, t.soundHayya);
+
+      expect(
+        (await settings.read()).adhanAlerts.shortAdhan,
+        ShortAdhan.hayya,
+      );
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      final channels = {
+        for (final item in gateway.scheduled.values) item.channel,
+      };
+      expect(channels.map((c) => c.sound).toSet(), {ChannelSound.hayya});
     });
   });
 

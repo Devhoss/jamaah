@@ -281,6 +281,7 @@ class SettingsRepository {
         );
         await _put(SettingKeys.adhanFullScreen, '${alerts.fullScreen}');
         await _put(SettingKeys.adhanFullRecording, alerts.fullRecording);
+        await _put(SettingKeys.adhanShortClip, alerts.shortAdhan.name);
         for (final prayer in Prayer.adhanPrayers) {
           final alert = alerts.alertFor(prayer);
           final row = AdhanAlertRowsCompanion.insert(
@@ -406,6 +407,11 @@ class SettingsRepository {
       fullRecording: adhanRecordingById(
         values[SettingKeys.adhanFullRecording],
       ).id,
+      shortAdhan: _enumOrDefault(
+        ShortAdhan.values,
+        values[SettingKeys.adhanShortClip],
+        ShortAdhan.naghshbandi,
+      ),
       alerts: {
         for (final prayer in Prayer.adhanPrayers)
           if (byPrayer[prayer.name] case final row?)

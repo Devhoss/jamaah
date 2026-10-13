@@ -31,6 +31,7 @@ class AdhanAlertSettings {
     this.alerts = const {},
     this.fullScreen = false,
     this.fullRecording = kDefaultAdhanRecording,
+    this.shortAdhan = ShortAdhan.naghshbandi,
   });
 
   /// Starting point used for a fresh install: nothing enabled.
@@ -50,16 +51,22 @@ class AdhanAlertSettings {
   /// every prayer.
   final String fullRecording;
 
+  /// Which clip "Short Adhan" plays, for every prayer. It is also the channel
+  /// sound of a full Adhan's notification.
+  final ShortAdhan shortAdhan;
+
   AdhanAlertSettings copyWith({
     AdhanSoundMode? defaultSoundMode,
     Map<Prayer, AdhanAlert>? alerts,
     bool? fullScreen,
     String? fullRecording,
+    ShortAdhan? shortAdhan,
   }) => AdhanAlertSettings(
     defaultSoundMode: defaultSoundMode ?? this.defaultSoundMode,
     alerts: alerts ?? this.alerts,
     fullScreen: fullScreen ?? this.fullScreen,
     fullRecording: fullRecording ?? this.fullRecording,
+    shortAdhan: shortAdhan ?? this.shortAdhan,
   );
 
   /// The alert for [prayer]. Sunrise stays disabled unless explicitly turned on.
@@ -88,11 +95,18 @@ class AdhanAlertSettings {
       other.defaultSoundMode == defaultSoundMode &&
       other.fullScreen == fullScreen &&
       other.fullRecording == fullRecording &&
+      other.shortAdhan == shortAdhan &&
       _sameAlerts(other.alerts, alerts);
 
   @override
   int get hashCode =>
-      Object.hash(defaultSoundMode, fullScreen, fullRecording, alerts.length);
+      Object.hash(
+        defaultSoundMode,
+        fullScreen,
+        fullRecording,
+        shortAdhan,
+        alerts.length,
+      );
 }
 
 bool _sameAlerts(Map<Prayer, AdhanAlert> a, Map<Prayer, AdhanAlert> b) {
@@ -230,9 +244,9 @@ class TravelSettings {
 }
 
 /// What a Jama’ah (Iqama) reminder plays (2026-10-13). [chime] is the app's
-/// own two-note chime; [standard] the phone's notification sound; [silent]
-/// shows the reminder without a sound.
-enum ReminderSound { chime, standard, silent }
+/// own two-note chime; [hayya] the «حيّ على الصلاة» clip; [standard] the
+/// phone's notification sound; [silent] shows the reminder without a sound.
+enum ReminderSound { chime, hayya, standard, silent }
 
 /// How every Jama’ah reminder sounds. One global setting: the reminders
 /// themselves (which prayers, how early) stay on each mosque.

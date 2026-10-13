@@ -95,14 +95,14 @@ class AdhanService : Service(), SensorEventListener {
         if (alarm.fullScreen) handler.postDelayed(minimumEnd, 60_000L)
         val shortAdhan = Uri.parse("android.resource://$packageName/${R.raw.adhan_short}")
         val source: Uri? = when (alarm.sound) {
-            // The full recording is read from the Flutter assets below; the
-            // short Adhan stands in if there is none.
-            "full" -> if (alarm.recording.isEmpty()) shortAdhan else null
-            "short" -> shortAdhan
+            // The chosen recording (full) or clip (short) is read from the
+            // Flutter assets below; the short Adhan stands in if there is none.
+            "full", "short" -> if (alarm.recording.isEmpty()) shortAdhan else null
             "standard" -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             else -> null // silent: shown, not heard
         }
-        val fromAssets = alarm.sound == "full" && alarm.recording.isNotEmpty()
+        val fromAssets =
+            (alarm.sound == "full" || alarm.sound == "short") && alarm.recording.isNotEmpty()
         if (source == null && !fromAssets) {
             if (!alarm.fullScreen) finish()
             startFlipWatch()

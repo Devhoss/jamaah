@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/notification_channels.dart';
 import 'package:jamaah/src/domain/notification_plan.dart';
@@ -106,6 +107,48 @@ void main() {
     expect({pre.id, iqama.id, channelFor(adhan()).id}, hasLength(3));
   });
 
+  test('the short Adhan clip is part of the Adhan channel', () {
+    PlannedNotification short(ShortAdhan clip, AdhanSoundMode mode) =>
+        PlannedNotification(
+          id: 1,
+          kind: NotificationKind.adhan,
+          prayer: Prayer.fajr,
+          at: DateTime.utc(2026),
+          soundMode: mode,
+          mosqueId: '',
+          shortAdhan: clip,
+        );
+    final naghshbandi = channelFor(
+      short(ShortAdhan.naghshbandi, AdhanSoundMode.short),
+    );
+    final hayya = channelFor(short(ShortAdhan.hayya, AdhanSoundMode.short));
+    expect(naghshbandi.sound, ChannelSound.adhanShort);
+    expect(
+      naghshbandi.id,
+      channelFor(adhan()).id,
+      reason: 'the Naghshbandi channels keep the ids they had before',
+    );
+    expect(hayya.sound, ChannelSound.hayya);
+    expect(hayya.id, endsWith('_hayya_h$kHayyaVersion'));
+    expect(
+      channelFor(short(ShortAdhan.hayya, AdhanSoundMode.full)).sound,
+      ChannelSound.hayya,
+      reason: 'a full Adhan notification sounds the chosen short clip',
+    );
+    expect(
+      channelFor(short(ShortAdhan.hayya, AdhanSoundMode.standard)).sound,
+      ChannelSound.platformDefault,
+    );
+  });
+
+  test('every sound file a channel names is a different raw resource', () {
+    expect(rawSoundFor(ChannelSound.adhanShort), 'adhan_short');
+    expect(rawSoundFor(ChannelSound.hayya), 'adhan_short_hayya');
+    expect(rawSoundFor(ChannelSound.chime), 'reminder_chime');
+    expect(rawSoundFor(ChannelSound.none), isNull);
+    expect(rawSoundFor(ChannelSound.platformDefault), isNull);
+  });
+
   test('each Jama’ah reminder sound and vibration is a channel of its own', () {
     ChannelSpec iqama(ReminderSound sound, {bool vibrate = true}) => channelFor(
       PlannedNotification(
@@ -121,6 +164,7 @@ void main() {
       ),
     );
     expect(iqama(ReminderSound.standard).sound, ChannelSound.platformDefault);
+    expect(iqama(ReminderSound.hayya).sound, ChannelSound.hayya);
     expect(iqama(ReminderSound.silent).sound, ChannelSound.none);
     expect(iqama(ReminderSound.silent, vibrate: false).vibrate, isFalse);
     expect(
@@ -130,7 +174,7 @@ void main() {
           iqama(s, vibrate: false).id,
         ],
       },
-      hasLength(6),
+      hasLength(8),
     );
     expect(
       iqama(ReminderSound.chime).id,

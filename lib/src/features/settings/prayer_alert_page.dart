@@ -81,11 +81,11 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
       if (mounted) setState(() => _previewing = null);
       return;
     }
+    final alerts = ref.read(appSettingsProvider).value?.adhanAlerts;
     final asset = previewAssetFor(
       mode,
-      fullRecording:
-          ref.read(appSettingsProvider).value?.adhanAlerts.fullRecording ??
-          kDefaultAdhanRecording,
+      fullRecording: alerts?.fullRecording ?? kDefaultAdhanRecording,
+      shortAdhan: alerts?.shortAdhan ?? ShortAdhan.naghshbandi,
     );
     if (asset == null) return;
     setState(() => _previewing = mode);
@@ -115,9 +115,12 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
           alert.ringInSilent &&
           (mode == AdhanSoundMode.full || mode == AdhanSoundMode.short),
       fullScreen: alerts.fullScreen,
-      recordingAsset: mode == AdhanSoundMode.full
-          ? adhanRecordingById(alerts.fullRecording).asset
-          : null,
+      recordingAsset: switch (mode) {
+        AdhanSoundMode.full => adhanRecordingById(alerts.fullRecording).asset,
+        AdhanSoundMode.short => alerts.shortAdhan.asset,
+        _ => null,
+      },
+      shortAdhan: alerts.shortAdhan,
     );
     await ref.read(notificationPermissionRequestProvider)();
     final item = ScheduledItem(

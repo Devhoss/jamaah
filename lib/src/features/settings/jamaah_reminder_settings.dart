@@ -12,6 +12,7 @@ import '../../app/theme/tokens.dart';
 import '../../data/notifications/notification_sync.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
+import '../../domain/adhan_recordings.dart';
 import '../../domain/notification_channels.dart';
 import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
@@ -52,12 +53,34 @@ class _JamaahReminderSoundRowsState
   Future<void> _chooseSound(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final current = _current.sound;
-    final chosen = await showModalBottomSheet<ReminderSound>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (sheetContext) =>
-          _SoundSheet(current: current, preview: _preview, l10n: l10n),
+    final chosen = await showSoundChoiceSheet<ReminderSound>(
+      context,
+      current: current,
+      preview: _preview,
+      choices: [
+        SoundChoice(
+          value: ReminderSound.chime,
+          title: l10n.reminderSoundChime,
+          hint: l10n.reminderSoundChimeHint,
+          asset: kReminderChimeAsset,
+        ),
+        SoundChoice(
+          value: ReminderSound.hayya,
+          title: l10n.soundHayya,
+          hint: l10n.reminderSoundHayyaHint,
+          asset: kHayyaAsset,
+        ),
+        SoundChoice(
+          value: ReminderSound.standard,
+          title: l10n.soundModeStandard,
+          hint: l10n.reminderSoundStandardHint,
+        ),
+        SoundChoice(
+          value: ReminderSound.silent,
+          title: l10n.soundModeSilent,
+          hint: l10n.reminderSoundSilentHint,
+        ),
+      ],
     );
     unawaited(_preview.stop());
     if (chosen == null || chosen == current) return;
@@ -160,69 +183,101 @@ class _JamaahReminderSoundRowsState
   }
 }
 
-class _SoundSheet extends StatefulWidget {
-  const _SoundSheet({
-    required this.current,
-    required this.preview,
-    required this.l10n,
+/// One choice in a sound sheet ([showSoundChoiceSheet]).
+class SoundChoice<T> {
+  const SoundChoice({
+    required this.value,
+    required this.title,
+    required this.hint,
+    this.asset,
   });
 
-  final ReminderSound current;
-  final AudioPreview preview;
-  final AppLocalizations l10n;
+  final T value;
+  final String title;
+  final String hint;
 
-  @override
-  State<_SoundSheet> createState() => _SoundSheetState();
+  /// A bundled sound to preview, when the choice has one of its own.
+  final String? asset;
 }
 
-class _SoundSheetState extends State<_SoundSheet> {
-  bool _playing = false;
+/// A bottom sheet of sounds to choose from, each with its own preview when it
+/// has a sound of its own. Choosing closes the sheet with the choice; the
+/// caller stops any preview after.
+Future<T?> showSoundChoiceSheet<T>(
+  BuildContext context, {
+  required T current,
+  required List<SoundChoice<T>> choices,
+  required AudioPreview preview,
+}) => showModalBottomSheet<T>(
+  context: context,
+  showDragHandle: true,
+  isScrollControlled: true,
+  builder: (_) => _SoundChoiceSheet<T>(
+    current: current,
+    choices: choices,
+    preview: preview,
+  ),
+);
 
-  Future<void> _toggle() async {
-    if (_playing) {
+class _SoundChoiceSheet<T> extends StatefulWidget {
+  const _SoundChoiceSheet({
+    required this.current,
+    required this.choices,
+    required this.preview,
+  });
+
+  final T current;
+  final List<SoundChoice<T>> choices;
+  final AudioPreview preview;
+
+  @override
+  State<_SoundChoiceSheet<T>> createState() => _SoundChoiceSheetState<T>();
+}
+
+class _SoundChoiceSheetState<T> extends State<_SoundChoiceSheet<T>> {
+  String? _playing;
+
+  Future<void> _toggle(String asset) async {
+    if (_playing == asset) {
       await widget.preview.stop();
-      if (mounted) setState(() => _playing = false);
+      if (mounted) setState(() => _playing = null);
       return;
     }
-    setState(() => _playing = true);
+    setState(() => _playing = asset);
     unawaited(
-      widget.preview.play(kReminderChimeAsset).whenComplete(() {
-        if (mounted) setState(() => _playing = false);
+      widget.preview.play(asset).whenComplete(() {
+        if (mounted && _playing == asset) setState(() => _playing = null);
       }),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = widget.l10n;
-    String hint(ReminderSound s) => switch (s) {
-      ReminderSound.chime => l10n.reminderSoundChimeHint,
-      ReminderSound.standard => l10n.reminderSoundStandardHint,
-      ReminderSound.silent => l10n.reminderSoundSilentHint,
-    };
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: SingleChildScrollView(
-        child: RadioGroup<ReminderSound>(
+        child: RadioGroup<T>(
           groupValue: widget.current,
-          onChanged: (s) => Navigator.of(context).pop(s),
+          onChanged: (v) => Navigator.of(context).pop(v),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final s in ReminderSound.values)
-                RadioListTile<ReminderSound>(
-                  value: s,
-                  title: Text(reminderSoundName(l10n, s)),
-                  subtitle: Text(hint(s)),
-                  secondary: s == ReminderSound.chime
-                      ? TextButton(
-                          onPressed: _toggle,
-                          child: Text(
-                            _playing
-                                ? l10n.alertStopPreview
-                                : l10n.alertPreview,
-                          ),
-                        )
-                      : null,
+              for (final c in widget.choices)
+                RadioListTile<T>(
+                  value: c.value,
+                  title: Text(c.title),
+                  subtitle: Text(c.hint),
+                  secondary: switch (c.asset) {
+                    final asset? => TextButton(
+                      onPressed: () => _toggle(asset),
+                      child: Text(
+                        _playing == asset
+                            ? l10n.alertStopPreview
+                            : l10n.alertPreview,
+                      ),
+                    ),
+                    null => null,
+                  },
                 ),
             ],
           ),

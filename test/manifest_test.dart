@@ -135,6 +135,8 @@ void main() {
     for (final path in [
       'android/app/src/main/res/raw/adhan_short.ogg',
       'android/app/src/main/res/raw/reminder_chime.wav',
+      'android/app/src/main/res/raw/adhan_short_hayya.ogg',
+      kHayyaAsset,
       'assets/audio/chime/reminder_chime.wav',
       'android/app/src/main/res/drawable/ic_stat_jamaah.xml',
       kShortAdhanAsset,
@@ -158,10 +160,27 @@ void main() {
         contains('- assets/audio/short/'),
       ),
     );
+    for (final clip in ShortAdhan.values) {
+      final bytes = File(clip.asset).readAsBytesSync();
+      expect(
+        File('android/app/src/main/res/raw/${clip.raw}.ogg').readAsBytesSync(),
+        bytes,
+        reason: 'the preview plays exactly what the notification plays',
+      );
+      // An MP3's cover art, carried over by ffmpeg, becomes a Theora video
+      // track that Android's players refuse to read (cut with -vn).
+      expect(
+        String.fromCharCodes(bytes).contains('theora'),
+        isFalse,
+        reason: '${clip.asset} must be audio only',
+      );
+    }
     expect(
-      File('android/app/src/main/res/raw/adhan_short.ogg').readAsBytesSync(),
-      File(kShortAdhanAsset).readAsBytesSync(),
-      reason: 'the preview plays exactly what the notification plays',
+      Directory('assets/audio').listSync().whereType<File>().where(
+        (f) => !f.path.endsWith('.mp3') || f.path.contains('حي'),
+      ),
+      isEmpty,
+      reason: 'source files stay out of the bundled assets',
     );
   });
 

@@ -13,6 +13,7 @@ example, the open-source project it was taken from and that project's licence).
 | `assets/audio/*.mp3` (17 files) | full Adhan recordings, mono, 11 kHz, 8 kbps, 1:36–5:47 | the user's choice in Settings → Full Adhan recording; preview, and played by the app's Adhan service straight from the APK's `flutter_assets/` |
 | `android/app/src/main/res/raw/adhan_short.ogg` | the first 8 s of `Naghshbandi.mp3` (the opening phrase ends at 7.5 s), 0.6 s fade-out, Vorbis 22 kHz mono | notification-channel sound for "Short" and "Full" alerts |
 | `assets/audio/short/adhan_short.ogg` | the same file, byte for byte | preview of "Short" in Settings |
+| `android/app/src/main/res/raw/adhan_short_hayya.ogg` and `assets/audio/short/hayya.ogg` | «حيّ على الصلاة»: exactly 1:09–1:19 of `audio_sources/حي على الصلاه.mp3` (supplied by the owner, 2026-10-13), 30 ms fade in, 150 ms fade out, Vorbis 44.1 kHz mono, audio only | a Short Adhan choice and a Jama’ah reminder sound, and their previews |
 | `android/app/src/main/res/raw/reminder_chime.wav` and `assets/audio/chime/reminder_chime.wav` | two-note chime (G5, C6), 1.8 s, synthesised by `tool/generate_reminder_chime.dart`; the project's own, no licence needed | Jama’ah reminder channel sound, and its preview |
 
 The list the app shows lives in `lib/src/domain/adhan_recordings.dart` (id,
@@ -25,6 +26,13 @@ None of the 17 is marked as a Fajr Adhan (with "as-salatu khayrun min an-nawm").
 The short clip was made with:
 
     ffmpeg -i assets/audio/Naghshbandi.mp3 -t 8 -af "afade=t=out:st=7.4:d=0.6"       -ar 22050 -ac 1 -c:a libvorbis -q:a 4 android/app/src/main/res/raw/adhan_short.ogg
+
+The «حيّ على الصلاة» clip was cut with (`-vn` matters: the source's cover art
+would otherwise become a video track that Android cannot play):
+
+    ffmpeg -ss 69 -to 79 -i "audio_sources/حي على الصلاه.mp3" -vn -map_metadata -1       -af "afade=t=in:st=0:d=0.03,afade=t=out:st=9.85:d=0.15"       -ac 1 -ar 44100 -c:a libvorbis -q:a 5 android/app/src/main/res/raw/adhan_short_hayya.ogg
+
+Source files live in `audio_sources/`, outside `assets/`, so they are not bundled.
 
 The earlier generated placeholder tones and their generator were removed.
 

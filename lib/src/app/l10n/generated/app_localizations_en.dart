@@ -894,7 +894,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertShortHint =>
-      'Plays the opening of the Adhan, about 8 seconds.';
+      'Plays a short part of the Adhan, chosen in Settings.';
 
   @override
   String get alertStandardHint => 'Your phone\'s usual notification sound.';
@@ -1000,7 +1000,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recordingsBody =>
-      'Plays for every alert set to Full Adhan. Short Adhan is the opening of Naghshbandi.';
+      'Plays for every alert set to Full Adhan. Short Adhan is chosen separately in Settings.';
 
   @override
   String get recordingPlay => 'Play';
@@ -1356,6 +1356,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderSoundChime => 'Chime';
+
+  @override
+  String get soundHayya => 'حيّ على الصلاة';
+
+  @override
+  String get reminderSoundHayyaHint =>
+      'The call to prayer from the Adhan, about 10 seconds.';
+
+  @override
+  String get settingsShortAdhan => 'Short Adhan';
+
+  @override
+  String get shortAdhanNaghshbandi => 'Naghshbandi, opening';
+
+  @override
+  String get shortAdhanNaghshbandiHint =>
+      'The first 8 seconds of Naghshbandi\'s Adhan.';
+
+  @override
+  String get shortAdhanHayyaHint =>
+      '«حيّ على الصلاة» from the Adhan, 10 seconds.';
 
   @override
   String get settingsReminderSound => 'Reminder sound';

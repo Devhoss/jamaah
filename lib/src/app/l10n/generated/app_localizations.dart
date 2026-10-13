@@ -1523,7 +1523,7 @@ abstract class AppLocalizations {
   /// No description provided for @alertShortHint.
   ///
   /// In en, this message translates to:
-  /// **'Plays the opening of the Adhan, about 8 seconds.'**
+  /// **'Plays a short part of the Adhan, chosen in Settings.'**
   String get alertShortHint;
 
   /// No description provided for @alertStandardHint.
@@ -1715,7 +1715,7 @@ abstract class AppLocalizations {
   /// No description provided for @recordingsBody.
   ///
   /// In en, this message translates to:
-  /// **'Plays for every alert set to Full Adhan. Short Adhan is the opening of Naghshbandi.'**
+  /// **'Plays for every alert set to Full Adhan. Short Adhan is chosen separately in Settings.'**
   String get recordingsBody;
 
   /// No description provided for @recordingPlay.
@@ -2335,6 +2335,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Chime'**
   String get reminderSoundChime;
+
+  /// No description provided for @soundHayya.
+  ///
+  /// In en, this message translates to:
+  /// **'حيّ على الصلاة'**
+  String get soundHayya;
+
+  /// No description provided for @reminderSoundHayyaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The call to prayer from the Adhan, about 10 seconds.'**
+  String get reminderSoundHayyaHint;
+
+  /// No description provided for @settingsShortAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Short Adhan'**
+  String get settingsShortAdhan;
+
+  /// No description provided for @shortAdhanNaghshbandi.
+  ///
+  /// In en, this message translates to:
+  /// **'Naghshbandi, opening'**
+  String get shortAdhanNaghshbandi;
+
+  /// No description provided for @shortAdhanNaghshbandiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The first 8 seconds of Naghshbandi\'s Adhan.'**
+  String get shortAdhanNaghshbandiHint;
+
+  /// No description provided for @shortAdhanHayyaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'«حيّ على الصلاة» from the Adhan, 10 seconds.'**
+  String get shortAdhanHayyaHint;
 
   /// No description provided for @settingsReminderSound.
   ///

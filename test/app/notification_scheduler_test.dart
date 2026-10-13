@@ -75,7 +75,7 @@ void main() {
       }
     });
 
-    test('a full Adhan carries the chosen recording; other modes none', () {
+    test('a full Adhan carries its recording; a short one its clip', () {
       final zone = zoneOffsetsFor('Africa/Cairo');
       List<PlannedNotification> planFor(AdhanAlertSettings alerts) =>
           buildNotificationPlan(
@@ -110,7 +110,14 @@ void main() {
       );
       expect(
         plan.where((n) => n.prayer == Prayer.dhuhr).map((n) => n.recordingAsset),
-        everyElement(isNull),
+        everyElement(ShortAdhan.naghshbandi.asset),
+        reason: 'a short Adhan shown full screen plays the chosen clip',
+      );
+      expect(
+        planFor(alerts.copyWith(shortAdhan: ShortAdhan.hayya))
+            .where((n) => n.prayer == Prayer.dhuhr)
+            .map((n) => (n.recordingAsset, n.shortAdhan)),
+        everyElement((kHayyaAsset, ShortAdhan.hayya)),
       );
     });
 

@@ -16,17 +16,24 @@ abstract interface class AudioPreview {
 String? previewAssetFor(
   AdhanSoundMode mode, {
   String fullRecording = kDefaultAdhanRecording,
+  ShortAdhan shortAdhan = ShortAdhan.naghshbandi,
 }) => switch (mode) {
   AdhanSoundMode.full => adhanRecordingById(fullRecording).asset,
-  AdhanSoundMode.short => kShortAdhanAsset,
+  AdhanSoundMode.short => shortAdhan.asset,
   AdhanSoundMode.standard || AdhanSoundMode.silent => null,
 };
 
 class JustAudioPreview implements AudioPreview {
   final _player = AudioPlayer();
 
+  /// just_audio copies each asset to a cache file named after its path and
+  /// reuses it, so a sound replaced under the same name in an update would
+  /// keep playing the old file. Cleared once per launch, before first use.
+  static Future<void>? _cacheCleared;
+
   @override
   Future<void> play(String asset) async {
+    await (_cacheCleared ??= AudioPlayer.clearAssetCache().catchError((_) {}));
     await _player.stop();
     await _player.setAsset(asset);
     await _player.play();

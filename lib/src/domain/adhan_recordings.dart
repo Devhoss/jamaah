@@ -138,6 +138,25 @@ const kDefaultAdhanRecording = 'naghshbandi';
 /// channel's sound (android/app/src/main/res/raw/adhan_short.ogg).
 const kShortAdhanAsset = 'assets/audio/short/adhan_short.ogg';
 
+/// «حيّ على الصلاة»: 1:09–1:19 of audio_sources/حي على الصلاه.mp3 (added
+/// 2026-10-13). A choice for the short Adhan and for Jama’ah reminders.
+const kHayyaAsset = 'assets/audio/short/hayya.ogg';
+
+/// The short clips the user can choose for "Short Adhan" (2026-10-13). Each
+/// is a notification channel sound, so each has a raw resource of its own.
+enum ShortAdhan {
+  naghshbandi(asset: kShortAdhanAsset, raw: 'adhan_short'),
+  hayya(asset: kHayyaAsset, raw: 'adhan_short_hayya');
+
+  const ShortAdhan({required this.asset, required this.raw});
+
+  /// The Flutter asset: preview, and the app's own player.
+  final String asset;
+
+  /// The Android raw resource the notification channel plays.
+  final String raw;
+}
+
 /// The recording stored as [id]; the default one for an id that is unknown
 /// (a recording removed in a later version).
 AdhanRecording adhanRecordingById(String? id) => adhanRecordings.firstWhere(

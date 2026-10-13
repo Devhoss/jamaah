@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app.dart';
+import '../../app/audio_preview.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/location_follower.dart';
@@ -21,6 +24,12 @@ import 'jamaah_reminder_settings.dart';
 import 'prayer_alert_page.dart';
 import 'prayer_time_settings.dart';
 import 'scheduled_notifications_page.dart';
+
+String shortAdhanName(AppLocalizations l10n, ShortAdhan clip) =>
+    switch (clip) {
+      ShortAdhan.naghshbandi => l10n.shortAdhanNaghshbandi,
+      ShortAdhan.hayya => l10n.soundHayya,
+    };
 
 String themeModeName(AppLocalizations l10n, AppThemeMode mode) =>
     switch (mode) {
@@ -115,6 +124,15 @@ class SettingsPage extends ConsumerWidget {
                 title: _TwoLines(
                   first: l10n.settingsDefaultSound,
                   second: soundModeName(l10n, alerts.defaultSoundMode),
+                ),
+                trailing: Icon(Icons.chevron_right, color: ink.muted),
+              ),
+              AppRow(
+                leading: null,
+                onTap: () => _chooseShortAdhan(context, ref, alerts),
+                title: _TwoLines(
+                  first: l10n.settingsShortAdhan,
+                  second: shortAdhanName(l10n, alerts.shortAdhan),
                 ),
                 trailing: Icon(Icons.chevron_right, color: ink.muted),
               ),
@@ -239,6 +257,37 @@ class SettingsPage extends ConsumerWidget {
     if (failure != null) {
       messenger.showSnackBar(SnackBar(content: Text(followFailure(l10n, failure))));
     }
+  }
+
+  Future<void> _chooseShortAdhan(
+    BuildContext context,
+    WidgetRef ref,
+    AdhanAlertSettings alerts,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final preview = ref.read(audioPreviewProvider);
+    final chosen = await showSoundChoiceSheet<ShortAdhan>(
+      context,
+      current: alerts.shortAdhan,
+      preview: preview,
+      choices: [
+        SoundChoice(
+          value: ShortAdhan.naghshbandi,
+          title: l10n.shortAdhanNaghshbandi,
+          hint: l10n.shortAdhanNaghshbandiHint,
+          asset: ShortAdhan.naghshbandi.asset,
+        ),
+        SoundChoice(
+          value: ShortAdhan.hayya,
+          title: l10n.soundHayya,
+          hint: l10n.shortAdhanHayyaHint,
+          asset: ShortAdhan.hayya.asset,
+        ),
+      ],
+    );
+    unawaited(preview.stop());
+    if (chosen == null || chosen == alerts.shortAdhan) return;
+    await updateAdhanAlerts(ref, (all) => all.copyWith(shortAdhan: chosen));
   }
 
   Future<void> _chooseTheme(

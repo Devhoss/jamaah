@@ -20,7 +20,7 @@ data class AdhanAlarm(
     val body: String,
     /** "full", "short", "standard" or "silent". */
     val sound: String,
-    /** Full only: the Flutter asset path of the chosen recording. */
+    /** Full and short: the Flutter asset path of the chosen recording or clip. */
     val recording: String,
     val ringInSilent: Boolean,
     val fullScreen: Boolean,

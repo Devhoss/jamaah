@@ -113,6 +113,7 @@ String channelDisplayName(AppLocalizations l10n, ChannelSpec c) {
 String reminderSoundName(AppLocalizations l10n, ReminderSound sound) =>
     switch (sound) {
       ReminderSound.chime => l10n.reminderSoundChime,
+      ReminderSound.hayya => l10n.soundHayya,
       ReminderSound.standard => l10n.soundModeStandard,
       ReminderSound.silent => l10n.soundModeSilent,
     };
