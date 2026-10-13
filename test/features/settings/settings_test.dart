@@ -418,6 +418,50 @@ void main() {
     });
   });
 
+  group('Jama’ah reminder sound', () {
+    testApp('the chime is the default, previewed, and can be changed', (
+      tester,
+    ) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await reveal(tester, find.text(t.settingsReminderSound));
+      expect(find.text(t.reminderSoundChime), findsOneWidget);
+
+      await tapText(tester, t.settingsReminderSound);
+      await tap(tester, find.text(t.alertPreview).last);
+      expect(preview.played.last, 'assets/audio/chime/reminder_chime.wav');
+
+      await tapText(tester, t.soundModeStandard);
+      expect(
+        (await settings.read()).jamaahReminders.sound,
+        ReminderSound.standard,
+      );
+      expect(preview.stops, greaterThan(0),
+          reason: 'closing the sheet stops the preview');
+
+      final vibrate = switchTile(t.settingsReminderVibrate);
+      await reveal(tester, vibrate);
+      await tap(tester, vibrate);
+      expect((await settings.read()).jamaahReminders.vibrate, isFalse);
+    });
+
+    testApp('a test reminder says حيّ على الصلاة, on the chosen channel', (
+      tester,
+    ) async {
+      await settings.saveJamaahReminders(
+        const JamaahReminderSettings(sound: ReminderSound.silent),
+      );
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsReminderTest);
+
+      final shown = gateway.shownNow.single;
+      expect(shown.title, 'حيّ على الصلاة');
+      expect(shown.channel.sound, ChannelSound.none);
+      expect(find.text(t.settingsReminderTestSent), findsOneWidget);
+    });
+  });
+
   group('appearance', () {
     testApp('the theme follows the phone until the user picks one', (
       tester,

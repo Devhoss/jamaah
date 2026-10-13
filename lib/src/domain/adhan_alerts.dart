@@ -228,3 +228,35 @@ class TravelSettings {
   int get hashCode =>
       Object.hash(travelMode, followLocation, pauseAllIqamaReminders);
 }
+
+/// What a Jama’ah (Iqama) reminder plays (2026-10-13). [chime] is the app's
+/// own two-note chime; [standard] the phone's notification sound; [silent]
+/// shows the reminder without a sound.
+enum ReminderSound { chime, standard, silent }
+
+/// How every Jama’ah reminder sounds. One global setting: the reminders
+/// themselves (which prayers, how early) stay on each mosque.
+class JamaahReminderSettings {
+  const JamaahReminderSettings({
+    this.sound = ReminderSound.chime,
+    this.vibrate = true,
+  });
+
+  final ReminderSound sound;
+  final bool vibrate;
+
+  JamaahReminderSettings copyWith({ReminderSound? sound, bool? vibrate}) =>
+      JamaahReminderSettings(
+        sound: sound ?? this.sound,
+        vibrate: vibrate ?? this.vibrate,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      other is JamaahReminderSettings &&
+      other.sound == sound &&
+      other.vibrate == vibrate;
+
+  @override
+  int get hashCode => Object.hash(sound, vibrate);
+}

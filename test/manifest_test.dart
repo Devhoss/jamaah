@@ -134,6 +134,8 @@ void main() {
   test('the sounds and icon the code names exist, and are kept in release', () {
     for (final path in [
       'android/app/src/main/res/raw/adhan_short.ogg',
+      'android/app/src/main/res/raw/reminder_chime.wav',
+      'assets/audio/chime/reminder_chime.wav',
       'android/app/src/main/res/drawable/ic_stat_jamaah.xml',
       kShortAdhanAsset,
       for (final r in adhanRecordings) r.asset,
@@ -142,7 +144,11 @@ void main() {
     }
     expect(
       File('android/app/src/main/res/raw/keep.xml').readAsStringSync(),
-      allOf(contains('@raw/adhan_*'), contains('@drawable/ic_stat_jamaah')),
+      allOf(
+        contains('@raw/adhan_*'),
+        contains('@raw/reminder_*'),
+        contains('@drawable/ic_stat_jamaah'),
+      ),
       reason: 'resource shrinking cannot see names used only from Dart',
     );
     expect(

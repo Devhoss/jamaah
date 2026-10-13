@@ -1253,8 +1253,8 @@ abstract class AppLocalizations {
   /// No description provided for @channelIqama.
   ///
   /// In en, this message translates to:
-  /// **'Jama’ah reminders'**
-  String get channelIqama;
+  /// **'Jama’ah reminders · {sound}'**
+  String channelIqama(String sound);
 
   /// No description provided for @notifAdhanTitle.
   ///
@@ -1292,17 +1292,23 @@ abstract class AppLocalizations {
   /// **'The time for Fajr ends at sunrise.'**
   String get notifPreSunriseBody;
 
-  /// No description provided for @notifIqamaTitle.
+  /// Title of every Jama’ah reminder: 'come to prayer', from the Adhan. Kept in Arabic in every language.
   ///
   /// In en, this message translates to:
-  /// **'{prayer} Iqama in {minutes} min'**
-  String notifIqamaTitle(String prayer, int minutes);
+  /// **'حيّ على الصلاة'**
+  String get notifIqamaCall;
 
   /// No description provided for @notifIqamaBody.
   ///
   /// In en, this message translates to:
-  /// **'At {mosque}.'**
-  String notifIqamaBody(String mosque);
+  /// **'{prayer} Iqama in {minutes} min, at {mosque}.'**
+  String notifIqamaBody(String prayer, int minutes, String mosque);
+
+  /// No description provided for @notifIqamaBodyNoMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Iqama in {minutes} min.'**
+  String notifIqamaBodyNoMosque(String prayer, int minutes);
 
   /// No description provided for @scheduledTitle.
   ///
@@ -2323,6 +2329,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset all to 0'**
   String get adjustmentsReset;
+
+  /// No description provided for @reminderSoundChime.
+  ///
+  /// In en, this message translates to:
+  /// **'Chime'**
+  String get reminderSoundChime;
+
+  /// No description provided for @settingsReminderSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder sound'**
+  String get settingsReminderSound;
+
+  /// No description provided for @reminderSoundChimeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A soft two-note chime, different from the Adhan and from other apps.'**
+  String get reminderSoundChimeHint;
+
+  /// No description provided for @reminderSoundStandardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s usual notification sound.'**
+  String get reminderSoundStandardHint;
+
+  /// No description provided for @reminderSoundSilentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown in your notifications without any sound.'**
+  String get reminderSoundSilentHint;
+
+  /// No description provided for @settingsReminderVibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate'**
+  String get settingsReminderVibrate;
+
+  /// No description provided for @settingsReminderTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a test reminder'**
+  String get settingsReminderTest;
+
+  /// No description provided for @settingsReminderTestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test reminder sent.'**
+  String get settingsReminderTestSent;
 
   /// No description provided for @settingsPauseAllIqama.
   ///

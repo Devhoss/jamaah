@@ -2,4 +2,4 @@
 <!-- Notification sounds are referenced by name from Dart, which resource shrinking
      cannot see, so release builds would otherwise strip them. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@raw/adhan_*,@drawable/ic_stat_jamaah" />
+    tools:keep="@raw/adhan_*,@raw/reminder_*,@drawable/ic_stat_jamaah" />

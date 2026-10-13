@@ -79,6 +79,7 @@ class AppSettingsSnapshot {
     required this.themeMode,
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
+    this.jamaahReminders = const JamaahReminderSettings(),
     this.activeMosqueId,
     this.location,
     this.placeCheckedAt,
@@ -100,6 +101,9 @@ class AppSettingsSnapshot {
 
   /// Travel mode and its manual Iqama pause.
   final TravelSettings travel;
+
+  /// How Jama’ah (Iqama) reminders sound.
+  final JamaahReminderSettings jamaahReminders;
 
   /// Mosque whose Iqama schedule drives reminders. Null until the user picks one.
   final String? activeMosqueId;
@@ -183,6 +187,14 @@ class SettingsRepository {
             values[SettingKeys.travelMode] == 'true' &&
                 values[SettingKeys.pauseIqamaReminders] == 'true',
         },
+      ),
+      jamaahReminders: JamaahReminderSettings(
+        sound: _enumOrDefault(
+          ReminderSound.values,
+          values[SettingKeys.jamaahReminderSound],
+          ReminderSound.chime,
+        ),
+        vibrate: values[SettingKeys.jamaahReminderVibrate] != 'false',
       ),
       activeMosqueId: values[SettingKeys.activeMosqueId],
       location: _location(values),
@@ -296,6 +308,16 @@ class SettingsRepository {
           );
         }
         await _put(SettingKeys.placeCheckFailed, '$failed');
+      });
+
+  /// How every Jama’ah reminder sounds.
+  Future<void> saveJamaahReminders(JamaahReminderSettings reminders) =>
+      _db.transaction(() async {
+        await _put(SettingKeys.jamaahReminderSound, reminders.sound.name);
+        await _put(
+          SettingKeys.jamaahReminderVibrate,
+          '${reminders.vibrate}',
+        );
       });
 
   /// Travel mode and its options, and the pause on every Iqama reminder.

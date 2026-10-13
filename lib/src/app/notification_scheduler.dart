@@ -30,6 +30,7 @@ List<PlannedNotification> buildNotificationPlan({
   required AdhanAlertSettings alerts,
   required TravelSettings travel,
   required Mosque? activeMosque,
+  JamaahReminderSettings reminders = const JamaahReminderSettings(),
   int windowDays = 7,
 }) {
   final today = LocalMoment.inZone(zone: zone, utcInstant: nowUtc).day;
@@ -54,6 +55,7 @@ List<PlannedNotification> buildNotificationPlan({
       iqamaRemindersPaused:
           travel.pauseAllIqamaReminders ||
           (activeMosque?.remindersPaused ?? false),
+      jamaahReminders: reminders,
       windowDays: windowDays,
     ),
   );
@@ -76,9 +78,18 @@ List<PlannedNotification> buildNotificationPlan({
       title: l10n.notifPreAdhanTitle(prayer, n.minutesBefore ?? 0),
       body: sunrise ? l10n.notifPreSunriseBody : l10n.notifPreAdhanBody,
     ),
+    // «حيّ على الصلاة», "come to prayer", from the Adhan itself, says at a
+    // glance that it is time to go; the details are underneath.
     NotificationKind.iqama => (
-      title: l10n.notifIqamaTitle(prayer, n.minutesBefore ?? 0),
-      body: l10n.notifIqamaBody(mosqueName(n.mosqueId) ?? ''),
+      title: l10n.notifIqamaCall,
+      body: switch (mosqueName(n.mosqueId)) {
+        final name? when name.isNotEmpty => l10n.notifIqamaBody(
+          prayer,
+          n.minutesBefore ?? 0,
+          name,
+        ),
+        _ => l10n.notifIqamaBodyNoMosque(prayer, n.minutesBefore ?? 0),
+      },
     ),
   };
 }
@@ -90,12 +101,21 @@ String channelDisplayName(AppLocalizations l10n, ChannelSpec c) {
       soundModeName(l10n, c.mode ?? AdhanSoundMode.standard),
     ),
     ChannelGroup.preAdhan => l10n.channelPreAdhan,
-    ChannelGroup.iqama => l10n.channelIqama,
+    ChannelGroup.iqama => l10n.channelIqama(
+      reminderSoundName(l10n, c.reminderSound ?? ReminderSound.chime),
+    ),
   };
   if (!c.vibrate) name = l10n.channelNoVibration(name);
   if (c.alarmStream) name = l10n.channelAlarmVolume(name);
   return name;
 }
+
+String reminderSoundName(AppLocalizations l10n, ReminderSound sound) =>
+    switch (sound) {
+      ReminderSound.chime => l10n.reminderSoundChime,
+      ReminderSound.standard => l10n.soundModeStandard,
+      ReminderSound.silent => l10n.soundModeSilent,
+    };
 
 String soundModeName(AppLocalizations l10n, AdhanSoundMode mode) =>
     switch (mode) {
@@ -217,6 +237,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               alerts: settings.adhanAlerts,
               travel: settings.travel,
               activeMosque: active,
+              reminders: settings.jamaahReminders,
             );
       final report = await NotificationSync(gateway).apply(
         plan: plan,

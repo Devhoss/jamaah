@@ -13,6 +13,9 @@ enum ChannelSound {
   /// The bundled short Adhan. Also used by "full" alerts: a full-length Adhan is
   /// played by the app itself (g4), not by the channel.
   adhanShort,
+
+  /// The app's own Jama’ah reminder chime (tool/generate_reminder_chime.dart).
+  chime,
 }
 
 /// One Android notification channel, as data.
@@ -24,6 +27,7 @@ class ChannelSpec {
     required this.vibrate,
     required this.alarmStream,
     this.mode,
+    this.reminderSound,
   });
 
   final String id;
@@ -36,6 +40,9 @@ class ChannelSpec {
 
   /// The Adhan sound mode, for Adhan channels.
   final AdhanSoundMode? mode;
+
+  /// The reminder sound, for Jama’ah reminder channels.
+  final ReminderSound? reminderSound;
 
   @override
   bool operator ==(Object other) => other is ChannelSpec && other.id == id;
@@ -54,6 +61,9 @@ enum ChannelGroup { adhan, preAdhan, iqama }
 /// retired, instead of Android quietly keeping the old sound.
 const kAdhanToneVersion = 2;
 
+/// The same, for the Jama’ah reminder chime.
+const kReminderChimeVersion = 1;
+
 /// Every channel id this app creates starts with this, so stale ones can be found
 /// and removed without touching anything else.
 const kChannelPrefix = 'jamaah_';
@@ -68,14 +78,31 @@ ChannelSpec channelFor(PlannedNotification n) => switch (n.kind) {
     vibrate: n.vibrate,
     alarmStream: false,
   ),
-  NotificationKind.iqama => const ChannelSpec(
-    id: '${kChannelPrefix}iqama',
-    group: ChannelGroup.iqama,
-    sound: ChannelSound.platformDefault,
-    vibrate: true,
-    alarmStream: false,
-  ),
+  NotificationKind.iqama => _iqamaChannel(n),
 };
+
+ChannelSpec _iqamaChannel(PlannedNotification n) {
+  final reminder = n.reminderSound ?? ReminderSound.chime;
+  final sound = switch (reminder) {
+    ReminderSound.chime => ChannelSound.chime,
+    ReminderSound.standard => ChannelSound.platformDefault,
+    ReminderSound.silent => ChannelSound.none,
+  };
+  final parts = [
+    'iqama',
+    reminder.name,
+    n.vibrate ? 'vib' : 'still',
+    if (sound == ChannelSound.chime) 'c$kReminderChimeVersion',
+  ];
+  return ChannelSpec(
+    id: '$kChannelPrefix${parts.join('_')}',
+    group: ChannelGroup.iqama,
+    sound: sound,
+    vibrate: n.vibrate,
+    alarmStream: false,
+    reminderSound: reminder,
+  );
+}
 
 ChannelSpec _adhanChannel(PlannedNotification n) {
   final mode = n.soundMode ?? AdhanSoundMode.standard;

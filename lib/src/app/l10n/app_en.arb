@@ -480,7 +480,8 @@
     }
   },
   "channelPreAdhan": "Reminders before the Adhan",
-  "channelIqama": "Jama’ah reminders",
+  "channelIqama": "Jama’ah reminders · {sound}",
+  "@channelIqama": {"placeholders": {"sound": {"type": "String"}}},
   "notifAdhanTitle": "{prayer}",
   "@notifAdhanTitle": {
     "placeholders": {
@@ -503,17 +504,23 @@
   },
   "notifPreAdhanBody": "A reminder before the Adhan.",
   "notifPreSunriseBody": "The time for Fajr ends at sunrise.",
-  "notifIqamaTitle": "{prayer} Iqama in {minutes} min",
-  "@notifIqamaTitle": {
+  "notifIqamaCall": "حيّ على الصلاة",
+  "@notifIqamaCall": {
+    "description": "Title of every Jama’ah reminder: 'come to prayer', from the Adhan. Kept in Arabic in every language."
+  },
+  "notifIqamaBody": "{prayer} Iqama in {minutes} min, at {mosque}.",
+  "@notifIqamaBody": {
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "minutes": { "type": "int" },
+      "mosque": { "type": "String" }
+    }
+  },
+  "notifIqamaBodyNoMosque": "{prayer} Iqama in {minutes} min.",
+  "@notifIqamaBodyNoMosque": {
     "placeholders": {
       "prayer": { "type": "String" },
       "minutes": { "type": "int" }
-    }
-  },
-  "notifIqamaBody": "At {mosque}.",
-  "@notifIqamaBody": {
-    "placeholders": {
-      "mosque": { "type": "String" }
     }
   },
   "scheduledTitle": "Scheduled notifications",
@@ -799,6 +806,14 @@
   },
   "adjustmentsNone": "None",
   "adjustmentsReset": "Reset all to 0",
+  "reminderSoundChime": "Chime",
+  "settingsReminderSound": "Reminder sound",
+  "reminderSoundChimeHint": "A soft two-note chime, different from the Adhan and from other apps.",
+  "reminderSoundStandardHint": "Your phone's usual notification sound.",
+  "reminderSoundSilentHint": "Shown in your notifications without any sound.",
+  "settingsReminderVibrate": "Vibrate",
+  "settingsReminderTest": "Send a test reminder",
+  "settingsReminderTestSent": "Test reminder sent.",
   "settingsPauseAllIqama": "Pause all Jama’ah reminders",
   "settingsPauseAllIqamaHint": "No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.",
   "mosquePauseReminders": "Pause this mosque's reminders",

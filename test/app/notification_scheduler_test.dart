@@ -177,6 +177,24 @@ void main() {
             activeMosque: active ?? mosque,
           );
 
+      final quiet = buildNotificationPlan(
+        calculator: calculatorFor(30.0444, 31.2357, zone),
+        zone: zone,
+        nowUtc: DateTime.utc(2026, 10, 13, 0),
+        alerts: AdhanAlertSettings.defaults(),
+        travel: const TravelSettings(),
+        activeMosque: mosque,
+        reminders: const JamaahReminderSettings(
+          sound: ReminderSound.silent,
+          vibrate: false,
+        ),
+      );
+      expect(quiet, hasLength(7));
+      expect(
+        quiet.map((n) => (n.reminderSound, n.vibrate)).toSet(),
+        {(ReminderSound.silent, false)},
+      );
+
       final home = planWith(const TravelSettings());
       final all = planWith(const TravelSettings(pauseAllIqamaReminders: true));
       final thisMosque = planWith(
@@ -229,8 +247,18 @@ void main() {
         of(NotificationKind.iqama, Prayer.asr),
         mosqueName: name,
       );
-      expect(iqama.title, t.notifIqamaTitle(t.prayerAsr, 10));
-      expect(iqama.body, t.notifIqamaBody('Masjid al-Nour'));
+      expect(iqama.title, 'حيّ على الصلاة');
+      expect(iqama.title, t.notifIqamaCall);
+      expect(iqama.body, t.notifIqamaBody(t.prayerAsr, 10, 'Masjid al-Nour'));
+      expect(
+        notificationText(
+          t,
+          of(NotificationKind.iqama, Prayer.asr),
+          mosqueName: (_) => null,
+        ).body,
+        t.notifIqamaBodyNoMosque(t.prayerAsr, 10),
+        reason: 'a mosque without a name never leaves a dangling "at"',
+      );
 
       final sunrise = notificationText(
         t,
@@ -311,7 +339,7 @@ void main() {
       );
       expect(
         gateway.scheduled.values.first.body,
-        t.notifIqamaBody('Masjid al-Nour'),
+        t.notifIqamaBody(t.prayerAsr, 10, 'Masjid al-Nour'),
       );
 
       await mosques.setReminderEnabled(mosque.id, Prayer.asr, enabled: false);

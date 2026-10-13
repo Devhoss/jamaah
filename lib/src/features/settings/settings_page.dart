@@ -17,6 +17,7 @@ import '../../domain/prayer.dart';
 import '../components/app_widgets.dart';
 import '../mosques/mosque_detail_page.dart';
 import 'adhan_recordings_page.dart';
+import 'jamaah_reminder_settings.dart';
 import 'prayer_alert_page.dart';
 import 'prayer_time_settings.dart';
 import 'scheduled_notifications_page.dart';
@@ -157,6 +158,8 @@ class SettingsPage extends ConsumerWidget {
                 child: Text(l10n.settingsIqamaOpenActive(active.name)),
               ),
             ),
+          const SizedBox(height: AppSpace.md),
+          const JamaahReminderSoundRows(),
           const SizedBox(height: AppSpace.md),
           AppRows(
             children: [

@@ -26,6 +26,7 @@ class LocalNotificationsGateway implements NotificationGateway {
 
   /// The bundled short Adhan, in android/app/src/main/res/raw.
   static const adhanShortRaw = 'adhan_short';
+  static const reminderChimeRaw = 'reminder_chime';
 
   /// A plain status-bar icon, in android/app/src/main/res/drawable.
   static const statusIcon = 'ic_stat_jamaah';
@@ -48,6 +49,9 @@ class LocalNotificationsGateway implements NotificationGateway {
   AndroidNotificationSound? _sound(ChannelSpec c) => switch (c.sound) {
     ChannelSound.adhanShort => const RawResourceAndroidNotificationSound(
       adhanShortRaw,
+    ),
+    ChannelSound.chime => const RawResourceAndroidNotificationSound(
+      reminderChimeRaw,
     ),
     ChannelSound.platformDefault || ChannelSound.none => null,
   };

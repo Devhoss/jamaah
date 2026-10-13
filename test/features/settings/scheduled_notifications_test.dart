@@ -168,7 +168,7 @@ void main() {
       findsOneWidget,
     );
     final titles = tester
-        .widgetList<Text>(find.text(t.notifIqamaTitle(t.prayerAsr, 10)))
+        .widgetList<Text>(find.text(t.notifIqamaCall))
         .length;
     expect(titles, gateway.scheduled.length);
     expect(gateway.scheduled, isNotEmpty);

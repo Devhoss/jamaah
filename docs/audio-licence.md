@@ -13,6 +13,7 @@ example, the open-source project it was taken from and that project's licence).
 | `assets/audio/*.mp3` (17 files) | full Adhan recordings, mono, 11 kHz, 8 kbps, 1:36–5:47 | the user's choice in Settings → Full Adhan recording; preview, and played by the app's Adhan service straight from the APK's `flutter_assets/` |
 | `android/app/src/main/res/raw/adhan_short.ogg` | the first 8 s of `Naghshbandi.mp3` (the opening phrase ends at 7.5 s), 0.6 s fade-out, Vorbis 22 kHz mono | notification-channel sound for "Short" and "Full" alerts |
 | `assets/audio/short/adhan_short.ogg` | the same file, byte for byte | preview of "Short" in Settings |
+| `android/app/src/main/res/raw/reminder_chime.wav` and `assets/audio/chime/reminder_chime.wav` | two-note chime (G5, C6), 1.8 s, synthesised by `tool/generate_reminder_chime.dart`; the project's own, no licence needed | Jama’ah reminder channel sound, and its preview |
 
 The list the app shows lives in `lib/src/domain/adhan_recordings.dart` (id,
 name, file, length). Ids are stored in settings, so never rename one.

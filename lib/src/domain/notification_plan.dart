@@ -19,6 +19,7 @@ class PlannedNotification {
     this.fullScreen = false,
     this.minutesBefore,
     this.recordingAsset,
+    this.reminderSound,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -51,6 +52,9 @@ class PlannedNotification {
   /// Full Adhan only: the bundled recording the app plays.
   final String? recordingAsset;
 
+  /// Jama’ah (Iqama) reminders only: what they play.
+  final ReminderSound? reminderSound;
+
   /// True when the reminder has already fired and must not be re-scheduled.
   bool isInPast(DateTime now) => at.isBefore(now);
 }
@@ -70,6 +74,7 @@ class NotificationPlanInput {
     required this.adhanAlerts,
     this.activeMosque,
     this.iqamaRemindersPaused = false,
+    this.jamaahReminders = const JamaahReminderSettings(),
     this.windowDays = 7,
   });
 
@@ -93,6 +98,9 @@ class NotificationPlanInput {
   /// Travel mode's manual pause: no Iqama reminders are planned. Adhan alerts
   /// and the reminders before them are not affected.
   final bool iqamaRemindersPaused;
+
+  /// How the Iqama reminders sound and whether they vibrate.
+  final JamaahReminderSettings jamaahReminders;
 
   final int windowDays;
 }
@@ -212,6 +220,8 @@ class NotificationPlanner {
           soundMode: null,
           mosqueId: mosque.id,
           minutesBefore: iqama.reminderMinutesBefore,
+          vibrate: input.jamaahReminders.vibrate,
+          reminderSound: input.jamaahReminders.sound,
         ),
       );
     }

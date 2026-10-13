@@ -483,6 +483,19 @@ void main() {
       );
     });
 
+    test('Jama’ah reminders chime and vibrate until changed', () async {
+      expect(
+        (await settings.read()).jamaahReminders,
+        const JamaahReminderSettings(),
+      );
+      const changed = JamaahReminderSettings(
+        sound: ReminderSound.standard,
+        vibrate: false,
+      );
+      await settings.saveJamaahReminders(changed);
+      expect((await settings.read()).jamaahReminders, changed);
+    });
+
     test('the theme choice round-trips', () async {
       expect((await settings.read()).themeMode, AppThemeMode.system);
       for (final mode in AppThemeMode.values) {

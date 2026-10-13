@@ -722,7 +722,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channelPreAdhan => 'Reminders before the Adhan';
 
   @override
-  String get channelIqama => 'Jama’ah reminders';
+  String channelIqama(String sound) {
+    return 'Jama’ah reminders · $sound';
+  }
 
   @override
   String notifAdhanTitle(String prayer) {
@@ -750,13 +752,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifPreSunriseBody => 'The time for Fajr ends at sunrise.';
 
   @override
-  String notifIqamaTitle(String prayer, int minutes) {
-    return '$prayer Iqama in $minutes min';
+  String get notifIqamaCall => 'حيّ على الصلاة';
+
+  @override
+  String notifIqamaBody(String prayer, int minutes, String mosque) {
+    return '$prayer Iqama in $minutes min, at $mosque.';
   }
 
   @override
-  String notifIqamaBody(String mosque) {
-    return 'At $mosque.';
+  String notifIqamaBodyNoMosque(String prayer, int minutes) {
+    return '$prayer Iqama in $minutes min.';
   }
 
   @override
@@ -1348,6 +1353,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adjustmentsReset => 'Reset all to 0';
+
+  @override
+  String get reminderSoundChime => 'Chime';
+
+  @override
+  String get settingsReminderSound => 'Reminder sound';
+
+  @override
+  String get reminderSoundChimeHint =>
+      'A soft two-note chime, different from the Adhan and from other apps.';
+
+  @override
+  String get reminderSoundStandardHint =>
+      'Your phone\'s usual notification sound.';
+
+  @override
+  String get reminderSoundSilentHint =>
+      'Shown in your notifications without any sound.';
+
+  @override
+  String get settingsReminderVibrate => 'Vibrate';
+
+  @override
+  String get settingsReminderTest => 'Send a test reminder';
+
+  @override
+  String get settingsReminderTestSent => 'Test reminder sent.';
 
   @override
   String get settingsPauseAllIqama => 'Pause all Jama’ah reminders';

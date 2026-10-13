@@ -75,7 +75,7 @@ void main() {
     );
   });
 
-  test('reminders and Iqama use their own groups and the default sound', () {
+  test('reminders and Iqama use their own groups; Iqama chimes by default', () {
     final pre = channelFor(
       PlannedNotification(
         id: 2,
@@ -101,8 +101,42 @@ void main() {
     expect(pre.group, ChannelGroup.preAdhan);
     expect(iqama.group, ChannelGroup.iqama);
     expect(pre.sound, ChannelSound.platformDefault);
-    expect(iqama.sound, ChannelSound.platformDefault);
+    expect(iqama.sound, ChannelSound.chime);
+    expect(iqama.id, endsWith('_c$kReminderChimeVersion'));
     expect({pre.id, iqama.id, channelFor(adhan()).id}, hasLength(3));
+  });
+
+  test('each Jama’ah reminder sound and vibration is a channel of its own', () {
+    ChannelSpec iqama(ReminderSound sound, {bool vibrate = true}) => channelFor(
+      PlannedNotification(
+        id: 3,
+        kind: NotificationKind.iqama,
+        prayer: Prayer.fajr,
+        at: DateTime.utc(2026),
+        soundMode: null,
+        mosqueId: 'm1',
+        minutesBefore: 10,
+        vibrate: vibrate,
+        reminderSound: sound,
+      ),
+    );
+    expect(iqama(ReminderSound.standard).sound, ChannelSound.platformDefault);
+    expect(iqama(ReminderSound.silent).sound, ChannelSound.none);
+    expect(iqama(ReminderSound.silent, vibrate: false).vibrate, isFalse);
+    expect(
+      {
+        for (final s in ReminderSound.values) ...[
+          iqama(s).id,
+          iqama(s, vibrate: false).id,
+        ],
+      },
+      hasLength(6),
+    );
+    expect(
+      iqama(ReminderSound.chime).id,
+      isNot(contains('standard')),
+      reason: 'a channel never carries a sound it does not play',
+    );
   });
 
   test(
