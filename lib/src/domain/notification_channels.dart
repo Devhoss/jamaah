@@ -104,3 +104,10 @@ ChannelSpec _adhanChannel(PlannedNotification n) {
     mode: mode,
   );
 }
+
+/// True for an Adhan the app plays itself (native AdhanService) rather than as
+/// a notification sound: the full recording, which is too long for a channel
+/// sound, and any Adhan shown full screen.
+bool playsInApp(PlannedNotification n) =>
+    n.kind == NotificationKind.adhan &&
+    (n.soundMode == AdhanSoundMode.full || n.fullScreen);

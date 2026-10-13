@@ -6,7 +6,8 @@
 | --- | --- | --- |
 | `android/app/src/main/res/raw/adhan_short_placeholder.wav` | 6 s synthesised chime | notification-channel sound for "Short" and "Full" alerts |
 | `assets/audio/adhan_short_placeholder.wav` | the same chime | preview in Settings |
-| `assets/audio/adhan_full_placeholder.wav` | the chime four times, ~37 s | the full Adhan the app plays itself |
+| `assets/audio/adhan_full_placeholder.wav` | the chime four times, ~37 s | preview of the full Adhan in Settings |
+| `android/app/src/main/res/raw/adhan_full_placeholder.wav` | the same | the full Adhan played by the app's Adhan service |
 
 They are made by `tool/generate_placeholder_tones.dart` (soft sine tones), so
 there is no third-party content and nothing to license.
@@ -34,7 +35,7 @@ the uploader before shipping.
 
 1. Fill in, here: the recording (reciter, mosque, duration, cut point for Short),
    source URL, exact licence text, and any attribution the licence requires.
-2. Replace the three files above, keeping their names (convert to WAV or OGG).
+2. Replace the four files above, keeping their names (convert to WAV or OGG).
 3. Bump `kAdhanToneVersion` in `lib/src/domain/notification_channels.dart`.
    Android fixes a channel's sound when the channel is created, so a new version
    creates new channels and the app retires the old ones.

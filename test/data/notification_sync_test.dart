@@ -5,6 +5,7 @@ import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/notification_channels.dart';
 import 'package:jamaah/src/domain/notification_plan.dart';
 import 'package:jamaah/src/domain/prayer.dart';
+
 import '../helpers/fake_notification_gateway.dart';
 
 /// Making the platform's scheduled set match a plan: only the future, nothing
@@ -94,10 +95,10 @@ void main() {
       textFor: text,
     );
 
-    expect(
-      gateway.channels.values.map((c) => c.group).toSet(),
-      {ChannelGroup.adhan, ChannelGroup.iqama},
-    );
+    expect(gateway.channels.values.map((c) => c.group).toSet(), {
+      ChannelGroup.adhan,
+      ChannelGroup.iqama,
+    });
   });
 
   test('retires its own unused channels, never anyone else\'s', () async {
@@ -117,18 +118,20 @@ void main() {
     expect(ids, contains('miscellaneous'));
   });
 
-  test('denied exact alarms degrade to inexact timing, and the report says so',
-      () async {
-    final gateway = FakeNotificationGateway(exact: false);
-    final report = await NotificationSync(gateway).apply(
-      plan: [n(1, fromNow: const Duration(hours: 1))],
-      now: now,
-      textFor: text,
-    );
+  test(
+    'denied exact alarms degrade to inexact timing, and the report says so',
+    () async {
+      final gateway = FakeNotificationGateway(exact: false);
+      final report = await NotificationSync(gateway).apply(
+        plan: [n(1, fromNow: const Duration(hours: 1))],
+        now: now,
+        textFor: text,
+      );
 
-    expect(report.exact, isFalse);
-    expect(gateway.exactFlags[1], isFalse);
-  });
+      expect(report.exact, isFalse);
+      expect(gateway.exactFlags[1], isFalse);
+    },
+  );
 
   test('an empty plan clears everything', () async {
     final gateway = FakeNotificationGateway();
@@ -141,5 +144,75 @@ void main() {
     await sync.apply(plan: const [], now: now, textFor: text);
 
     expect(gateway.scheduled, isEmpty);
+  });
+
+  group('Adhans the app plays itself', () {
+    test(
+      'the full Adhan goes to the app, a short one stays a notification',
+      () async {
+        final gateway = FakeNotificationGateway();
+        await NotificationSync(gateway).apply(
+          plan: [
+            n(1, fromNow: const Duration(hours: 1), mode: AdhanSoundMode.full),
+            n(2, fromNow: const Duration(hours: 2), mode: AdhanSoundMode.short),
+          ],
+          now: now,
+          textFor: text,
+          stopLabel: 'Stop',
+          timeLabel: (_) => '5:36 AM',
+        );
+
+        expect(gateway.adhanAlarmsById.keys, [1]);
+        expect(gateway.scheduled.keys, [2]);
+        expect(gateway.adhanAlarmsById[1]!.stopLabel, 'Stop');
+        expect(gateway.adhanAlarmsById[1]!.timeLabel, '5:36 AM');
+      },
+    );
+
+    test(
+      'changing the sound moves an Adhan between the two, never both',
+      () async {
+        final gateway = FakeNotificationGateway();
+        final sync = NotificationSync(gateway);
+        await sync.apply(
+          plan: [
+            n(1, fromNow: const Duration(hours: 1), mode: AdhanSoundMode.full),
+          ],
+          now: now,
+          textFor: text,
+        );
+        await sync.apply(
+          plan: [
+            n(1, fromNow: const Duration(hours: 1), mode: AdhanSoundMode.short),
+          ],
+          now: now,
+          textFor: text,
+        );
+        expect(gateway.adhanAlarmsById, isEmpty);
+        expect(gateway.scheduled.keys, [1]);
+
+        await sync.apply(
+          plan: [
+            n(1, fromNow: const Duration(hours: 1), mode: AdhanSoundMode.full),
+          ],
+          now: now,
+          textFor: text,
+        );
+        expect(gateway.adhanAlarmsById.keys, [1]);
+        expect(gateway.scheduled, isEmpty);
+      },
+    );
+
+    test('nothing in the past is handed to the app', () async {
+      final gateway = FakeNotificationGateway();
+      await NotificationSync(gateway).apply(
+        plan: [
+          n(1, fromNow: const Duration(minutes: -1), mode: AdhanSoundMode.full),
+        ],
+        now: now,
+        textFor: text,
+      );
+      expect(gateway.adhanAlarmsById, isEmpty);
+    });
   });
 }

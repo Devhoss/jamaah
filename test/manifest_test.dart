@@ -11,47 +11,50 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const manifest = 'android/app/src/main/AndroidManifest.xml';
 
-  test('the release manifest asks for internet and the two location levels', () {
-    final text = File(manifest).readAsStringSync();
+  test(
+    'the release manifest asks for internet and the two location levels',
+    () {
+      final text = File(manifest).readAsStringSync();
 
-    expect(
-      text,
-      contains('android.permission.INTERNET'),
-      reason: 'discovery and place search need it in release builds',
-    );
-    expect(
-      text,
-      contains('android.permission.ACCESS_COARSE_LOCATION'),
-      reason: 'Today asks for city-level location on its own',
-    );
-    expect(
-      text,
-      contains('android.permission.ACCESS_FINE_LOCATION'),
-      reason: 'precise location, asked for only by "Find nearby mosques"',
-    );
-    for (final notifications in const [
-      'android.permission.POST_NOTIFICATIONS',
-      'android.permission.SCHEDULE_EXACT_ALARM',
-      'android.permission.RECEIVE_BOOT_COMPLETED',
-    ]) {
       expect(
         text,
-        contains(notifications),
-        reason: 'local notifications, on the minute, restored after a reboot',
+        contains('android.permission.INTERNET'),
+        reason: 'discovery and place search need it in release builds',
       );
-    }
-    for (final deferred in const [
-      // Play reserves it for alarm-clock and calendar apps; the app uses
-      // SCHEDULE_EXACT_ALARM and says so when it is denied (AGENTS.md).
-      'android.permission.USE_EXACT_ALARM',
-    ]) {
       expect(
         text,
-        isNot(contains(deferred)),
-        reason: '$deferred belongs to a later step, not this one',
+        contains('android.permission.ACCESS_COARSE_LOCATION'),
+        reason: 'Today asks for city-level location on its own',
       );
-    }
-  });
+      expect(
+        text,
+        contains('android.permission.ACCESS_FINE_LOCATION'),
+        reason: 'precise location, asked for only by "Find nearby mosques"',
+      );
+      for (final notifications in const [
+        'android.permission.POST_NOTIFICATIONS',
+        'android.permission.SCHEDULE_EXACT_ALARM',
+        'android.permission.RECEIVE_BOOT_COMPLETED',
+      ]) {
+        expect(
+          text,
+          contains(notifications),
+          reason: 'local notifications, on the minute, restored after a reboot',
+        );
+      }
+      for (final deferred in const [
+        // Play reserves it for alarm-clock and calendar apps; the app uses
+        // SCHEDULE_EXACT_ALARM and says so when it is denied (AGENTS.md).
+        'android.permission.USE_EXACT_ALARM',
+      ]) {
+        expect(
+          text,
+          isNot(contains(deferred)),
+          reason: '$deferred belongs to a later step, not this one',
+        );
+      }
+    },
+  );
 
   /// The crash this guards against is invisible to every Dart test: the manifest
   /// names the activity with a leading dot, Android resolves that against the
@@ -60,19 +63,20 @@ void main() {
   /// and the app dies before Flutter starts. This was exactly the state of the
   /// tree on the first real-device run.
   test('the launcher activity exists at the name Android will ask for', () {
-    final gradle = File(
-      'android/app/build.gradle.kts',
-    ).readAsStringSync();
+    final gradle = File('android/app/build.gradle.kts').readAsStringSync();
     expect(
       gradle,
       contains('namespace = brandingApplicationId'),
       reason: 'the namespace must follow branding, or the two drift apart',
     );
 
-    final activity = RegExp(
-      r'android:name="(\.[A-Za-z0-9_]+)"',
-    ).firstMatch(File(manifest).readAsStringSync());
-    expect(activity, isNotNull, reason: 'the launcher is named with a leading dot');
+    final activity = RegExp(r'android:name="(\.[A-Za-z0-9_]+)"')
+        .firstMatch(File(manifest).readAsStringSync());
+    expect(
+      activity,
+      isNotNull,
+      reason: 'the launcher is named with a leading dot',
+    );
     final className = activity!.group(1)!;
     expect(className, '.MainActivity');
 
@@ -83,7 +87,8 @@ void main() {
     expect(
       source.existsSync(),
       isTrue,
-      reason: '$kApplicationId$className is what the launcher loads, so $path '
+      reason:
+          '$kApplicationId$className is what the launcher loads, so $path '
           'has to be the file that declares it',
     );
     expect(
@@ -140,4 +145,30 @@ void main() {
     );
     expect(File('pubspec.yaml').readAsStringSync(), contains('assets/audio/'));
   });
+
+  test(
+    'the app can play the Adhan itself, full screen, and after a reboot',
+    () {
+      final text = File(manifest).readAsStringSync();
+      for (final permission in const [
+        'android.permission.FOREGROUND_SERVICE',
+        'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK',
+        'android.permission.USE_FULL_SCREEN_INTENT',
+        'android.permission.WAKE_LOCK',
+      ]) {
+        expect(text, contains(permission));
+      }
+      expect(text, contains('android:name=".AdhanService"'));
+      expect(text, contains('android:foregroundServiceType="mediaPlayback"'));
+      expect(text, contains('android:name=".AdhanActivity"'));
+      expect(text, contains('android:showWhenLocked="true"'));
+      expect(text, contains('android:name=".AdhanAlarmReceiver"'));
+      expect(text, contains('android:name=".AdhanBootReceiver"'));
+      expect(
+        File('android/app/src/main/res/raw/adhan_full_placeholder.wav')
+            .existsSync(),
+        isTrue,
+      );
+    },
+  );
 }

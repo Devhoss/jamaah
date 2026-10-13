@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../domain/adhan_alerts.dart';
 import '../../domain/notification_channels.dart';
 import 'notification_sync.dart';
 
@@ -154,6 +156,61 @@ class LocalNotificationsGateway implements NotificationGateway {
       visibility: NotificationVisibility.public,
     ),
   );
+
+  /// The app's own Adhan player: AdhanAlarms / AdhanService in MainActivity.
+  static const _adhan = MethodChannel('dev.jamaah.app/adhan');
+
+  Map<String, Object?> _adhanMap(ScheduledItem item) => {
+    'id': item.id,
+    'at': item.at.millisecondsSinceEpoch,
+    'title': item.title,
+    'body': item.body,
+    'sound': (item.planned.soundMode ?? AdhanSoundMode.standard).name,
+    'ringInSilent': item.planned.ringInSilent,
+    'fullScreen': item.planned.fullScreen,
+    'vibrate': item.planned.vibrate,
+    'stopLabel': item.stopLabel,
+    'timeLabel': item.timeLabel,
+  };
+
+  @override
+  Future<void> replaceAdhanAlarms(List<ScheduledItem> items) =>
+      _adhan.invokeMethod('replaceAll', [for (final i in items) _adhanMap(i)]);
+
+  @override
+  Future<List<PendingItem>> adhanAlarms() async {
+    final list = await _adhan.invokeListMethod<Object?>('stored') ?? const [];
+    return [
+      for (final entry in list.whereType<Map<Object?, Object?>>())
+        PendingItem(
+          id: (entry['id']! as num).toInt(),
+          title: entry['title'] as String?,
+          body: entry['body'] as String?,
+          payload: jsonEncode({
+            'at': DateTime.fromMillisecondsSinceEpoch(
+              (entry['at']! as num).toInt(),
+              isUtc: true,
+            ).toIso8601String(),
+            'kind': 'adhan',
+          }),
+        ),
+    ];
+  }
+
+  @override
+  Future<void> playAdhanNow(ScheduledItem item) =>
+      _adhan.invokeMethod('playNow', _adhanMap(item));
+
+  /// Stops an Adhan the app is playing.
+  Future<void> stopAdhan() => _adhan.invokeMethod('stop');
+
+  @override
+  Future<bool> canUseFullScreen() async =>
+      await _adhan.invokeMethod<bool>('canUseFullScreen') ?? true;
+
+  /// Opens the Android 14+ page where full-screen alerts are allowed.
+  Future<void> openFullScreenSettings() =>
+      _adhan.invokeMethod('openFullScreenSettings');
 
   @override
   Future<bool> canScheduleExact() async {

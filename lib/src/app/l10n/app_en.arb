@@ -593,5 +593,11 @@
       "prayer": { "type": "String" }
     }
   },
-  "notifTestBody": "This is how this alert will sound."
+  "notifTestBody": "This is how this alert will sound.",
+  "adhanStop": "Stop",
+  "settingsFullScreen": "Full-screen Adhan",
+  "settingsFullScreenHint": "When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too.",
+  "settingsFullScreenDenied": "Your phone doesn't allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification.",
+  "settingsFullScreenAllow": "Allow full-screen alerts",
+  "alertStopHint": "Stop it from the notification, or turn the phone face down."
 }

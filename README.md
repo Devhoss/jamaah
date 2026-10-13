@@ -225,13 +225,21 @@ The first screen the user sees, and the only one that reads the stored place.
   notification). Changes save at once. Iqama reminders are only linked to the
   active mosque, never edited here. Travel mode and its pause live here too, and
   Today and the mosque page say when reminders are paused.
+- The **full Adhan** and any **full-screen Adhan** are played by the app itself,
+  not as a notification sound: native `AdhanAlarms` (stored exact alarms, restored
+  after a reboot), `AdhanService` (foreground media playback on the notification
+  volume, or the alarm volume when "ring in silent" is on; vibrates; stops on the
+  notification's Stop, the volume keys, or the phone turned face down) and
+  `AdhanActivity` (a plain native page over the lock screen with a large Stop).
+  When it ends, a normal notification stays. Android 14+ can withhold full-screen
+  alerts; Settings then says so and links to the permission.
 - Sounds are generated **placeholders** (`tool/generate_placeholder_tones.dart`);
   see `docs/audio-licence.md` for the candidates and how to swap a recording in.
 
 ## Tests
 
 ```bash
-flutter test       # 442 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 452 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +13,7 @@ import '../domain/notification_channels.dart';
 import '../domain/notification_plan.dart';
 import '../domain/prayer.dart';
 import '../domain/prayer_times_calculator.dart';
+import '../domain/time_model.dart';
 import '../domain/today.dart';
 import '../domain/zone_offsets.dart';
 import 'clock.dart';
@@ -216,6 +219,20 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
         now: now,
         textFor: (n) =>
             notificationText(l10n, n, mosqueName: (id) => names[id]),
+        stopLabel: l10n.adhanStop,
+        // The time on the place's own clock, in the phone's 12/24-hour format,
+        // for the full-screen page.
+        timeLabel: zone == null
+            ? null
+            : (at) {
+                final local = at.add(
+                  Duration(minutes: zone.offsetMinutesAt(at)),
+                );
+                return plainClockTime(
+                  LocalTime.of(local.hour, local.minute),
+                  use24Hour: PlatformDispatcher.instance.alwaysUse24HourFormat,
+                );
+              },
       );
       debugPrint('Notifications: $report');
       state = NotificationSyncState(report: report);
@@ -309,3 +326,13 @@ final notificationPermissionActionsProvider =
         requestExactAlarms: gateway.requestExactAlarms,
       );
     });
+
+/// `05:36` or `5:36 AM`, without intl: the scheduler runs before the app's
+/// localizations (and intl's date data) have loaded, and English is the only
+/// language so far.
+String plainClockTime(LocalTime t, {required bool use24Hour}) {
+  final m = t.minute.toString().padLeft(2, '0');
+  if (use24Hour) return '${t.hour.toString().padLeft(2, '0')}:$m';
+  final h = t.hour % 12 == 0 ? 12 : t.hour % 12;
+  return '$h:$m ${t.hour < 12 ? 'AM' : 'PM'}';
+}

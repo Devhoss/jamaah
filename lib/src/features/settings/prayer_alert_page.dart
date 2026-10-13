@@ -98,18 +98,24 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
       ringInSilent:
           alert.ringInSilent &&
           (mode == AdhanSoundMode.full || mode == AdhanSoundMode.short),
+      fullScreen: alerts.fullScreen,
     );
     await ref.read(notificationPermissionRequestProvider)();
-    await ref
-        .read(notificationGatewayProvider)
-        .showNow(
-          ScheduledItem(
-            planned: planned,
-            channel: channelFor(planned),
-            title: l10n.notifTestTitle(prayerName(l10n, _prayer)),
-            body: l10n.notifTestBody,
-          ),
-        );
+    final item = ScheduledItem(
+      planned: planned,
+      channel: channelFor(planned),
+      title: l10n.notifTestTitle(prayerName(l10n, _prayer)),
+      body: l10n.notifTestBody,
+      stopLabel: l10n.adhanStop,
+    );
+    final gateway = ref.read(notificationGatewayProvider);
+    // The full Adhan and the full-screen Adhan are played by the app itself, so
+    // the test goes the same way the real one will.
+    if (playsInApp(planned)) {
+      await gateway.playAdhanNow(item);
+    } else {
+      await gateway.showNow(item);
+    }
     if (mounted) setState(() => _sent = true);
   }
 

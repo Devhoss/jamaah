@@ -25,6 +25,8 @@ void main() {
   _write('android/app/src/main/res/raw/adhan_short_placeholder.wav', shortTone);
   _write('assets/audio/adhan_short_placeholder.wav', shortTone);
   _write('assets/audio/adhan_full_placeholder.wav', fullTone);
+  // Played by the app's own Adhan service (native), which reads raw resources.
+  _write('android/app/src/main/res/raw/adhan_full_placeholder.wav', fullTone);
 }
 
 List<double> _phrase() => [

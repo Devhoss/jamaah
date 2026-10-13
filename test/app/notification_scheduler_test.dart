@@ -145,6 +145,14 @@ void main() {
     });
   });
 
+  test('the full-screen time needs no locale data, in either clock', () {
+    expect(plainClockTime(LocalTime.of(5, 6), use24Hour: true), '05:06');
+    expect(plainClockTime(LocalTime.of(5, 6), use24Hour: false), '5:06 AM');
+    expect(plainClockTime(LocalTime.of(0, 30), use24Hour: false), '12:30 AM');
+    expect(plainClockTime(LocalTime.of(12, 0), use24Hour: false), '12:00 PM');
+    expect(plainClockTime(LocalTime.of(19, 45), use24Hour: false), '7:45 PM');
+  });
+
   group('the words', () {
     test('Adhan, early reminder and Iqama say what they are', () {
       PlannedNotification of(NotificationKind kind, Prayer prayer) =>

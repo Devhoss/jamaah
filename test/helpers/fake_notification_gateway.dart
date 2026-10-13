@@ -64,6 +64,38 @@ class FakeNotificationGateway implements NotificationGateway {
     exactFlags[item.id] = exact;
   }
 
+  /// Adhans the app plays itself (native), by id.
+  final adhanAlarmsById = <int, ScheduledItem>{};
+  final playedNow = <ScheduledItem>[];
+  bool fullScreenAllowed = true;
+
+  @override
+  Future<void> replaceAdhanAlarms(List<ScheduledItem> items) async {
+    adhanAlarmsById
+      ..clear()
+      ..addAll({for (final i in items) i.id: i});
+  }
+
+  @override
+  Future<List<PendingItem>> adhanAlarms() async => [
+    for (final item in adhanAlarmsById.values)
+      PendingItem(
+        id: item.id,
+        title: item.title,
+        body: item.body,
+        payload: jsonEncode({
+          'at': item.at.toUtc().toIso8601String(),
+          'kind': 'adhan',
+        }),
+      ),
+  ];
+
+  @override
+  Future<void> playAdhanNow(ScheduledItem item) async => playedNow.add(item);
+
+  @override
+  Future<bool> canUseFullScreen() async => fullScreenAllowed;
+
   /// Notifications shown immediately ("send a test notification").
   final shownNow = <ScheduledItem>[];
 

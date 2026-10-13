@@ -84,6 +84,8 @@ class SettingsPage extends ConsumerWidget {
                 ),
             ],
           ),
+          const SizedBox(height: AppSpace.md),
+          _FullScreenRow(alerts: alerts),
           AppSectionHeader(l10n.settingsIqamaSection),
           Text(l10n.settingsIqamaBody, style: theme.textTheme.bodyMedium),
           const SizedBox(height: AppSpace.sm),
@@ -235,6 +237,91 @@ class _TwoLines extends StatelessWidget {
           ),
         ),
         Text(second, style: TextStyle(fontSize: 13, color: ink.muted)),
+      ],
+    );
+  }
+}
+
+/// The global full-screen switch, and Android 14's own permission for it.
+class _FullScreenRow extends ConsumerStatefulWidget {
+  const _FullScreenRow({required this.alerts});
+
+  final AdhanAlertSettings alerts;
+
+  @override
+  ConsumerState<_FullScreenRow> createState() => _FullScreenRowState();
+}
+
+class _FullScreenRowState extends ConsumerState<_FullScreenRow> {
+  bool? _allowed;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // Back from the system page: read the permission again.
+    _lifecycle = AppLifecycleListener(onResume: _check);
+    _check();
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _check() async {
+    final allowed = await ref
+        .read(notificationGatewayProvider)
+        .canUseFullScreen();
+    if (mounted) setState(() => _allowed = allowed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final ink = AppInk.of(context);
+    final on = widget.alerts.fullScreen;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppRows(
+          children: [
+            SwitchListTile(
+              title: Text(l10n.settingsFullScreen),
+              subtitle: Text(l10n.settingsFullScreenHint),
+              value: on,
+              onChanged: (value) async {
+                await updateAdhanAlerts(
+                  ref,
+                  (a) => a.copyWith(fullScreen: value),
+                );
+                if (value) {
+                  await ref.read(notificationPermissionRequestProvider)();
+                  await _check();
+                }
+              },
+            ),
+          ],
+        ),
+        if (on && _allowed == false) ...[
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            l10n.settingsFullScreenDenied,
+            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              onPressed: () => ref
+                  .read(localNotificationsGatewayProvider)
+                  .openFullScreenSettings(),
+              child: Text(l10n.settingsFullScreenAllow),
+            ),
+          ),
+        ],
       ],
     );
   }

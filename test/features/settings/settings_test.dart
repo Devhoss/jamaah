@@ -326,6 +326,58 @@ void main() {
     });
   });
 
+  group('full screen and the full Adhan', () {
+    testApp('full screen is one switch for every Adhan, and is stored', (
+      tester,
+    ) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await tap(tester, switchTile(t.settingsFullScreen));
+      expect((await stored()).fullScreen, isTrue);
+      expect(find.text(t.settingsFullScreenDenied), findsNothing);
+    });
+
+    testApp('when Android withholds full screen, Settings says so', (
+      tester,
+    ) async {
+      gateway.fullScreenAllowed = false;
+      await open(tester);
+      await openSettingsPage(tester);
+      await tap(tester, switchTile(t.settingsFullScreen));
+      await reveal(tester, find.text(t.settingsFullScreenDenied));
+      expect(find.text(t.settingsFullScreenDenied), findsOneWidget);
+      expect(find.text(t.settingsFullScreenAllow), findsOneWidget);
+    });
+
+    testApp(
+      'testing a full Adhan plays it through the app, not a notification',
+      (tester) async {
+        await open(tester);
+        await openPrayer(tester, Prayer.fajr);
+        await tapText(tester, t.soundModeFull);
+        await tapText(tester, t.alertTryIt);
+
+        expect(gateway.playedNow.single.planned.soundMode, AdhanSoundMode.full);
+        expect(gateway.playedNow.single.stopLabel, t.adhanStop);
+        expect(gateway.shownNow, isEmpty);
+      },
+    );
+
+    testApp('a full Adhan is handed to the app, and the list shows it', (
+      tester,
+    ) async {
+      await open(tester);
+      await openPrayer(tester, Prayer.fajr);
+      await tap(tester, switchTile(t.alertAdhanSwitch));
+      await tapText(tester, t.soundModeFull);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+
+      expect(gateway.adhanAlarmsById, isNotEmpty);
+      expect(gateway.scheduled, isEmpty);
+    });
+  });
+
   group('travel mode', () {
     testApp('the pause waits for travel mode, and Today says it is on', (
       tester,

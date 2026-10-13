@@ -122,4 +122,36 @@ void main() {
       }
     },
   );
+
+  test('the app plays the full Adhan and every full-screen Adhan itself', () {
+    PlannedNotification of(AdhanSoundMode mode, {bool fullScreen = false}) =>
+        PlannedNotification(
+          id: 1,
+          kind: NotificationKind.adhan,
+          prayer: Prayer.fajr,
+          at: DateTime.utc(2026),
+          soundMode: mode,
+          mosqueId: '',
+          fullScreen: fullScreen,
+        );
+    expect(playsInApp(of(AdhanSoundMode.full)), isTrue);
+    expect(playsInApp(of(AdhanSoundMode.short)), isFalse);
+    expect(playsInApp(of(AdhanSoundMode.standard)), isFalse);
+    expect(playsInApp(of(AdhanSoundMode.silent, fullScreen: true)), isTrue);
+    expect(
+      playsInApp(
+        PlannedNotification(
+          id: 2,
+          kind: NotificationKind.iqama,
+          prayer: Prayer.fajr,
+          at: DateTime.utc(2026),
+          soundMode: null,
+          mosqueId: 'm1',
+          fullScreen: true,
+        ),
+      ),
+      isFalse,
+      reason: 'reminders are always ordinary notifications',
+    );
+  });
 }

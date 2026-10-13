@@ -1,6 +1,7 @@
 package dev.jamaah.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
@@ -23,6 +24,49 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "signingCertSha1" -> result.success(signingCertSha1())
+                    else -> result.notImplemented()
+                }
+            }
+
+        // The Adhans the app plays itself (full recording, or full screen): see
+        // AdhanAlarms, AdhanService and AdhanActivity.
+        MethodChannel(messenger, "dev.jamaah.app/adhan")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "replaceAll" -> {
+                        val list = call.arguments as? List<*> ?: emptyList<Any>()
+                        AdhanAlarms.replaceAll(
+                            this,
+                            list.mapNotNull { (it as? Map<*, *>)?.let(AdhanAlarm::fromMap) },
+                        )
+                        result.success(null)
+                    }
+                    "stored" -> result.success(
+                        AdhanAlarms.stored(this).map {
+                            mapOf("id" to it.id, "at" to it.atMillis, "title" to it.title, "body" to it.body)
+                        },
+                    )
+                    "playNow" -> {
+                        val map = call.arguments as? Map<*, *>
+                        if (map != null) AdhanService.start(this, AdhanAlarm.fromMap(map))
+                        result.success(null)
+                    }
+                    "stop" -> {
+                        AdhanService.stop(this)
+                        result.success(null)
+                    }
+                    "canUseFullScreen" -> result.success(AdhanService.canUseFullScreen(this))
+                    "openFullScreenSettings" -> {
+                        if (Build.VERSION.SDK_INT >= 34) {
+                            startActivity(
+                                Intent(
+                                    android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                                    android.net.Uri.parse("package:$packageName"),
+                                ),
+                            )
+                        }
+                        result.success(null)
+                    }
                     else -> result.notImplemented()
                 }
             }

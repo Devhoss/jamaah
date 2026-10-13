@@ -1543,6 +1543,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is how this alert will sound.'**
   String get notifTestBody;
+
+  /// No description provided for @adhanStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get adhanStop;
+
+  /// No description provided for @settingsFullScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full-screen Adhan'**
+  String get settingsFullScreen;
+
+  /// No description provided for @settingsFullScreenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too.'**
+  String get settingsFullScreenHint;
+
+  /// No description provided for @settingsFullScreenDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone doesn\'t allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification.'**
+  String get settingsFullScreenDenied;
+
+  /// No description provided for @settingsFullScreenAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow full-screen alerts'**
+  String get settingsFullScreenAllow;
+
+  /// No description provided for @alertStopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop it from the notification, or turn the phone face down.'**
+  String get alertStopHint;
 }
 
 class _AppLocalizationsDelegate

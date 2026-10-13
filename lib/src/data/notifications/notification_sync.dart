@@ -8,12 +8,19 @@ class ScheduledItem {
     required this.channel,
     required this.title,
     required this.body,
+    this.stopLabel = 'Stop',
+    this.timeLabel = '',
   });
 
   final PlannedNotification planned;
   final ChannelSpec channel;
   final String title;
   final String body;
+
+  /// For an Adhan the app plays itself: the Stop button's words and the time as
+  /// the user's clock shows it, for the full-screen page.
+  final String stopLabel;
+  final String timeLabel;
 
   int get id => planned.id;
   DateTime get at => planned.at;
@@ -52,6 +59,19 @@ abstract interface class NotificationGateway {
 
   /// Shows [item] straight away on its channel, for "send a test notification".
   Future<void> showNow(ScheduledItem item);
+
+  /// Replaces every Adhan the app plays itself (the native AdhanService) with
+  /// [items]. Those are not notifications the platform schedules for us.
+  Future<void> replaceAdhanAlarms(List<ScheduledItem> items);
+
+  /// The Adhans the app will play itself, for the debug list.
+  Future<List<PendingItem>> adhanAlarms();
+
+  /// Plays an Adhan through the app now ("send a test notification").
+  Future<void> playAdhanNow(ScheduledItem item);
+
+  /// Android 14+ lets the user withdraw full-screen alerts.
+  Future<bool> canUseFullScreen();
 
   /// False when Android denies exact alarms: notifications then use inexact
   /// timing, and the UI must say so (AGENTS.md).
@@ -95,6 +115,8 @@ class NotificationSync {
     required DateTime now,
     required ({String title, String body}) Function(PlannedNotification)
     textFor,
+    String stopLabel = 'Stop',
+    String Function(DateTime at)? timeLabel,
   }) async {
     final future = [
       for (final n in plan)
@@ -109,11 +131,23 @@ class NotificationSync {
             channel: channelFor(n),
             title: text.title,
             body: text.body,
+            stopLabel: stopLabel,
+            timeLabel: timeLabel?.call(n.at) ?? '',
           );
         }(),
     ];
-    final wanted = {for (final i in items) i.id};
-    final channels = {for (final i in items) i.channel};
+    // The full Adhan and the full-screen Adhan are played by the app itself;
+    // everything else is a notification the platform schedules.
+    final inApp = [
+      for (final i in items)
+        if (playsInApp(i.planned)) i,
+    ];
+    final notifications = [
+      for (final i in items)
+        if (!playsInApp(i.planned)) i,
+    ];
+    final wanted = {for (final i in notifications) i.id};
+    final channels = {for (final i in notifications) i.channel};
 
     await _gateway.ensureChannels(channels);
 
@@ -126,9 +160,10 @@ class NotificationSync {
     }
 
     final exact = await _gateway.canScheduleExact();
-    for (final item in items) {
+    for (final item in notifications) {
       await _gateway.schedule(item, exact: exact);
     }
+    await _gateway.replaceAdhanAlarms(inApp);
 
     // Channels nothing uses any more: a retired tone version, or a mode no
     // prayer uses. Removing them keeps the system settings list honest.

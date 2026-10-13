@@ -891,4 +891,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifTestBody => 'This is how this alert will sound.';
+
+  @override
+  String get adhanStop => 'Stop';
+
+  @override
+  String get settingsFullScreen => 'Full-screen Adhan';
+
+  @override
+  String get settingsFullScreenHint =>
+      'When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too.';
+
+  @override
+  String get settingsFullScreenDenied =>
+      'Your phone doesn\'t allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification.';
+
+  @override
+  String get settingsFullScreenAllow => 'Allow full-screen alerts';
+
+  @override
+  String get alertStopHint =>
+      'Stop it from the notification, or turn the phone face down.';
 }

@@ -76,7 +76,8 @@ class _ScheduledNotificationsPageState
   Future<void> _reload() async {
     final gateway = ref.read(notificationGatewayProvider);
     final data = _Snapshot(
-      pending: await gateway.pending(),
+      // Ordinary notifications, and the Adhans the app plays itself.
+      pending: [...await gateway.pending(), ...await gateway.adhanAlarms()],
       enabled: await gateway.notificationsEnabled(),
       exact: await gateway.canScheduleExact(),
     );
@@ -114,7 +115,10 @@ class _ScheduledNotificationsPageState
     await ref.read(notificationSchedulerProvider.notifier).syncNow();
     if (!mounted) return;
     final gateway = ref.read(notificationGatewayProvider);
-    final pending = await gateway.pending();
+    final pending = [
+      ...await gateway.pending(),
+      ...await gateway.adhanAlarms(),
+    ];
     final data = _data;
     if (!mounted || data == null) return;
     setState(
