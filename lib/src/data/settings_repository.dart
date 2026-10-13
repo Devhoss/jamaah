@@ -68,6 +68,9 @@ class StoredLocation {
 /// Theme preference, stored as text and mapped to Flutter's ThemeMode by the UI.
 enum AppThemeMode { light, dark, system }
 
+/// The app's language (2026-10-14): the phone's, or one chosen in Settings.
+enum AppLanguage { system, en, ar }
+
 /// Everything the app remembers between launches, in one readable snapshot.
 class AppSettingsSnapshot {
   const AppSettingsSnapshot({
@@ -77,6 +80,7 @@ class AppSettingsSnapshot {
     required this.minuteOffsets,
     this.customAngles = const CustomAngles(),
     required this.themeMode,
+    this.language = AppLanguage.system,
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
     this.jamaahReminders = const JamaahReminderSettings(),
@@ -97,6 +101,7 @@ class AppSettingsSnapshot {
   final CustomAngles customAngles;
 
   final AppThemeMode themeMode;
+  final AppLanguage language;
   final AdhanAlertSettings adhanAlerts;
 
   /// Travel mode and its manual Iqama pause.
@@ -167,6 +172,11 @@ class SettingsRepository {
         AppThemeMode.values,
         values[SettingKeys.themeMode],
         AppThemeMode.system,
+      ),
+      language: _enumOrDefault(
+        AppLanguage.values,
+        values[SettingKeys.appLanguage],
+        AppLanguage.system,
       ),
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
@@ -263,6 +273,9 @@ class SettingsRepository {
 
   Future<void> setThemeMode(AppThemeMode mode) =>
       _put(SettingKeys.themeMode, mode.name);
+
+  Future<void> setLanguage(AppLanguage language) =>
+      _put(SettingKeys.appLanguage, language.name);
 
   /// Passing null clears the active mosque, which is what stops every Iqama
   /// reminder (AGENTS.md: switching the active mosque switches the schedule that

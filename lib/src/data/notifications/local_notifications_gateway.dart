@@ -58,9 +58,10 @@ class LocalNotificationsGateway implements NotificationGateway {
   @override
   Future<void> ensureChannels(Iterable<ChannelSpec> channels) async {
     await _init();
-    final existing = await channelIds();
+    // Posted every time, existing or not: Android keeps a channel's sound and
+    // vibration as they were, but takes the new name, so the names follow the
+    // app's language.
     for (final c in channels) {
-      if (existing.contains(c.id)) continue;
       await _android?.createNotificationChannel(
         AndroidNotificationChannel(
           c.id,

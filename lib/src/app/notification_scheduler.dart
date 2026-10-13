@@ -17,6 +17,9 @@ import '../domain/time_model.dart';
 import '../domain/today.dart';
 import '../domain/zone_offsets.dart';
 import 'clock.dart';
+import '../data/settings_repository.dart';
+import 'l10n/app_locale.dart';
+import 'l10n/digits.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'l10n/prayer_labels.dart';
 import 'providers.dart';
@@ -126,10 +129,22 @@ String soundModeName(AppLocalizations l10n, AdhanSoundMode mode) =>
       AdhanSoundMode.silent => l10n.soundModeSilent,
     };
 
-/// English until the app has other languages; notifications are built outside
-/// any widget, so they cannot read the locale from a context.
+/// The strings notifications are written in: the language chosen in Settings,
+/// or the phone's. Notifications are built outside any widget, so they cannot
+/// read the locale from a context.
 final notificationL10nProvider = Provider<AppLocalizations>(
-  (ref) => lookupAppLocalizations(const Locale('en')),
+  (ref) => appStringsFor(
+    // Only the language: the gateway is rebuilt from these strings.
+    switch (ref.watch(
+      appSettingsProvider.select((s) => s.value?.language),
+    )) {
+      AppLanguage.ar => kArabicLocale,
+      AppLanguage.en => kEnglishLocale,
+      AppLanguage.system || null => resolveAppLocale(
+        PlatformDispatcher.instance.locale,
+      ),
+    },
+  ),
 );
 
 final localNotificationsGatewayProvider = Provider<LocalNotificationsGateway>((
@@ -257,6 +272,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
                 return plainClockTime(
                   LocalTime.of(local.hour, local.minute),
                   use24Hour: PlatformDispatcher.instance.alwaysUse24HourFormat,
+                  languageCode: l10n.localeName,
                 );
               },
       );
@@ -359,9 +375,20 @@ final notificationPermissionActionsProvider =
 /// `05:36` or `5:36 AM`, without intl: the scheduler runs before the app's
 /// localizations (and intl's date data) have loaded, and English is the only
 /// language so far.
-String plainClockTime(LocalTime t, {required bool use24Hour}) {
+String plainClockTime(
+  LocalTime t, {
+  required bool use24Hour,
+  String languageCode = 'en',
+}) {
+  final arabic = languageCode == 'ar';
   final m = t.minute.toString().padLeft(2, '0');
-  if (use24Hour) return '${t.hour.toString().padLeft(2, '0')}:$m';
-  final h = t.hour % 12 == 0 ? 12 : t.hour % 12;
-  return '$h:$m ${t.hour < 12 ? 'AM' : 'PM'}';
+  final String text;
+  if (use24Hour) {
+    text = '${t.hour.toString().padLeft(2, '0')}:$m';
+  } else {
+    final h = t.hour % 12 == 0 ? 12 : t.hour % 12;
+    final period = t.hour < 12 ? (arabic ? 'ص' : 'AM') : (arabic ? 'م' : 'PM');
+    text = '$h:$m $period';
+  }
+  return localDigits(text, languageCode);
 }

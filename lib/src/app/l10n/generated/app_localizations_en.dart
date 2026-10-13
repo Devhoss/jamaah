@@ -1022,6 +1022,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTheme => 'Theme';
 
   @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String latitudeNorth(String degrees) {
+    return '$degrees°N';
+  }
+
+  @override
+  String latitudeSouth(String degrees) {
+    return '$degrees°S';
+  }
+
+  @override
+  String get compassNorth => 'N';
+
+  @override
+  String get compassSouth => 'S';
+
+  @override
+  String recordingLength(String minutes, String seconds) {
+    return '$minutes:$seconds';
+  }
+
+  @override
   String get themeSystem => 'Same as the phone';
 
   @override

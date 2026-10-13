@@ -31,6 +31,14 @@ String shortAdhanName(AppLocalizations l10n, ShortAdhan clip) =>
       ShortAdhan.hayya => l10n.soundHayya,
     };
 
+/// Each language by its own name, so it can be found whatever the app is in.
+String languageName(AppLocalizations l10n, AppLanguage language) =>
+    switch (language) {
+      AppLanguage.system => l10n.themeSystem,
+      AppLanguage.en => 'English',
+      AppLanguage.ar => 'العربية',
+    };
+
 String themeModeName(AppLocalizations l10n, AppThemeMode mode) =>
     switch (mode) {
       AppThemeMode.system => l10n.themeSystem,
@@ -216,6 +224,15 @@ class SettingsPage extends ConsumerWidget {
             children: [
               AppRow(
                 leading: null,
+                onTap: () => _chooseLanguage(context, ref, settings.language),
+                title: _TwoLines(
+                  first: l10n.settingsLanguage,
+                  second: languageName(l10n, settings.language),
+                ),
+                trailing: Icon(Icons.chevron_right, color: ink.muted),
+              ),
+              AppRow(
+                leading: null,
                 onTap: () => _chooseTheme(context, ref, settings.themeMode),
                 title: _TwoLines(
                   first: l10n.settingsTheme,
@@ -288,6 +305,39 @@ class SettingsPage extends ConsumerWidget {
     unawaited(preview.stop());
     if (chosen == null || chosen == alerts.shortAdhan) return;
     await updateAdhanAlerts(ref, (all) => all.copyWith(shortAdhan: chosen));
+  }
+
+  Future<void> _chooseLanguage(
+    BuildContext context,
+    WidgetRef ref,
+    AppLanguage current,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final chosen = await showModalBottomSheet<AppLanguage>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: SingleChildScrollView(
+          child: RadioGroup<AppLanguage>(
+            groupValue: current,
+            onChanged: (l) => Navigator.of(sheetContext).pop(l),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final language in AppLanguage.values)
+                  RadioListTile<AppLanguage>(
+                    value: language,
+                    title: Text(languageName(l10n, language)),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (chosen == null || chosen == current) return;
+    await ref.read(appLocaleProvider.notifier).choose(chosen);
   }
 
   Future<void> _chooseTheme(

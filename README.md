@@ -275,6 +275,24 @@ regions read from the parameters the calculator uses), the **Asr method**
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 
+## Languages
+
+- **English and Arabic** (Settings → Language: the phone's, English or العربية). Changes
+  apply at once, notifications included; Arabic is right to left.
+- Strings live in `lib/src/app/l10n/app_en.arb` (the template) and `app_ar.arb`, which is
+  built by `tool/arabic_strings.py` (Arabic counting forms come from helpers there). After
+  changing strings:
+
+  ```
+  python tool/arabic_strings.py && flutter gen-l10n && python tool/gen_arabic_digits.py
+  ```
+
+- Arabic shows Arabic-Indic digits (٠١٢٣): dates and times are formatted with intl's
+  `ar_EG` data (plain `ar` gives Western digits; there is no `ar_KW`), and every Arabic
+  string passes through `arabicDigits()` via the generated `AppLocalizationsArDigits`. A
+  number with a degree sign is kept as one left-to-right unit so the sign stays after it.
+- The Arabic is a first draft by the coding agent, to be reviewed before release.
+
 ## Qibla
 
 - The bearing is the great-circle bearing from the saved place to the Kaaba

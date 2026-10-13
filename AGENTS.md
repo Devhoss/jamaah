@@ -123,10 +123,15 @@ static-bearing fallback when sensors/location are unavailable. Supporting featur
 - Avoid: gold gradients, mosque silhouettes everywhere, ornate decorative patterns, glassmorphism,
   stacked floating cards, streaks, badges, feeds, gamification.
 - Support dynamic text sizes, screen readers, localization and RTL (no hard-coded strings).
+- Languages (Arabic added 2026-10-14; users in Kuwait first): English and Arabic, chosen in
+  Settings → Language (default: the phone's). Arabic is Modern Standard Arabic with Arabic-Indic
+  digits (٠١٢٣), right to left. Strings: lib/src/app/l10n/app_en.arb (template) and app_ar.arb,
+  built by tool/arabic_strings.py; after any string change run `flutter gen-l10n` and
+  tool/gen_arabic_digits.py. Notifications follow the chosen language.
 
 ## Non-goals (MVP)
 Accounts, cloud sync, social features, Quran/dua content, prayer tracking/streaks, community-sourced
-Iqama data, widgets, wearables, iOS (deferred), Arabic UI.
+Iqama data, widgets, wearables, iOS (deferred).
 
 ## Quality bar
 - Unit tests: prayer-time wrappers, Iqama/reminder math, notification scheduling logic, Qibla bearing,

@@ -5,6 +5,7 @@ import 'app_shell.dart';
 import 'foreground_clock.dart';
 import 'location_follower.dart';
 import 'notification_scheduler.dart';
+import 'l10n/app_locale.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'providers.dart';
 import 'theme/theme.dart';
@@ -36,12 +37,36 @@ final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
   ThemeModeController.new,
 );
 
+/// The language chosen in Settings, or null to follow the phone. Like the
+/// theme, [choose] applies it on the tap and saves it after.
+class AppLocaleController extends Notifier<Locale?> {
+  @override
+  Locale? build() =>
+      _toLocale(ref.watch(appSettingsProvider).value?.language);
+
+  Future<void> choose(AppLanguage language) async {
+    state = _toLocale(language);
+    await ref.read(settingsRepositoryProvider).setLanguage(language);
+  }
+}
+
+Locale? _toLocale(AppLanguage? language) => switch (language) {
+  AppLanguage.en => kEnglishLocale,
+  AppLanguage.ar => kArabicLocale,
+  AppLanguage.system || null => null,
+};
+
+final appLocaleProvider = NotifierProvider<AppLocaleController, Locale?>(
+  AppLocaleController.new,
+);
+
 class JamaahApp extends ConsumerWidget {
   const JamaahApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(appLocaleProvider);
 
     return ForegroundClock(
       child: FollowLocationKeeper(
@@ -56,8 +81,13 @@ class JamaahApp extends ConsumerWidget {
             // switch feel laggy.
             themeAnimationDuration: Duration.zero,
             debugShowCheckedModeBanner: false,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
+            locale: locale,
+            localizationsDelegates: kLocalizationsDelegates,
+            supportedLocales: kSupportedLocales,
+            // Any Arabic the phone asks for gets the app's Arabic; any other
+            // language, English.
+            localeResolutionCallback: (requested, _) =>
+                resolveAppLocale(requested),
             home: const AppShell(),
           ),
         ),

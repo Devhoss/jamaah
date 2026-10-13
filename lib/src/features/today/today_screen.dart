@@ -551,15 +551,19 @@ class _TodayNotes extends StatelessWidget {
             ),
           ),
         if (estimated != null)
-          _Note(l10n.estimatedFromLatitudeNote(_degrees(estimated))),
+          _Note(l10n.estimatedFromLatitudeNote(_degrees(l10n, estimated))),
       ],
     );
   }
 
   /// `48.5°N` — one decimal is all a fallback latitude is worth, and the hemisphere
   /// letter keeps it out of the sentence.
-  static String _degrees(double latitude) =>
-      '${latitude.abs().toStringAsFixed(1)}°${latitude >= 0 ? 'N' : 'S'}';
+  static String _degrees(AppLocalizations l10n, double latitude) {
+    final value = latitude.abs().toStringAsFixed(1);
+    return latitude >= 0
+        ? l10n.latitudeNorth(value)
+        : l10n.latitudeSouth(value);
+  }
 }
 
 class _Note extends StatelessWidget {

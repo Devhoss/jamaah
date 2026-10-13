@@ -367,6 +367,8 @@ class _Dial extends StatelessWidget {
                 bearing: bearing,
                 colors: colors,
                 textDirection: Directionality.of(context),
+                north: AppLocalizations.of(context).compassNorth,
+                south: AppLocalizations.of(context).compassSouth,
               ),
             ),
           ),
@@ -406,11 +408,15 @@ class _DialPainter extends CustomPainter {
     required this.bearing,
     required this.colors,
     required this.textDirection,
+    required this.north,
+    required this.south,
   });
 
   final double bearing;
   final _DialColors colors;
   final TextDirection textDirection;
+  final String north;
+  final String south;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -443,8 +449,8 @@ class _DialPainter extends CustomPainter {
       );
     }
 
-    _label(canvas, c, r - 36, 0, 'N', colors.ink, 16, FontWeight.w700);
-    _label(canvas, c, r - 36, 180, 'S', colors.muted, 14, FontWeight.w400);
+    _label(canvas, c, r - 36, 0, north, colors.ink, 16, FontWeight.w700);
+    _label(canvas, c, r - 36, 180, south, colors.muted, 14, FontWeight.w400);
 
     // The Qibla mark: a filled disc at the bearing, with a small square.
     final a = _radians(bearing);
@@ -495,7 +501,8 @@ class _DialPainter extends CustomPainter {
       old.bearing != bearing ||
       old.colors.face != colors.face ||
       old.colors.mark != colors.mark ||
-      old.colors.ink != colors.ink;
+      old.colors.ink != colors.ink ||
+      old.north != north;
 }
 
 class _PointerPainter extends CustomPainter {

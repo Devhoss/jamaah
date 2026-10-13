@@ -100,7 +100,7 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
                   RadioListTile<String>(
                     value: r.id,
                     title: Text(r.name),
-                    subtitle: Text(_length(r.seconds)),
+                    subtitle: Text(_length(l10n, r.seconds)),
                     secondary: IconButton(
                       icon: Icon(
                         _playing == r.id
@@ -123,5 +123,7 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
 }
 
 /// "3:25": minutes and seconds, the way every player shows a length.
-String _length(int seconds) =>
-    '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+String _length(AppLocalizations l10n, int seconds) => l10n.recordingLength(
+  '${seconds ~/ 60}',
+  (seconds % 60).toString().padLeft(2, '0'),
+);

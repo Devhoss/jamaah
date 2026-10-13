@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 
 // ignore_for_file: type=lint
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
+    Locale('en'),
+  ];
 
   /// App name shown in the OS task switcher. Keep in sync with branding.yaml.
   ///
@@ -1748,6 +1752,42 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get settingsTheme;
 
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @latitudeNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}°N'**
+  String latitudeNorth(String degrees);
+
+  /// No description provided for @latitudeSouth.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}°S'**
+  String latitudeSouth(String degrees);
+
+  /// The north letter on the Qibla compass dial.
+  ///
+  /// In en, this message translates to:
+  /// **'N'**
+  String get compassNorth;
+
+  /// No description provided for @compassSouth.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get compassSouth;
+
+  /// No description provided for @recordingLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}:{seconds}'**
+  String recordingLength(String minutes, String seconds);
+
   /// No description provided for @themeSystem.
   ///
   /// In en, this message translates to:
@@ -2474,7 +2514,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -2483,6 +2523,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'ar':
+      return AppLocalizationsAr();
     case 'en':
       return AppLocalizationsEn();
   }
