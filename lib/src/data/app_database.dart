@@ -58,6 +58,10 @@ abstract final class SettingKeys {
   static const pauseIqamaReminders = 'pause_iqama_reminders';
   static const followLocation = 'follow_location';
 
+  /// "Pause all Iqama reminders" in Settings (2026-10-13). Replaces the
+  /// travel-mode pause; when absent, the old travel_mode + pause pair is read.
+  static const pauseAllIqamaReminders = 'pause_all_iqama_reminders';
+
   /// "Follow my location": when the device last confirmed the place (Unix ms),
   /// and whether the latest try failed (the last place is then still in use).
   static const placeCheckedAt = 'place_checked_at';
@@ -141,6 +145,11 @@ class Mosques extends Table {
   /// Unix milliseconds, written by [MosqueRepository] from the domain model.
   IntColumn get createdAt => integer()();
 
+  /// Schema v3. The user paused this mosque's Iqama reminders (decided
+  /// 2026-10-13); its Iqama times and reminder settings are kept.
+  BoolColumn get remindersPaused =>
+      boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -191,7 +200,7 @@ class SchedulePrayers extends Table {
 /// On-device storage: settings, mosques, Iqama schedules and Adhan alerts.
 ///
 /// `schemaVersion` 2 added the per-prayer notification columns to
-/// [AdhanAlertRows]. v1 was already on a device, so v2 is a real migration and
+/// [AdhanAlertRows]; 3 added [Mosques.remindersPaused]. v1 was already on a device, so v2 is a real migration and
 /// keeps every existing row (see test/data/migration_test.dart).
 @DriftDatabase(
   tables: [
@@ -210,7 +219,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : this(driftDatabase(name: 'jamaah'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -232,6 +241,9 @@ class AppDatabase extends _$AppDatabase {
           schema.adhanAlertRows,
           schema.adhanAlertRows.ringInSilent,
         );
+      },
+      from2To3: (m, schema) async {
+        await m.addColumn(schema.mosques, schema.mosques.remindersPaused);
       },
     ),
     beforeOpen: (details) async {

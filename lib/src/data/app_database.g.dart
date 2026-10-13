@@ -977,6 +977,21 @@ class $MosquesTable extends Mosques with TableInfo<$MosquesTable, MosqueRow> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _remindersPausedMeta = const VerificationMeta(
+    'remindersPaused',
+  );
+  @override
+  late final GeneratedColumn<bool> remindersPaused = GeneratedColumn<bool>(
+    'reminders_paused',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("reminders_paused" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -987,6 +1002,7 @@ class $MosquesTable extends Mosques with TableInfo<$MosquesTable, MosqueRow> {
     longitude,
     placeId,
     createdAt,
+    remindersPaused,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1055,6 +1071,15 @@ class $MosquesTable extends Mosques with TableInfo<$MosquesTable, MosqueRow> {
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('reminders_paused')) {
+      context.handle(
+        _remindersPausedMeta,
+        remindersPaused.isAcceptableOrUnknown(
+          data['reminders_paused']!,
+          _remindersPausedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1096,6 +1121,10 @@ class $MosquesTable extends Mosques with TableInfo<$MosquesTable, MosqueRow> {
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
       )!,
+      remindersPaused: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}reminders_paused'],
+      )!,
     );
   }
 
@@ -1121,6 +1150,10 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
 
   /// Unix milliseconds, written by [MosqueRepository] from the domain model.
   final int createdAt;
+
+  /// Schema v3. The user paused this mosque's Iqama reminders (decided
+  /// 2026-10-13); its Iqama times and reminder settings are kept.
+  final bool remindersPaused;
   const MosqueRow({
     required this.id,
     required this.name,
@@ -1130,6 +1163,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
     this.longitude,
     this.placeId,
     required this.createdAt,
+    required this.remindersPaused,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1148,6 +1182,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
       map['place_id'] = Variable<String>(placeId);
     }
     map['created_at'] = Variable<int>(createdAt);
+    map['reminders_paused'] = Variable<bool>(remindersPaused);
     return map;
   }
 
@@ -1167,6 +1202,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
           ? const Value.absent()
           : Value(placeId),
       createdAt: Value(createdAt),
+      remindersPaused: Value(remindersPaused),
     );
   }
 
@@ -1184,6 +1220,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
       longitude: serializer.fromJson<double?>(json['longitude']),
       placeId: serializer.fromJson<String?>(json['placeId']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
+      remindersPaused: serializer.fromJson<bool>(json['remindersPaused']),
     );
   }
   @override
@@ -1198,6 +1235,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
       'longitude': serializer.toJson<double?>(longitude),
       'placeId': serializer.toJson<String?>(placeId),
       'createdAt': serializer.toJson<int>(createdAt),
+      'remindersPaused': serializer.toJson<bool>(remindersPaused),
     };
   }
 
@@ -1210,6 +1248,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
     Value<double?> longitude = const Value.absent(),
     Value<String?> placeId = const Value.absent(),
     int? createdAt,
+    bool? remindersPaused,
   }) => MosqueRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1219,6 +1258,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
     longitude: longitude.present ? longitude.value : this.longitude,
     placeId: placeId.present ? placeId.value : this.placeId,
     createdAt: createdAt ?? this.createdAt,
+    remindersPaused: remindersPaused ?? this.remindersPaused,
   );
   MosqueRow copyWithCompanion(MosquesCompanion data) {
     return MosqueRow(
@@ -1230,6 +1270,9 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
       longitude: data.longitude.present ? data.longitude.value : this.longitude,
       placeId: data.placeId.present ? data.placeId.value : this.placeId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      remindersPaused: data.remindersPaused.present
+          ? data.remindersPaused.value
+          : this.remindersPaused,
     );
   }
 
@@ -1243,7 +1286,8 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('placeId: $placeId, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('remindersPaused: $remindersPaused')
           ..write(')'))
         .toString();
   }
@@ -1258,6 +1302,7 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
     longitude,
     placeId,
     createdAt,
+    remindersPaused,
   );
   @override
   bool operator ==(Object other) =>
@@ -1270,7 +1315,8 @@ class MosqueRow extends DataClass implements Insertable<MosqueRow> {
           other.latitude == this.latitude &&
           other.longitude == this.longitude &&
           other.placeId == this.placeId &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.remindersPaused == this.remindersPaused);
 }
 
 class MosquesCompanion extends UpdateCompanion<MosqueRow> {
@@ -1282,6 +1328,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
   final Value<double?> longitude;
   final Value<String?> placeId;
   final Value<int> createdAt;
+  final Value<bool> remindersPaused;
   final Value<int> rowid;
   const MosquesCompanion({
     this.id = const Value.absent(),
@@ -1292,6 +1339,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
     this.longitude = const Value.absent(),
     this.placeId = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.remindersPaused = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MosquesCompanion.insert({
@@ -1303,6 +1351,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
     this.longitude = const Value.absent(),
     this.placeId = const Value.absent(),
     required int createdAt,
+    this.remindersPaused = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -1318,6 +1367,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
     Expression<double>? longitude,
     Expression<String>? placeId,
     Expression<int>? createdAt,
+    Expression<bool>? remindersPaused,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1329,6 +1379,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
       if (longitude != null) 'longitude': longitude,
       if (placeId != null) 'place_id': placeId,
       if (createdAt != null) 'created_at': createdAt,
+      if (remindersPaused != null) 'reminders_paused': remindersPaused,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1342,6 +1393,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
     Value<double?>? longitude,
     Value<String?>? placeId,
     Value<int>? createdAt,
+    Value<bool>? remindersPaused,
     Value<int>? rowid,
   }) {
     return MosquesCompanion(
@@ -1353,6 +1405,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
       longitude: longitude ?? this.longitude,
       placeId: placeId ?? this.placeId,
       createdAt: createdAt ?? this.createdAt,
+      remindersPaused: remindersPaused ?? this.remindersPaused,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1384,6 +1437,9 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
+    if (remindersPaused.present) {
+      map['reminders_paused'] = Variable<bool>(remindersPaused.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1401,6 +1457,7 @@ class MosquesCompanion extends UpdateCompanion<MosqueRow> {
           ..write('longitude: $longitude, ')
           ..write('placeId: $placeId, ')
           ..write('createdAt: $createdAt, ')
+          ..write('remindersPaused: $remindersPaused, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2722,6 +2779,7 @@ typedef $$MosquesTableCreateCompanionBuilder = MosquesCompanion Function({
   Value<double?> longitude,
   Value<String?> placeId,
   required int createdAt,
+  Value<bool> remindersPaused,
   Value<int> rowid,
 });
 typedef $$MosquesTableUpdateCompanionBuilder = MosquesCompanion Function({
@@ -2733,6 +2791,7 @@ typedef $$MosquesTableUpdateCompanionBuilder = MosquesCompanion Function({
   Value<double?> longitude,
   Value<String?> placeId,
   Value<int> createdAt,
+  Value<bool> remindersPaused,
   Value<int> rowid,
 });
 
@@ -2805,6 +2864,11 @@ class $$MosquesTableFilterComposer
 
   ColumnFilters<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get remindersPaused => $composableBuilder(
+    column: $table.remindersPaused,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2882,6 +2946,11 @@ class $$MosquesTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get remindersPaused => $composableBuilder(
+    column: $table.remindersPaused,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MosquesTableAnnotationComposer
@@ -2916,6 +2985,11 @@ class $$MosquesTableAnnotationComposer
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get remindersPaused => $composableBuilder(
+    column: $table.remindersPaused,
+    builder: (column) => column,
+  );
 
   Expression<T> schedulesRefs<T extends Object>(
     Expression<T> Function($$SchedulesTableAnnotationComposer a) f,
@@ -2979,6 +3053,7 @@ class $$MosquesTableTableManager
                 Value<double?> longitude = const Value.absent(),
                 Value<String?> placeId = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
+                Value<bool> remindersPaused = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MosquesCompanion(
                 id: id,
@@ -2989,6 +3064,7 @@ class $$MosquesTableTableManager
                 longitude: longitude,
                 placeId: placeId,
                 createdAt: createdAt,
+                remindersPaused: remindersPaused,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3001,6 +3077,7 @@ class $$MosquesTableTableManager
                 Value<double?> longitude = const Value.absent(),
                 Value<String?> placeId = const Value.absent(),
                 required int createdAt,
+                Value<bool> remindersPaused = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MosquesCompanion.insert(
                 id: id,
@@ -3011,6 +3088,7 @@ class $$MosquesTableTableManager
                 longitude: longitude,
                 placeId: placeId,
                 createdAt: createdAt,
+                remindersPaused: remindersPaused,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

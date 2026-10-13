@@ -29,7 +29,7 @@ void main() {
 
   test('a freshly created database matches drift\'s own expectations',
       () async {
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 3);
     await db.validateDatabaseSchema();
   });
 
@@ -109,6 +109,7 @@ void main() {
         address: '1 Example Road',
         source: 'manual',
         createdAt: 1,
+        remindersPaused: false,
       ),
     );
     await db.into(db.schedules).insert(
@@ -138,6 +139,7 @@ void main() {
         address: '1 Example Road',
         source: 'manual',
         createdAt: 1,
+        remindersPaused: false,
       ),
     );
     await db.into(db.schedules).insert(

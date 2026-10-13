@@ -11,6 +11,7 @@ import 'package:jamaah/src/app/providers.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/mosque_repository.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
@@ -130,6 +131,18 @@ void main() {
 
   PrayerIqama storedEntry(Mosque mosque, Prayer prayer) =>
       mosque.schedules.single.iqamaFor(prayer);
+
+  /// The reminder switch on the Iqama editor, which opens over the mosque page
+  /// and so comes after that page's own "Pause" switch.
+  Finder editorSwitch() => find.byType(SwitchListTile).last;
+
+  /// The quick reminder switches on the schedule rows, without the page's
+  /// "Pause this mosque's reminders" switch.
+  Finder rowSwitches() => find.byElementPredicate(
+    (e) =>
+        e.widget is Switch &&
+        e.findAncestorWidgetOfExactType<SwitchListTile>() == null,
+  );
 
   Finder buttonWith(String label) => find.ancestor(
     of: find.text(label),
@@ -351,7 +364,7 @@ void main() {
       expect(find.text(t.summaryNoTime), findsOneWidget);
       expect(isEnabled(tester, t.save), isFalse);
       expect(
-        tester.widget<SwitchListTile>(find.byType(SwitchListTile)).onChanged,
+        tester.widget<SwitchListTile>(editorSwitch()).onChanged,
         isNull,
         reason: 'no Iqama time, no reminder (AGENTS.md)',
       );
@@ -372,7 +385,7 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(editorSwitch());
       await tester.pumpAndSettle();
       expect(
         find.text(
@@ -464,7 +477,7 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.maghrib);
       await chooseTime(tester, LocalTime.of(18, 30));
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(editorSwitch());
       await tester.pumpAndSettle();
       await tapText(tester, t.reminderCustom);
 
@@ -513,7 +526,7 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.isha);
       await chooseTime(tester, LocalTime.of(0, 5));
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(editorSwitch());
       await tester.pumpAndSettle();
 
       final at = clockOn(tester).time;
@@ -549,7 +562,7 @@ void main() {
         RegExp(RegExp.escape(t.reminderSwitchLabel(t.prayerFajr))),
       );
       expect(fajrSwitch, findsOneWidget);
-      final switches = tester.widgetList<Switch>(find.byType(Switch));
+      final switches = tester.widgetList<Switch>(rowSwitches());
       expect(
         switches.every((s) => s.onChanged == null),
         isTrue,
@@ -562,7 +575,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(t.rowReminderOff), findsOneWidget);
 
-      await tester.tap(find.byType(Switch).first);
+      await tester.tap(rowSwitches().first);
       await tester.pumpAndSettle();
 
       expect(
@@ -662,6 +675,40 @@ void main() {
 
       await tapText(tester, t.tabToday);
       expect(find.text(t.addMosqueTitle), findsOneWidget);
+    });
+  });
+
+  group('pausing one mosque\'s reminders', () {
+    testApp('the switch is on the mosque, and Today and the list say so', (
+      tester,
+    ) async {
+      await open(tester);
+      await addThroughSheet(tester);
+      final pause = find.widgetWithText(SwitchListTile, t.mosquePauseReminders);
+      await reveal(tester, pause);
+      await tester.tap(pause);
+      await tester.pumpAndSettle();
+
+      expect((await savedMosque('Masjid al-Nour')).remindersPaused, isTrue);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text(t.tagRemindersPaused), findsOneWidget);
+
+      await tapText(tester, t.tabToday);
+      expect(find.text(t.pausedMosqueNote('Masjid al-Nour')), findsOneWidget);
+    });
+
+    testApp('with all reminders paused, the mosque page says where', (
+      tester,
+    ) async {
+      await settings.saveTravel(
+        const TravelSettings(pauseAllIqamaReminders: true),
+      );
+      await open(tester);
+      await addThroughSheet(tester);
+      await reveal(tester, find.text(t.mosquePauseAllOn));
+      expect(find.text(t.mosquePauseAllOn), findsOneWidget);
     });
   });
 
@@ -818,7 +865,7 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.fajr);
       await chooseTime(tester, LocalTime.of(5, 40));
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(editorSwitch());
       await tester.pumpAndSettle();
 
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));

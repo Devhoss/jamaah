@@ -213,8 +213,8 @@ regions read from the parameters the calculator uses), the **Asr method**
 
 - Three independent kinds: **Adhan alerts** and optional **reminders before the
   Adhan** (global, per prayer, sunrise included) and **Iqama reminders** (the active
-  mosque only). Travel mode can pause Iqama reminders by hand; Adhan alerts never
-  pause.
+  mosque only). Iqama reminders can be paused by hand, per mosque or all at once;
+  Adhan alerts never pause.
 - `buildNotificationPlan` makes a 7-day plan from the saved place (its own zone,
   DST-aware), the settings and the active mosque. `NotificationSync` makes the
   phone's scheduled set match it exactly: future items only, stale ones cancelled,
@@ -231,7 +231,7 @@ regions read from the parameters the calculator uses), the **Asr method**
 - **Gear → Settings**: the default sound, and a page per prayer (Adhan alert,
   sound with preview, vibrate, ring in silent, reminder before the Adhan, a test
   notification). Changes save at once. Iqama reminders are only linked to the
-  active mosque, never edited here. Travel mode and its pause live here too, and
+  active mosque, never edited here. **Pause all Iqama reminders** lives here too;
   Today and the mosque page say when reminders are paused.
 - The **full Adhan** and any **full-screen Adhan** are played by the app itself,
   not as a notification sound: native `AdhanAlarms` (stored exact alarms, restored
@@ -253,7 +253,12 @@ regions read from the parameters the calculator uses), the **Asr method**
   "today" and every scheduled notification follow. Today shows "Following your
   location · updated 2 h ago", or says plainly when it could not update and the
   last place is in use.
-- **Travel mode** can pause Iqama reminders by hand; Adhan alerts never pause.
+- **Pausing Iqama reminders** is manual. Each mosque's page has **Pause this
+  mosque's reminders** (kept on the mosque, so it applies whenever that mosque is
+  the active one, and switching to another mosque brings that mosque's reminders
+  back); Settings has **Pause all Iqama reminders**. Iqama times and reminder
+  settings are kept either way, and Adhan alerts never pause. This replaced the
+  earlier travel-mode pause (a pause made there reads as "Pause all").
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 

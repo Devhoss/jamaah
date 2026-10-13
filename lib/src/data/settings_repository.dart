@@ -166,9 +166,16 @@ class SettingsRepository {
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
       travel: TravelSettings(
-        travelMode: values[SettingKeys.travelMode] == 'true',
-        pauseIqamaReminders: values[SettingKeys.pauseIqamaReminders] == 'true',
         followLocation: values[SettingKeys.followLocation] == 'true',
+        // Before the per-mosque pause there was a travel-mode pause; a user
+        // who had it on keeps every reminder paused rather than suddenly
+        // getting them again.
+        pauseAllIqamaReminders: switch (values[SettingKeys.pauseAllIqamaReminders]) {
+          final v? => v == 'true',
+          null =>
+            values[SettingKeys.travelMode] == 'true' &&
+                values[SettingKeys.pauseIqamaReminders] == 'true',
+        },
       ),
       activeMosqueId: values[SettingKeys.activeMosqueId],
       location: _location(values),
@@ -283,14 +290,11 @@ class SettingsRepository {
         await _put(SettingKeys.placeCheckFailed, '$failed');
       });
 
-  /// Travel mode and its manual Iqama pause. The pause is kept when travel mode
-  /// is switched off, so it is remembered for the next trip, but it only takes
-  /// effect while travel mode is on.
+  /// Follow my location, and the pause on every Iqama reminder.
   Future<void> saveTravel(TravelSettings travel) => _db.transaction(() async {
-    await _put(SettingKeys.travelMode, '${travel.travelMode}');
     await _put(
-      SettingKeys.pauseIqamaReminders,
-      '${travel.pauseIqamaReminders}',
+      SettingKeys.pauseAllIqamaReminders,
+      '${travel.pauseAllIqamaReminders}',
     );
     await _put(SettingKeys.followLocation, '${travel.followLocation}');
   });

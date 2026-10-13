@@ -779,29 +779,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTravelSection => 'Travel';
 
   @override
-  String get settingsTravelMode => 'Travel mode';
-
-  @override
-  String get settingsTravelModeHint =>
-      'For when you\'re away from your mosque. Adhan alerts keep following the place you\'re in.';
-
-  @override
-  String get settingsPauseIqama => 'Pause Iqama reminders';
-
-  @override
-  String get settingsPauseIqamaHint =>
-      'Your mosque\'s Iqama reminders stay off while travel mode is on. Your Iqama times are kept.';
-
-  @override
-  String get settingsPauseIqamaNeedsTravel =>
-      'Turn on travel mode to pause them.';
-
-  @override
   String get settingsNotificationsSection => 'Notifications';
-
-  @override
-  String get iqamaPausedNote =>
-      'Iqama reminders are paused while you\'re travelling.';
 
   @override
   String alertPageTitle(String prayer) {
@@ -1235,4 +1213,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adjustmentsReset => 'Reset all to 0';
+
+  @override
+  String get settingsPauseAllIqama => 'Pause all Iqama reminders';
+
+  @override
+  String get settingsPauseAllIqamaHint =>
+      'No Iqama reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.';
+
+  @override
+  String get mosquePauseReminders => 'Pause this mosque\'s reminders';
+
+  @override
+  String get mosquePauseRemindersHint =>
+      'Its Iqama times and reminder settings are kept. Applies while this is your active mosque.';
+
+  @override
+  String get mosquePauseAllOn => 'All Iqama reminders are paused in Settings.';
+
+  @override
+  String get pausedAllNote => 'All Iqama reminders are paused.';
+
+  @override
+  String pausedMosqueNote(String mosque) {
+    return '$mosque\'s Iqama reminders are paused.';
+  }
+
+  @override
+  String get tagRemindersPaused => 'Reminders paused';
 }

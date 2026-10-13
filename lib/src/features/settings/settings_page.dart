@@ -107,6 +107,19 @@ class SettingsPage extends ConsumerWidget {
                 child: Text(l10n.settingsIqamaOpenActive(active.name)),
               ),
             ),
+          const SizedBox(height: AppSpace.md),
+          AppRows(
+            children: [
+              SwitchListTile(
+                title: Text(l10n.settingsPauseAllIqama),
+                subtitle: Text(l10n.settingsPauseAllIqamaHint),
+                value: travel.pauseAllIqamaReminders,
+                onChanged: (on) => ref
+                    .read(settingsRepositoryProvider)
+                    .saveTravel(travel.copyWith(pauseAllIqamaReminders: on)),
+              ),
+            ],
+          ),
           AppSectionHeader(l10n.settingsTravelSection),
           AppRows(
             children: [
@@ -115,28 +128,6 @@ class SettingsPage extends ConsumerWidget {
                 subtitle: Text(l10n.settingsFollowLocationHint),
                 value: travel.followLocation,
                 onChanged: (on) => _setFollow(context, ref, on),
-              ),
-              SwitchListTile(
-                title: Text(l10n.settingsTravelMode),
-                subtitle: Text(l10n.settingsTravelModeHint),
-                value: travel.travelMode,
-                onChanged: (on) => ref
-                    .read(settingsRepositoryProvider)
-                    .saveTravel(travel.copyWith(travelMode: on)),
-              ),
-              SwitchListTile(
-                title: Text(l10n.settingsPauseIqama),
-                subtitle: Text(
-                  travel.travelMode
-                      ? l10n.settingsPauseIqamaHint
-                      : l10n.settingsPauseIqamaNeedsTravel,
-                ),
-                value: travel.travelMode && travel.pauseIqamaReminders,
-                onChanged: travel.travelMode
-                    ? (on) => ref
-                          .read(settingsRepositoryProvider)
-                          .saveTravel(travel.copyWith(pauseIqamaReminders: on))
-                    : null,
               ),
             ],
           ),

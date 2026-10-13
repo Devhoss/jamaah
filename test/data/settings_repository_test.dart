@@ -415,32 +415,47 @@ void main() {
     });
   });
 
-  group('travel mode', () {
+  group('travel and the Iqama pause', () {
     test('starts off, and round-trips', () async {
       expect((await settings.read()).travel, const TravelSettings());
 
       const travel = TravelSettings(
-        travelMode: true,
-        pauseIqamaReminders: true,
+        pauseAllIqamaReminders: true,
         followLocation: true,
       );
       await settings.saveTravel(travel);
-      final read = (await settings.read()).travel;
-      expect(read, travel);
-      expect(read.iqamaRemindersPaused, isTrue);
+      expect((await settings.read()).travel, travel);
+
+      await settings.saveTravel(const TravelSettings());
+      expect((await settings.read()).travel, const TravelSettings());
     });
 
-    test('switching travel mode off keeps the pause choice for next time',
+    test('a pause made under the old travel mode is still a pause', () async {
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.travelMode}', 'true'), "
+        "('${SettingKeys.pauseIqamaReminders}', 'true')",
+      );
+      expect((await settings.read()).travel.pauseAllIqamaReminders, isTrue);
+    });
+
+    test('an old pause choice without travel mode on was not a pause',
         () async {
-      await settings.saveTravel(
-        const TravelSettings(travelMode: true, pauseIqamaReminders: true),
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.pauseIqamaReminders}', 'true')",
       );
-      await settings.saveTravel(
-        const TravelSettings(travelMode: false, pauseIqamaReminders: true),
+      expect((await settings.read()).travel.pauseAllIqamaReminders, isFalse);
+    });
+
+    test('the new switch wins over the old keys once it is saved', () async {
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.travelMode}', 'true'), "
+        "('${SettingKeys.pauseIqamaReminders}', 'true')",
       );
-      final read = (await settings.read()).travel;
-      expect(read.pauseIqamaReminders, isTrue);
-      expect(read.iqamaRemindersPaused, isFalse);
+      await settings.saveTravel(const TravelSettings());
+      expect((await settings.read()).travel.pauseAllIqamaReminders, isFalse);
     });
 
     test('watch re-emits on every change, not just the first', () async {
@@ -448,15 +463,15 @@ void main() {
       final sub = settings.watch().listen(seen.add);
       await pumpEventQueue();
 
-      await settings.saveTravel(const TravelSettings(travelMode: true));
+      await settings.saveTravel(const TravelSettings(followLocation: true));
       await pumpEventQueue();
       await settings.saveTravel(
-        const TravelSettings(travelMode: true, pauseIqamaReminders: true),
+        const TravelSettings(followLocation: true, pauseAllIqamaReminders: true),
       );
       await pumpEventQueue();
       await sub.cancel();
 
-      expect(seen.last.travel.iqamaRemindersPaused, isTrue);
+      expect(seen.last.travel.pauseAllIqamaReminders, isTrue);
     });
   });
 }

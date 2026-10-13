@@ -9,6 +9,7 @@ import 'generated/schema.dart';
 
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -195,6 +196,78 @@ void main() {
           expectedNewSchedulePrayersData,
           await newDb.select(newDb.schedulePrayers).get(),
         );
+      },
+    );
+  });
+
+  // v3 adds mosques.reminders_paused. Every mosque keeps its row and starts
+  // unpaused, and nothing else changes.
+  test('migration from v2 to v3 keeps every mosque, none paused', () async {
+    final oldMosques = <v2.MosquesData>[
+      const v2.MosquesData(
+        id: 'm1',
+        name: 'Test Mosque',
+        address: '',
+        source: 'manual',
+        createdAt: 1791884400000,
+      ),
+      const v2.MosquesData(
+        id: 'm2',
+        name: 'Omar Makram Mosque',
+        address: 'Qasr El Nil, Cairo',
+        source: 'google',
+        placeId: 'ChIJ-example',
+        createdAt: 1791887000000,
+      ),
+    ];
+    final expectedMosques = <v3.MosquesData>[
+      const v3.MosquesData(
+        id: 'm1',
+        name: 'Test Mosque',
+        address: '',
+        source: 'manual',
+        createdAt: 1791884400000,
+        remindersPaused: 0,
+      ),
+      const v3.MosquesData(
+        id: 'm2',
+        name: 'Omar Makram Mosque',
+        address: 'Qasr El Nil, Cairo',
+        source: 'google',
+        placeId: 'ChIJ-example',
+        createdAt: 1791887000000,
+        remindersPaused: 0,
+      ),
+    ];
+    final oldSchedules = <v2.SchedulesData>[
+      const v2.SchedulesData(id: 's1', mosqueId: 'm1', updatedAt: 1791885000000),
+    ];
+    final oldPrayers = <v2.SchedulePrayersData>[
+      const v2.SchedulePrayersData(
+        scheduleId: 's1',
+        prayer: 'asr',
+        iqamaMinutes: 16 * 60 + 5,
+        reminderEnabled: 1,
+        reminderMinutesBefore: 10,
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.mosques, oldMosques);
+        batch.insertAll(oldDb.schedules, oldSchedules);
+        batch.insertAll(oldDb.schedulePrayers, oldPrayers);
+      },
+      validateItems: (newDb) async {
+        expect(expectedMosques, await newDb.select(newDb.mosques).get());
+        final prayers = await newDb.select(newDb.schedulePrayers).get();
+        expect(prayers.single.iqamaMinutes, 16 * 60 + 5);
+        expect(prayers.single.reminderEnabled, 1);
       },
     );
   });

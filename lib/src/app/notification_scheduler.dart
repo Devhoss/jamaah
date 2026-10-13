@@ -50,7 +50,10 @@ List<PlannedNotification> buildNotificationPlan({
       ),
       adhanAlerts: alerts,
       activeMosque: activeMosque,
-      iqamaRemindersPaused: travel.iqamaRemindersPaused,
+      // Paused for every mosque, or for the active one (2026-10-13).
+      iqamaRemindersPaused:
+          travel.pauseAllIqamaReminders ||
+          (activeMosque?.remindersPaused ?? false),
       windowDays: windowDays,
     ),
   );

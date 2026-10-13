@@ -105,7 +105,7 @@ void main() {
       expect(days.keys, contains(const LocalDay(2026, 11, 2)));
     });
 
-    test('travel mode\'s pause keeps Adhan alerts and drops Iqama reminders', () {
+    test('either pause keeps Adhan alerts and drops Iqama reminders', () {
       final zone = zoneOffsetsFor('Africa/Cairo');
       final mosque = Mosque(
         id: 'm1',
@@ -122,8 +122,10 @@ void main() {
           ),
         ],
       );
-      List<PlannedNotification> planWith(TravelSettings travel) =>
-          buildNotificationPlan(
+      List<PlannedNotification> planWith(
+        TravelSettings travel, {
+        Mosque? active,
+      }) => buildNotificationPlan(
             calculator: calculatorFor(30.0444, 31.2357, zone),
             zone: zone,
             nowUtc: DateTime.utc(2026, 10, 13, 0),
@@ -132,16 +134,23 @@ void main() {
               const AdhanAlert(enabled: true),
             ),
             travel: travel,
-            activeMosque: mosque,
+            activeMosque: active ?? mosque,
           );
 
       final home = planWith(const TravelSettings());
-      final away = planWith(
-        const TravelSettings(travelMode: true, pauseIqamaReminders: true),
+      final all = planWith(const TravelSettings(pauseAllIqamaReminders: true));
+      final thisMosque = planWith(
+        const TravelSettings(),
+        active: mosque.copyWith(remindersPaused: true),
       );
       expect(home.where((n) => n.kind == NotificationKind.iqama), hasLength(7));
-      expect(away.where((n) => n.kind == NotificationKind.iqama), isEmpty);
-      expect(away.where((n) => n.kind == NotificationKind.adhan), hasLength(7));
+      for (final paused in [all, thisMosque]) {
+        expect(paused.where((n) => n.kind == NotificationKind.iqama), isEmpty);
+        expect(
+          paused.where((n) => n.kind == NotificationKind.adhan),
+          hasLength(7),
+        );
+      }
     });
   });
 
@@ -319,7 +328,7 @@ void main() {
       );
     });
 
-    test('travel mode\'s pause removes Iqama reminders until it is lifted',
+    test('pausing all Iqama reminders removes them until it is lifted',
         () async {
       final mosque = await mosques.add(
         name: 'Masjid',
@@ -336,14 +345,64 @@ void main() {
       expect(gateway.scheduled, hasLength(7));
 
       await settings.saveTravel(
-        const TravelSettings(travelMode: true, pauseIqamaReminders: true),
+        const TravelSettings(pauseAllIqamaReminders: true),
       );
       await settle();
       expect(gateway.scheduled, isEmpty);
 
-      await settings.saveTravel(
-        const TravelSettings(travelMode: false, pauseIqamaReminders: true),
+      await settings.saveTravel(const TravelSettings());
+      await settle();
+      expect(gateway.scheduled, hasLength(7));
+    });
+
+    test('a paused mosque is silent only while it is the active one',
+        () async {
+      final home = await mosques.add(
+        name: 'Home',
+        address: '',
+        source: MosqueSource.manual,
       );
+      final away = await mosques.add(
+        name: 'Away',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      for (final m in [home, away]) {
+        await mosques.setIqama(
+          m.id,
+          Prayer.asr,
+          LocalTime.of(16, 15),
+          reminderEnabled: true,
+        );
+      }
+      await settings.setActiveMosqueId(home.id);
+      await settle();
+      expect(gateway.scheduled, hasLength(7));
+
+      await mosques.setRemindersPaused(home.id, paused: true);
+      await settle();
+      expect(gateway.scheduled, isEmpty);
+
+      // Another mosque, not paused, brings its own reminders back.
+      await settings.setActiveMosqueId(away.id);
+      await settle();
+      expect(gateway.scheduled, hasLength(7));
+      expect(
+        gateway.scheduled.values.map((s) => s.planned.mosqueId).toSet(),
+        {away.id},
+      );
+
+      // Home again: still paused, its Iqama times untouched.
+      await settings.setActiveMosqueId(home.id);
+      await settle();
+      expect(gateway.scheduled, isEmpty);
+      final kept = (await mosques.saved()).singleWhere((m) => m.id == home.id);
+      expect(
+        kept.schedules.single.iqamaFor(Prayer.asr).iqama,
+        LocalTime.of(16, 15),
+      );
+
+      await mosques.setRemindersPaused(home.id, paused: false);
       await settle();
       expect(gateway.scheduled, hasLength(7));
     });

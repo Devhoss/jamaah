@@ -378,8 +378,8 @@ void main() {
     });
   });
 
-  group('travel mode', () {
-    testApp('the pause waits for travel mode, and Today says it is on', (
+  group('pausing Iqama reminders', () {
+    testApp('pause all is one switch, and Today says it is on', (
       tester,
     ) async {
       await mosques.add(
@@ -390,17 +390,14 @@ void main() {
       await open(tester);
       await openSettingsPage(tester);
 
-      final pause = switchTile(t.settingsPauseIqama);
+      final pause = switchTile(t.settingsPauseAllIqama);
       await reveal(tester, pause);
-      expect(tester.widget<SwitchListTile>(pause).onChanged, isNull);
-
-      await tap(tester, switchTile(t.settingsTravelMode));
       await tap(tester, pause);
-      expect((await settings.read()).travel.iqamaRemindersPaused, isTrue);
+      expect((await settings.read()).travel.pauseAllIqamaReminders, isTrue);
 
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text(t.iqamaPausedNote), findsOneWidget);
+      expect(find.text(t.pausedAllNote), findsOneWidget);
     });
   });
   testApp('both pages and the sound sheet survive a large text size', (

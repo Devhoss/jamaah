@@ -202,6 +202,21 @@ class MosqueRepository {
     return updated;
   }
 
+  /// Pauses or resumes all of this mosque's Iqama reminders, keeping its Iqama
+  /// times and every reminder setting.
+  Future<void> setRemindersPaused(String mosqueId, {required bool paused}) async {
+    final changed = await (_db.update(_db.mosques)
+          ..where((t) => t.id.equals(mosqueId)))
+        .write(MosquesCompanion(remindersPaused: Value(paused)));
+    if (changed == 0) {
+      throw ArgumentError.value(
+        mosqueId,
+        'mosqueId',
+        'No saved mosque has this id',
+      );
+    }
+  }
+
   /// Switches one prayer's reminder on or off, keeping its time and interval.
   ///
   /// Switching on a prayer with no Iqama time is refused: a reminder never
@@ -307,6 +322,7 @@ class MosqueRepository {
       longitude: row.longitude,
       placeId: row.placeId,
       createdAt: DateTime.fromMillisecondsSinceEpoch(row.createdAt),
+      remindersPaused: row.remindersPaused,
       schedules: [
         for (final schedule in scheduleRows)
           Schedule(
@@ -397,6 +413,7 @@ MosqueRow _toMosqueRow(Mosque mosque) => MosqueRow(
   longitude: mosque.longitude,
   placeId: mosque.placeId,
   createdAt: mosque.createdAt.millisecondsSinceEpoch,
+  remindersPaused: mosque.remindersPaused,
 );
 
 extension _FirstOrNull<T> on Iterable<T> {

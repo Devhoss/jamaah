@@ -22,6 +22,7 @@ class Mosque {
     this.placeId,
     this.schedules = const [],
     DateTime? createdAt,
+    this.remindersPaused = false,
   }) : createdAt = createdAt ?? DateTime.now();
 
   /// Creates a new mosque with a fresh id and one empty schedule.
@@ -64,6 +65,10 @@ class Mosque {
 
   final DateTime createdAt;
 
+  /// The user paused this mosque's Iqama reminders (2026-10-13). Its Iqama
+  /// times and reminder settings stay as they are; only the notifications stop.
+  final bool remindersPaused;
+
   bool get hasLocation => latitude != null && longitude != null;
 
   /// The schedule in force on [day]: the one with the latest effectiveFrom on or
@@ -97,6 +102,7 @@ class Mosque {
     double? longitude,
     String? placeId,
     List<Schedule>? schedules,
+    bool? remindersPaused,
   }) => Mosque(
     id: id,
     name: name ?? this.name,
@@ -107,6 +113,7 @@ class Mosque {
     placeId: placeId ?? this.placeId,
     schedules: schedules ?? this.schedules,
     createdAt: createdAt,
+    remindersPaused: remindersPaused ?? this.remindersPaused,
   );
 
   @override
@@ -119,6 +126,7 @@ class Mosque {
       other.latitude == latitude &&
       other.longitude == longitude &&
       other.placeId == placeId &&
+      other.remindersPaused == remindersPaused &&
       _sameSchedules(other.schedules, schedules);
 
   @override

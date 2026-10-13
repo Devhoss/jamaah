@@ -118,6 +118,8 @@ class _MosqueRow extends StatelessWidget {
                 ),
               ),
               if (isActive) AppTag(l10n.tagActive),
+              if (mosque.remindersPaused)
+                AppTag(l10n.tagRemindersPaused, tone: AppTagTone.warning),
             ],
           ),
           Text(switch (status) {

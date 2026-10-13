@@ -57,7 +57,10 @@ class TodayScreen extends ConsumerWidget {
 
     if (!settings.hasValue) {
       return Center(
-        child: Text(l10n.todayLoading, style: Theme.of(context).textTheme.bodySmall),
+        child: Text(
+          l10n.todayLoading,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       );
     }
 
@@ -111,9 +114,13 @@ class TodayScreen extends ConsumerWidget {
             onOpenMosques: onOpenMosques,
             onOpenMosque: onOpenMosque,
           ),
-          if (settings.requireValue.travel.iqamaRemindersPaused &&
-              ref.watch(activeMosqueProvider) != null)
-            _PausedNote(text: l10n.iqamaPausedNote),
+          // Said where the reminders would otherwise be expected, so a
+          // reminder that does not come is never a mystery.
+          if (ref.watch(activeMosqueProvider) case final active?)
+            if (settings.requireValue.travel.pauseAllIqamaReminders)
+              _PausedNote(text: l10n.pausedAllNote)
+            else if (active.remindersPaused)
+              _PausedNote(text: l10n.pausedMosqueNote(active.name)),
           AppSectionHeader(l10n.todaySectionTimes),
           _PrayerRows(today: today, schedule: schedule, clock: clock),
           _TodayNotes(
@@ -205,7 +212,10 @@ class _HeroCard extends StatelessWidget {
             ],
           ),
           Text(
-            l10n.prayerAtTime(prayerName(l10n, next.prayer), clock.time(next.at)),
+            l10n.prayerAtTime(
+              prayerName(l10n, next.prayer),
+              clock.time(next.at),
+            ),
             style: const TextStyle(
               fontSize: AppType.heroTimeSize,
               fontWeight: FontWeight.w600,
@@ -226,23 +236,24 @@ class _HeroCard extends StatelessWidget {
   /// The three readings the domain answers with are said differently here on
   /// purpose. Nothing entered is the prompt below the card's business; a day whose
   /// entered times have all run out is a sentence the user needs to see.
-  Widget _iqamaBlock(BuildContext context, NextIqama result) => switch (result) {
-    IqamaNotConfigured() => const SizedBox.shrink(),
-    IqamaNoneLeftToday(:final mosqueName) => _IqamaDivider(
-      children: [
-        Text(mosqueName, style: _heroLabel),
-        const SizedBox(height: 2),
-        Text(
-          AppLocalizations.of(context).noIqamaLeftToday,
-          style: TextStyle(
-            fontSize: AppType.bodySize,
-            color: AppColors.onPrimary,
-          ),
+  Widget _iqamaBlock(BuildContext context, NextIqama result) =>
+      switch (result) {
+        IqamaNotConfigured() => const SizedBox.shrink(),
+        IqamaNoneLeftToday(:final mosqueName) => _IqamaDivider(
+          children: [
+            Text(mosqueName, style: _heroLabel),
+            const SizedBox(height: 2),
+            Text(
+              AppLocalizations.of(context).noIqamaLeftToday,
+              style: TextStyle(
+                fontSize: AppType.bodySize,
+                color: AppColors.onPrimary,
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
-    final IqamaUpcoming next => _upcomingIqama(context, next),
-  };
+        final IqamaUpcoming next => _upcomingIqama(context, next),
+      };
 
   Widget _upcomingIqama(BuildContext context, IqamaUpcoming iqama) {
     final l10n = AppLocalizations.of(context);
@@ -267,7 +278,10 @@ class _HeroCard extends StatelessWidget {
             ),
             Text(
               '· ${_countdown(l10n, iqama.minutesUntil)}',
-              style: TextStyle(fontSize: AppType.bodySize, color: AppColors.onPrimary),
+              style: TextStyle(
+                fontSize: AppType.bodySize,
+                color: AppColors.onPrimary,
+              ),
             ),
             // The day the card counted through, said the same way as the Adhan's.
             if (iqama.isTomorrow) Text(l10n.tomorrow, style: _heroLabel),
@@ -314,10 +328,9 @@ final TextStyle _heroLabel = TextStyle(
   color: AppColors.onPrimary.withValues(alpha: 0.78),
 );
 
-String _countdown(AppLocalizations l10n, int minutes) =>
-    minutes >= 60
-        ? l10n.countdownHours(minutes ~/ 60, minutes % 60)
-        : l10n.countdownMinutes(minutes);
+String _countdown(AppLocalizations l10n, int minutes) => minutes >= 60
+    ? l10n.countdownHours(minutes ~/ 60, minutes % 60)
+    : l10n.countdownMinutes(minutes);
 
 /// The quiet ask that gets the user to the mosque step, and only for as long as it
 /// is the honest one.
@@ -351,7 +364,10 @@ class _MosquePrompt extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpace.xs),
-          Text(l10n.addMosqueBody, style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            l10n.addMosqueBody,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         ],
       );
     }
@@ -403,7 +419,8 @@ class _PrayerRows extends StatelessWidget {
             name: prayerName(l10n, prayer),
             adhan: _time(prayer),
             iqama: _iqama(prayer),
-            reminderOn: prayer.canHaveIqama &&
+            reminderOn:
+                prayer.canHaveIqama &&
                 (schedule?.iqamaFor(prayer).hasReminder ?? false),
             muted: prayer == Prayer.sunrise,
             selected: prayer == inForce,
@@ -464,7 +481,9 @@ class _PrayerRow extends StatelessWidget {
       leading: Icon(
         Icons.circle,
         size: 8,
-        color: isNext ? Theme.of(context).colorScheme.primary : Colors.transparent,
+        color: isNext
+            ? Theme.of(context).colorScheme.primary
+            : Colors.transparent,
       ),
       title: Wrap(
         // One line per prayer: the Next pill and the mosque's Iqama sit beside the
@@ -475,9 +494,13 @@ class _PrayerRow extends StatelessWidget {
         runSpacing: AppSpace.xs,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(name, style: _nameStyle(isNext ? FontWeight.w700 : FontWeight.w500)),
+          Text(
+            name,
+            style: _nameStyle(isNext ? FontWeight.w700 : FontWeight.w500),
+          ),
           if (isNext) AppTag(l10n.tagNext),
-          if (iqama != null) Text(l10n.rowIqama(iqama!), style: _detailStyle(ink)),
+          if (iqama != null)
+            Text(l10n.rowIqama(iqama!), style: _detailStyle(ink)),
           if (reminderOn)
             Semantics(
               label: l10n.reminderOnSemantics,
@@ -493,10 +516,8 @@ class _PrayerRow extends StatelessWidget {
 
   /// Size and weight only: the colour comes from the row, so a muted row mutes the
   /// whole of it.
-  static TextStyle _nameStyle(FontWeight weight) => TextStyle(
-    fontSize: AppType.rowSize,
-    fontWeight: weight,
-  );
+  static TextStyle _nameStyle(FontWeight weight) =>
+      TextStyle(fontSize: AppType.rowSize, fontWeight: weight);
 
   /// The small muted reading — an Iqama, or the admission that there is no time.
   static TextStyle _detailStyle(AppInk ink) =>
@@ -529,7 +550,8 @@ class _TodayNotes extends StatelessWidget {
               highLatitudeRuleName(l10n, rule),
             ),
           ),
-        if (estimated != null) _Note(l10n.estimatedFromLatitudeNote(_degrees(estimated))),
+        if (estimated != null)
+          _Note(l10n.estimatedFromLatitudeNote(_degrees(estimated))),
       ],
     );
   }
@@ -570,7 +592,10 @@ class _TimesUnavailable extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: AppSpace.xs),
-        Text(l10n.timesUnavailableBody, style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          l10n.timesUnavailableBody,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
       ],
     );
   }
@@ -651,9 +676,8 @@ class _PausedNote extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: ink.muted),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: ink.muted),
             ),
           ),
         ],
@@ -694,9 +718,8 @@ class _FollowLine extends StatelessWidget {
           Expanded(
             child: Text(
               failed ? l10n.followingStale(ago) : l10n.followingUpdated(ago),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: ink.muted),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: ink.muted),
             ),
           ),
         ],

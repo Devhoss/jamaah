@@ -809,4 +809,45 @@ void main() {
       );
     });
   });
+
+  group('pausing a mosque\'s reminders', () {
+    test('a new mosque is not paused; the pause round-trips', () async {
+      final m = await mosques.add(
+        name: 'Masjid',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      expect(m.remindersPaused, isFalse);
+
+      await mosques.setRemindersPaused(m.id, paused: true);
+      expect((await mosques.saved()).single.remindersPaused, isTrue);
+
+      await mosques.setRemindersPaused(m.id, paused: false);
+      expect((await mosques.saved()).single.remindersPaused, isFalse);
+    });
+
+    test('pausing keeps the Iqama times and reminder settings', () async {
+      final m = await mosques.add(
+        name: 'Masjid',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      await mosques.setIqama(
+        m.id,
+        Prayer.fajr,
+        LocalTime.of(5, 30),
+        reminderEnabled: true,
+      );
+      final before = (await mosques.saved()).single.schedules;
+      await mosques.setRemindersPaused(m.id, paused: true);
+      expect((await mosques.saved()).single.schedules, before);
+    });
+
+    test('an unknown mosque is a programming error', () {
+      expect(
+        mosques.setRemindersPaused('nope', paused: true),
+        throwsArgumentError,
+      );
+    });
+  });
 }

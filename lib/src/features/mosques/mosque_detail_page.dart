@@ -46,8 +46,7 @@ class MosqueDetailPage extends ConsumerWidget {
 
     final settings = ref.watch(appSettingsProvider).value;
     final isActive = settings?.activeMosqueId == mosque.id;
-    final paused =
-        isActive && (settings?.travel.iqamaRemindersPaused ?? false);
+    final pausedForAll = settings?.travel.pauseAllIqamaReminders ?? false;
     final day = ref.watch(scheduleDayProvider);
     final schedule = mosque.scheduleFor(day);
     final today = ref.watch(todayProvider);
@@ -89,27 +88,6 @@ class MosqueDetailPage extends ConsumerWidget {
                 ),
               ],
             ),
-          if (paused) ...[
-            const SizedBox(height: AppSpace.sm),
-            Row(
-              children: [
-                Icon(
-                  Icons.notifications_paused_outlined,
-                  size: 18,
-                  color: ink.muted,
-                ),
-                const SizedBox(width: AppSpace.sm),
-                Expanded(
-                  child: Text(
-                    l10n.iqamaPausedNote,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: ink.muted,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
           const SizedBox(height: AppSpace.sm),
           Wrap(
             spacing: AppSpace.md,
@@ -125,6 +103,23 @@ class MosqueDetailPage extends ConsumerWidget {
               OutlinedButton(
                 onPressed: () => showEditMosqueSheet(context, mosque),
                 child: Text(l10n.editDetails),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.md),
+          AppRows(
+            children: [
+              SwitchListTile(
+                title: Text(l10n.mosquePauseReminders),
+                subtitle: Text(
+                  pausedForAll
+                      ? l10n.mosquePauseAllOn
+                      : l10n.mosquePauseRemindersHint,
+                ),
+                value: mosque.remindersPaused,
+                onChanged: (on) => ref
+                    .read(mosqueRepositoryProvider)
+                    .setRemindersPaused(mosque.id, paused: on),
               ),
             ],
           ),

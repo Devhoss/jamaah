@@ -1352,47 +1352,11 @@ abstract class AppLocalizations {
   /// **'Travel'**
   String get settingsTravelSection;
 
-  /// No description provided for @settingsTravelMode.
-  ///
-  /// In en, this message translates to:
-  /// **'Travel mode'**
-  String get settingsTravelMode;
-
-  /// No description provided for @settingsTravelModeHint.
-  ///
-  /// In en, this message translates to:
-  /// **'For when you\'re away from your mosque. Adhan alerts keep following the place you\'re in.'**
-  String get settingsTravelModeHint;
-
-  /// No description provided for @settingsPauseIqama.
-  ///
-  /// In en, this message translates to:
-  /// **'Pause Iqama reminders'**
-  String get settingsPauseIqama;
-
-  /// No description provided for @settingsPauseIqamaHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Your mosque\'s Iqama reminders stay off while travel mode is on. Your Iqama times are kept.'**
-  String get settingsPauseIqamaHint;
-
-  /// No description provided for @settingsPauseIqamaNeedsTravel.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on travel mode to pause them.'**
-  String get settingsPauseIqamaNeedsTravel;
-
   /// No description provided for @settingsNotificationsSection.
   ///
   /// In en, this message translates to:
   /// **'Notifications'**
   String get settingsNotificationsSection;
-
-  /// Shown on Today and on the mosque page while travel mode's pause is on, so a silent reminder is never a mystery.
-  ///
-  /// In en, this message translates to:
-  /// **'Iqama reminders are paused while you\'re travelling.'**
-  String get iqamaPausedNote;
 
   /// No description provided for @alertPageTitle.
   ///
@@ -2143,6 +2107,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset all to 0'**
   String get adjustmentsReset;
+
+  /// No description provided for @settingsPauseAllIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause all Iqama reminders'**
+  String get settingsPauseAllIqama;
+
+  /// No description provided for @settingsPauseAllIqamaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No Iqama reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.'**
+  String get settingsPauseAllIqamaHint;
+
+  /// No description provided for @mosquePauseReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause this mosque\'s reminders'**
+  String get mosquePauseReminders;
+
+  /// No description provided for @mosquePauseRemindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its Iqama times and reminder settings are kept. Applies while this is your active mosque.'**
+  String get mosquePauseRemindersHint;
+
+  /// No description provided for @mosquePauseAllOn.
+  ///
+  /// In en, this message translates to:
+  /// **'All Iqama reminders are paused in Settings.'**
+  String get mosquePauseAllOn;
+
+  /// No description provided for @pausedAllNote.
+  ///
+  /// In en, this message translates to:
+  /// **'All Iqama reminders are paused.'**
+  String get pausedAllNote;
+
+  /// No description provided for @pausedMosqueNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque}\'s Iqama reminders are paused.'**
+  String pausedMosqueNote(String mosque);
+
+  /// No description provided for @tagRemindersPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders paused'**
+  String get tagRemindersPaused;
 }
 
 class _AppLocalizationsDelegate

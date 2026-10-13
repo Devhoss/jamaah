@@ -78,10 +78,10 @@ void main() {
       expect(AdhanAlertSettings.defaults().fullScreen, isFalse);
     });
 
-    test('travel mode starts off, with nothing paused', () {
+    test('nothing is paused and nothing followed until the user says so', () {
       const travel = TravelSettings();
-      expect(travel.travelMode, isFalse);
-      expect(travel.iqamaRemindersPaused, isFalse);
+      expect(travel.pauseAllIqamaReminders, isFalse);
+      expect(travel.followLocation, isFalse);
     });
 
     test('an early reminder outside 1..120 minutes is a programming error', () {
@@ -219,21 +219,7 @@ void main() {
     });
   });
 
-  group('travel mode', () {
-    test('the pause only counts while travel mode is on', () {
-      expect(
-        const TravelSettings(pauseIqamaReminders: true).iqamaRemindersPaused,
-        isFalse,
-      );
-      expect(
-        const TravelSettings(
-          travelMode: true,
-          pauseIqamaReminders: true,
-        ).iqamaRemindersPaused,
-        isTrue,
-      );
-    });
-
+  group('pausing Iqama reminders', () {
     test('a paused plan has no Iqama reminders, and keeps every Adhan alert', () {
       final alerts = AdhanAlertSettings.defaults()
           .withAlert(Prayer.fajr, const AdhanAlert(enabled: true))
