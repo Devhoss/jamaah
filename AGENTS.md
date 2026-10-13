@@ -23,6 +23,8 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
   so dated/seasonal schedules can be added later without a migration.
 - Adhan alerts (global, per prayer) and Iqama reminders (per mosque) are fully independent.
 - Iqama reminders exist only for prayers with a configured Iqama time. Sunrise has no Iqama or reminder.
+- In the UI an Iqama reminder is called a "Jama’ah reminder" (decided 2026-10-13); the Iqama
+  time itself keeps the name Iqama. Code, data and notification ids keep the iqama names.
 - Sunrise may have an Adhan alert (default off). It never has an Iqama or Iqama reminder.
 - A mosque's Adhan alerts come from the global per-prayer settings, never from the mosque.
 - Switching the active mosque switches the schedule driving Iqama reminders; reschedule accordingly.

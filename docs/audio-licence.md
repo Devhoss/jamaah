@@ -1,8 +1,12 @@
 # Adhan audio — source and licence
 
-**Status (2026-10-13): 17 recordings supplied by the project owner. Their source
-and licence are NOT yet recorded. Clear both before any public release
-(AGENTS.md open question 1).**
+**Status (2026-10-13): 17 recordings supplied by the project owner.**
+
+Owner's assessment (2026-10-13): these are widely circulated Adhan recordings,
+used by many open-source prayer apps, and not owned by anyone in particular.
+No individual source URL or licence text has been identified for them. Before a
+store release, it is still worth recording where each copy came from (for
+example, the open-source project it was taken from and that project's licence).
 
 | File | What it is | Used for |
 | --- | --- | --- |
@@ -13,8 +17,8 @@ and licence are NOT yet recorded. Clear both before any public release
 The list the app shows lives in `lib/src/domain/adhan_recordings.dart` (id,
 name, file, length). Ids are stored in settings, so never rename one.
 
-To record for each file before release: reciter or mosque, where it was
-downloaded from (URL), the licence text, and any attribution it requires.
+Worth recording per file when known: reciter or mosque, where the copy came
+from (URL or project), and any licence or attribution that project states.
 None of the 17 is marked as a Fajr Adhan (with "as-salatu khayrun min an-nawm").
 
 The short clip was made with:

@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// Screen-reader label for the bell on a row.
   ///
   /// In en, this message translates to:
-  /// **'Iqama reminder on'**
+  /// **'Jama’ah reminder on'**
   String get reminderOnSemantics;
 
   /// No description provided for @aboutBody.
@@ -649,7 +649,7 @@ abstract class AppLocalizations {
   /// No description provided for @activeMosqueNote.
   ///
   /// In en, this message translates to:
-  /// **'Today and Iqama reminders use this mosque.'**
+  /// **'Today and Jama’ah reminders use this mosque.'**
   String get activeMosqueNote;
 
   /// No description provided for @editDetails.
@@ -703,7 +703,7 @@ abstract class AppLocalizations {
   /// No description provided for @reminderSwitchLabel.
   ///
   /// In en, this message translates to:
-  /// **'{prayer} Iqama reminder'**
+  /// **'{prayer} Jama’ah reminder'**
   String reminderSwitchLabel(String prayer);
 
   /// No description provided for @scheduleSetByYou.
@@ -1145,7 +1145,7 @@ abstract class AppLocalizations {
   /// No description provided for @channelIqama.
   ///
   /// In en, this message translates to:
-  /// **'Iqama reminders'**
+  /// **'Jama’ah reminders'**
   String get channelIqama;
 
   /// No description provided for @notifAdhanTitle.
@@ -1211,7 +1211,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduledNothing.
   ///
   /// In en, this message translates to:
-  /// **'Nothing is scheduled. Turn on an Adhan alert, or an Iqama reminder on your mosque.'**
+  /// **'Nothing is scheduled. Turn on an Adhan alert, or a Jama’ah reminder on your mosque.'**
   String get scheduledNothing;
 
   /// No description provided for @scheduledNotificationsOff.
@@ -1271,7 +1271,7 @@ abstract class AppLocalizations {
   /// No description provided for @kindIqama.
   ///
   /// In en, this message translates to:
-  /// **'Iqama reminder'**
+  /// **'Jama’ah reminder'**
   String get kindIqama;
 
   /// No description provided for @settingsTitle.
@@ -1325,13 +1325,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsIqamaSection.
   ///
   /// In en, this message translates to:
-  /// **'Iqama reminders'**
+  /// **'Jama’ah reminders'**
   String get settingsIqamaSection;
 
   /// No description provided for @settingsIqamaBody.
   ///
   /// In en, this message translates to:
-  /// **'Iqama times and their reminders belong to each mosque. Set them on the mosque.'**
+  /// **'A Jama’ah reminder comes before your mosque’s Iqama time. Iqama times and their reminders belong to each mosque, so you set them on the mosque.'**
   String get settingsIqamaBody;
 
   /// No description provided for @settingsIqamaOpenActive.
@@ -1343,7 +1343,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsIqamaNoMosque.
   ///
   /// In en, this message translates to:
-  /// **'Add a mosque to set Iqama reminders.'**
+  /// **'Add a mosque to set Jama’ah reminders.'**
   String get settingsIqamaNoMosque;
 
   /// No description provided for @settingsTravelSection.
@@ -2219,13 +2219,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPauseAllIqama.
   ///
   /// In en, this message translates to:
-  /// **'Pause all Iqama reminders'**
+  /// **'Pause all Jama’ah reminders'**
   String get settingsPauseAllIqama;
 
   /// No description provided for @settingsPauseAllIqamaHint.
   ///
   /// In en, this message translates to:
-  /// **'No Iqama reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.'**
+  /// **'No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.'**
   String get settingsPauseAllIqamaHint;
 
   /// No description provided for @mosquePauseReminders.
@@ -2243,19 +2243,19 @@ abstract class AppLocalizations {
   /// No description provided for @mosquePauseAllOn.
   ///
   /// In en, this message translates to:
-  /// **'All Iqama reminders are paused in Settings.'**
+  /// **'All Jama’ah reminders are paused in Settings.'**
   String get mosquePauseAllOn;
 
   /// No description provided for @pausedAllNote.
   ///
   /// In en, this message translates to:
-  /// **'All Iqama reminders are paused.'**
+  /// **'All Jama’ah reminders are paused.'**
   String get pausedAllNote;
 
   /// No description provided for @pausedMosqueNote.
   ///
   /// In en, this message translates to:
-  /// **'{mosque}\'s Iqama reminders are paused.'**
+  /// **'{mosque}\'s Jama’ah reminders are paused.'**
   String pausedMosqueNote(String mosque);
 
   /// No description provided for @tagRemindersPaused.

@@ -244,8 +244,7 @@ regions read from the parameters the calculator uses), the **Asr method**
   alerts; Settings then says so and links to the permission.
 - **Settings → Full Adhan recording** chooses one of 17 bundled recordings, each
   playable there first (`adhan_recordings.dart`). The short Adhan is the first 8 s
-  of Naghshbandi. Their source and licence are still to be recorded:
-  see `docs/audio-licence.md`.
+  of Naghshbandi. Provenance: `docs/audio-licence.md`.
 
 ## Travel
 

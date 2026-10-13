@@ -175,7 +175,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reminderOnSemantics => 'Iqama reminder on';
+  String get reminderOnSemantics => 'Jama’ah reminder on';
 
   @override
   String get aboutBody =>
@@ -327,7 +327,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setAsActive => 'Set as active';
 
   @override
-  String get activeMosqueNote => 'Today and Iqama reminders use this mosque.';
+  String get activeMosqueNote => 'Today and Jama’ah reminders use this mosque.';
 
   @override
   String get editDetails => 'Edit details';
@@ -363,7 +363,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reminderSwitchLabel(String prayer) {
-    return '$prayer Iqama reminder';
+    return '$prayer Jama’ah reminder';
   }
 
   @override
@@ -647,7 +647,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channelPreAdhan => 'Reminders before the Adhan';
 
   @override
-  String get channelIqama => 'Iqama reminders';
+  String get channelIqama => 'Jama’ah reminders';
 
   @override
   String notifAdhanTitle(String prayer) {
@@ -694,7 +694,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduledNothing =>
-      'Nothing is scheduled. Turn on an Adhan alert, or an Iqama reminder on your mosque.';
+      'Nothing is scheduled. Turn on an Adhan alert, or a Jama’ah reminder on your mosque.';
 
   @override
   String get scheduledNotificationsOff =>
@@ -727,7 +727,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kindPreAdhan => 'Reminder before Adhan';
 
   @override
-  String get kindIqama => 'Iqama reminder';
+  String get kindIqama => 'Jama’ah reminder';
 
   @override
   String get settingsTitle => 'Settings';
@@ -761,11 +761,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsIqamaSection => 'Iqama reminders';
+  String get settingsIqamaSection => 'Jama’ah reminders';
 
   @override
   String get settingsIqamaBody =>
-      'Iqama times and their reminders belong to each mosque. Set them on the mosque.';
+      'A Jama’ah reminder comes before your mosque’s Iqama time. Iqama times and their reminders belong to each mosque, so you set them on the mosque.';
 
   @override
   String settingsIqamaOpenActive(String mosque) {
@@ -773,7 +773,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsIqamaNoMosque => 'Add a mosque to set Iqama reminders.';
+  String get settingsIqamaNoMosque => 'Add a mosque to set Jama’ah reminders.';
 
   @override
   String get settingsTravelSection => 'Travel';
@@ -1275,11 +1275,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adjustmentsReset => 'Reset all to 0';
 
   @override
-  String get settingsPauseAllIqama => 'Pause all Iqama reminders';
+  String get settingsPauseAllIqama => 'Pause all Jama’ah reminders';
 
   @override
   String get settingsPauseAllIqamaHint =>
-      'No Iqama reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.';
+      'No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.';
 
   @override
   String get mosquePauseReminders => 'Pause this mosque\'s reminders';
@@ -1289,14 +1289,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Its Iqama times and reminder settings are kept. Applies while this is your active mosque.';
 
   @override
-  String get mosquePauseAllOn => 'All Iqama reminders are paused in Settings.';
+  String get mosquePauseAllOn =>
+      'All Jama’ah reminders are paused in Settings.';
 
   @override
-  String get pausedAllNote => 'All Iqama reminders are paused.';
+  String get pausedAllNote => 'All Jama’ah reminders are paused.';
 
   @override
   String pausedMosqueNote(String mosque) {
-    return '$mosque\'s Iqama reminders are paused.';
+    return '$mosque\'s Jama’ah reminders are paused.';
   }
 
   @override

@@ -427,6 +427,12 @@ void main() {
 
       await open(tester);
       expect(applied(), ThemeMode.system);
+      expect(
+        tester.widget<MaterialApp>(find.byType(MaterialApp))
+            .themeAnimationDuration,
+        Duration.zero,
+        reason: 'the switch is instant, not a 200 ms blend of every colour',
+      );
       await openSettingsPage(tester);
 
       await tapText(tester, t.settingsTheme);

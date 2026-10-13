@@ -12,12 +12,28 @@ import '../data/settings_repository.dart';
 
 /// The theme the user chose in Settings → Appearance; the phone's own choice
 /// until they pick one, and while the settings are still being read.
-final themeModeProvider = Provider<ThemeMode>(
-  (ref) => switch (ref.watch(appSettingsProvider).value?.themeMode) {
-    AppThemeMode.light => ThemeMode.light,
-    AppThemeMode.dark => ThemeMode.dark,
-    AppThemeMode.system || null => ThemeMode.system,
-  },
+///
+/// [choose] applies the new theme on the tap itself and saves it after, so the
+/// switch never waits for the database round trip.
+class ThemeModeController extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() =>
+      _toThemeMode(ref.watch(appSettingsProvider).value?.themeMode);
+
+  Future<void> choose(AppThemeMode mode) async {
+    state = _toThemeMode(mode);
+    await ref.read(settingsRepositoryProvider).setThemeMode(mode);
+  }
+}
+
+ThemeMode _toThemeMode(AppThemeMode? mode) => switch (mode) {
+  AppThemeMode.light => ThemeMode.light,
+  AppThemeMode.dark => ThemeMode.dark,
+  AppThemeMode.system || null => ThemeMode.system,
+};
+
+final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
+  ThemeModeController.new,
 );
 
 class JamaahApp extends ConsumerWidget {
@@ -35,6 +51,10 @@ class JamaahApp extends ConsumerWidget {
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             themeMode: themeMode,
+            // Switch at once. Blending every colour of the app over 200 ms, while
+            // the sheet that chose the theme is still closing, is what made the
+            // switch feel laggy.
+            themeAnimationDuration: Duration.zero,
             debugShowCheckedModeBanner: false,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,

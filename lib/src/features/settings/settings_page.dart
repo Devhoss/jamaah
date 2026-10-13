@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/app.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/location_follower.dart';
@@ -271,7 +272,7 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
     if (chosen == null || chosen == current) return;
-    await ref.read(settingsRepositoryProvider).setThemeMode(chosen);
+    await ref.read(themeModeProvider.notifier).choose(chosen);
   }
 
   Future<void> _chooseDefaultSound(
