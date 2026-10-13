@@ -41,3 +41,17 @@ has no listener, so a test that waits for a setting to change must actually watc
   after moving time or writing settings.
 - Anything the user can reach by tapping a permission denial needs the failure path
   tested with a fake behind the interface, never with a real plugin call.
+- `features/mosques/` runs on a phone-sized surface (360 x 800). Lower rows are off
+  screen there, as on the device, so its `reveal`/`tapText` helpers scroll first.
+  The time picker is answered through `iqamaTimePickerProvider` instead of driving
+  the platform dial.
+
+## The watched-query note
+
+A drift `watch()` on a query used only as a "something changed" trigger
+(`SELECT 1`, whose result never changes) delivered the first change through
+Riverpod's `StreamProvider` and then went silent: a raw subscription saw every
+change, the provider did not. The likely cause is drift's comparison of a re-read
+with the cached result. Either way, the second edit never reached the screen. `MosqueRepository.watchSaved()` listens to
+`tableUpdates` instead; `test/features/mosques/` adds two mosques in a row to keep it
+honest.

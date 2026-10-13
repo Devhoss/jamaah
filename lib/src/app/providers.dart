@@ -6,6 +6,7 @@ import '../data/mosque_repository.dart';
 import '../data/settings_repository.dart';
 import '../domain/mosque.dart';
 import '../domain/place.dart';
+import '../domain/time_model.dart';
 import '../domain/prayer_times_calculator.dart';
 import '../domain/today.dart';
 import '../domain/zone_offsets.dart';
@@ -113,6 +114,24 @@ final activeMosqueProvider = Provider<Mosque?>((ref) {
     if (mosque.id == id) return mosque;
   }
   return null;
+});
+
+/// One saved mosque, followed live: an Iqama edit or a rename re-emits it, and a
+/// removed mosque reads as null.
+final mosqueByIdProvider = Provider.family<Mosque?, String>((ref, id) {
+  for (final mosque in ref.watch(savedMosquesProvider).value ??
+      const <Mosque>[]) {
+    if (mosque.id == id) return mosque;
+  }
+  return null;
+});
+
+/// The calendar day a mosque's schedule is read for: the saved place's day when
+/// there is one, otherwise the device's own.
+final scheduleDayProvider = Provider<LocalDay>((ref) {
+  final placeDay = ref.watch(todayProvider)?.day.day;
+  if (placeDay != null) return placeDay;
+  return LocalDay.fromDateTime(ref.watch(minuteClockProvider).toLocal());
 });
 
 /// The Iqama schedule in force on the day the rows show, belonging to the active

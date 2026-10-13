@@ -28,11 +28,15 @@ import '../location/place_copy.dart';
 /// The screen owns no state of its own: settings, mosques and the clock all arrive
 /// through providers, which is what lets each state below be driven from a test.
 class TodayScreen extends ConsumerWidget {
-  const TodayScreen({this.onOpenMosques, super.key});
+  const TodayScreen({this.onOpenMosques, this.onOpenMosque, super.key});
 
   /// Where the mosque prompts lead. The shell owns the destination, so the screen
   /// only asks for it; without a shell the prompts simply are not tappable.
   final VoidCallback? onOpenMosques;
+
+  /// Opens one mosque, for the "tap to set" prompt: the times are entered on the
+  /// mosque itself. Falls back to [onOpenMosques] when not given.
+  final ValueChanged<String>? onOpenMosque;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,9 +96,13 @@ class TodayScreen extends ConsumerWidget {
             clock: clock,
           ),
           _MosquePrompt(
+            // Until the saved mosques have been read there is nothing honest to
+            // say: "Add your mosque" would be wrong for a user who has one.
+            loading: !ref.watch(savedMosquesProvider).hasValue,
             mosque: ref.watch(activeMosqueProvider),
             schedule: schedule,
             onOpenMosques: onOpenMosques,
+            onOpenMosque: onOpenMosque,
           ),
           AppSectionHeader(l10n.todaySectionTimes),
           _PrayerRows(today: today, schedule: schedule, clock: clock),
@@ -309,18 +317,23 @@ String _countdown(AppLocalizations l10n, int minutes) =>
 /// A mosque that already has Iqama times gets no prompt: the card shows them.
 class _MosquePrompt extends StatelessWidget {
   const _MosquePrompt({
+    required this.loading,
     required this.mosque,
     required this.schedule,
     required this.onOpenMosques,
+    required this.onOpenMosque,
   });
 
+  final bool loading;
   final Mosque? mosque;
   final Schedule? schedule;
   final VoidCallback? onOpenMosques;
+  final ValueChanged<String>? onOpenMosque;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (loading) return const SizedBox(height: AppSpace.sm);
     if (mosque == null) {
       return AppPrompt(
         onTap: onOpenMosques,
@@ -338,8 +351,11 @@ class _MosquePrompt extends StatelessWidget {
       return const SizedBox(height: AppSpace.sm);
     }
 
+    final openThisMosque = onOpenMosque;
     return AppPrompt(
-      onTap: onOpenMosques,
+      onTap: openThisMosque == null
+          ? onOpenMosques
+          : () => openThisMosque(mosque!.id),
       children: [
         Text(
           l10n.mosqueHasNoIqama(mosque!.name),

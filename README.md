@@ -142,15 +142,41 @@ The first screen the user sees, and the only one that reads the stored place.
   notifications are not built yet, and nothing here claims a schedule exists.
 - A time the high-latitude rule moved is annotated; a day it cannot compute (polar)
   is a calm message, not a blank screen.
-- Bottom navigation: Today / Mosques / Qibla, plus the gear from the prototype. The
-  two unbuilt tabs say so instead of showing fake content.
+- Bottom navigation: Today / Mosques / Qibla, plus the gear from the prototype.
+  Qibla is not built yet and says so instead of showing fake content. The "Add your
+  mosque" prompt opens the Mosques tab; "tap to set" opens that mosque's schedule.
 - The minute ticker runs in the foreground only; on resume the day is re-read, so a
   launch after midnight shows the new one.
+
+
+## Mosques and Iqama times
+
+- The Mosques tab lists saved mosques with an **Active** tag and how much of the
+  schedule is entered ("Iqama set", "2 of 5 Iqama set", "Iqama not configured").
+  There is no sample data. "Find nearby mosques" is visible but disabled until the
+  discovery step.
+- **Add a mosque manually** needs a name; the address is optional. The new mosque
+  opens with every Iqama time "Not configured", and the first one saved becomes
+  active, as in the prototype.
+- A mosque's page lists Fajr, Dhuhr, Asr, Maghrib and Isha (never Sunrise). Each row
+  shows the day's Adhan time as a small secondary line and the mosque's Iqama time or
+  "Not configured", plus a quick reminder switch that stays disabled until a time
+  exists. "Set by you · last updated <date>" comes from the injected clock.
+- The **Iqama editor** names the mosque and prayer, uses the device's time picker
+  (12/24-hour from the system), and saves nothing until Save. Reminders are 5, 10 or
+  15 minutes or Custom (whole minutes 1–120). The live summary reads "Maghrib ·
+  6:30 PM Iqama · Reminder at 6:20 PM", and says "before midnight" when the reminder
+  falls on the evening before an after-midnight Iqama. Clear returns the prayer to
+  "Not configured".
+- Reminders are stored settings only; the copy says notifications arrive later.
+- Removing a mosque asks first. Removing the active one leaves no mosque active.
+- Today follows every change at once: `MosqueRepository.watchSaved()` re-reads on
+  drift's table-update notifications for mosques, schedules and Iqama entries.
 
 ## Tests
 
 ```bash
-flutter test       # 285 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 313 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze
@@ -172,7 +198,7 @@ recording replaces it.
 
 Nothing ships until its step is done. Built so far: the domain layer, the drift
 storage layer with its repositories, the location flow (device coarse location plus
-the placeholder city list), and the Today screen with its bottom navigation. The
-remaining build order is mosque and Iqama → discovery → notifications and sound →
-Settings → Qibla. The mosque and Iqama step writes through `MosqueRepository`, which
-is already tested; Mosques and Qibla currently show honest "comes next" states.
+the placeholder city list), the Today screen with its bottom navigation, and the
+Mosques tab with the Iqama editor. The remaining build order is discovery →
+notifications and sound → Settings → Qibla. Qibla and Settings currently show honest
+"comes later" states, and "Find nearby mosques" is disabled until discovery.

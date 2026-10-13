@@ -214,10 +214,10 @@ class AppTag extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final (background, foreground) = switch (tone) {
       AppTagTone.neutral => (scheme.primaryContainer, scheme.onPrimaryContainer),
-      AppTagTone.warning => (
-        AppColors.lightWarnBg,
-        AppColors.lightWarnInk,
-      ),
+      AppTagTone.warning =>
+        Theme.of(context).brightness == Brightness.dark
+            ? (AppColors.darkWarnBg, AppColors.darkWarnInk)
+            : (AppColors.lightWarnBg, AppColors.lightWarnInk),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

@@ -394,18 +394,6 @@ abstract class AppLocalizations {
   /// **'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.'**
   String get aboutBody;
 
-  /// Honest empty state on the Mosques tab. The tab exists so the bar matches the app being built; the copy says the feature does not.
-  ///
-  /// In en, this message translates to:
-  /// **'Mosques come next'**
-  String get mosquesComingTitle;
-
-  /// No description provided for @mosquesComingBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Adding a mosque and entering its Iqama times is the step after this one. Today already works without a mosque, and no time here is ever guessed.'**
-  String get mosquesComingBody;
-
   /// No description provided for @qiblaComingTitle.
   ///
   /// In en, this message translates to:
@@ -561,6 +549,334 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Prayer times for {place}'**
   String currentPlaceLabel(String place);
+
+  /// No description provided for @mosquesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosques'**
+  String get mosquesTitle;
+
+  /// No description provided for @mosquesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama times belong to each mosque.'**
+  String get mosquesSubtitle;
+
+  /// No description provided for @findNearbyMosques.
+  ///
+  /// In en, this message translates to:
+  /// **'Find nearby mosques'**
+  String get findNearbyMosques;
+
+  /// Under the disabled Find nearby button. Discovery is not built; never show a fake result list.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding mosques near you comes in a later step. For now, add your mosque by hand.'**
+  String get findNearbyLater;
+
+  /// No description provided for @addMosqueManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a mosque manually'**
+  String get addMosqueManually;
+
+  /// No description provided for @savedMosquesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedMosquesHeader;
+
+  /// No description provided for @noSavedMosques.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved mosques yet. Add your mosque, then enter its Iqama times.'**
+  String get noSavedMosques;
+
+  /// Tag on the mosque whose Iqama times Today shows and reminders use.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get tagActive;
+
+  /// No description provided for @iqamaStatusAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama set'**
+  String get iqamaStatusAll;
+
+  /// No description provided for @iqamaStatusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} Iqama set'**
+  String iqamaStatusPartial(int count, int total);
+
+  /// No description provided for @iqamaStatusNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama not configured'**
+  String get iqamaStatusNone;
+
+  /// Where the mosque came from. There is no verification; label by source only.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get mosqueSourceManual;
+
+  /// No description provided for @mosqueSourceGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'From Google Maps'**
+  String get mosqueSourceGoogle;
+
+  /// No description provided for @mosqueSourceOsm.
+  ///
+  /// In en, this message translates to:
+  /// **'From OpenStreetMap'**
+  String get mosqueSourceOsm;
+
+  /// No description provided for @addMosqueSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a mosque'**
+  String get addMosqueSheetTitle;
+
+  /// No description provided for @addMosqueSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its Iqama schedule starts as “Not configured”. You enter the times.'**
+  String get addMosqueSheetBody;
+
+  /// No description provided for @mosqueNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosque name'**
+  String get mosqueNameLabel;
+
+  /// No description provided for @mosqueAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address or area (optional)'**
+  String get mosqueAddressLabel;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @setAsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as active'**
+  String get setAsActive;
+
+  /// No description provided for @activeMosqueNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Today and Iqama reminders use this mosque.'**
+  String get activeMosqueNote;
+
+  /// No description provided for @editDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editDetails;
+
+  /// No description provided for @editMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit mosque'**
+  String get editMosqueTitle;
+
+  /// No description provided for @iqamaScheduleHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama schedule · {mosque}'**
+  String iqamaScheduleHeader(String mosque);
+
+  /// Secondary line on an Iqama row. Adhan and Iqama stay visibly separate.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan {time}'**
+  String rowAdhanTime(String time);
+
+  /// No description provided for @rowReminderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder at {time}'**
+  String rowReminderAt(String time);
+
+  /// The Iqama is just after midnight and the reminder falls on the evening before it.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder at {time}, before midnight'**
+  String rowReminderBeforeMidnight(String time);
+
+  /// No description provided for @rowReminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder off'**
+  String get rowReminderOff;
+
+  /// No description provided for @rowReminderNeedsIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an Iqama time to add a reminder'**
+  String get rowReminderNeedsIqama;
+
+  /// No description provided for @reminderSwitchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Iqama reminder'**
+  String reminderSwitchLabel(String prayer);
+
+  /// No description provided for @scheduleSetByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Set by you · last updated {date}'**
+  String scheduleSetByYou(String date);
+
+  /// No description provided for @scheduleNothingEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'No Iqama times entered yet. Tap a prayer to set one.'**
+  String get scheduleNothingEntered;
+
+  /// No description provided for @iqamaScheduleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a prayer to edit. Iqama times are entered by you for this mosque and never taken from Adhan times. Sunrise has no Iqama.'**
+  String get iqamaScheduleNote;
+
+  /// No description provided for @removeMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove mosque'**
+  String get removeMosque;
+
+  /// No description provided for @removeMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {mosque}?'**
+  String removeMosqueTitle(String mosque);
+
+  /// No description provided for @removeMosqueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its Iqama times will be deleted from this device.'**
+  String get removeMosqueBody;
+
+  /// No description provided for @removeMosqueBodyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Its Iqama times will be deleted from this device. It is your active mosque, so Today will show no mosque until you choose another.'**
+  String get removeMosqueBodyActive;
+
+  /// No description provided for @iqamaEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Iqama'**
+  String iqamaEditorTitle(String prayer);
+
+  /// No description provided for @iqamaEditorEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Editing {mosque}'**
+  String iqamaEditorEditing(String mosque);
+
+  /// No description provided for @iqamaChooseTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a time'**
+  String get iqamaChooseTime;
+
+  /// No description provided for @iqamaTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama time'**
+  String get iqamaTimeLabel;
+
+  /// No description provided for @remindMeBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me before Iqama'**
+  String get remindMeBefore;
+
+  /// No description provided for @reminderNeedsTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an Iqama time first.'**
+  String get reminderNeedsTime;
+
+  /// No description provided for @reminderMinutesChip.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String reminderMinutesChip(int minutes);
+
+  /// No description provided for @reminderCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get reminderCustom;
+
+  /// No description provided for @reminderCustomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes before (1–120)'**
+  String get reminderCustomLabel;
+
+  /// No description provided for @reminderCustomEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how many minutes before Iqama.'**
+  String get reminderCustomEmpty;
+
+  /// No description provided for @reminderCustomNotWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'Use whole minutes, like 20.'**
+  String get reminderCustomNotWhole;
+
+  /// No description provided for @reminderCustomOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose between 1 and 120 minutes.'**
+  String get reminderCustomOutOfRange;
+
+  /// No description provided for @summaryNoTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an Iqama time to see the reminder summary.'**
+  String get summaryNoTime;
+
+  /// No description provided for @summaryReminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · {time} Iqama · Reminder off'**
+  String summaryReminderOff(String prayer, String time);
+
+  /// No description provided for @summaryReminderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · {time} Iqama · Reminder at {reminder}'**
+  String summaryReminderAt(String prayer, String time, String reminder);
+
+  /// Iqama just after midnight; the reminder is on the evening before. Must not read as the same calendar day.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · {time} Iqama · Reminder at {reminder}, before midnight'**
+  String summaryReminderBeforeMidnight(
+    String prayer,
+    String time,
+    String reminder,
+  );
+
+  /// No description provided for @clearIqamaTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Iqama time'**
+  String get clearIqamaTime;
 }
 
 class _AppLocalizationsDelegate

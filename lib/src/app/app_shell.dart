@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/components/app_widgets.dart';
+import '../features/mosques/mosque_detail_page.dart';
+import '../features/mosques/mosques_screen.dart';
 import '../features/today/today_screen.dart';
 import 'branding.g.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -11,9 +13,9 @@ import 'theme/tokens.dart';
 /// underneath.
 ///
 /// Which tab is showing is nobody's business but the shell's, so it is local state
-/// rather than a provider; the screens themselves stay unaware of each other. Two of
-/// the three tabs are honest empty states — their features come in later steps, and
-/// AGENTS.md would rather say so than show a screen that pretends to work.
+/// rather than a provider; the screens themselves stay unaware of each other. Qibla
+/// is still an honest empty state — its feature comes in a later step, and AGENTS.md
+/// would rather say so than show a screen that pretends to work.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
@@ -52,11 +54,11 @@ class _AppShellState extends ConsumerState<AppShell> {
         ],
       ),
       body: switch (_tab) {
-        0 => TodayScreen(onOpenMosques: () => _goTo(1)),
-        1 => _ComingSoon(
-          title: l10n.mosquesComingTitle,
-          body: l10n.mosquesComingBody,
+        0 => TodayScreen(
+          onOpenMosques: () => _goTo(1),
+          onOpenMosque: (id) => openMosqueDetail(context, id),
         ),
+        1 => const MosquesScreen(),
         _ => _ComingSoon(title: l10n.qiblaComingTitle, body: l10n.qiblaComingBody),
       },
       bottomNavigationBar: NavigationBar(

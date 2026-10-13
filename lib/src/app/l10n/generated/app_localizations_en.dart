@@ -186,13 +186,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.';
 
   @override
-  String get mosquesComingTitle => 'Mosques come next';
-
-  @override
-  String get mosquesComingBody =>
-      'Adding a mosque and entering its Iqama times is the step after this one. Today already works without a mosque, and no time here is ever guessed.';
-
-  @override
   String get qiblaComingTitle => 'Qibla comes later';
 
   @override
@@ -282,4 +275,206 @@ class AppLocalizationsEn extends AppLocalizations {
   String currentPlaceLabel(String place) {
     return 'Prayer times for $place';
   }
+
+  @override
+  String get mosquesTitle => 'Mosques';
+
+  @override
+  String get mosquesSubtitle => 'Iqama times belong to each mosque.';
+
+  @override
+  String get findNearbyMosques => 'Find nearby mosques';
+
+  @override
+  String get findNearbyLater =>
+      'Finding mosques near you comes in a later step. For now, add your mosque by hand.';
+
+  @override
+  String get addMosqueManually => 'Add a mosque manually';
+
+  @override
+  String get savedMosquesHeader => 'Saved';
+
+  @override
+  String get noSavedMosques =>
+      'No saved mosques yet. Add your mosque, then enter its Iqama times.';
+
+  @override
+  String get tagActive => 'Active';
+
+  @override
+  String get iqamaStatusAll => 'Iqama set';
+
+  @override
+  String iqamaStatusPartial(int count, int total) {
+    return '$count of $total Iqama set';
+  }
+
+  @override
+  String get iqamaStatusNone => 'Iqama not configured';
+
+  @override
+  String get mosqueSourceManual => 'Added by you';
+
+  @override
+  String get mosqueSourceGoogle => 'From Google Maps';
+
+  @override
+  String get mosqueSourceOsm => 'From OpenStreetMap';
+
+  @override
+  String get addMosqueSheetTitle => 'Add a mosque';
+
+  @override
+  String get addMosqueSheetBody =>
+      'Its Iqama schedule starts as “Not configured”. You enter the times.';
+
+  @override
+  String get mosqueNameLabel => 'Mosque name';
+
+  @override
+  String get mosqueAddressLabel => 'Address or area (optional)';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get setAsActive => 'Set as active';
+
+  @override
+  String get activeMosqueNote => 'Today and Iqama reminders use this mosque.';
+
+  @override
+  String get editDetails => 'Edit details';
+
+  @override
+  String get editMosqueTitle => 'Edit mosque';
+
+  @override
+  String iqamaScheduleHeader(String mosque) {
+    return 'Iqama schedule · $mosque';
+  }
+
+  @override
+  String rowAdhanTime(String time) {
+    return 'Adhan $time';
+  }
+
+  @override
+  String rowReminderAt(String time) {
+    return 'Reminder at $time';
+  }
+
+  @override
+  String rowReminderBeforeMidnight(String time) {
+    return 'Reminder at $time, before midnight';
+  }
+
+  @override
+  String get rowReminderOff => 'Reminder off';
+
+  @override
+  String get rowReminderNeedsIqama => 'Set an Iqama time to add a reminder';
+
+  @override
+  String reminderSwitchLabel(String prayer) {
+    return '$prayer Iqama reminder';
+  }
+
+  @override
+  String scheduleSetByYou(String date) {
+    return 'Set by you · last updated $date';
+  }
+
+  @override
+  String get scheduleNothingEntered =>
+      'No Iqama times entered yet. Tap a prayer to set one.';
+
+  @override
+  String get iqamaScheduleNote =>
+      'Tap a prayer to edit. Iqama times are entered by you for this mosque and never taken from Adhan times. Sunrise has no Iqama.';
+
+  @override
+  String get removeMosque => 'Remove mosque';
+
+  @override
+  String removeMosqueTitle(String mosque) {
+    return 'Remove $mosque?';
+  }
+
+  @override
+  String get removeMosqueBody =>
+      'Its Iqama times will be deleted from this device.';
+
+  @override
+  String get removeMosqueBodyActive =>
+      'Its Iqama times will be deleted from this device. It is your active mosque, so Today will show no mosque until you choose another.';
+
+  @override
+  String iqamaEditorTitle(String prayer) {
+    return '$prayer Iqama';
+  }
+
+  @override
+  String iqamaEditorEditing(String mosque) {
+    return 'Editing $mosque';
+  }
+
+  @override
+  String get iqamaChooseTime => 'Choose a time';
+
+  @override
+  String get iqamaTimeLabel => 'Iqama time';
+
+  @override
+  String get remindMeBefore => 'Remind me before Iqama';
+
+  @override
+  String get reminderNeedsTime => 'Choose an Iqama time first.';
+
+  @override
+  String reminderMinutesChip(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get reminderCustom => 'Custom';
+
+  @override
+  String get reminderCustomLabel => 'Minutes before (1–120)';
+
+  @override
+  String get reminderCustomEmpty => 'Enter how many minutes before Iqama.';
+
+  @override
+  String get reminderCustomNotWhole => 'Use whole minutes, like 20.';
+
+  @override
+  String get reminderCustomOutOfRange => 'Choose between 1 and 120 minutes.';
+
+  @override
+  String get summaryNoTime =>
+      'Choose an Iqama time to see the reminder summary.';
+
+  @override
+  String summaryReminderOff(String prayer, String time) {
+    return '$prayer · $time Iqama · Reminder off';
+  }
+
+  @override
+  String summaryReminderAt(String prayer, String time, String reminder) {
+    return '$prayer · $time Iqama · Reminder at $reminder';
+  }
+
+  @override
+  String summaryReminderBeforeMidnight(
+    String prayer,
+    String time,
+    String reminder,
+  ) {
+    return '$prayer · $time Iqama · Reminder at $reminder, before midnight';
+  }
+
+  @override
+  String get clearIqamaTime => 'Clear Iqama time';
 }

@@ -11,6 +11,16 @@ abstract final class AppTheme {
     colorScheme: const ColorScheme.light(
       primary: AppColors.lightPrimary,
       onPrimary: AppColors.onPrimary,
+      // Set explicitly: left out, Material falls back to its teal (#03DAC6), which
+      // then fills selected chips and the time picker's AM/PM toggle.
+      secondary: AppColors.lightPrimary,
+      onSecondary: AppColors.onPrimary,
+      secondaryContainer: AppColors.lightSage,
+      onSecondaryContainer: AppColors.lightInk,
+      tertiary: AppColors.lightPrimary,
+      onTertiary: AppColors.onPrimary,
+      tertiaryContainer: AppColors.lightSage,
+      onTertiaryContainer: AppColors.lightInk,
       surface: AppColors.lightSurface,
       onSurface: AppColors.lightInk,
       error: AppColors.lightDestructive,
@@ -30,6 +40,16 @@ abstract final class AppTheme {
     colorScheme: const ColorScheme.dark(
       primary: AppColors.darkPrimary,
       onPrimary: AppColors.onPrimary,
+      // Set explicitly: left out, Material falls back to its teal (#03DAC6), which
+      // then fills selected chips and the time picker's AM/PM toggle.
+      secondary: AppColors.darkPrimary,
+      onSecondary: AppColors.onPrimary,
+      secondaryContainer: AppColors.darkSage,
+      onSecondaryContainer: AppColors.darkInk,
+      tertiary: AppColors.darkPrimary,
+      onTertiary: AppColors.onPrimary,
+      tertiaryContainer: AppColors.darkSage,
+      onTertiaryContainer: AppColors.darkInk,
       surface: AppColors.darkSurface,
       onSurface: AppColors.darkInk,
       error: AppColors.darkDestructive,

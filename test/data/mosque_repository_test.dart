@@ -395,6 +395,46 @@ void main() {
       return seen.sublist(before);
     }
 
+    test('watchSaved re-emits on every change, not just the first', () async {
+      final first = await mosques.add(
+        name: 'First',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      final afterSecond = await emissionsDuring(
+        () => mosques.add(name: 'Second', address: '', source: MosqueSource.manual),
+      );
+      expect(afterSecond.last, hasLength(2));
+
+      final afterEdit = await emissionsDuring(
+        () => mosques.setIqama(first.id, Prayer.isha, LocalTime.of(20, 0)),
+      );
+      expect(
+        afterEdit.last
+            .singleWhere((m) => m.id == first.id)
+            .schedules
+            .single
+            .iqamaFor(Prayer.isha)
+            .iqama,
+        LocalTime.of(20, 0),
+      );
+    });
+
+    test('one subscription sees a second change too', () async {
+      final seen = <List<Mosque>>[];
+      final sub = mosques.watchSaved().listen(seen.add);
+      await pumpEventQueue();
+
+      await mosques.add(name: 'First', address: '', source: MosqueSource.manual);
+      await pumpEventQueue();
+      await mosques.add(name: 'Second', address: '', source: MosqueSource.manual);
+      await pumpEventQueue();
+      await sub.cancel();
+
+      expect(seen.last, hasLength(2));
+    });
+
     test('watchSaved re-emits when an Iqama time changes', () async {
       final mosque = await mosques.add(
         name: 'Masjid al-Nasr',

@@ -634,6 +634,33 @@ void main() {
     expect(opened, 1);
   });
 
+  testApp('no mosque prompt while the saved mosques are still being read', (
+    tester,
+  ) async {
+    await settings.setLocation(cairo.toStored());
+    // A list that has not arrived yet: the stream never emits.
+    final pending = StreamController<List<Mosque>>();
+    addTearDown(pending.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        key: ValueKey('app-${++openings}'),
+        overrides: [
+          ...baseOverrides(),
+          savedMosquesProvider.overrideWith((ref) => pending.stream),
+        ],
+        child: appShell(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(t.addMosqueTitle),
+      findsNothing,
+      reason: 'a user who has a mosque must not be told to add one while it loads',
+    );
+    expect(find.text(t.todaySectionTimes.toUpperCase()), findsOneWidget);
+  });
+
   testApp('a mosque with no Iqama times asks to set them', (tester) async {
     await settings.setLocation(cairo.toStored());
     final mosque = await mosques.add(

@@ -114,19 +114,30 @@ void main() {
     );
   });
 
-  testApp('Mosques says what arrives next instead of showing an invented list', (
+  testApp('Mosques starts honestly empty instead of showing an invented list', (
     tester,
   ) async {
     await open(tester);
     await goTo(tester, t.tabMosques);
 
-    expect(find.text(t.mosquesComingTitle), findsOneWidget);
-    expect(find.text(t.mosquesComingBody), findsOneWidget);
+    expect(find.text(t.noSavedMosques), findsOneWidget);
     expect(
       find.byType(AppRow),
       findsNothing,
       reason: 'no mosque exists yet, so no row may look like one',
     );
+    final nearby = tester.widget<ButtonStyleButton>(
+      find.ancestor(
+        of: find.text(t.findNearbyMosques),
+        matching: find.bySubtype<ButtonStyleButton>(),
+      ),
+    );
+    expect(
+      nearby.onPressed,
+      isNull,
+      reason: 'discovery is a later step: visible, but leads nowhere fake',
+    );
+    expect(find.text(t.findNearbyLater), findsOneWidget);
   });
 
   testApp('Qibla says the same kind of truth, with no bearing on show', (
@@ -218,7 +229,7 @@ void main() {
     await tester.tap(find.text(t.addMosqueTitle));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.mosquesComingTitle), findsOneWidget);
+    expect(find.text(t.noSavedMosques), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       1,

@@ -66,4 +66,45 @@ void main() {
       );
     });
   }
+
+  testApp('the warning pill takes its dark-theme ink in the dark theme', (
+    tester,
+  ) async {
+    for (final (dark, bg, ink) in [
+      (false, AppColors.lightWarnBg, AppColors.lightWarnInk),
+      (true, AppColors.darkWarnBg, AppColors.darkWarnInk),
+    ]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: dark ? AppTheme.dark() : AppTheme.light(),
+          home: const Scaffold(
+            body: AppTag('Not configured', tone: AppTagTone.warning),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(pillInk(tester), (bg, ink), reason: dark ? 'dark' : 'light');
+    }
+  });
+
+  test('no theme falls back to the stock Material teal for secondary colours', () {
+    const stockTeal = Color(0xFF03DAC6);
+    for (final theme in [AppTheme.light(), AppTheme.dark()]) {
+      final scheme = theme.colorScheme;
+      for (final color in [
+        scheme.secondary,
+        scheme.secondaryContainer,
+        scheme.tertiary,
+        scheme.tertiaryContainer,
+      ]) {
+        expect(
+          color,
+          isNot(stockTeal),
+          reason: 'selected chips and the time picker read these; the palette '
+              'has no teal (${theme.brightness})',
+        );
+      }
+      expect(scheme.secondaryContainer, isIn([AppColors.lightSage, AppColors.darkSage]));
+    }
+  });
 }

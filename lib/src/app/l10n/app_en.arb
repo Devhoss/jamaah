@@ -150,11 +150,6 @@
     "description": "Screen-reader label for the bell on a row."
   },
   "aboutBody": "Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.",
-  "mosquesComingTitle": "Mosques come next",
-  "@mosquesComingTitle": {
-    "description": "Honest empty state on the Mosques tab. The tab exists so the bar matches the app being built; the copy says the feature does not."
-  },
-  "mosquesComingBody": "Adding a mosque and entering its Iqama times is the step after this one. Today already works without a mosque, and no time here is ever guessed.",
   "qiblaComingTitle": "Qibla comes later",
   "qiblaComingBody": "The direction of prayer is worked out on this device and gets its own screen after the mosque and reminder steps. No bearing is shown until it has been measured.",
   "settingsComingTitle": "Settings come later",
@@ -200,5 +195,147 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mosquesTitle": "Mosques",
+  "mosquesSubtitle": "Iqama times belong to each mosque.",
+  "findNearbyMosques": "Find nearby mosques",
+  "findNearbyLater": "Finding mosques near you comes in a later step. For now, add your mosque by hand.",
+  "@findNearbyLater": {
+    "description": "Under the disabled Find nearby button. Discovery is not built; never show a fake result list."
+  },
+  "addMosqueManually": "Add a mosque manually",
+  "savedMosquesHeader": "Saved",
+  "noSavedMosques": "No saved mosques yet. Add your mosque, then enter its Iqama times.",
+  "tagActive": "Active",
+  "@tagActive": {
+    "description": "Tag on the mosque whose Iqama times Today shows and reminders use."
+  },
+  "iqamaStatusAll": "Iqama set",
+  "iqamaStatusPartial": "{count} of {total} Iqama set",
+  "@iqamaStatusPartial": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "iqamaStatusNone": "Iqama not configured",
+  "mosqueSourceManual": "Added by you",
+  "mosqueSourceGoogle": "From Google Maps",
+  "mosqueSourceOsm": "From OpenStreetMap",
+  "@mosqueSourceManual": {
+    "description": "Where the mosque came from. There is no verification; label by source only."
+  },
+  "addMosqueSheetTitle": "Add a mosque",
+  "addMosqueSheetBody": "Its Iqama schedule starts as “Not configured”. You enter the times.",
+  "mosqueNameLabel": "Mosque name",
+  "mosqueAddressLabel": "Address or area (optional)",
+  "add": "Add",
+  "setAsActive": "Set as active",
+  "activeMosqueNote": "Today and Iqama reminders use this mosque.",
+  "editDetails": "Edit details",
+  "editMosqueTitle": "Edit mosque",
+  "iqamaScheduleHeader": "Iqama schedule · {mosque}",
+  "@iqamaScheduleHeader": {
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "rowAdhanTime": "Adhan {time}",
+  "@rowAdhanTime": {
+    "description": "Secondary line on an Iqama row. Adhan and Iqama stay visibly separate.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "rowReminderAt": "Reminder at {time}",
+  "@rowReminderAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "rowReminderBeforeMidnight": "Reminder at {time}, before midnight",
+  "@rowReminderBeforeMidnight": {
+    "description": "The Iqama is just after midnight and the reminder falls on the evening before it.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "rowReminderOff": "Reminder off",
+  "rowReminderNeedsIqama": "Set an Iqama time to add a reminder",
+  "reminderSwitchLabel": "{prayer} Iqama reminder",
+  "@reminderSwitchLabel": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "scheduleSetByYou": "Set by you · last updated {date}",
+  "@scheduleSetByYou": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "scheduleNothingEntered": "No Iqama times entered yet. Tap a prayer to set one.",
+  "iqamaScheduleNote": "Tap a prayer to edit. Iqama times are entered by you for this mosque and never taken from Adhan times. Sunrise has no Iqama.",
+  "removeMosque": "Remove mosque",
+  "removeMosqueTitle": "Remove {mosque}?",
+  "@removeMosqueTitle": {
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "removeMosqueBody": "Its Iqama times will be deleted from this device.",
+  "removeMosqueBodyActive": "Its Iqama times will be deleted from this device. It is your active mosque, so Today will show no mosque until you choose another.",
+  "iqamaEditorTitle": "{prayer} Iqama",
+  "@iqamaEditorTitle": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "iqamaEditorEditing": "Editing {mosque}",
+  "@iqamaEditorEditing": {
+    "placeholders": {
+      "mosque": { "type": "String" }
+    }
+  },
+  "iqamaChooseTime": "Choose a time",
+  "iqamaTimeLabel": "Iqama time",
+  "remindMeBefore": "Remind me before Iqama",
+  "reminderNeedsTime": "Choose an Iqama time first.",
+  "reminderMinutesChip": "{minutes} min",
+  "@reminderMinutesChip": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "reminderCustom": "Custom",
+  "reminderCustomLabel": "Minutes before (1–120)",
+  "reminderCustomEmpty": "Enter how many minutes before Iqama.",
+  "reminderCustomNotWhole": "Use whole minutes, like 20.",
+  "reminderCustomOutOfRange": "Choose between 1 and 120 minutes.",
+  "summaryNoTime": "Choose an Iqama time to see the reminder summary.",
+  "summaryReminderOff": "{prayer} · {time} Iqama · Reminder off",
+  "@summaryReminderOff": {
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "summaryReminderAt": "{prayer} · {time} Iqama · Reminder at {reminder}",
+  "@summaryReminderAt": {
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "time": { "type": "String" },
+      "reminder": { "type": "String" }
+    }
+  },
+  "summaryReminderBeforeMidnight": "{prayer} · {time} Iqama · Reminder at {reminder}, before midnight",
+  "@summaryReminderBeforeMidnight": {
+    "description": "Iqama just after midnight; the reminder is on the evening before. Must not read as the same calendar day.",
+    "placeholders": {
+      "prayer": { "type": "String" },
+      "time": { "type": "String" },
+      "reminder": { "type": "String" }
+    }
+  },
+  "clearIqamaTime": "Clear Iqama time"
 }
