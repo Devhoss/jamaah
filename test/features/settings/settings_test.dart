@@ -378,6 +378,33 @@ void main() {
     });
   });
 
+  group('appearance', () {
+    testApp('the theme follows the phone until the user picks one', (
+      tester,
+    ) async {
+      ThemeMode applied() =>
+          tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode!;
+
+      await open(tester);
+      expect(applied(), ThemeMode.system);
+      await openSettingsPage(tester);
+
+      await tapText(tester, t.settingsTheme);
+      await tapText(tester, t.themeLight);
+      expect((await settings.read()).themeMode, AppThemeMode.light);
+      expect(applied(), ThemeMode.light);
+      expect(find.text(t.themeLight), findsOneWidget);
+
+      await tapText(tester, t.settingsTheme);
+      await tapText(tester, t.themeDark);
+      expect(applied(), ThemeMode.dark);
+      expect(
+        Theme.of(tester.element(find.byType(SettingsPage))).brightness,
+        Brightness.dark,
+      );
+    });
+  });
+
   group('pausing Iqama reminders', () {
     testApp('pause all is one switch, and Today says it is on', (
       tester,

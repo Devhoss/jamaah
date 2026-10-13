@@ -170,26 +170,38 @@ class AdhanAlert {
 
 /// Reminder and travel preferences that are not per prayer.
 ///
+/// [travelMode] (2026-10-13) is one switch, on the top bar and in Settings, that
+/// turns on the travel options; today that is [followLocation], and more may
+/// join it. An option only acts while travel mode is on.
+///
 /// [pauseAllIqamaReminders] (2026-10-13) stops every Iqama reminder at once;
 /// each mosque can also be paused on its own ([Mosque.remindersPaused]). Adhan
 /// alerts are never paused by either.
 class TravelSettings {
   const TravelSettings({
-    this.followLocation = false,
+    this.travelMode = false,
+    this.followLocation = true,
     this.pauseAllIqamaReminders = false,
   });
 
-  /// Refresh the place from the device when the app opens.
+  final bool travelMode;
+
+  /// Travel option: refresh the place from the device when the app opens.
   final bool followLocation;
+
+  /// Whether the place follows the device right now.
+  bool get followsLocation => travelMode && followLocation;
 
   /// No Iqama reminders at all, whichever mosque is active. Iqama times and
   /// reminder settings are kept.
   final bool pauseAllIqamaReminders;
 
   TravelSettings copyWith({
+    bool? travelMode,
     bool? followLocation,
     bool? pauseAllIqamaReminders,
   }) => TravelSettings(
+    travelMode: travelMode ?? this.travelMode,
     followLocation: followLocation ?? this.followLocation,
     pauseAllIqamaReminders:
         pauseAllIqamaReminders ?? this.pauseAllIqamaReminders,
@@ -198,9 +210,11 @@ class TravelSettings {
   @override
   bool operator ==(Object other) =>
       other is TravelSettings &&
+      other.travelMode == travelMode &&
       other.followLocation == followLocation &&
       other.pauseAllIqamaReminders == pauseAllIqamaReminders;
 
   @override
-  int get hashCode => Object.hash(followLocation, pauseAllIqamaReminders);
+  int get hashCode =>
+      Object.hash(travelMode, followLocation, pauseAllIqamaReminders);
 }

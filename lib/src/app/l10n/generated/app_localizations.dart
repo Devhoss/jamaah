@@ -1541,8 +1541,74 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFollowLocationHint.
   ///
   /// In en, this message translates to:
-  /// **'When you open the app, your place updates to where you are, so times follow you between cities and time zones.'**
+  /// **'While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones.'**
   String get settingsFollowLocationHint;
+
+  /// No description provided for @settingsTravelMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel mode'**
+  String get settingsTravelMode;
+
+  /// No description provided for @settingsTravelModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns on the travel options below. The airplane at the top of the app switches it too.'**
+  String get settingsTravelModeHint;
+
+  /// No description provided for @travelModeTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on travel mode'**
+  String get travelModeTurnOn;
+
+  /// No description provided for @travelModeTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off travel mode'**
+  String get travelModeTurnOff;
+
+  /// No description provided for @travelModeOnSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel mode on'**
+  String get travelModeOnSnack;
+
+  /// No description provided for @travelModeOffSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel mode off'**
+  String get travelModeOffSnack;
+
+  /// No description provided for @settingsAppearanceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearanceSection;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the phone'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
 
   /// No description provided for @followDenied.
   ///

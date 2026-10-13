@@ -7,9 +7,9 @@ import '../domain/place_follow.dart';
 import 'clock.dart';
 import 'providers.dart';
 
-/// "Follow my location" (travel, decided 2026-10-13).
+/// "Follow my location" (travel, decided 2026-10-13), a travel-mode option.
 ///
-/// When it is on, the app reads the device's coarse location each time it opens
+/// While travel mode and the option are both on, the app reads the device's coarse location each time it opens
 /// or comes back, without ever showing a permission dialog at that moment, and
 /// replaces the saved place when the phone has moved to another city or time
 /// zone. The new place reaches everything through the settings stream, so prayer
@@ -30,7 +30,7 @@ class LocationFollower {
     _running = true;
     try {
       final snapshot = await _settings.read();
-      if (!snapshot.travel.followLocation) return;
+      if (!snapshot.travel.followsLocation) return;
       final reading = await _ref
           .read(placeSourceProvider)
           .currentPlaceIfAllowed();
@@ -40,22 +40,51 @@ class LocationFollower {
     }
   }
 
-  /// Turns following on, from the user's tap in Settings, so the permission
-  /// dialog may show now. Returns null when it worked, or why it did not; then
-  /// following stays off and nothing else changes.
-  Future<PlaceFailure?> enable() async {
+  /// Travel mode on or off, from the user's tap (top bar or Settings), so the
+  /// permission dialog may show now. Travel mode itself always switches; when
+  /// following cannot start, only that option goes off, and the reason is
+  /// returned for the screen to say.
+  Future<PlaceFailure?> setTravelMode(bool on) async {
+    final travel = (await _settings.read()).travel;
+    if (!on) {
+      await _settings.saveTravel(travel.copyWith(travelMode: false));
+      await _settings.markPlaceChecked(failed: false);
+      return null;
+    }
+    await _settings.saveTravel(travel.copyWith(travelMode: true));
+    return travel.followLocation ? _startFollowing() : null;
+  }
+
+  /// The "Follow my location" option, from the user's tap in Settings. With
+  /// travel mode off it is only remembered; with it on, following starts now.
+  Future<PlaceFailure?> setFollowLocation(bool on) async {
+    final travel = (await _settings.read()).travel;
+    if (!on) {
+      await _settings.saveTravel(travel.copyWith(followLocation: false));
+      await _settings.markPlaceChecked(failed: false);
+      return null;
+    }
+    if (!travel.travelMode) {
+      await _settings.saveTravel(travel.copyWith(followLocation: true));
+      return null;
+    }
+    return _startFollowing();
+  }
+
+  /// Asks for the place (the dialog may show). If the device says no, the
+  /// option goes off and nothing else changes.
+  Future<PlaceFailure?> _startFollowing() async {
     final reading = await _ref.read(placeSourceProvider).requestPlace();
-    if (reading case PlaceRejected(:final failure)) return failure;
     final snapshot = await _settings.read();
+    if (reading case PlaceRejected(:final failure)) {
+      await _settings.saveTravel(
+        snapshot.travel.copyWith(followLocation: false),
+      );
+      return failure;
+    }
     await _settings.saveTravel(snapshot.travel.copyWith(followLocation: true));
     await _apply(reading, saved: snapshot.location?.toPlace());
     return null;
-  }
-
-  Future<void> disable() async {
-    final snapshot = await _settings.read();
-    await _settings.saveTravel(snapshot.travel.copyWith(followLocation: false));
-    await _settings.markPlaceChecked(failed: false);
   }
 
   Future<void> _apply(PlaceReading reading, {required Place? saved}) async {

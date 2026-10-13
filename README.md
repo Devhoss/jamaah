@@ -228,6 +228,7 @@ regions read from the parameters the calculator uses), the **Asr method**
   Exact alarms: when Android denies them, timing falls back to inexact and the app
   says so. **Gear → Scheduled notifications** lists what the phone has actually
   scheduled, with both permissions and battery guidance.
+- **Gear → Settings → Appearance**: the theme (same as the phone, light or dark).
 - **Gear → Settings**: the default sound, and a page per prayer (Adhan alert,
   sound with preview, vibrate, ring in silent, reminder before the Adhan, a test
   notification). Changes save at once. Iqama reminders are only linked to the
@@ -246,7 +247,11 @@ regions read from the parameters the calculator uses), the **Asr method**
 
 ## Travel
 
-- **Follow my location** (Settings → Travel): each time the app opens or comes back,
+- **Travel mode** is one switch: the airplane beside the gear on the top bar, or
+  Settings → Travel. It turns on the travel options listed under it in Settings
+  (today only Follow my location; on by default). A user who already followed their
+  location starts with travel mode on.
+- **Follow my location** (a travel-mode option): each time the app opens or comes back,
   it reads the device's coarse location **without asking** (the permission is asked
   only when the switch is turned on) and replaces the saved place when the phone is
   more than 10 km away or in another time zone (`place_follow.dart`). The place,

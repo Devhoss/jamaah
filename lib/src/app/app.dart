@@ -6,28 +6,18 @@ import 'foreground_clock.dart';
 import 'location_follower.dart';
 import 'notification_scheduler.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'providers.dart';
 import 'theme/theme.dart';
+import '../data/settings_repository.dart';
 
-/// The device's own light/dark choice is the default, the same way its 12/24-hour
-/// choice is. Settings gets its own switch in step 6, and that switch overrules
-/// this — until then the app has no say.
-class ThemeModeController extends Notifier<ThemeMode> {
-  @override
-  ThemeMode build() => ThemeMode.system;
-
-  void setMode(ThemeMode mode) => state = mode;
-
-  void toggle() =>
-      state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-}
-
-final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
-  ThemeModeController.new,
-);
-
-/// True while the user picked dark mode.
-final isDarkThemeProvider = Provider<bool>(
-  (ref) => ref.watch(themeModeProvider) == ThemeMode.dark,
+/// The theme the user chose in Settings → Appearance; the phone's own choice
+/// until they pick one, and while the settings are still being read.
+final themeModeProvider = Provider<ThemeMode>(
+  (ref) => switch (ref.watch(appSettingsProvider).value?.themeMode) {
+    AppThemeMode.light => ThemeMode.light,
+    AppThemeMode.dark => ThemeMode.dark,
+    AppThemeMode.system || null => ThemeMode.system,
+  },
 );
 
 class JamaahApp extends ConsumerWidget {

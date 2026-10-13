@@ -77,7 +77,7 @@ void main() {
 
   testApp('Today says how fresh the followed place is', (tester) async {
     await settings.setLocation(devicePlace.toStored());
-    await settings.saveTravel(const TravelSettings(followLocation: true));
+    await settings.saveTravel(const TravelSettings(travelMode: true));
     await open(tester);
 
     expect(find.text(t.followingUpdated(t.agoJustNow)), findsOneWidget);
@@ -87,7 +87,7 @@ void main() {
     tester,
   ) async {
     await settings.setLocation(devicePlace.toStored());
-    await settings.saveTravel(const TravelSettings(followLocation: true));
+    await settings.saveTravel(const TravelSettings(travelMode: true));
     await settings.markPlaceChecked(
       at: now.subtract(const Duration(hours: 6)),
       failed: false,
@@ -113,10 +113,30 @@ void main() {
     await open(tester);
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
-    await tapText(tester, t.settingsFollowLocation);
+    await tapText(tester, t.settingsTravelMode);
 
     expect(find.text(t.followDenied), findsOneWidget);
-    expect((await settings.read()).travel.followLocation, isFalse);
+    final travel = (await settings.read()).travel;
+    expect(travel.travelMode, isTrue);
+    expect(travel.followLocation, isFalse);
+  });
+
+  testApp('the airplane on the top bar switches travel mode', (tester) async {
+    await settings.setLocation(cairo.toStored());
+    source.reading = const PlaceFound(devicePlace);
+    await open(tester);
+
+    await tester.tap(find.byTooltip(t.travelModeTurnOn));
+    await tester.pumpAndSettle();
+    expect((await settings.read()).travel.travelMode, isTrue);
+    expect(find.text(t.travelModeOnSnack), findsOneWidget);
+    expect(find.textContaining('Following your location'), findsOneWidget);
+
+    await tester.tap(find.byTooltip(t.travelModeTurnOff));
+    await tester.pumpAndSettle();
+    expect((await settings.read()).travel.travelMode, isFalse);
+    expect(find.text(t.travelModeOffSnack), findsOneWidget);
+    expect(find.textContaining('Following your location'), findsNothing);
   });
 
   testApp('previewing another city shows its times and moves nothing', (

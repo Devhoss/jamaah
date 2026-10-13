@@ -18,6 +18,44 @@ import 'prayer_alert_page.dart';
 import 'prayer_time_settings.dart';
 import 'scheduled_notifications_page.dart';
 
+String themeModeName(AppLocalizations l10n, AppThemeMode mode) =>
+    switch (mode) {
+      AppThemeMode.system => l10n.themeSystem,
+      AppThemeMode.light => l10n.themeLight,
+      AppThemeMode.dark => l10n.themeDark,
+    };
+
+String followFailure(AppLocalizations l10n, PlaceFailure failure) =>
+    failure == PlaceFailure.denied || failure == PlaceFailure.permanentlyDenied
+    ? l10n.followDenied
+    : l10n.followUnavailable;
+
+/// Travel mode on or off, from the top bar or Settings. The location dialog
+/// may show (following starts now); the outcome is said in a snack bar, since
+/// the top-bar button is only an icon.
+Future<void> setTravelMode(
+  BuildContext context,
+  WidgetRef ref,
+  bool on,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final l10n = AppLocalizations.of(context);
+  final failure = await ref.read(locationFollowerProvider).setTravelMode(on);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(
+          failure != null
+              ? followFailure(l10n, failure)
+              : on
+              ? l10n.travelModeOnSnack
+              : l10n.travelModeOffSnack,
+        ),
+      ),
+    );
+}
+
 Future<void> openSettings(BuildContext context) =>
     Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (_) => const SettingsPage()));
@@ -124,10 +162,33 @@ class SettingsPage extends ConsumerWidget {
           AppRows(
             children: [
               SwitchListTile(
+                secondary: Icon(
+                  travel.travelMode ? Icons.flight : Icons.flight_outlined,
+                ),
+                title: Text(l10n.settingsTravelMode),
+                subtitle: Text(l10n.settingsTravelModeHint),
+                value: travel.travelMode,
+                onChanged: (on) => setTravelMode(context, ref, on),
+              ),
+              SwitchListTile(
                 title: Text(l10n.settingsFollowLocation),
                 subtitle: Text(l10n.settingsFollowLocationHint),
                 value: travel.followLocation,
                 onChanged: (on) => _setFollow(context, ref, on),
+              ),
+            ],
+          ),
+          AppSectionHeader(l10n.settingsAppearanceSection),
+          AppRows(
+            children: [
+              AppRow(
+                leading: null,
+                onTap: () => _chooseTheme(context, ref, settings.themeMode),
+                title: _TwoLines(
+                  first: l10n.settingsTheme,
+                  second: themeModeName(l10n, settings.themeMode),
+                ),
+                trailing: Icon(Icons.chevron_right, color: ink.muted),
               ),
             ],
           ),
@@ -152,28 +213,54 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  /// Turning following on is the user's tap, so the location dialog may show
-  /// now; if the device says no, following stays off and the reason is shown.
+  /// The option is the user's tap, so the location dialog may show now; if the
+  /// device says no, the option stays off and the reason is shown.
   Future<void> _setFollow(BuildContext context, WidgetRef ref, bool on) async {
-    final follower = ref.read(locationFollowerProvider);
-    if (!on) {
-      await follower.disable();
-      return;
-    }
-    final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final failure = await follower.enable();
-    if (failure == null) return;
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          failure == PlaceFailure.denied ||
-                  failure == PlaceFailure.permanentlyDenied
-              ? l10n.followDenied
-              : l10n.followUnavailable,
+    final l10n = AppLocalizations.of(context);
+    final failure = await ref
+        .read(locationFollowerProvider)
+        .setFollowLocation(on);
+    if (failure != null) {
+      messenger.showSnackBar(SnackBar(content: Text(followFailure(l10n, failure))));
+    }
+  }
+
+  Future<void> _chooseTheme(
+    BuildContext context,
+    WidgetRef ref,
+    AppThemeMode current,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final chosen = await showModalBottomSheet<AppThemeMode>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: SingleChildScrollView(
+          child: RadioGroup<AppThemeMode>(
+            groupValue: current,
+            onChanged: (mode) => Navigator.of(sheetContext).pop(mode),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final mode in const [
+                  AppThemeMode.system,
+                  AppThemeMode.light,
+                  AppThemeMode.dark,
+                ])
+                  RadioListTile<AppThemeMode>(
+                    value: mode,
+                    title: Text(themeModeName(l10n, mode)),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
+    if (chosen == null || chosen == current) return;
+    await ref.read(settingsRepositoryProvider).setThemeMode(chosen);
   }
 
   Future<void> _chooseDefaultSound(

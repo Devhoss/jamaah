@@ -420,14 +420,53 @@ void main() {
       expect((await settings.read()).travel, const TravelSettings());
 
       const travel = TravelSettings(
+        travelMode: true,
         pauseAllIqamaReminders: true,
-        followLocation: true,
+        followLocation: false,
       );
       await settings.saveTravel(travel);
       expect((await settings.read()).travel, travel);
 
       await settings.saveTravel(const TravelSettings());
       expect((await settings.read()).travel, const TravelSettings());
+    });
+
+    test('someone who followed their location before starts in travel mode',
+        () async {
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.followLocation}', 'true')",
+      );
+      final travel = (await settings.read()).travel;
+      expect(travel.travelMode, isTrue);
+      expect(travel.followsLocation, isTrue);
+    });
+
+    test('someone who had turned following off keeps it off', () async {
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.followLocation}', 'false')",
+      );
+      final travel = (await settings.read()).travel;
+      expect(travel.travelMode, isFalse);
+      expect(travel.followLocation, isFalse);
+    });
+
+    test('the old Iqama-pause travel switch does not turn travel mode on',
+        () async {
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.travelMode}', 'true')",
+      );
+      expect((await settings.read()).travel.travelMode, isFalse);
+    });
+
+    test('the theme choice round-trips', () async {
+      expect((await settings.read()).themeMode, AppThemeMode.system);
+      for (final mode in AppThemeMode.values) {
+        await settings.setThemeMode(mode);
+        expect((await settings.read()).themeMode, mode);
+      }
     });
 
     test('a pause made under the old travel mode is still a pause', () async {

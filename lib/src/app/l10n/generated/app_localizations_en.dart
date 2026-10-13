@@ -888,7 +888,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsFollowLocationHint =>
-      'When you open the app, your place updates to where you are, so times follow you between cities and time zones.';
+      'While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones.';
+
+  @override
+  String get settingsTravelMode => 'Travel mode';
+
+  @override
+  String get settingsTravelModeHint =>
+      'Turns on the travel options below. The airplane at the top of the app switches it too.';
+
+  @override
+  String get travelModeTurnOn => 'Turn on travel mode';
+
+  @override
+  String get travelModeTurnOff => 'Turn off travel mode';
+
+  @override
+  String get travelModeOnSnack => 'Travel mode on';
+
+  @override
+  String get travelModeOffSnack => 'Travel mode off';
+
+  @override
+  String get settingsAppearanceSection => 'Appearance';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'Same as the phone';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
 
   @override
   String get followDenied =>

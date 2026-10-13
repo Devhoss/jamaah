@@ -93,7 +93,7 @@ class TodayScreen extends ConsumerWidget {
             onTap: () => showLocationSheet(context),
           ),
         ),
-        if (settings.requireValue.travel.followLocation)
+        if (settings.requireValue.travel.followsLocation)
           _FollowLine(
             checkedAt: settings.requireValue.placeCheckedAt,
             failed: settings.requireValue.placeCheckFailed,

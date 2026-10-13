@@ -8,6 +8,8 @@ import '../features/settings/settings_page.dart';
 import '../features/today/today_screen.dart';
 import 'branding.g.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'providers.dart';
+import 'theme/theme.dart';
 import 'theme/tokens.dart';
 
 /// The chrome around the screens: the wordmark and gear on top, three destinations
@@ -47,6 +49,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
         ),
         actions: [
+          _TravelModeButton(),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: l10n.settings,
@@ -83,6 +86,31 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Travel mode, one tap from every screen (2026-10-13). Its options live in
+/// Settings → Travel.
+class _TravelModeButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final on =
+        ref.watch(appSettingsProvider).value?.travel.travelMode ?? false;
+    final scheme = Theme.of(context).colorScheme;
+    // The top bar's own icon colour would hide the selected state, so both
+    // states are spelled out: on is a sage disc with a green airplane, off a
+    // muted one with nothing behind it.
+    return IconButton(
+      isSelected: on,
+      icon: Icon(Icons.flight, color: AppInk.of(context).muted),
+      selectedIcon: Icon(Icons.flight, color: scheme.onSecondaryContainer),
+      style: IconButton.styleFrom(
+        backgroundColor: on ? scheme.secondaryContainer : null,
+      ),
+      tooltip: on ? l10n.travelModeTurnOff : l10n.travelModeTurnOn,
+      onPressed: () => setTravelMode(context, ref, !on),
     );
   }
 }

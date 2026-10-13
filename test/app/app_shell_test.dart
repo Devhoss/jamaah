@@ -166,7 +166,7 @@ void main() {
     expect(find.text(t.settingsMethod), findsOneWidget);
   });
 
-  testApp('every destination and the gear is big enough to press', (
+  testApp('every destination, the gear and the airplane are big enough to press', (
     tester,
   ) async {
     await open(tester);
@@ -175,7 +175,14 @@ void main() {
     // the button's box is what a finger lands on — not the ink. The M3 bar answers a
     // tap with a private InkResponse subclass over the whole destination, so the
     // search is by type-or-subclass rather than by exact runtime type.
-    final gear = tester.getSize(find.byType(IconButton));
+    Size button(String tooltip) => tester.getSize(
+      find.ancestor(
+        of: find.byTooltip(tooltip),
+        matching: find.byType(IconButton),
+      ),
+    );
+    final gear = button(t.settings);
+    final travel = button(t.travelModeTurnOn);
     final destination = tester.getSize(
       find.ancestor(
         of: find.text(t.tabMosques),
@@ -183,7 +190,11 @@ void main() {
       ).first,
     );
 
-    for (final (label, size) in [('gear', gear), ('Mosques tab', destination)]) {
+    for (final (label, size) in [
+      ('gear', gear),
+      ('travel mode', travel),
+      ('Mosques tab', destination),
+    ]) {
       expect(
         size.width >= 48 && size.height >= 48,
         isTrue,

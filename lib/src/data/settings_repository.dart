@@ -166,7 +166,13 @@ class SettingsRepository {
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
       travel: TravelSettings(
-        followLocation: values[SettingKeys.followLocation] == 'true',
+        // Before travel mode, following was a switch of its own: a user who
+        // had it on starts in travel mode, so nothing changes for them.
+        travelMode: switch (values[SettingKeys.travelModeOn]) {
+          final v? => v == 'true',
+          null => values[SettingKeys.followLocation] == 'true',
+        },
+        followLocation: values[SettingKeys.followLocation] != 'false',
         // Before the per-mosque pause there was a travel-mode pause; a user
         // who had it on keeps every reminder paused rather than suddenly
         // getting them again.
@@ -290,8 +296,9 @@ class SettingsRepository {
         await _put(SettingKeys.placeCheckFailed, '$failed');
       });
 
-  /// Follow my location, and the pause on every Iqama reminder.
+  /// Travel mode and its options, and the pause on every Iqama reminder.
   Future<void> saveTravel(TravelSettings travel) => _db.transaction(() async {
+    await _put(SettingKeys.travelModeOn, '${travel.travelMode}');
     await _put(
       SettingKeys.pauseAllIqamaReminders,
       '${travel.pauseAllIqamaReminders}',

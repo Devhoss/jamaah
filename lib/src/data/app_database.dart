@@ -58,6 +58,10 @@ abstract final class SettingKeys {
   static const pauseIqamaReminders = 'pause_iqama_reminders';
   static const followLocation = 'follow_location';
 
+  /// The travel-mode switch (2026-10-13). Not [travelMode], which was the
+  /// earlier switch for the Iqama pause and is only read for that.
+  static const travelModeOn = 'travel_mode_on';
+
   /// "Pause all Iqama reminders" in Settings (2026-10-13). Replaces the
   /// travel-mode pause; when absent, the old travel_mode + pause pair is read.
   static const pauseAllIqamaReminders = 'pause_all_iqama_reminders';
