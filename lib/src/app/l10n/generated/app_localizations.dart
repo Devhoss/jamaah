@@ -304,12 +304,6 @@ abstract class AppLocalizations {
   /// **'No reminder for this prayer'**
   String get reminderOffForPrayer;
 
-  /// Honest label while the notification step has not been built: nothing here has scheduled anything.
-  ///
-  /// In en, this message translates to:
-  /// **'Reminders are stored as settings. Notifications arrive in a later step.'**
-  String get remindersAreSettingsNote;
-
   /// Quiet note added only when the high-latitude rule actually moved a time. Names the rule so the user can check it in Settings.
   ///
   /// In en, this message translates to:
@@ -1394,12 +1388,6 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get settingsNotificationsSection;
 
-  /// No description provided for @settingsComingLater.
-  ///
-  /// In en, this message translates to:
-  /// **'Calculation method, Asr opinion and minute adjustments arrive in the next Settings step.'**
-  String get settingsComingLater;
-
   /// Shown on Today and on the mosque page while travel mode's pause is on, so a silent reminder is never a mystery.
   ///
   /// In en, this message translates to:
@@ -1657,6 +1645,504 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Prayer times for {place}. Your own place stays {current}.'**
   String previewNote(String place, String current);
+
+  /// No description provided for @methodAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto detect'**
+  String get methodAuto;
+
+  /// No description provided for @methodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom angles'**
+  String get methodCustom;
+
+  /// No description provided for @methodEgyptian.
+  ///
+  /// In en, this message translates to:
+  /// **'Egyptian General Authority of Survey (EGAS)'**
+  String get methodEgyptian;
+
+  /// No description provided for @methodRegionEgyptian.
+  ///
+  /// In en, this message translates to:
+  /// **'Africa, Syria, Lebanon'**
+  String get methodRegionEgyptian;
+
+  /// No description provided for @methodIsna.
+  ///
+  /// In en, this message translates to:
+  /// **'Islamic Society of North America (ISNA)'**
+  String get methodIsna;
+
+  /// No description provided for @methodRegionIsna.
+  ///
+  /// In en, this message translates to:
+  /// **'North America (US and Canada)'**
+  String get methodRegionIsna;
+
+  /// No description provided for @methodMoonsightingCommittee.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonsighting Committee Worldwide (MCW)'**
+  String get methodMoonsightingCommittee;
+
+  /// No description provided for @methodRegionMoonsightingCommittee.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts of the US, parts of the UK'**
+  String get methodRegionMoonsightingCommittee;
+
+  /// No description provided for @methodMuslimWorldLeague.
+  ///
+  /// In en, this message translates to:
+  /// **'Muslim World League (MWL)'**
+  String get methodMuslimWorldLeague;
+
+  /// No description provided for @methodRegionMuslimWorldLeague.
+  ///
+  /// In en, this message translates to:
+  /// **'Europe, Far East, parts of the US, and other countries'**
+  String get methodRegionMuslimWorldLeague;
+
+  /// No description provided for @methodUmmAlQura.
+  ///
+  /// In en, this message translates to:
+  /// **'Umm al-Qura University, Makkah'**
+  String get methodUmmAlQura;
+
+  /// No description provided for @methodRegionUmmAlQura.
+  ///
+  /// In en, this message translates to:
+  /// **'The Arabian Peninsula'**
+  String get methodRegionUmmAlQura;
+
+  /// No description provided for @methodKarachi.
+  ///
+  /// In en, this message translates to:
+  /// **'University of Islamic Sciences, Karachi'**
+  String get methodKarachi;
+
+  /// No description provided for @methodRegionKarachi.
+  ///
+  /// In en, this message translates to:
+  /// **'Pakistan, Afghanistan, Bangladesh, India, parts of Europe'**
+  String get methodRegionKarachi;
+
+  /// No description provided for @methodJakim.
+  ///
+  /// In en, this message translates to:
+  /// **'Department of Islamic Advancement of Malaysia (JAKIM)'**
+  String get methodJakim;
+
+  /// No description provided for @methodRegionJakim.
+  ///
+  /// In en, this message translates to:
+  /// **'Malaysia'**
+  String get methodRegionJakim;
+
+  /// No description provided for @methodSingapore.
+  ///
+  /// In en, this message translates to:
+  /// **'Islamic Religious Council of Singapore (MUIS)'**
+  String get methodSingapore;
+
+  /// No description provided for @methodRegionSingapore.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore'**
+  String get methodRegionSingapore;
+
+  /// No description provided for @methodIndonesia.
+  ///
+  /// In en, this message translates to:
+  /// **'Ministry of Religious Affairs of Indonesia (KEMENAG)'**
+  String get methodIndonesia;
+
+  /// No description provided for @methodRegionIndonesia.
+  ///
+  /// In en, this message translates to:
+  /// **'Indonesia'**
+  String get methodRegionIndonesia;
+
+  /// No description provided for @methodTurkiye.
+  ///
+  /// In en, this message translates to:
+  /// **'Presidency of Religious Affairs of Türkiye (Diyanet)'**
+  String get methodTurkiye;
+
+  /// No description provided for @methodRegionTurkiye.
+  ///
+  /// In en, this message translates to:
+  /// **'Türkiye'**
+  String get methodRegionTurkiye;
+
+  /// No description provided for @methodFrance.
+  ///
+  /// In en, this message translates to:
+  /// **'Union of Islamic Organisations of France (UOIF)'**
+  String get methodFrance;
+
+  /// No description provided for @methodRegionFrance.
+  ///
+  /// In en, this message translates to:
+  /// **'France'**
+  String get methodRegionFrance;
+
+  /// No description provided for @methodKuwait.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuwait'**
+  String get methodKuwait;
+
+  /// No description provided for @methodRegionKuwait.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuwait'**
+  String get methodRegionKuwait;
+
+  /// No description provided for @methodQatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Qatar'**
+  String get methodQatar;
+
+  /// No description provided for @methodRegionQatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Qatar'**
+  String get methodRegionQatar;
+
+  /// No description provided for @methodDubai.
+  ///
+  /// In en, this message translates to:
+  /// **'Dubai (UAE)'**
+  String get methodDubai;
+
+  /// No description provided for @methodRegionDubai.
+  ///
+  /// In en, this message translates to:
+  /// **'United Arab Emirates'**
+  String get methodRegionDubai;
+
+  /// No description provided for @methodGulfRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Gulf region'**
+  String get methodGulfRegion;
+
+  /// No description provided for @methodRegionGulfRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Bahrain, Oman'**
+  String get methodRegionGulfRegion;
+
+  /// No description provided for @methodJordan.
+  ///
+  /// In en, this message translates to:
+  /// **'Jordan'**
+  String get methodJordan;
+
+  /// No description provided for @methodRegionJordan.
+  ///
+  /// In en, this message translates to:
+  /// **'Jordan'**
+  String get methodRegionJordan;
+
+  /// No description provided for @methodAlgeria.
+  ///
+  /// In en, this message translates to:
+  /// **'Algeria'**
+  String get methodAlgeria;
+
+  /// No description provided for @methodRegionAlgeria.
+  ///
+  /// In en, this message translates to:
+  /// **'Algeria'**
+  String get methodRegionAlgeria;
+
+  /// No description provided for @methodMorocco.
+  ///
+  /// In en, this message translates to:
+  /// **'Morocco'**
+  String get methodMorocco;
+
+  /// No description provided for @methodRegionMorocco.
+  ///
+  /// In en, this message translates to:
+  /// **'Morocco'**
+  String get methodRegionMorocco;
+
+  /// No description provided for @methodTunisia.
+  ///
+  /// In en, this message translates to:
+  /// **'Tunisia'**
+  String get methodTunisia;
+
+  /// No description provided for @methodRegionTunisia.
+  ///
+  /// In en, this message translates to:
+  /// **'Tunisia'**
+  String get methodRegionTunisia;
+
+  /// No description provided for @methodRussia.
+  ///
+  /// In en, this message translates to:
+  /// **'Spiritual Administration of Muslims of Russia'**
+  String get methodRussia;
+
+  /// No description provided for @methodRegionRussia.
+  ///
+  /// In en, this message translates to:
+  /// **'Russia'**
+  String get methodRegionRussia;
+
+  /// No description provided for @methodPortugal.
+  ///
+  /// In en, this message translates to:
+  /// **'Islamic Community of Lisbon'**
+  String get methodPortugal;
+
+  /// No description provided for @methodRegionPortugal.
+  ///
+  /// In en, this message translates to:
+  /// **'Portugal'**
+  String get methodRegionPortugal;
+
+  /// No description provided for @methodTehran.
+  ///
+  /// In en, this message translates to:
+  /// **'Institute of Geophysics, University of Tehran'**
+  String get methodTehran;
+
+  /// No description provided for @methodRegionTehran.
+  ///
+  /// In en, this message translates to:
+  /// **'Iran (Shia)'**
+  String get methodRegionTehran;
+
+  /// No description provided for @methodJafari.
+  ///
+  /// In en, this message translates to:
+  /// **'Shia Ithna-Ashari, Leva Institute, Qum'**
+  String get methodJafari;
+
+  /// No description provided for @methodRegionJafari.
+  ///
+  /// In en, this message translates to:
+  /// **'Shia communities'**
+  String get methodRegionJafari;
+
+  /// No description provided for @settingsPrayerTimesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times'**
+  String get settingsPrayerTimesSection;
+
+  /// No description provided for @settingsMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get settingsMethod;
+
+  /// No description provided for @settingsAsr.
+  ///
+  /// In en, this message translates to:
+  /// **'Asr method'**
+  String get settingsAsr;
+
+  /// No description provided for @settingsHighLatitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher latitudes'**
+  String get settingsHighLatitude;
+
+  /// No description provided for @settingsAdjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual adjustments'**
+  String get settingsAdjustments;
+
+  /// No description provided for @methodAngles.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr {fajr}° · Isha {isha}°'**
+  String methodAngles(String fajr, String isha);
+
+  /// No description provided for @methodAnglesInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr {fajr}° · Isha {minutes} min after Maghrib'**
+  String methodAnglesInterval(String fajr, int minutes);
+
+  /// No description provided for @methodUmmAlQuraRamadan.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha 120 min after Maghrib during Ramadan'**
+  String get methodUmmAlQuraRamadan;
+
+  /// No description provided for @methodMoonsightingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Also adjusts Fajr and Isha by season'**
+  String get methodMoonsightingNote;
+
+  /// No description provided for @methodAutoResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses {method} for {place}'**
+  String methodAutoResolved(String method, String place);
+
+  /// No description provided for @methodAutoNoPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Chooses by your place once one is set'**
+  String get methodAutoNoPlace;
+
+  /// No description provided for @customTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom angles'**
+  String get customTitle;
+
+  /// No description provided for @customFajr.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr angle (°)'**
+  String get customFajr;
+
+  /// No description provided for @customIsha.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha angle (°)'**
+  String get customIsha;
+
+  /// No description provided for @customIshaByMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha by minutes after Maghrib'**
+  String get customIshaByMinutes;
+
+  /// No description provided for @customIshaMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes after Maghrib'**
+  String get customIshaMinutes;
+
+  /// No description provided for @customAngleError.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 10° and 22°'**
+  String get customAngleError;
+
+  /// No description provided for @customMinutesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 1 and 180 minutes'**
+  String get customMinutesError;
+
+  /// No description provided for @asrStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get asrStandard;
+
+  /// No description provided for @asrStandardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shafi\'i, Maliki, Hanbali: the earlier Asr time'**
+  String get asrStandardHint;
+
+  /// No description provided for @asrHanafi.
+  ///
+  /// In en, this message translates to:
+  /// **'Hanafi'**
+  String get asrHanafi;
+
+  /// No description provided for @asrHanafiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The later Asr time'**
+  String get asrHanafiHint;
+
+  /// No description provided for @ruleMiddleOfTheNightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Middle of the night'**
+  String get ruleMiddleOfTheNightTitle;
+
+  /// No description provided for @ruleSeventhOfTheNightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One seventh of the night'**
+  String get ruleSeventhOfTheNightTitle;
+
+  /// No description provided for @ruleTwilightAngleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Twilight angle'**
+  String get ruleTwilightAngleTitle;
+
+  /// No description provided for @ruleMiddleOfTheNightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr and Isha no later than the middle of the night (default)'**
+  String get ruleMiddleOfTheNightHint;
+
+  /// No description provided for @ruleSeventhOfTheNightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr and Isha within the first and last seventh of the night'**
+  String get ruleSeventhOfTheNightHint;
+
+  /// No description provided for @ruleTwilightAngleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A share of the night proportional to the method\'s angles'**
+  String get ruleTwilightAngleHint;
+
+  /// No description provided for @highLatitudeSettingsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only used where the sun stays close to the horizon at night; elsewhere it changes nothing.'**
+  String get highLatitudeSettingsNote;
+
+  /// No description provided for @adjustmentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes added to or taken from the calculated time, for example to match your mosque\'s printed timetable.'**
+  String get adjustmentsHint;
+
+  /// No description provided for @adjustmentsMinus.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer}: one minute earlier'**
+  String adjustmentsMinus(String prayer);
+
+  /// No description provided for @adjustmentsPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer}: one minute later'**
+  String adjustmentsPlus(String prayer);
+
+  /// No description provided for @adjustmentsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String adjustmentsValue(int minutes);
+
+  /// No description provided for @adjustmentsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get adjustmentsNone;
+
+  /// No description provided for @adjustmentsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all to 0'**
+  String get adjustmentsReset;
 }
 
 class _AppLocalizationsDelegate

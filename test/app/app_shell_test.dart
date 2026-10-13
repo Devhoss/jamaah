@@ -150,7 +150,7 @@ void main() {
     );
   });
 
-  testApp('the gear opens Settings, and says what is still to come', (
+  testApp('the gear opens Settings, prayer times first', (
     tester,
   ) async {
     await open(tester);
@@ -159,9 +159,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsPage), findsOneWidget);
-    expect(find.text(t.settingsAdhanSection.toUpperCase()), findsOneWidget);
-    await tester.scrollUntilVisible(find.text(t.settingsComingLater), 300);
-    expect(find.text(t.settingsComingLater), findsOneWidget);
+    expect(
+      find.text(t.settingsPrayerTimesSection.toUpperCase()),
+      findsOneWidget,
+    );
+    expect(find.text(t.settingsMethod), findsOneWidget);
   });
 
   testApp('every destination and the gear is big enough to press', (

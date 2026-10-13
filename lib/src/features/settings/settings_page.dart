@@ -15,6 +15,7 @@ import '../../domain/prayer.dart';
 import '../components/app_widgets.dart';
 import '../mosques/mosque_detail_page.dart';
 import 'prayer_alert_page.dart';
+import 'prayer_time_settings.dart';
 import 'scheduled_notifications_page.dart';
 
 Future<void> openSettings(BuildContext context) =>
@@ -59,6 +60,8 @@ class SettingsPage extends ConsumerWidget {
           AppSpace.xxl,
         ),
         children: [
+          AppSectionHeader(l10n.settingsPrayerTimesSection),
+          const PrayerTimesSettingsSection(),
           AppSectionHeader(l10n.settingsAdhanSection),
           AppRows(
             children: [
@@ -149,11 +152,6 @@ class SettingsPage extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpace.lg),
-          Text(
-            l10n.settingsComingLater,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
-          const SizedBox(height: AppSpace.sm),
           Text(
             l10n.aboutBody,
             style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),

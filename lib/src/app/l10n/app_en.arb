@@ -95,10 +95,6 @@
     }
   },
   "reminderOffForPrayer": "No reminder for this prayer",
-  "remindersAreSettingsNote": "Reminders are stored as settings. Notifications arrive in a later step.",
-  "@remindersAreSettingsNote": {
-    "description": "Honest label while the notification step has not been built: nothing here has scheduled anything."
-  },
   "highLatitudeNote": "At this latitude, {prayers} follow the {rule} rule.",
   "@highLatitudeNote": {
     "description": "Quiet note added only when the high-latitude rule actually moved a time. Names the rule so the user can check it in Settings.",
@@ -551,7 +547,6 @@
   "settingsPauseIqamaHint": "Your mosque's Iqama reminders stay off while travel mode is on. Your Iqama times are kept.",
   "settingsPauseIqamaNeedsTravel": "Turn on travel mode to pause them.",
   "settingsNotificationsSection": "Notifications",
-  "settingsComingLater": "Calculation method, Asr opinion and minute adjustments arrive in the next Settings step.",
   "iqamaPausedNote": "Iqama reminders are paused while you're travelling.",
   "@iqamaPausedNote": {
     "description": "Shown on Today and on the mosque page while travel mode's pause is on, so a silent reminder is never a mystery."
@@ -649,5 +644,121 @@
       "place": { "type": "String" },
       "current": { "type": "String" }
     }
-  }
+  },
+  "methodAuto": "Auto detect",
+  "methodCustom": "Custom angles",
+  "methodEgyptian": "Egyptian General Authority of Survey (EGAS)",
+  "methodRegionEgyptian": "Africa, Syria, Lebanon",
+  "methodIsna": "Islamic Society of North America (ISNA)",
+  "methodRegionIsna": "North America (US and Canada)",
+  "methodMoonsightingCommittee": "Moonsighting Committee Worldwide (MCW)",
+  "methodRegionMoonsightingCommittee": "Parts of the US, parts of the UK",
+  "methodMuslimWorldLeague": "Muslim World League (MWL)",
+  "methodRegionMuslimWorldLeague": "Europe, Far East, parts of the US, and other countries",
+  "methodUmmAlQura": "Umm al-Qura University, Makkah",
+  "methodRegionUmmAlQura": "The Arabian Peninsula",
+  "methodKarachi": "University of Islamic Sciences, Karachi",
+  "methodRegionKarachi": "Pakistan, Afghanistan, Bangladesh, India, parts of Europe",
+  "methodJakim": "Department of Islamic Advancement of Malaysia (JAKIM)",
+  "methodRegionJakim": "Malaysia",
+  "methodSingapore": "Islamic Religious Council of Singapore (MUIS)",
+  "methodRegionSingapore": "Singapore",
+  "methodIndonesia": "Ministry of Religious Affairs of Indonesia (KEMENAG)",
+  "methodRegionIndonesia": "Indonesia",
+  "methodTurkiye": "Presidency of Religious Affairs of Türkiye (Diyanet)",
+  "methodRegionTurkiye": "Türkiye",
+  "methodFrance": "Union of Islamic Organisations of France (UOIF)",
+  "methodRegionFrance": "France",
+  "methodKuwait": "Kuwait",
+  "methodRegionKuwait": "Kuwait",
+  "methodQatar": "Qatar",
+  "methodRegionQatar": "Qatar",
+  "methodDubai": "Dubai (UAE)",
+  "methodRegionDubai": "United Arab Emirates",
+  "methodGulfRegion": "Gulf region",
+  "methodRegionGulfRegion": "Bahrain, Oman",
+  "methodJordan": "Jordan",
+  "methodRegionJordan": "Jordan",
+  "methodAlgeria": "Algeria",
+  "methodRegionAlgeria": "Algeria",
+  "methodMorocco": "Morocco",
+  "methodRegionMorocco": "Morocco",
+  "methodTunisia": "Tunisia",
+  "methodRegionTunisia": "Tunisia",
+  "methodRussia": "Spiritual Administration of Muslims of Russia",
+  "methodRegionRussia": "Russia",
+  "methodPortugal": "Islamic Community of Lisbon",
+  "methodRegionPortugal": "Portugal",
+  "methodTehran": "Institute of Geophysics, University of Tehran",
+  "methodRegionTehran": "Iran (Shia)",
+  "methodJafari": "Shia Ithna-Ashari, Leva Institute, Qum",
+  "methodRegionJafari": "Shia communities",
+  "settingsPrayerTimesSection": "Prayer times",
+  "settingsMethod": "Calculation method",
+  "settingsAsr": "Asr method",
+  "settingsHighLatitude": "Higher latitudes",
+  "settingsAdjustments": "Manual adjustments",
+  "methodAngles": "Fajr {fajr}° · Isha {isha}°",
+  "@methodAngles": {
+    "placeholders": {
+      "fajr": { "type": "String" },
+      "isha": { "type": "String" }
+    }
+  },
+  "methodAnglesInterval": "Fajr {fajr}° · Isha {minutes} min after Maghrib",
+  "@methodAnglesInterval": {
+    "placeholders": {
+      "fajr": { "type": "String" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "methodUmmAlQuraRamadan": "Isha 120 min after Maghrib during Ramadan",
+  "methodMoonsightingNote": "Also adjusts Fajr and Isha by season",
+  "methodAutoResolved": "Uses {method} for {place}",
+  "@methodAutoResolved": {
+    "placeholders": {
+      "method": { "type": "String" },
+      "place": { "type": "String" }
+    }
+  },
+  "methodAutoNoPlace": "Chooses by your place once one is set",
+  "customTitle": "Custom angles",
+  "customFajr": "Fajr angle (°)",
+  "customIsha": "Isha angle (°)",
+  "customIshaByMinutes": "Isha by minutes after Maghrib",
+  "customIshaMinutes": "Minutes after Maghrib",
+  "customAngleError": "Between 10° and 22°",
+  "customMinutesError": "Between 1 and 180 minutes",
+  "asrStandard": "Standard",
+  "asrStandardHint": "Shafi'i, Maliki, Hanbali: the earlier Asr time",
+  "asrHanafi": "Hanafi",
+  "asrHanafiHint": "The later Asr time",
+  "ruleMiddleOfTheNightTitle": "Middle of the night",
+  "ruleSeventhOfTheNightTitle": "One seventh of the night",
+  "ruleTwilightAngleTitle": "Twilight angle",
+  "ruleMiddleOfTheNightHint": "Fajr and Isha no later than the middle of the night (default)",
+  "ruleSeventhOfTheNightHint": "Fajr and Isha within the first and last seventh of the night",
+  "ruleTwilightAngleHint": "A share of the night proportional to the method's angles",
+  "highLatitudeSettingsNote": "Only used where the sun stays close to the horizon at night; elsewhere it changes nothing.",
+  "adjustmentsHint": "Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable.",
+  "adjustmentsMinus": "{prayer}: one minute earlier",
+  "@adjustmentsMinus": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "adjustmentsPlus": "{prayer}: one minute later",
+  "@adjustmentsPlus": {
+    "placeholders": {
+      "prayer": { "type": "String" }
+    }
+  },
+  "adjustmentsValue": "{minutes} min",
+  "@adjustmentsValue": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "adjustmentsNone": "None",
+  "adjustmentsReset": "Reset all to 0"
 }

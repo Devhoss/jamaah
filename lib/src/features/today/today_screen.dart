@@ -280,8 +280,6 @@ class _HeroCard extends StatelessWidget {
               : l10n.reminderOffForPrayer,
           style: _heroLabel,
         ),
-        const SizedBox(height: 2),
-        Text(l10n.remindersAreSettingsNote, style: _heroLabel),
       ],
     );
   }

@@ -129,10 +129,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderOffForPrayer => 'No reminder for this prayer';
 
   @override
-  String get remindersAreSettingsNote =>
-      'Reminders are stored as settings. Notifications arrive in a later step.';
-
-  @override
   String highLatitudeNote(String prayers, String rule) {
     return 'At this latitude, $prayers follow the $rule rule.';
   }
@@ -804,10 +800,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotificationsSection => 'Notifications';
 
   @override
-  String get settingsComingLater =>
-      'Calculation method, Asr opinion and minute adjustments arrive in the next Settings step.';
-
-  @override
   String get iqamaPausedNote =>
       'Iqama reminders are paused while you\'re travelling.';
 
@@ -968,4 +960,279 @@ class AppLocalizationsEn extends AppLocalizations {
   String previewNote(String place, String current) {
     return 'Prayer times for $place. Your own place stays $current.';
   }
+
+  @override
+  String get methodAuto => 'Auto detect';
+
+  @override
+  String get methodCustom => 'Custom angles';
+
+  @override
+  String get methodEgyptian => 'Egyptian General Authority of Survey (EGAS)';
+
+  @override
+  String get methodRegionEgyptian => 'Africa, Syria, Lebanon';
+
+  @override
+  String get methodIsna => 'Islamic Society of North America (ISNA)';
+
+  @override
+  String get methodRegionIsna => 'North America (US and Canada)';
+
+  @override
+  String get methodMoonsightingCommittee =>
+      'Moonsighting Committee Worldwide (MCW)';
+
+  @override
+  String get methodRegionMoonsightingCommittee =>
+      'Parts of the US, parts of the UK';
+
+  @override
+  String get methodMuslimWorldLeague => 'Muslim World League (MWL)';
+
+  @override
+  String get methodRegionMuslimWorldLeague =>
+      'Europe, Far East, parts of the US, and other countries';
+
+  @override
+  String get methodUmmAlQura => 'Umm al-Qura University, Makkah';
+
+  @override
+  String get methodRegionUmmAlQura => 'The Arabian Peninsula';
+
+  @override
+  String get methodKarachi => 'University of Islamic Sciences, Karachi';
+
+  @override
+  String get methodRegionKarachi =>
+      'Pakistan, Afghanistan, Bangladesh, India, parts of Europe';
+
+  @override
+  String get methodJakim =>
+      'Department of Islamic Advancement of Malaysia (JAKIM)';
+
+  @override
+  String get methodRegionJakim => 'Malaysia';
+
+  @override
+  String get methodSingapore => 'Islamic Religious Council of Singapore (MUIS)';
+
+  @override
+  String get methodRegionSingapore => 'Singapore';
+
+  @override
+  String get methodIndonesia =>
+      'Ministry of Religious Affairs of Indonesia (KEMENAG)';
+
+  @override
+  String get methodRegionIndonesia => 'Indonesia';
+
+  @override
+  String get methodTurkiye =>
+      'Presidency of Religious Affairs of Türkiye (Diyanet)';
+
+  @override
+  String get methodRegionTurkiye => 'Türkiye';
+
+  @override
+  String get methodFrance => 'Union of Islamic Organisations of France (UOIF)';
+
+  @override
+  String get methodRegionFrance => 'France';
+
+  @override
+  String get methodKuwait => 'Kuwait';
+
+  @override
+  String get methodRegionKuwait => 'Kuwait';
+
+  @override
+  String get methodQatar => 'Qatar';
+
+  @override
+  String get methodRegionQatar => 'Qatar';
+
+  @override
+  String get methodDubai => 'Dubai (UAE)';
+
+  @override
+  String get methodRegionDubai => 'United Arab Emirates';
+
+  @override
+  String get methodGulfRegion => 'Gulf region';
+
+  @override
+  String get methodRegionGulfRegion => 'Bahrain, Oman';
+
+  @override
+  String get methodJordan => 'Jordan';
+
+  @override
+  String get methodRegionJordan => 'Jordan';
+
+  @override
+  String get methodAlgeria => 'Algeria';
+
+  @override
+  String get methodRegionAlgeria => 'Algeria';
+
+  @override
+  String get methodMorocco => 'Morocco';
+
+  @override
+  String get methodRegionMorocco => 'Morocco';
+
+  @override
+  String get methodTunisia => 'Tunisia';
+
+  @override
+  String get methodRegionTunisia => 'Tunisia';
+
+  @override
+  String get methodRussia => 'Spiritual Administration of Muslims of Russia';
+
+  @override
+  String get methodRegionRussia => 'Russia';
+
+  @override
+  String get methodPortugal => 'Islamic Community of Lisbon';
+
+  @override
+  String get methodRegionPortugal => 'Portugal';
+
+  @override
+  String get methodTehran => 'Institute of Geophysics, University of Tehran';
+
+  @override
+  String get methodRegionTehran => 'Iran (Shia)';
+
+  @override
+  String get methodJafari => 'Shia Ithna-Ashari, Leva Institute, Qum';
+
+  @override
+  String get methodRegionJafari => 'Shia communities';
+
+  @override
+  String get settingsPrayerTimesSection => 'Prayer times';
+
+  @override
+  String get settingsMethod => 'Calculation method';
+
+  @override
+  String get settingsAsr => 'Asr method';
+
+  @override
+  String get settingsHighLatitude => 'Higher latitudes';
+
+  @override
+  String get settingsAdjustments => 'Manual adjustments';
+
+  @override
+  String methodAngles(String fajr, String isha) {
+    return 'Fajr $fajr° · Isha $isha°';
+  }
+
+  @override
+  String methodAnglesInterval(String fajr, int minutes) {
+    return 'Fajr $fajr° · Isha $minutes min after Maghrib';
+  }
+
+  @override
+  String get methodUmmAlQuraRamadan =>
+      'Isha 120 min after Maghrib during Ramadan';
+
+  @override
+  String get methodMoonsightingNote => 'Also adjusts Fajr and Isha by season';
+
+  @override
+  String methodAutoResolved(String method, String place) {
+    return 'Uses $method for $place';
+  }
+
+  @override
+  String get methodAutoNoPlace => 'Chooses by your place once one is set';
+
+  @override
+  String get customTitle => 'Custom angles';
+
+  @override
+  String get customFajr => 'Fajr angle (°)';
+
+  @override
+  String get customIsha => 'Isha angle (°)';
+
+  @override
+  String get customIshaByMinutes => 'Isha by minutes after Maghrib';
+
+  @override
+  String get customIshaMinutes => 'Minutes after Maghrib';
+
+  @override
+  String get customAngleError => 'Between 10° and 22°';
+
+  @override
+  String get customMinutesError => 'Between 1 and 180 minutes';
+
+  @override
+  String get asrStandard => 'Standard';
+
+  @override
+  String get asrStandardHint =>
+      'Shafi\'i, Maliki, Hanbali: the earlier Asr time';
+
+  @override
+  String get asrHanafi => 'Hanafi';
+
+  @override
+  String get asrHanafiHint => 'The later Asr time';
+
+  @override
+  String get ruleMiddleOfTheNightTitle => 'Middle of the night';
+
+  @override
+  String get ruleSeventhOfTheNightTitle => 'One seventh of the night';
+
+  @override
+  String get ruleTwilightAngleTitle => 'Twilight angle';
+
+  @override
+  String get ruleMiddleOfTheNightHint =>
+      'Fajr and Isha no later than the middle of the night (default)';
+
+  @override
+  String get ruleSeventhOfTheNightHint =>
+      'Fajr and Isha within the first and last seventh of the night';
+
+  @override
+  String get ruleTwilightAngleHint =>
+      'A share of the night proportional to the method\'s angles';
+
+  @override
+  String get highLatitudeSettingsNote =>
+      'Only used where the sun stays close to the horizon at night; elsewhere it changes nothing.';
+
+  @override
+  String get adjustmentsHint =>
+      'Minutes added to or taken from the calculated time, for example to match your mosque\'s printed timetable.';
+
+  @override
+  String adjustmentsMinus(String prayer) {
+    return '$prayer: one minute earlier';
+  }
+
+  @override
+  String adjustmentsPlus(String prayer) {
+    return '$prayer: one minute later';
+  }
+
+  @override
+  String adjustmentsValue(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get adjustmentsNone => 'None';
+
+  @override
+  String get adjustmentsReset => 'Reset all to 0';
 }

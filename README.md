@@ -172,7 +172,7 @@ The first screen the user sees, and the only one that reads the stored place.
   6:30 PM Iqama · Reminder at 6:20 PM", and says "before midnight" when the reminder
   falls on the evening before an after-midnight Iqama. Clear returns the prayer to
   "Not configured".
-- Reminders are stored settings only; the copy says notifications arrive later.
+- Iqama reminders are scheduled as notifications (see Notifications below).
 - Removing a mosque asks first. Removing the active one leaves no mosque active.
 - Today follows every change at once: `MosqueRepository.watchSaved()` re-reads on
   drift's table-update notifications for mosques, schedules and Iqama entries.
@@ -200,6 +200,14 @@ The first screen the user sees, and the only one that reads the stored place.
   the name and address. A Google mosque keeps its place id but **not** its
   coordinates (Google allows caching those for 30 days only); an OpenStreetMap
   mosque keeps both.
+
+## Prayer-time settings
+
+Settings → Prayer times: the **calculation method** (Auto detect from the place's
+time zone, Custom angles, and 23 published methods, each listed with its angles and
+regions read from the parameters the calculator uses), the **Asr method**
+(Standard / Hanafi), the **higher-latitude rule**, and **manual adjustments** of up to
+±30 minutes per prayer. Every change recomputes Today and reschedules notifications.
 
 ## Notifications
 
@@ -252,7 +260,7 @@ The first screen the user sees, and the only one that reads the stored place.
 ## Tests
 
 ```bash
-flutter test       # 494 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 501 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

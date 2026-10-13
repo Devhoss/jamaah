@@ -257,11 +257,6 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
               ],
               const SizedBox(height: AppSpace.lg),
               _Summary(text: _summary(l10n, clock, prayerLabel), ink: ink),
-              const SizedBox(height: AppSpace.sm),
-              Text(
-                l10n.remindersAreSettingsNote,
-                style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-              ),
               const SizedBox(height: AppSpace.lg),
               Row(
                 children: [

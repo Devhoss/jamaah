@@ -156,11 +156,6 @@ class MosqueDetailPage extends ConsumerWidget {
             l10n.iqamaScheduleNote,
             style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
           ),
-          const SizedBox(height: AppSpace.xs),
-          Text(
-            l10n.remindersAreSettingsNote,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
           const SizedBox(height: AppSpace.xxl),
           OutlinedButton(
             style: OutlinedButton.styleFrom(

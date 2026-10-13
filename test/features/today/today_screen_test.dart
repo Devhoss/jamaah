@@ -476,7 +476,6 @@ void main() {
       textMatching(RegExp('^${t.rowIqama('')}$clockReading')),
       findsNothing,
     );
-    expect(find.text(t.remindersAreSettingsNote), findsNothing);
   });
 
   testApp('the six rows are six equal lines, pill included', (tester) async {
@@ -700,7 +699,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(t.reminderBeforeIqama(10)), findsOneWidget);
-    expect(find.text(t.remindersAreSettingsNote), findsOneWidget);
+    expect(
+      find.textContaining('later step'),
+      findsNothing,
+      reason: 'notifications exist now; nothing may still say they come later',
+    );
     expect(
       find.byIcon(Icons.notifications_none),
       findsOneWidget,
