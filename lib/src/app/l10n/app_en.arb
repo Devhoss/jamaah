@@ -162,7 +162,7 @@
     "description": "Title of the explanation sheet shown before any location permission is requested."
   },
   "locationSheetBody": "Jama’ah works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.",
-  "locationSheetCoarse": "We ask for approximate location — city level, never your exact position. Times across one city differ by only a few minutes.",
+  "locationSheetCoarse": "Prayer times need only approximate location — city level. Times across one city differ by only a few minutes. Finding mosques near you asks separately for precise location.",
   "locationUseDevice": "Use my location",
   "locationChooseCity": "Choose a city",
   "locationRequesting": "Finding your location…",
@@ -199,10 +199,6 @@
   "mosquesTitle": "Mosques",
   "mosquesSubtitle": "Iqama times belong to each mosque.",
   "findNearbyMosques": "Find nearby mosques",
-  "findNearbyLater": "Finding mosques near you comes in a later step. For now, add your mosque by hand.",
-  "@findNearbyLater": {
-    "description": "Under the disabled Find nearby button. Discovery is not built; never show a fake result list."
-  },
   "addMosqueManually": "Add a mosque manually",
   "savedMosquesHeader": "Saved",
   "noSavedMosques": "No saved mosques yet. Add your mosque, then enter its Iqama times.",
@@ -344,5 +340,97 @@
       "reminder": { "type": "String" }
     }
   },
-  "clearIqamaTime": "Clear Iqama time"
+  "clearIqamaTime": "Clear Iqama time",
+  "nearbyTitle": "Nearby mosques",
+  "nearbyExplainTitle": "Find mosques near you",
+  "nearbyExplainBody": "We use your precise location once, to list the mosques around you. If you keep location approximate, the search still works, just less exactly.",
+  "nearbyExplainSent": "Your position is sent to {provider} for this search only. Jama’ah does not store it.",
+  "@nearbyExplainSent": {
+    "description": "Honest about the one network call that carries the position.",
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "providerGoogle": "Google Maps",
+  "providerOsm": "OpenStreetMap",
+  "nearbyUseLocation": "Use my location",
+  "nearbySearchCity": "Search around a city",
+  "nearbyLocating": "Finding where you are…",
+  "nearbySearching": "Looking for mosques…",
+  "nearbyHeaderHere": "Within {km} km of you",
+  "@nearbyHeaderHere": {
+    "placeholders": {
+      "km": { "type": "int" }
+    }
+  },
+  "nearbyHeaderCity": "Within {km} km of {place}",
+  "@nearbyHeaderCity": {
+    "placeholders": {
+      "km": { "type": "int" },
+      "place": { "type": "String" }
+    }
+  },
+  "nearbyApproximateNote": "Your phone shared approximate location, so this list may be a few kilometres off. You can allow precise location in settings.",
+  "nearbyFilterHint": "Filter by name",
+  "nearbyUnnamed": "Unnamed mosque",
+  "@nearbyUnnamed": {
+    "description": "The provider has no name for this place. Never invent one; the user names it when saving."
+  },
+  "nearbyNoAddress": "No address listed",
+  "distanceUnder50": "Under 50 m",
+  "@distanceUnder50": {
+    "description": "A result at (or listed at) almost the searched point. Providers often place mosques at a map grid centre, so a precise-looking \"0 m\" would claim more than they know."
+  },
+  "distanceMetres": "{metres} m",
+  "@distanceMetres": {
+    "placeholders": {
+      "metres": { "type": "int" }
+    }
+  },
+  "distanceKilometres": "{km} km",
+  "@distanceKilometres": {
+    "placeholders": {
+      "km": { "type": "String" }
+    }
+  },
+  "nearbyAttributionGoogle": "Results from Google Maps. Not verified — check the name before saving.",
+  "nearbyAttributionOsm": "Results © OpenStreetMap contributors. Not verified — check the name before saving.",
+  "nearbyEmpty": "No mosques found within {km} km. Try a city, or add your mosque by hand.",
+  "@nearbyEmpty": {
+    "placeholders": {
+      "km": { "type": "int" }
+    }
+  },
+  "nearbyNoMatches": "No mosque in this list matches that name.",
+  "nearbyAddManually": "Not listed? Add it by hand",
+  "nearbyTryOsm": "Search OpenStreetMap instead",
+  "nearbyFailNoKey": "Google Maps search isn't set up in this build. You can search OpenStreetMap, or add your mosque by hand.",
+  "nearbyFailKeyRejected": "Google Maps refused the search. That's a setup problem with the app, not your phone. You can search OpenStreetMap instead.",
+  "nearbyFailNetwork": "No connection right now. Your saved mosques and prayer times still work offline.",
+  "nearbyFailRateLimited": "{provider} is busy. Try again in a minute, or add your mosque by hand.",
+  "@nearbyFailRateLimited": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "nearbyFailServer": "{provider} didn't answer properly. Try again, or add your mosque by hand.",
+  "@nearbyFailServer": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "nearbyFailLimit": "That's all the searching for this session, to keep the app free to run. It resets when you reopen the app. You can still add a mosque by hand.",
+  "nearbyLocDenied": "Location wasn't allowed. You can search around a city instead.",
+  "nearbyLocPermanent": "Location is turned off for Jama’ah in your settings. Allow it there, or search around a city.",
+  "nearbyLocService": "Location services are off on this phone. Turn them on, or search around a city.",
+  "nearbyLocTimeout": "Your phone didn't find its position in time. Try again, or search around a city.",
+  "nearbyLocUnavailable": "Your position couldn't be read right now. Search around a city instead.",
+  "tagSaved": "Saved",
+  "saveMosqueTitle": "Save this mosque",
+  "saveMosqueBody": "Check the name and address — they come from {provider}, not from the mosque. Its Iqama times start as “Not configured”.",
+  "@saveMosqueBody": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  }
 }

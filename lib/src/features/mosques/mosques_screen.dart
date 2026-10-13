@@ -10,11 +10,12 @@ import '../../domain/mosque.dart';
 import '../components/app_widgets.dart';
 import 'mosque_detail_page.dart';
 import 'mosque_details_sheet.dart';
+import 'nearby_mosques_page.dart';
 
 /// The Mosques tab: the user's saved mosques, and the ways to add one.
 ///
-/// Every mosque here is one the user saved. There is no sample data, and finding
-/// mosques nearby is visibly a later step rather than a list that pretends.
+/// Every mosque here is one the user saved. There is no sample data: a mosque
+/// gets here by being found nearby and confirmed, or by being added by hand.
 class MosquesScreen extends ConsumerWidget {
   const MosquesScreen({super.key});
 
@@ -43,16 +44,9 @@ class MosquesScreen extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpace.lg),
         FilledButton.icon(
-          // Discovery is a later step. The button stays visible so the screen
-          // matches the app being built, and leads nowhere fake.
-          onPressed: null,
+          onPressed: () => openNearbyMosques(context),
           icon: const Icon(Icons.search),
           label: Text(l10n.findNearbyMosques),
-        ),
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          l10n.findNearbyLater,
-          style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
         ),
         const SizedBox(height: AppSpace.md),
         OutlinedButton.icon(

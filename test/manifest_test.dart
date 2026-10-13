@@ -6,12 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// Guards the Android manifest against permissions that no code asks for.
 ///
 /// A declared permission is a promise to the user, so the file is checked the way
-/// behaviour is: INTERNET and coarse location are allowed now, and the ones that
-/// belong to later steps stay out until their commit.
+/// behaviour is: INTERNET and both location levels are allowed now, and the ones
+/// that belong to later steps stay out until their commit.
 void main() {
   const manifest = 'android/app/src/main/AndroidManifest.xml';
 
-  test('the release manifest asks for internet and coarse location only', () {
+  test('the release manifest asks for internet and the two location levels', () {
     final text = File(manifest).readAsStringSync();
 
     expect(
@@ -22,10 +22,14 @@ void main() {
     expect(
       text,
       contains('android.permission.ACCESS_COARSE_LOCATION'),
-      reason: 'Today asks for city-level location, never a precise position',
+      reason: 'Today asks for city-level location on its own',
+    );
+    expect(
+      text,
+      contains('android.permission.ACCESS_FINE_LOCATION'),
+      reason: 'precise location, asked for only by "Find nearby mosques"',
     );
     for (final deferred in const [
-      'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.POST_NOTIFICATIONS',
       'android.permission.SCHEDULE_EXACT_ALARM',
       'android.permission.USE_EXACT_ALARM',
@@ -76,5 +80,19 @@ void main() {
       contains('package $kApplicationId'),
       reason: 'a matching folder with a different package is the same crash',
     );
+  });
+
+  /// geolocator's requestPermission asks for every location permission in the
+  /// manifest at once, so with precise declared the startup prompt would offer
+  /// precise too. Both levels go through the app's own channel instead.
+  test('no code asks the plugin for location permission directly', () {
+    final offenders = [
+      for (final file in Directory('lib').listSync(recursive: true))
+        if (file is File &&
+            file.path.endsWith('.dart') &&
+            file.readAsStringSync().contains('Geolocator.requestPermission'))
+          file.path,
+    ];
+    expect(offenders, isEmpty);
   });
 }

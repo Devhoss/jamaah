@@ -40,3 +40,23 @@ const devicePlace = Place(
   ianaZone: 'Africa/Cairo',
   fromDevice: true,
 );
+
+/// A precise-position source the test answers, counting how often it is asked.
+class FakeNearbySource implements NearbyLocationSource {
+  FakeNearbySource(this.reading);
+
+  NearbyReading reading;
+  int requestCount = 0;
+  int settingsOpenCount = 0;
+
+  @override
+  Future<NearbyReading> requestPosition() async {
+    requestCount++;
+    return reading;
+  }
+
+  @override
+  Future<void> openSystemSettings() async {
+    settingsOpenCount++;
+  }
+}

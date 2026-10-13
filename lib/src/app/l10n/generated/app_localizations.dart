@@ -433,7 +433,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationSheetCoarse.
   ///
   /// In en, this message translates to:
-  /// **'We ask for approximate location — city level, never your exact position. Times across one city differ by only a few minutes.'**
+  /// **'Prayer times need only approximate location — city level. Times across one city differ by only a few minutes. Finding mosques near you asks separately for precise location.'**
   String get locationSheetCoarse;
 
   /// No description provided for @locationUseDevice.
@@ -567,12 +567,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Find nearby mosques'**
   String get findNearbyMosques;
-
-  /// Under the disabled Find nearby button. Discovery is not built; never show a fake result list.
-  ///
-  /// In en, this message translates to:
-  /// **'Finding mosques near you comes in a later step. For now, add your mosque by hand.'**
-  String get findNearbyLater;
 
   /// No description provided for @addMosqueManually.
   ///
@@ -883,6 +877,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear Iqama time'**
   String get clearIqamaTime;
+
+  /// No description provided for @nearbyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby mosques'**
+  String get nearbyTitle;
+
+  /// No description provided for @nearbyExplainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find mosques near you'**
+  String get nearbyExplainTitle;
+
+  /// No description provided for @nearbyExplainBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We use your precise location once, to list the mosques around you. If you keep location approximate, the search still works, just less exactly.'**
+  String get nearbyExplainBody;
+
+  /// Honest about the one network call that carries the position.
+  ///
+  /// In en, this message translates to:
+  /// **'Your position is sent to {provider} for this search only. Jama’ah does not store it.'**
+  String nearbyExplainSent(String provider);
+
+  /// No description provided for @providerGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Maps'**
+  String get providerGoogle;
+
+  /// No description provided for @providerOsm.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap'**
+  String get providerOsm;
+
+  /// No description provided for @nearbyUseLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get nearbyUseLocation;
+
+  /// No description provided for @nearbySearchCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Search around a city'**
+  String get nearbySearchCity;
+
+  /// No description provided for @nearbyLocating.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding where you are…'**
+  String get nearbyLocating;
+
+  /// No description provided for @nearbySearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for mosques…'**
+  String get nearbySearching;
+
+  /// No description provided for @nearbyHeaderHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {km} km of you'**
+  String nearbyHeaderHere(int km);
+
+  /// No description provided for @nearbyHeaderCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {km} km of {place}'**
+  String nearbyHeaderCity(int km, String place);
+
+  /// No description provided for @nearbyApproximateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone shared approximate location, so this list may be a few kilometres off. You can allow precise location in settings.'**
+  String get nearbyApproximateNote;
+
+  /// No description provided for @nearbyFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by name'**
+  String get nearbyFilterHint;
+
+  /// The provider has no name for this place. Never invent one; the user names it when saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed mosque'**
+  String get nearbyUnnamed;
+
+  /// No description provided for @nearbyNoAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'No address listed'**
+  String get nearbyNoAddress;
+
+  /// A result at (or listed at) almost the searched point. Providers often place mosques at a map grid centre, so a precise-looking "0 m" would claim more than they know.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 50 m'**
+  String get distanceUnder50;
+
+  /// No description provided for @distanceMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m'**
+  String distanceMetres(int metres);
+
+  /// No description provided for @distanceKilometres.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String distanceKilometres(String km);
+
+  /// No description provided for @nearbyAttributionGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Results from Google Maps. Not verified — check the name before saving.'**
+  String get nearbyAttributionGoogle;
+
+  /// No description provided for @nearbyAttributionOsm.
+  ///
+  /// In en, this message translates to:
+  /// **'Results © OpenStreetMap contributors. Not verified — check the name before saving.'**
+  String get nearbyAttributionOsm;
+
+  /// No description provided for @nearbyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No mosques found within {km} km. Try a city, or add your mosque by hand.'**
+  String nearbyEmpty(int km);
+
+  /// No description provided for @nearbyNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No mosque in this list matches that name.'**
+  String get nearbyNoMatches;
+
+  /// No description provided for @nearbyAddManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Not listed? Add it by hand'**
+  String get nearbyAddManually;
+
+  /// No description provided for @nearbyTryOsm.
+  ///
+  /// In en, this message translates to:
+  /// **'Search OpenStreetMap instead'**
+  String get nearbyTryOsm;
+
+  /// No description provided for @nearbyFailNoKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Maps search isn\'t set up in this build. You can search OpenStreetMap, or add your mosque by hand.'**
+  String get nearbyFailNoKey;
+
+  /// No description provided for @nearbyFailKeyRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Maps refused the search. That\'s a setup problem with the app, not your phone. You can search OpenStreetMap instead.'**
+  String get nearbyFailKeyRejected;
+
+  /// No description provided for @nearbyFailNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection right now. Your saved mosques and prayer times still work offline.'**
+  String get nearbyFailNetwork;
+
+  /// No description provided for @nearbyFailRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} is busy. Try again in a minute, or add your mosque by hand.'**
+  String nearbyFailRateLimited(String provider);
+
+  /// No description provided for @nearbyFailServer.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} didn\'t answer properly. Try again, or add your mosque by hand.'**
+  String nearbyFailServer(String provider);
+
+  /// No description provided for @nearbyFailLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s all the searching for this session, to keep the app free to run. It resets when you reopen the app. You can still add a mosque by hand.'**
+  String get nearbyFailLimit;
+
+  /// No description provided for @nearbyLocDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location wasn\'t allowed. You can search around a city instead.'**
+  String get nearbyLocDenied;
+
+  /// No description provided for @nearbyLocPermanent.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off for Jama’ah in your settings. Allow it there, or search around a city.'**
+  String get nearbyLocPermanent;
+
+  /// No description provided for @nearbyLocService.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are off on this phone. Turn them on, or search around a city.'**
+  String get nearbyLocService;
+
+  /// No description provided for @nearbyLocTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone didn\'t find its position in time. Try again, or search around a city.'**
+  String get nearbyLocTimeout;
+
+  /// No description provided for @nearbyLocUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your position couldn\'t be read right now. Search around a city instead.'**
+  String get nearbyLocUnavailable;
+
+  /// No description provided for @tagSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get tagSaved;
+
+  /// No description provided for @saveMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this mosque'**
+  String get saveMosqueTitle;
+
+  /// No description provided for @saveMosqueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the name and address — they come from {provider}, not from the mosque. Its Iqama times start as “Not configured”.'**
+  String saveMosqueBody(String provider);
 }
 
 class _AppLocalizationsDelegate

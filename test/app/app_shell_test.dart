@@ -114,7 +114,7 @@ void main() {
     );
   });
 
-  testApp('Mosques starts honestly empty instead of showing an invented list', (
+  testApp('Mosques starts honestly empty, with the two ways to add one', (
     tester,
   ) async {
     await open(tester);
@@ -126,18 +126,12 @@ void main() {
       findsNothing,
       reason: 'no mosque exists yet, so no row may look like one',
     );
-    final nearby = tester.widget<ButtonStyleButton>(
-      find.ancestor(
-        of: find.text(t.findNearbyMosques),
-        matching: find.bySubtype<ButtonStyleButton>(),
-      ),
-    );
     expect(
-      nearby.onPressed,
-      isNull,
-      reason: 'discovery is a later step: visible, but leads nowhere fake',
+      find.text(t.findNearbyMosques),
+      findsOneWidget,
+      reason: 'a mosque gets here by being found nearby, or added by hand',
     );
-    expect(find.text(t.findNearbyLater), findsOneWidget);
+    expect(find.text(t.addMosqueManually), findsOneWidget);
   });
 
   testApp('Qibla says the same kind of truth, with no bearing on show', (

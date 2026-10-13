@@ -110,3 +110,39 @@ abstract interface class PlaceSource {
   /// already offered the manual list as the way through.
   Future<void> openSystemSettings();
 }
+
+/// The outcome of asking for a position to search for mosques around.
+sealed class NearbyReading {
+  const NearbyReading();
+}
+
+final class NearbyFound extends NearbyReading {
+  const NearbyFound({
+    required this.latitude,
+    required this.longitude,
+    required this.precise,
+  });
+
+  final double latitude;
+  final double longitude;
+
+  /// False when the user kept location approximate: the search still runs, and
+  /// the screen says results may be a little off.
+  final bool precise;
+}
+
+final class NearbyRejected extends NearbyReading {
+  const NearbyRejected(this.failure);
+
+  final PlaceFailure failure;
+}
+
+/// Where "Find nearby mosques" gets its starting point. Separate from
+/// [PlaceSource] because it asks for a different level of location: precise,
+/// and only when the user taps the search (decided 2026-10-13).
+abstract interface class NearbyLocationSource {
+  /// Must not call the platform until invoked: the explanation is shown first.
+  Future<NearbyReading> requestPosition();
+
+  Future<void> openSystemSettings();
+}

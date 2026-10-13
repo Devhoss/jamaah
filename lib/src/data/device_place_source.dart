@@ -4,12 +4,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 
 import '../domain/place.dart';
+import 'location_permission.dart';
 
 /// Reads the device's **coarse** position and its IANA time zone.
 ///
-/// Requests `LocationAccuracy.low`: the manifest asks only for
-/// `ACCESS_COARSE_LOCATION`, so a fine fix is not even available to the app
-/// (AGENTS.md — fine location belongs to nearby-mosque search, not Today).
+/// Asks for approximate location only — the system dialog offers nothing more —
+/// and reads `LocationAccuracy.low`. Precise location belongs to the mosque
+/// search alone (decided 2026-10-13), see [DeviceNearbyLocationSource].
 ///
 /// Every platform failure becomes a [PlaceRejected] value instead of an
 /// exception, because the caller has to show a message and route to the manual
@@ -17,10 +18,14 @@ import '../domain/place.dart';
 /// UI is tested against a fake [PlaceSource], and this class only maps plugin
 /// results onto the domain outcomes.
 class DevicePlaceSource implements PlaceSource {
-  const DevicePlaceSource({this.timeout = const Duration(seconds: 12)});
+  const DevicePlaceSource({
+    this.timeout = const Duration(seconds: 12),
+    this.permissions = const LocationPermissions(),
+  });
 
   /// How long to wait for a fix before giving up and offering the city list.
   final Duration timeout;
+  final LocationPermissions permissions;
 
   @override
   Future<PlaceReading> requestPlace() async {
@@ -28,20 +33,14 @@ class DevicePlaceSource implements PlaceSource {
       return const PlaceRejected(PlaceFailure.serviceDisabled);
     }
 
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      // Only now does the system dialog appear — which is why the explanation
-      // sheet has to be on screen before this is ever called.
-      permission = await Geolocator.requestPermission();
+    // Only now does the system dialog appear — which is why the explanation
+    // sheet has to be on screen before this is ever called.
+    final grant = await _grant(permissions, precise: false);
+    if (!grant.any) {
+      return PlaceRejected(
+        grant.canAsk ? PlaceFailure.denied : PlaceFailure.permanentlyDenied,
+      );
     }
-
-    final failure = switch (permission) {
-      LocationPermission.denied => PlaceFailure.denied,
-      LocationPermission.deniedForever => PlaceFailure.permanentlyDenied,
-      LocationPermission.unableToDetermine => PlaceFailure.unavailable,
-      LocationPermission.whileInUse || LocationPermission.always => null,
-    };
-    if (failure case final why?) return PlaceRejected(why);
 
     try {
       final position = await Geolocator.getCurrentPosition(
@@ -75,14 +74,7 @@ class DevicePlaceSource implements PlaceSource {
   }
 
   @override
-  Future<void> openSystemSettings() async {
-    // Best effort: the sheet already offers the city list as the way through.
-    try {
-      await Geolocator.openAppSettings();
-    } on Object {
-      return;
-    }
-  }
+  Future<void> openSystemSettings() => _openAppSettings();
 
   /// The device's IANA zone name.
   ///
@@ -99,4 +91,77 @@ class DevicePlaceSource implements PlaceSource {
     final now = DateTime.now();
     return 'device/${now.timeZoneName}';
   }
+}
+
+/// The current grant, asking first when the system still lets the app ask.
+Future<LocationGrant> _grant(
+  LocationPermissions permissions, {
+  required bool precise,
+}) async {
+  final now = await permissions.status();
+  final enough = precise ? now.fine : now.any;
+  if (enough || !now.canAsk && !now.any) return now;
+  return permissions.request(precise: precise);
+}
+
+/// Best effort: every screen that offers this also offers another way through.
+Future<void> _openAppSettings() async {
+  try {
+    await Geolocator.openAppSettings();
+  } on Object {
+    return;
+  }
+}
+
+/// The device's precise position, for "Find nearby mosques" only.
+///
+/// Asks for precise location with the system dialog, which lets the user keep
+/// it approximate; that is reported, not treated as a failure, because a search
+/// around an approximate point still finds mosques — just less exactly.
+class DeviceNearbyLocationSource implements NearbyLocationSource {
+  const DeviceNearbyLocationSource({
+    this.timeout = const Duration(seconds: 15),
+    this.permissions = const LocationPermissions(),
+  });
+
+  final Duration timeout;
+  final LocationPermissions permissions;
+
+  @override
+  Future<NearbyReading> requestPosition() async {
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return const NearbyRejected(PlaceFailure.serviceDisabled);
+    }
+
+    final grant = await _grant(permissions, precise: true);
+    if (!grant.any) {
+      return NearbyRejected(
+        grant.canAsk ? PlaceFailure.denied : PlaceFailure.permanentlyDenied,
+      );
+    }
+
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(
+          accuracy: grant.fine ? LocationAccuracy.high : LocationAccuracy.low,
+        ),
+      ).timeout(timeout);
+      return NearbyFound(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        precise: grant.fine,
+      );
+    } on LocationServiceDisabledException {
+      return const NearbyRejected(PlaceFailure.serviceDisabled);
+    } on PermissionDeniedException {
+      return const NearbyRejected(PlaceFailure.denied);
+    } on TimeoutException {
+      return const NearbyRejected(PlaceFailure.timeout);
+    } on Object {
+      return const NearbyRejected(PlaceFailure.unavailable);
+    }
+  }
+
+  @override
+  Future<void> openSystemSettings() => _openAppSettings();
 }

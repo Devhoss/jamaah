@@ -79,6 +79,11 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
   verify Google's caching terms before storing other place content.
 - Request location only when the user taps "Find nearby", after a respectful explanation.
   Always offer manual place search. Log which provider served results.
+- Two location levels (decided 2026-10-13): prayer times use approximate location only;
+  "Find nearby" asks for precise location (the user may keep it approximate). Each level is
+  requested on its own, so the first prompt never offers precise.
+- Google mosques keep the place id plus the user's confirmed name/address, not coordinates
+  (Google allows caching lat/lng for 30 days). OSM mosques may keep coordinates (ODbL).
 
 ## Notifications and Adhan sound
 - Local notifications only, rolling window (~7 days). Reschedule on app start, timezone/DST change,

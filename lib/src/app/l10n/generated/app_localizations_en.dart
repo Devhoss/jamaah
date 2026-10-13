@@ -208,7 +208,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationSheetCoarse =>
-      'We ask for approximate location — city level, never your exact position. Times across one city differ by only a few minutes.';
+      'Prayer times need only approximate location — city level. Times across one city differ by only a few minutes. Finding mosques near you asks separately for precise location.';
 
   @override
   String get locationUseDevice => 'Use my location';
@@ -284,10 +284,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get findNearbyMosques => 'Find nearby mosques';
-
-  @override
-  String get findNearbyLater =>
-      'Finding mosques near you comes in a later step. For now, add your mosque by hand.';
 
   @override
   String get addMosqueManually => 'Add a mosque manually';
@@ -482,4 +478,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearIqamaTime => 'Clear Iqama time';
+
+  @override
+  String get nearbyTitle => 'Nearby mosques';
+
+  @override
+  String get nearbyExplainTitle => 'Find mosques near you';
+
+  @override
+  String get nearbyExplainBody =>
+      'We use your precise location once, to list the mosques around you. If you keep location approximate, the search still works, just less exactly.';
+
+  @override
+  String nearbyExplainSent(String provider) {
+    return 'Your position is sent to $provider for this search only. Jama’ah does not store it.';
+  }
+
+  @override
+  String get providerGoogle => 'Google Maps';
+
+  @override
+  String get providerOsm => 'OpenStreetMap';
+
+  @override
+  String get nearbyUseLocation => 'Use my location';
+
+  @override
+  String get nearbySearchCity => 'Search around a city';
+
+  @override
+  String get nearbyLocating => 'Finding where you are…';
+
+  @override
+  String get nearbySearching => 'Looking for mosques…';
+
+  @override
+  String nearbyHeaderHere(int km) {
+    return 'Within $km km of you';
+  }
+
+  @override
+  String nearbyHeaderCity(int km, String place) {
+    return 'Within $km km of $place';
+  }
+
+  @override
+  String get nearbyApproximateNote =>
+      'Your phone shared approximate location, so this list may be a few kilometres off. You can allow precise location in settings.';
+
+  @override
+  String get nearbyFilterHint => 'Filter by name';
+
+  @override
+  String get nearbyUnnamed => 'Unnamed mosque';
+
+  @override
+  String get nearbyNoAddress => 'No address listed';
+
+  @override
+  String get distanceUnder50 => 'Under 50 m';
+
+  @override
+  String distanceMetres(int metres) {
+    return '$metres m';
+  }
+
+  @override
+  String distanceKilometres(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get nearbyAttributionGoogle =>
+      'Results from Google Maps. Not verified — check the name before saving.';
+
+  @override
+  String get nearbyAttributionOsm =>
+      'Results © OpenStreetMap contributors. Not verified — check the name before saving.';
+
+  @override
+  String nearbyEmpty(int km) {
+    return 'No mosques found within $km km. Try a city, or add your mosque by hand.';
+  }
+
+  @override
+  String get nearbyNoMatches => 'No mosque in this list matches that name.';
+
+  @override
+  String get nearbyAddManually => 'Not listed? Add it by hand';
+
+  @override
+  String get nearbyTryOsm => 'Search OpenStreetMap instead';
+
+  @override
+  String get nearbyFailNoKey =>
+      'Google Maps search isn\'t set up in this build. You can search OpenStreetMap, or add your mosque by hand.';
+
+  @override
+  String get nearbyFailKeyRejected =>
+      'Google Maps refused the search. That\'s a setup problem with the app, not your phone. You can search OpenStreetMap instead.';
+
+  @override
+  String get nearbyFailNetwork =>
+      'No connection right now. Your saved mosques and prayer times still work offline.';
+
+  @override
+  String nearbyFailRateLimited(String provider) {
+    return '$provider is busy. Try again in a minute, or add your mosque by hand.';
+  }
+
+  @override
+  String nearbyFailServer(String provider) {
+    return '$provider didn\'t answer properly. Try again, or add your mosque by hand.';
+  }
+
+  @override
+  String get nearbyFailLimit =>
+      'That\'s all the searching for this session, to keep the app free to run. It resets when you reopen the app. You can still add a mosque by hand.';
+
+  @override
+  String get nearbyLocDenied =>
+      'Location wasn\'t allowed. You can search around a city instead.';
+
+  @override
+  String get nearbyLocPermanent =>
+      'Location is turned off for Jama’ah in your settings. Allow it there, or search around a city.';
+
+  @override
+  String get nearbyLocService =>
+      'Location services are off on this phone. Turn them on, or search around a city.';
+
+  @override
+  String get nearbyLocTimeout =>
+      'Your phone didn\'t find its position in time. Try again, or search around a city.';
+
+  @override
+  String get nearbyLocUnavailable =>
+      'Your position couldn\'t be read right now. Search around a city instead.';
+
+  @override
+  String get tagSaved => 'Saved';
+
+  @override
+  String get saveMosqueTitle => 'Save this mosque';
+
+  @override
+  String saveMosqueBody(String provider) {
+    return 'Check the name and address — they come from $provider, not from the mosque. Its Iqama times start as “Not configured”.';
+  }
 }

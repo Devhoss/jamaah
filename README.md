@@ -175,10 +175,34 @@ The first screen the user sees, and the only one that reads the stored place.
 - Today follows every change at once: `MosqueRepository.watchSaved()` re-reads on
   drift's table-update notifications for mosques, schedules and Iqama entries.
 
+## Finding mosques nearby
+
+- **Mosques → Find nearby mosques** explains first, then asks for **precise**
+  location (Android lets the user keep it approximate; the search still runs and
+  says the list may be a few km off). **Search around a city** uses the bundled
+  list and needs no permission. Today's "where are you?" asks for approximate
+  location only: both levels go through `LocationPermissions` (MainActivity),
+  because geolocator's own request would offer precise at the first prompt.
+- The provider is `DISCOVERY_PROVIDER` in `.env` (`google` by default, or `osm`).
+  Build with the key: `flutter run --dart-define-from-file=.env`. A build without
+  it reports "not set up" and offers OpenStreetMap or adding by hand.
+- Google: Places API (New) Nearby Search, 5 km, nearest first, field mask
+  `places.id,places.displayName,places.formattedAddress,places.location` only. The
+  app sends `X-Android-Package` and `X-Android-Cert`, the SHA-1 read from the
+  installed APK, so a key restricted to the app works for any signing key.
+- OpenStreetMap: Overpass, `amenity=place_of_worship` + `religion=muslim`. Unnamed
+  places are listed as "Unnamed mosque" and must be named before saving.
+- `DiscoverySession` reuses answers within 150 m, shares a search in flight, and
+  allows 10 network calls per app session; each answer is logged with its provider.
+- Results are labelled by source and "not verified". Saving asks the user to confirm
+  the name and address. A Google mosque keeps its place id but **not** its
+  coordinates (Google allows caching those for 30 days only); an OpenStreetMap
+  mosque keeps both.
+
 ## Tests
 
 ```bash
-flutter test       # 353 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 373 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

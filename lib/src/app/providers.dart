@@ -46,6 +46,11 @@ final placeSourceProvider = Provider<PlaceSource>(
   (ref) => const DevicePlaceSource(),
 );
 
+/// The device's precise position, for "Find nearby mosques" only.
+final nearbyLocationSourceProvider = Provider<NearbyLocationSource>(
+  (ref) => const DeviceNearbyLocationSource(),
+);
+
 /// The place prayer times are calculated from, or null until the user sets one.
 final currentPlaceProvider = Provider<Place?>((ref) {
   final settings = ref.watch(appSettingsProvider);
