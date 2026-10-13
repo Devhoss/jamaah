@@ -12,7 +12,8 @@ import '../../domain/mosque.dart';
 import '../../domain/prayer.dart';
 import '../../domain/time_model.dart';
 
-/// Asks the user for a time of day. Null means they backed out.
+/// Asks the user for a time of day, starting the dial at [initial] when given.
+/// Null means they backed out.
 typedef IqamaTimePicker = Future<LocalTime?> Function(
   BuildContext context,
   LocalTime? initial,
@@ -29,8 +30,9 @@ Future<LocalTime?> _materialTimePicker(
   BuildContext context,
   LocalTime? initial,
 ) async {
-  // With no Iqama yet the dial opens at the current time. That is where a picker
-  // starts, not a value: nothing is stored until the user confirms a time.
+  // With nothing to start from the dial opens at the current time. Either way it
+  // is where a picker starts, not a value: nothing is stored until the user
+  // confirms a time.
   final picked = await showTimePicker(
     context: context,
     initialTime: initial == null
@@ -46,14 +48,19 @@ Future<void> showIqamaEditor(
   required Mosque mosque,
   required Prayer prayer,
   required PrayerIqama current,
+  LocalTime? adhan,
 }) {
   assert(prayer.canHaveIqama, 'Sunrise has no Iqama (AGENTS.md)');
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) =>
-        IqamaEditorSheet(mosque: mosque, prayer: prayer, current: current),
+    builder: (_) => IqamaEditorSheet(
+      mosque: mosque,
+      prayer: prayer,
+      current: current,
+      adhan: adhan,
+    ),
   );
 }
 
@@ -67,12 +74,21 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
     required this.mosque,
     required this.prayer,
     required this.current,
+    this.adhan,
     super.key,
   });
 
   final Mosque mosque;
   final Prayer prayer;
   final PrayerIqama current;
+
+  /// The day's Adhan time for [prayer], when there is a place to read it from.
+  ///
+  /// Only ever the picker's starting point for an Iqama not entered yet, so the
+  /// user nudges minutes instead of scrolling from the current time. It is never
+  /// shown as the Iqama and never saved without the user confirming a time
+  /// (AGENTS.md: Iqama is never derived from Adhan).
+  final LocalTime? adhan;
 
   @override
   ConsumerState<IqamaEditorSheet> createState() => _IqamaEditorSheetState();
@@ -110,7 +126,10 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
       !_saving && _time != null && (!_reminderOn || _minutes != null);
 
   Future<void> _pickTime() async {
-    final picked = await ref.read(iqamaTimePickerProvider)(context, _time);
+    final picked = await ref.read(iqamaTimePickerProvider)(
+      context,
+      _time ?? widget.adhan,
+    );
     if (picked != null && mounted) setState(() => _time = picked);
   }
 
@@ -183,7 +202,9 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
               _TimeField(
                 label: l10n.iqamaTimeLabel,
                 value: _time == null ? null : clock.time(_time!),
-                placeholder: l10n.iqamaChooseTime,
+                placeholder: widget.adhan == null
+                    ? l10n.iqamaChooseTime
+                    : l10n.iqamaStartsAtAdhan(clock.time(widget.adhan!)),
                 onTap: _saving ? null : _pickTime,
               ),
               const SizedBox(height: AppSpace.md),

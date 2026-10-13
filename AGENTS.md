@@ -15,6 +15,9 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 - Adhan times and Iqama times are separate concepts in UI, code and data.
 - Iqama times belong to individual mosques. Never global, never derived from Adhan times.
 - A new mosque starts with every Iqama time "Not configured". Never fill defaults or invent times.
+- The Iqama editor may open its time picker at the day's Adhan time, as a starting position only:
+  the field says "Adhan <time> · tap to set", nothing is stored until the user confirms a time,
+  and the Adhan time is never shown or saved as the Iqama (decided 2026-10-13).
 - Iqama times are entered and managed by the user. No external Iqama data source.
 - One editable schedule per mosque, modelled as an entry with an optional effective-from date
   so dated/seasonal schedules can be added later without a migration.

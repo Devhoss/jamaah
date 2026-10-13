@@ -163,7 +163,9 @@ The first screen the user sees, and the only one that reads the stored place.
   "Not configured", plus a quick reminder switch that stays disabled until a time
   exists. "Set by you · last updated <date>" comes from the injected clock.
 - The **Iqama editor** names the mosque and prayer, uses the device's time picker
-  (12/24-hour from the system), and saves nothing until Save. Reminders are 5, 10 or
+  (12/24-hour from the system), and saves nothing until Save. An Iqama not entered
+  yet reads "Adhan 5:36 AM · tap to set" and the picker opens at that Adhan time —
+  a starting point only; Save still waits for the user to confirm a time. Reminders are 5, 10 or
   15 minutes or Custom (whole minutes 1–120). The live summary reads "Maghrib ·
   6:30 PM Iqama · Reminder at 6:20 PM", and says "before midnight" when the reminder
   falls on the evening before an after-midnight Iqama. Clear returns the prayer to
@@ -176,7 +178,7 @@ The first screen the user sees, and the only one that reads the stored place.
 ## Tests
 
 ```bash
-flutter test       # 313 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 316 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

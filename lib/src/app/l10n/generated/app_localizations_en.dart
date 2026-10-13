@@ -424,6 +424,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iqamaChooseTime => 'Choose a time';
 
   @override
+  String iqamaStartsAtAdhan(String time) {
+    return 'Adhan $time · tap to set';
+  }
+
+  @override
   String get iqamaTimeLabel => 'Iqama time';
 
   @override

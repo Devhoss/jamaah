@@ -35,6 +35,9 @@ void main() {
   late MosqueRepository mosques;
   late FixedClock clock;
   LocalTime? pickerAnswer;
+  // What the editor opened the picker at, so a test can check the starting point.
+  LocalTime? pickerOpenedAt;
+  var pickerOpened = false;
 
   setUpAll(loadTimeZoneDatabase);
 
@@ -45,6 +48,8 @@ void main() {
     clock = FixedClock(DateTime.utc(2026, 10, 12, 7, 0));
     mosques = MosqueRepository(db, clock: clock);
     pickerAnswer = null;
+    pickerOpenedAt = null;
+    pickerOpened = false;
     addTearDown(db.close);
   });
 
@@ -56,7 +61,11 @@ void main() {
         FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable)),
       ),
       iqamaTimePickerProvider.overrideWithValue(
-        (context, initial) async => pickerAnswer,
+        (context, initial) async {
+          pickerOpened = true;
+          pickerOpenedAt = initial;
+          return pickerAnswer;
+        },
       ),
     ],
     child: Builder(
@@ -167,7 +176,10 @@ void main() {
 
   Future<void> chooseTime(WidgetTester tester, LocalTime time) async {
     pickerAnswer = time;
-    await tapText(tester, t.iqamaChooseTime);
+    // The field's wording depends on whether there is an Adhan time to start
+    // from, so tap it by its clock icon rather than by its text.
+    await tester.tap(find.byIcon(Icons.schedule));
+    await tester.pumpAndSettle();
   }
 
   group('adding a mosque by hand', () {
@@ -258,6 +270,75 @@ void main() {
   });
 
   group('the Iqama editor', () {
+    testApp('an empty Iqama starts the picker at the Adhan time, saving nothing', (
+      tester,
+    ) async {
+      await open(tester);
+      await addThroughSheet(tester);
+      await openEditor(tester, Prayer.fajr);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(IqamaEditorSheet)),
+      );
+      final adhan = LocalTime(
+        container.read(todayProvider)!.day.timeOf(Prayer.fajr)!,
+      );
+      final at = clockOn(tester).time;
+
+      expect(find.text(t.iqamaStartsAtAdhan(at(adhan))), findsOneWidget);
+      expect(
+        isEnabled(tester, t.save),
+        isFalse,
+        reason: 'the Adhan time is where the picker starts, never a saved value '
+            '(AGENTS.md: Iqama is never derived from Adhan)',
+      );
+      expect(find.text(t.summaryNoTime), findsOneWidget);
+
+      // Backing out of the picker leaves nothing chosen.
+      pickerAnswer = null;
+      await tester.tap(find.byIcon(Icons.schedule));
+      await tester.pumpAndSettle();
+      expect(pickerOpened, isTrue);
+      expect(pickerOpenedAt, adhan);
+      expect(isEnabled(tester, t.save), isFalse);
+
+      await tapText(tester, t.cancel);
+      expect(
+        storedEntry(await savedMosque('Masjid al-Nour'), Prayer.fajr)
+            .isConfigured,
+        isFalse,
+      );
+    });
+
+    testApp('a configured Iqama reopens the picker at that Iqama', (
+      tester,
+    ) async {
+      await open(tester);
+      await addThroughSheet(tester);
+      final mosque = await savedMosque('Masjid al-Nour');
+      await mosques.setIqama(mosque.id, Prayer.fajr, LocalTime.of(5, 50));
+      await tester.pumpAndSettle();
+      await openEditor(tester, Prayer.fajr);
+
+      await tester.tap(find.byIcon(Icons.schedule));
+      await tester.pumpAndSettle();
+      expect(pickerOpenedAt, LocalTime.of(5, 50));
+    });
+
+    testApp('without a place there is no Adhan time to start from', (
+      tester,
+    ) async {
+      await open(tester, withPlace: false);
+      await addThroughSheet(tester);
+      await openEditor(tester, Prayer.fajr);
+
+      expect(find.text(t.iqamaChooseTime), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.schedule));
+      await tester.pumpAndSettle();
+      expect(pickerOpened, isTrue);
+      expect(pickerOpenedAt, isNull);
+    });
+
     testApp('names the mosque and prayer, and Save waits for a time', (
       tester,
     ) async {

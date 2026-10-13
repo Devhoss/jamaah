@@ -298,6 +298,13 @@
     }
   },
   "iqamaChooseTime": "Choose a time",
+  "iqamaStartsAtAdhan": "Adhan {time} · tap to set",
+  "@iqamaStartsAtAdhan": {
+    "description": "Empty Iqama field when the day's Adhan time is known. The picker opens at the Adhan time; nothing is saved until the user confirms a time. Never present it as the Iqama.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
   "iqamaTimeLabel": "Iqama time",
   "remindMeBefore": "Remind me before Iqama",
   "reminderNeedsTime": "Choose an Iqama time first.",

@@ -790,6 +790,12 @@ abstract class AppLocalizations {
   /// **'Choose a time'**
   String get iqamaChooseTime;
 
+  /// Empty Iqama field when the day's Adhan time is known. The picker opens at the Adhan time; nothing is saved until the user confirms a time. Never present it as the Iqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan {time} · tap to set'**
+  String iqamaStartsAtAdhan(String time);
+
   /// No description provided for @iqamaTimeLabel.
   ///
   /// In en, this message translates to:

@@ -229,6 +229,7 @@ class _IqamaRow extends ConsumerWidget {
         mosque: mosque,
         prayer: prayer,
         current: entry,
+        adhan: adhan == null ? null : LocalTime(adhan!),
       ),
       // The Iqama value shares the title's width rather than sitting in the fixed
       // trailing slot, so at a large text size it wraps instead of pushing the row
