@@ -1273,6 +1273,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsHijri => 'Hijri date';
 
   @override
+  String zoneNotePlace(String place, String placeOffset, String phoneOffset) {
+    return 'Times are local time in $place ($placeOffset). Your phone\'s clock is on $phoneOffset.';
+  }
+
+  @override
+  String zoneNoteHere(String placeOffset, String phoneOffset) {
+    return 'Times are local time where you are ($placeOffset). Your phone\'s clock is on $phoneOffset.';
+  }
+
+  @override
   String get hijriAsCalculated => 'As calculated (Umm al-Qura)';
 
   @override

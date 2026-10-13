@@ -48,3 +48,11 @@ class MinuteClock extends Notifier<DateTime> {
 final minuteClockProvider = NotifierProvider<MinuteClock, DateTime>(
   MinuteClock.new,
 );
+
+/// The offset the phone's own clock is set to, re-read every minute (it
+/// changes when the phone changes zone). Overridden in tests; null there
+/// means "the same as the place", so no note is shown.
+final phoneUtcOffsetProvider = Provider<Duration?>((ref) {
+  ref.watch(minuteClockProvider);
+  return DateTime.now().timeZoneOffset;
+});

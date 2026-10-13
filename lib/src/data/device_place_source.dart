@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 
+import '../domain/zone_lookup.dart';
 import '../domain/place.dart';
 import 'location_permission.dart';
 
@@ -54,7 +55,7 @@ class DevicePlaceSource implements PlaceSource {
     return _read();
   }
 
-  /// One coarse fix and the device's zone, every failure as a value.
+  /// One coarse fix and the zone it is in, every failure as a value.
   Future<PlaceReading> _read() async {
     try {
       final position = await Geolocator.getCurrentPosition(
@@ -62,7 +63,11 @@ class DevicePlaceSource implements PlaceSource {
           accuracy: LocationAccuracy.low,
         ),
       ).timeout(timeout);
-      final ianaZone = await _ianaZoneName();
+      // The zone where the phone is, not the one its clock is set to: a phone
+      // still on home time after a flight must not move the place's times.
+      final ianaZone =
+          zoneAt(latitude: position.latitude, longitude: position.longitude) ??
+          await _ianaZoneName();
 
       // A device place has no human-readable name we are allowed to invent:
       // reverse geocoding needs the network. The zone is stored as the label and

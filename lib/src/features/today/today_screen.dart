@@ -9,6 +9,8 @@ import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
+import '../../domain/place.dart';
+import '../../domain/zone_lookup.dart';
 import '../../domain/mosque.dart';
 import '../../domain/prayer.dart';
 import '../../domain/prayer_times_parameters.dart';
@@ -102,6 +104,7 @@ class TodayScreen extends ConsumerWidget {
             failed: settings.requireValue.placeCheckFailed,
             now: ref.watch(minuteClockProvider),
           ),
+        if (_zoneNote(ref, l10n, place) case final note?) _Note(note),
         if (hasTimes) ...[
           _HeroCard(
             today: today,
@@ -568,6 +571,27 @@ class _TodayNotes extends StatelessWidget {
         ? l10n.latitudeNorth(value)
         : l10n.latitudeSouth(value);
   }
+}
+
+/// When the place's clock and the phone's clock disagree (a phone left on home
+/// time after a flight), says which one the times are in, so they are never
+/// misread against the clock at the top of the screen.
+String? _zoneNote(WidgetRef ref, AppLocalizations l10n, Place place) {
+  final phone = ref.watch(phoneUtcOffsetProvider);
+  final zone = ref.watch(placeZoneProvider);
+  if (phone == null || zone == null) return null;
+  final now = ref.watch(minuteClockProvider);
+  final placeMinutes = zone.offsetMinutesAt(now);
+  if (placeMinutes == phone.inMinutes) return null;
+  // Isolated so "UTC+3" keeps its sign in a right-to-left line.
+  String utc(int minutes) => '\u2066UTC${utcOffsetLabel(minutes)}\u2069';
+  return place.fromDevice && place.userName == null
+      ? l10n.zoneNoteHere(utc(placeMinutes), utc(phone.inMinutes))
+      : l10n.zoneNotePlace(
+          placeLabel(l10n, place),
+          utc(placeMinutes),
+          utc(phone.inMinutes),
+        );
 }
 
 class _Note extends StatelessWidget {

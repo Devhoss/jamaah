@@ -136,6 +136,7 @@ void main() {
             ),
             notificationGatewayProvider.overrideWithValue(gateway),
             compassSourceProvider.overrideWithValue(_SilentCompass()),
+            phoneUtcOffsetProvider.overrideWithValue(null),
           ],
           child: Builder(
             builder: (context) => MediaQuery(

@@ -407,6 +407,8 @@ AR = {
     'settingsHighLatitude': 'خطوط العرض العليا',
     'settingsAdjustments': 'تعديلات يدوية',
     'settingsHijri': 'التاريخ الهجري',
+    'zoneNotePlace': 'المواقيت بالتوقيت المحلي في {place} ({placeOffset})، وساعة هاتفك على {phoneOffset}.',
+    'zoneNoteHere': 'المواقيت بالتوقيت المحلي حيث أنت ({placeOffset})، وساعة هاتفك على {phoneOffset}.',
     'hijriAsCalculated': 'كما هو محسوب (أم القرى)',
     'hijriLater': plural(
         'days', one='متأخر يومًا', two='متأخر يومين', few='متأخر {n} أيام', many='متأخر {n} يومًا'

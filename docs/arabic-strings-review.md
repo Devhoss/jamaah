@@ -360,59 +360,61 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 347 | `settingsHighLatitude` | Higher latitudes | خطوط العرض العليا |
 | 348 | `settingsAdjustments` | Manual adjustments | تعديلات يدوية |
 | 349 | `settingsHijri` | Hijri date | التاريخ الهجري |
-| 350 | `hijriAsCalculated` | As calculated (Umm al-Qura) | كما هو محسوب (أم القرى) |
-| 351 | `hijriLater` | {days, plural, =1{1 day later} other{{days} days later}} | {days, plural, =1{متأخر يومًا} =2{متأخر يومين} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يومًا}} |
-| 352 | `hijriEarlier` | {days, plural, =1{1 day earlier} other{{days} days earlier}} | {days, plural, =1{متقدم يومًا} =2{متقدم يومين} few{متقدم {days} أيام} many{متقدم {days} يومًا} other{متقدم {days} يومًا}} |
-| 353 | `hijriAdjustNote` | Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date. | طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ. |
-| 354 | `methodAngles` | Fajr {fajr}° · Isha {isha}° | الفجر {fajr}° · العشاء {isha}° |
-| 355 | `methodAnglesInterval` | Fajr {fajr}° · Isha {minutes} min after Maghrib | {minutes, plural, =1{الفجر {fajr}° · العشاء بعد المغرب بـدقيقة} =2{الفجر {fajr}° · العشاء بعد المغرب بـدقيقتين} few{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقائق} many{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة} other{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة}} |
-| 356 | `methodUmmAlQuraRamadan` | Isha 120 min after Maghrib during Ramadan | العشاء بعد المغرب بـ120 دقيقة في رمضان |
-| 357 | `methodMoonsightingNote` | Also adjusts Fajr and Isha by season | يعدّل الفجر والعشاء أيضًا حسب الموسم |
-| 358 | `methodAutoResolved` | Uses {method} for {place} | يستخدم {method} في {place} |
-| 359 | `methodAutoNoPlace` | Chooses by your place once one is set | يختار حسب مكانك بعد تحديده |
-| 360 | `customTitle` | Custom angles | زوايا مخصصة |
-| 361 | `customFajr` | Fajr angle (°) | زاوية الفجر (°) |
-| 362 | `customIsha` | Isha angle (°) | زاوية العشاء (°) |
-| 363 | `customIshaByMinutes` | Isha by minutes after Maghrib | العشاء بدقائق بعد المغرب |
-| 364 | `customIshaMinutes` | Minutes after Maghrib | الدقائق بعد المغرب |
-| 365 | `customAngleError` | Between 10° and 22° | بين 10° و22° |
-| 366 | `customMinutesError` | Between 1 and 180 minutes | بين 1 و180 دقيقة |
-| 367 | `asrStandard` | Standard | الجمهور |
-| 368 | `asrStandardHint` | Shafi'i, Maliki, Hanbali: the earlier Asr time | الشافعي والمالكي والحنبلي: وقت العصر الأبكر |
-| 369 | `asrHanafi` | Hanafi | الحنفي |
-| 370 | `asrHanafiHint` | The later Asr time | وقت العصر المتأخر |
-| 371 | `ruleMiddleOfTheNightTitle` | Middle of the night | منتصف الليل |
-| 372 | `ruleSeventhOfTheNightTitle` | One seventh of the night | سُبع الليل |
-| 373 | `ruleTwilightAngleTitle` | Twilight angle | زاوية الشفق |
-| 374 | `ruleMiddleOfTheNightHint` | Fajr and Isha no later than the middle of the night (default) | الفجر والعشاء لا يتجاوزان منتصف الليل (الافتراضي) |
-| 375 | `ruleSeventhOfTheNightHint` | Fajr and Isha within the first and last seventh of the night | الفجر والعشاء ضمن السُّبع الأول والأخير من الليل |
-| 376 | `ruleTwilightAngleHint` | A share of the night proportional to the method's angles | جزء من الليل يتناسب مع زوايا الطريقة |
-| 377 | `highLatitudeSettingsNote` | Only used where the sun stays close to the horizon at night; elsewhere it changes nothing. | تُستخدم فقط حيث تبقى الشمس قريبة من الأفق ليلًا؛ وفي غير ذلك لا تغيّر شيئًا. |
-| 378 | `adjustmentsHint` | Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable. | دقائق تُضاف إلى الوقت المحسوب أو تُطرح منه، مثلًا لمطابقة التقويم المطبوع في مسجدك. |
-| 379 | `adjustmentsMinus` | {prayer}: one minute earlier | {prayer}: تقديم دقيقة |
-| 380 | `adjustmentsPlus` | {prayer}: one minute later | {prayer}: تأخير دقيقة |
-| 381 | `adjustmentsValue` | {minutes} min | {minutes} د |
-| 382 | `adjustmentsNone` | None | لا يوجد |
-| 383 | `adjustmentsReset` | Reset all to 0 | إعادة الكل إلى 0 |
-| 384 | `reminderSoundChime` | Chime | نغمة |
-| 385 | `soundHayya` | حيّ على الصلاة | حيّ على الصلاة |
-| 386 | `reminderSoundHayyaHint` | The call to prayer from the Adhan, about 10 seconds. | نداء الصلاة من الأذان، نحو 10 ثوانٍ. |
-| 387 | `settingsShortAdhan` | Short Adhan | الأذان القصير |
-| 388 | `shortAdhanNaghshbandi` | Naghshbandi, opening | النقشبندي، المطلع |
-| 389 | `shortAdhanNaghshbandiHint` | The first 8 seconds of Naghshbandi's Adhan. | أول 8 ثوانٍ من أذان النقشبندي. |
-| 390 | `shortAdhanHayyaHint` | «حيّ على الصلاة» from the Adhan, 10 seconds. | «حيّ على الصلاة» من الأذان، 10 ثوانٍ. |
-| 391 | `settingsReminderSound` | Reminder sound | صوت التذكير |
-| 392 | `reminderSoundChimeHint` | A soft two-note chime, different from the Adhan and from other apps. | نغمة هادئة من نوتتين، مختلفة عن الأذان وعن التطبيقات الأخرى. |
-| 393 | `reminderSoundStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
-| 394 | `reminderSoundSilentHint` | Shown in your notifications without any sound. | يظهر في إشعاراتك دون صوت. |
-| 395 | `settingsReminderVibrate` | Vibrate | اهتزاز |
-| 396 | `settingsReminderTest` | Send a test reminder | إرسال تذكير تجريبي |
-| 397 | `settingsReminderTestSent` | Test reminder sent. | أُرسل التذكير التجريبي. |
-| 398 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
-| 399 | `settingsPauseAllIqamaHint` | No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected. | لا تذكيرات جماعة من أي مسجد حتى توقف هذا الخيار. تبقى أوقات الإقامة محفوظة، ولا تتأثر تنبيهات الأذان. |
-| 400 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
-| 401 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
-| 402 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
-| 403 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
-| 404 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
-| 405 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |
+| 350 | `zoneNotePlace` | Times are local time in {place} ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي في {place} ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
+| 351 | `zoneNoteHere` | Times are local time where you are ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي حيث أنت ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
+| 352 | `hijriAsCalculated` | As calculated (Umm al-Qura) | كما هو محسوب (أم القرى) |
+| 353 | `hijriLater` | {days, plural, =1{1 day later} other{{days} days later}} | {days, plural, =1{متأخر يومًا} =2{متأخر يومين} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يومًا}} |
+| 354 | `hijriEarlier` | {days, plural, =1{1 day earlier} other{{days} days earlier}} | {days, plural, =1{متقدم يومًا} =2{متقدم يومين} few{متقدم {days} أيام} many{متقدم {days} يومًا} other{متقدم {days} يومًا}} |
+| 355 | `hijriAdjustNote` | Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date. | طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ. |
+| 356 | `methodAngles` | Fajr {fajr}° · Isha {isha}° | الفجر {fajr}° · العشاء {isha}° |
+| 357 | `methodAnglesInterval` | Fajr {fajr}° · Isha {minutes} min after Maghrib | {minutes, plural, =1{الفجر {fajr}° · العشاء بعد المغرب بـدقيقة} =2{الفجر {fajr}° · العشاء بعد المغرب بـدقيقتين} few{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقائق} many{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة} other{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة}} |
+| 358 | `methodUmmAlQuraRamadan` | Isha 120 min after Maghrib during Ramadan | العشاء بعد المغرب بـ120 دقيقة في رمضان |
+| 359 | `methodMoonsightingNote` | Also adjusts Fajr and Isha by season | يعدّل الفجر والعشاء أيضًا حسب الموسم |
+| 360 | `methodAutoResolved` | Uses {method} for {place} | يستخدم {method} في {place} |
+| 361 | `methodAutoNoPlace` | Chooses by your place once one is set | يختار حسب مكانك بعد تحديده |
+| 362 | `customTitle` | Custom angles | زوايا مخصصة |
+| 363 | `customFajr` | Fajr angle (°) | زاوية الفجر (°) |
+| 364 | `customIsha` | Isha angle (°) | زاوية العشاء (°) |
+| 365 | `customIshaByMinutes` | Isha by minutes after Maghrib | العشاء بدقائق بعد المغرب |
+| 366 | `customIshaMinutes` | Minutes after Maghrib | الدقائق بعد المغرب |
+| 367 | `customAngleError` | Between 10° and 22° | بين 10° و22° |
+| 368 | `customMinutesError` | Between 1 and 180 minutes | بين 1 و180 دقيقة |
+| 369 | `asrStandard` | Standard | الجمهور |
+| 370 | `asrStandardHint` | Shafi'i, Maliki, Hanbali: the earlier Asr time | الشافعي والمالكي والحنبلي: وقت العصر الأبكر |
+| 371 | `asrHanafi` | Hanafi | الحنفي |
+| 372 | `asrHanafiHint` | The later Asr time | وقت العصر المتأخر |
+| 373 | `ruleMiddleOfTheNightTitle` | Middle of the night | منتصف الليل |
+| 374 | `ruleSeventhOfTheNightTitle` | One seventh of the night | سُبع الليل |
+| 375 | `ruleTwilightAngleTitle` | Twilight angle | زاوية الشفق |
+| 376 | `ruleMiddleOfTheNightHint` | Fajr and Isha no later than the middle of the night (default) | الفجر والعشاء لا يتجاوزان منتصف الليل (الافتراضي) |
+| 377 | `ruleSeventhOfTheNightHint` | Fajr and Isha within the first and last seventh of the night | الفجر والعشاء ضمن السُّبع الأول والأخير من الليل |
+| 378 | `ruleTwilightAngleHint` | A share of the night proportional to the method's angles | جزء من الليل يتناسب مع زوايا الطريقة |
+| 379 | `highLatitudeSettingsNote` | Only used where the sun stays close to the horizon at night; elsewhere it changes nothing. | تُستخدم فقط حيث تبقى الشمس قريبة من الأفق ليلًا؛ وفي غير ذلك لا تغيّر شيئًا. |
+| 380 | `adjustmentsHint` | Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable. | دقائق تُضاف إلى الوقت المحسوب أو تُطرح منه، مثلًا لمطابقة التقويم المطبوع في مسجدك. |
+| 381 | `adjustmentsMinus` | {prayer}: one minute earlier | {prayer}: تقديم دقيقة |
+| 382 | `adjustmentsPlus` | {prayer}: one minute later | {prayer}: تأخير دقيقة |
+| 383 | `adjustmentsValue` | {minutes} min | {minutes} د |
+| 384 | `adjustmentsNone` | None | لا يوجد |
+| 385 | `adjustmentsReset` | Reset all to 0 | إعادة الكل إلى 0 |
+| 386 | `reminderSoundChime` | Chime | نغمة |
+| 387 | `soundHayya` | حيّ على الصلاة | حيّ على الصلاة |
+| 388 | `reminderSoundHayyaHint` | The call to prayer from the Adhan, about 10 seconds. | نداء الصلاة من الأذان، نحو 10 ثوانٍ. |
+| 389 | `settingsShortAdhan` | Short Adhan | الأذان القصير |
+| 390 | `shortAdhanNaghshbandi` | Naghshbandi, opening | النقشبندي، المطلع |
+| 391 | `shortAdhanNaghshbandiHint` | The first 8 seconds of Naghshbandi's Adhan. | أول 8 ثوانٍ من أذان النقشبندي. |
+| 392 | `shortAdhanHayyaHint` | «حيّ على الصلاة» from the Adhan, 10 seconds. | «حيّ على الصلاة» من الأذان، 10 ثوانٍ. |
+| 393 | `settingsReminderSound` | Reminder sound | صوت التذكير |
+| 394 | `reminderSoundChimeHint` | A soft two-note chime, different from the Adhan and from other apps. | نغمة هادئة من نوتتين، مختلفة عن الأذان وعن التطبيقات الأخرى. |
+| 395 | `reminderSoundStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
+| 396 | `reminderSoundSilentHint` | Shown in your notifications without any sound. | يظهر في إشعاراتك دون صوت. |
+| 397 | `settingsReminderVibrate` | Vibrate | اهتزاز |
+| 398 | `settingsReminderTest` | Send a test reminder | إرسال تذكير تجريبي |
+| 399 | `settingsReminderTestSent` | Test reminder sent. | أُرسل التذكير التجريبي. |
+| 400 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
+| 401 | `settingsPauseAllIqamaHint` | No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected. | لا تذكيرات جماعة من أي مسجد حتى توقف هذا الخيار. تبقى أوقات الإقامة محفوظة، ولا تتأثر تنبيهات الأذان. |
+| 402 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
+| 403 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
+| 404 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
+| 405 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
+| 406 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
+| 407 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |

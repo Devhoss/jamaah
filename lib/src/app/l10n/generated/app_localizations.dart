@@ -2196,6 +2196,18 @@ abstract class AppLocalizations {
   /// **'Hijri date'**
   String get settingsHijri;
 
+  /// Shown when the place's time zone differs from the phone's, e.g. after a flight without changing the phone's zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Times are local time in {place} ({placeOffset}). Your phone\'s clock is on {phoneOffset}.'**
+  String zoneNotePlace(String place, String placeOffset, String phoneOffset);
+
+  /// No description provided for @zoneNoteHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Times are local time where you are ({placeOffset}). Your phone\'s clock is on {phoneOffset}.'**
+  String zoneNoteHere(String placeOffset, String phoneOffset);
+
   /// No description provided for @hijriAsCalculated.
   ///
   /// In en, this message translates to:

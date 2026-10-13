@@ -1304,6 +1304,14 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
       arabicDigits(super.previewNote(place, current));
 
   @override
+  String zoneNotePlace(String place, String placeOffset, String phoneOffset) =>
+      arabicDigits(super.zoneNotePlace(place, placeOffset, phoneOffset));
+
+  @override
+  String zoneNoteHere(String placeOffset, String phoneOffset) =>
+      arabicDigits(super.zoneNoteHere(placeOffset, phoneOffset));
+
+  @override
   String hijriLater(int days) => arabicDigits(super.hijriLater(days));
 
   @override

@@ -272,6 +272,14 @@ regions read from the parameters the calculator uses), the **Asr method**
   back); Settings has **Pause all Iqama reminders**. Iqama times and reminder
   settings are kept either way, and Adhan alerts never pause. This replaced the
   earlier travel-mode pause (a pause made there reads as "Pause all").
+- **Time zone from where you are:** a place read from the device ("Use my location",
+  Follow my location) takes its zone from its coordinates, through a time-zone map
+  bundled in the app (`lat_lng_to_timezone`, MIT; `domain/zone_lookup.dart`), not from
+  the phone's clock setting. So the phone never has to be set to the local zone. If the
+  map's answer is unknown, the phone's zone is used.
+- When the place's clock and the phone's differ, Today says so: "Times are local time in
+  London (UTC+1). Your phone's clock is on UTC+3." Notifications always fire at the
+  right moment either way; only the clock they are shown against differs.
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 

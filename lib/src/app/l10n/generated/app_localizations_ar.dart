@@ -1375,6 +1375,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsHijri => 'التاريخ الهجري';
 
   @override
+  String zoneNotePlace(String place, String placeOffset, String phoneOffset) {
+    return 'المواقيت بالتوقيت المحلي في $place ($placeOffset)، وساعة هاتفك على $phoneOffset.';
+  }
+
+  @override
+  String zoneNoteHere(String placeOffset, String phoneOffset) {
+    return 'المواقيت بالتوقيت المحلي حيث أنت ($placeOffset)، وساعة هاتفك على $phoneOffset.';
+  }
+
+  @override
   String get hijriAsCalculated => 'كما هو محسوب (أم القرى)';
 
   @override
