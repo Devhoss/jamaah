@@ -58,7 +58,11 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 - Store times as local time of day / minutes-from-midnight, never absolute timestamps.
 
 ## Prayer times
-- Compute on-device. Methods: MWL, ISNA, Egypt, Kuwait, Umm al-Qura. Asr: Standard/Hanafi. Per-prayer minute offsets.
+- Compute on-device. Methods (expanded 2026-10-13): Auto detect (from the place's time zone,
+  MWL fallback), Custom angles, Egypt (EGAS), ISNA, Moonsighting Committee, MWL, Umm al-Qura
+  (Isha 120 min in Ramadan), Karachi, JAKIM (20°/18°), MUIS, KEMENAG, Diyanet, UOIF, Kuwait, Qatar,
+  Dubai, Gulf, Jordan, Algeria, Morocco, Tunisia, Russia, Portugal, Tehran, Ja'fari.
+  Asr: Standard/Hanafi. Per-prayer minute offsets.
 - Handle high latitudes via the library's rules and state which rule applies. Default rule:
   middleOfTheNight, selectable in Settings; add a quiet note whenever the rule actually moves a time.
 - Recompute on location, method, date, timezone and DST changes.

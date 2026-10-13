@@ -74,6 +74,7 @@ class AppSettingsSnapshot {
     required this.madhab,
     required this.highLatitudeRule,
     required this.minuteOffsets,
+    this.customAngles = const CustomAngles(),
     required this.themeMode,
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
@@ -89,6 +90,9 @@ class AppSettingsSnapshot {
 
   /// Per-prayer minute offsets. Prayers without an entry have no offset.
   final Map<Prayer, int> minuteOffsets;
+
+  /// Used when the method is "Custom angles".
+  final CustomAngles customAngles;
 
   final AppThemeMode themeMode;
   final AdhanAlertSettings adhanAlerts;
@@ -159,6 +163,7 @@ class SettingsRepository {
         values[SettingKeys.themeMode],
         AppThemeMode.system,
       ),
+      customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
       travel: TravelSettings(
         travelMode: values[SettingKeys.travelMode] == 'true',
@@ -190,7 +195,20 @@ class SettingsRepository {
     Madhab? madhab,
     HighLatitudeRule? highLatitudeRule,
     Map<Prayer, int>? minuteOffsets,
+    CustomAngles? customAngles,
   }) => _db.transaction(() async {
+    if (customAngles != null) {
+      await _put(SettingKeys.customFajrAngle, '${customAngles.fajrAngle}');
+      await _put(SettingKeys.customIshaAngle, '${customAngles.ishaAngle}');
+      final minutes = customAngles.ishaMinutesAfterMaghrib;
+      if (minutes == null) {
+        await (_db.delete(_db.appSettings)
+              ..where((t) => t.key.equals(SettingKeys.customIshaMinutes)))
+            .go();
+      } else {
+        await _put(SettingKeys.customIshaMinutes, '$minutes');
+      }
+    }
     if (calculationMethod != null) {
       await _put(SettingKeys.calculationMethod, calculationMethod.storageKey);
     }
@@ -368,6 +386,25 @@ class SettingsRepository {
               ringInSilent: row.ringInSilent,
             ),
       },
+    );
+  }
+
+  /// Unreadable or out-of-range values fall back to the defaults: a bad row
+  /// must never stop prayer times from showing.
+  CustomAngles _customAngles(Map<String, String?> values) {
+    const defaults = CustomAngles();
+    double angle(String key, double fallback) {
+      final v = double.tryParse(values[key] ?? '');
+      return v != null && CustomAngles.validAngle(v) ? v : fallback;
+    }
+
+    final minutes = int.tryParse(values[SettingKeys.customIshaMinutes] ?? '');
+    return CustomAngles(
+      fajrAngle: angle(SettingKeys.customFajrAngle, defaults.fajrAngle),
+      ishaAngle: angle(SettingKeys.customIshaAngle, defaults.ishaAngle),
+      ishaMinutesAfterMaghrib: minutes != null && minutes > 0 && minutes <= 180
+          ? minutes
+          : null,
     );
   }
 

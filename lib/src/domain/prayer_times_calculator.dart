@@ -1,4 +1,5 @@
 import 'package:adhan_dart/adhan_dart.dart' as adhan;
+import 'package:hijri/hijri_calendar.dart';
 
 import 'prayer.dart';
 import 'prayer_times_parameters.dart';
@@ -25,6 +26,7 @@ class PrayerTimesCalculator {
     this.highLatitudeRule = HighLatitudeRule.middleOfTheNight,
     this.minuteOffsets = const {},
     this.polarCircleResolution = adhan.PolarCircleResolution.unresolved,
+    this.customAngles = const CustomAngles(),
   });
 
   final double latitude;
@@ -39,6 +41,9 @@ class PrayerTimesCalculator {
 
   /// Per-prayer minute offsets applied on top of the method.
   final Map<Prayer, int> minuteOffsets;
+
+  /// The user's angles, used when [method] is [CalculationMethod.custom].
+  final CustomAngles customAngles;
 
   /// How the library should treat polar regions. Left at `unresolved` because the
   /// library's detectors do not fire for the midnight-sun case (see
@@ -58,6 +63,7 @@ class PrayerTimesCalculator {
     HighLatitudeRule? highLatitudeRule,
     Map<Prayer, int>? minuteOffsets,
     adhan.PolarCircleResolution? polarCircleResolution,
+    CustomAngles? customAngles,
   }) => PrayerTimesCalculator(
     latitude: latitude ?? this.latitude,
     longitude: longitude ?? this.longitude,
@@ -68,6 +74,7 @@ class PrayerTimesCalculator {
     minuteOffsets: minuteOffsets ?? this.minuteOffsets,
     polarCircleResolution:
         polarCircleResolution ?? this.polarCircleResolution,
+    customAngles: customAngles ?? this.customAngles,
   );
 
   /// Times for [day] in the location's local wall clock.
@@ -113,12 +120,22 @@ class PrayerTimesCalculator {
     );
   }
 
+  /// Umm al-Qura's Isha moves from 90 to 120 minutes after Maghrib in Ramadan.
+  /// The tabular Hijri calendar can be a day off local moon sighting; the
+  /// manual Isha adjustment covers that day.
+  bool _isRamadan(LocalDay day) =>
+      method == CalculationMethod.ummAlQura &&
+      HijriCalendar.fromDate(DateTime(day.year, day.month, day.day)).hMonth ==
+          9;
+
   ({DateTime date, adhan.Coordinates coordinates, adhan.CalculationParameters params})
   _params(LocalDay day) => (
     date: day.midnightUtc(),
     coordinates: adhan.Coordinates(latitude, longitude),
     params: calculationParametersFor(
       method: method,
+      customAngles: customAngles,
+      ramadan: _isRamadan(day),
       madhab: madhab,
       highLatitudeRule: highLatitudeRule,
       minuteOffsets: minuteOffsets,
@@ -218,6 +235,8 @@ class PrayerTimesCalculator {
         coordinates: adhan.Coordinates(latitude, longitude),
         calculationParameters: calculationParametersFor(
           method: method,
+          customAngles: customAngles,
+          ramadan: _isRamadan(day),
           madhab: madhab,
           highLatitudeRule: rule,
           minuteOffsets: minuteOffsets,

@@ -50,10 +50,12 @@ class PreviewCityPage extends ConsumerWidget {
       latitude: city.latitude,
       longitude: city.longitude,
       zone: zone,
-      method: settings.calculationMethod,
+      // Auto detect picks the method used in the previewed city.
+      method: settings.calculationMethod.resolvedFor(city.ianaZone),
       madhab: settings.madhab,
       highLatitudeRule: settings.highLatitudeRule,
       minuteOffsets: settings.minuteOffsets,
+      customAngles: settings.customAngles,
     );
     final today = readToday(
       calculator: calculator,

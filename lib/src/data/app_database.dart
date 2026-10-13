@@ -62,6 +62,12 @@ abstract final class SettingKeys {
   /// and whether the latest try failed (the last place is then still in use).
   static const placeCheckedAt = 'place_checked_at';
   static const placeCheckFailed = 'place_check_failed';
+
+  /// The user's own angles for the "Custom angles" method. Absent means the
+  /// defaults in CustomAngles.
+  static const customFajrAngle = 'custom_fajr_angle';
+  static const customIshaAngle = 'custom_isha_angle';
+  static const customIshaMinutes = 'custom_isha_minutes';
 }
 
 /// Per-prayer Adhan alert config: enabled flag, an optional sound override, and

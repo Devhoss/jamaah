@@ -92,10 +92,12 @@ final prayerTimesCalculatorProvider = Provider<PrayerTimesCalculator?>((ref) {
     latitude: place.latitude,
     longitude: place.longitude,
     zone: zone,
-    method: settings.calculationMethod,
+    // "Auto detect" is resolved from the place's own zone.
+    method: settings.calculationMethod.resolvedFor(place.ianaZone),
     madhab: settings.madhab,
     highLatitudeRule: settings.highLatitudeRule,
     minuteOffsets: settings.minuteOffsets,
+    customAngles: settings.customAngles,
   );
 });
 
