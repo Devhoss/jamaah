@@ -65,8 +65,9 @@ dart run tool/sync_branding.dart --check   # fail if out of date
 
 ## Generated code — policy
 
-**Generated files are committed.** `*.g.dart` (drift, branding) and
-`drift_schemas/app/drift_schema_v*.json` are in the repo, so a fresh clone builds,
+**Generated files are committed.** `*.g.dart` (drift, branding),
+`drift_schemas/app/drift_schema_v*.json`, `lib/src/data/app_database.steps.dart` and
+`test/drift/app/` (the generated migration test) are in the repo, so a fresh clone builds,
 tests and runs with nothing but `flutter pub get`. CI does not have to run
 codegen, and the diff of a schema change is reviewable.
 
@@ -74,12 +75,13 @@ Regenerate after editing drift tables:
 
 ```bash
 dart run build_runner build          # rewrites lib/src/data/app_database.g.dart
-dart run drift_dev make-migrations   # exports drift_schemas/app/drift_schema_v<N>.json
+dart run drift_dev make-migrations   # exports drift_schema_v<N>.json, steps + test/drift/app
 ```
 
-Both are needed when `schemaVersion` changes; `test/data/migration_test.dart`
-fails if the exported snapshot is missing, and documents the steps for adding a
-real migration.
+Both are needed when `schemaVersion` changes. The schema is at **v2** (v1 + the
+per-prayer notification columns); v1 reached a device, so v2 is a real
+`stepByStep` migration, and `test/drift/app/migration_test.dart` checks that a v1
+database with mosques, Iqama times and alerts comes through intact.
 
 ## Storage
 
@@ -202,7 +204,7 @@ The first screen the user sees, and the only one that reads the stored place.
 ## Tests
 
 ```bash
-flutter test       # 373 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 397 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:drift/drift.dart';
 
 import '../domain/app_clock.dart';
@@ -8,6 +6,7 @@ import '../domain/mosque.dart';
 import '../domain/prayer.dart';
 import '../domain/time_model.dart';
 import 'app_database.dart';
+import 'table_watch.dart';
 
 /// Thrown when something tries to give a mosque an Iqama for a prayer that cannot
 /// have one — today that means sunrise (AGENTS.md).
@@ -63,32 +62,11 @@ class MosqueRepository {
   ///
   /// Watching only the mosques table would miss an Iqama edit, which writes
   /// schedules and schedule_prayers alone, and Today would keep the old time.
-  ///
-  /// The trigger is drift's table-update notifications rather than a watched
-  /// query: a watched query is compared against its last result, and a query that
-  /// only exists to say "something changed" always compares equal, so a listener
-  /// that joins or resumes later stops hearing about changes.
-  Stream<List<Mosque>> watchSaved() {
-    final updates = _db.tableUpdates(
-      TableUpdateQuery.onAllTables([
-        _db.mosques,
-        _db.schedules,
-        _db.schedulePrayers,
-      ]),
-    );
-    StreamSubscription<void>? source;
-    // A single-subscription controller buffers while its listener is paused, so
-    // a change made while the screen is in the background is delivered on return.
-    late final StreamController<void> changes;
-    changes = StreamController<void>(
-      onListen: () {
-        source = updates.listen(changes.add);
-        changes.add(null);
-      },
-      onCancel: () => source?.cancel(),
-    );
-    return changes.stream.asyncMap((_) => saved());
-  }
+  Stream<List<Mosque>> watchSaved() => watchTables(
+    _db,
+    [_db.mosques, _db.schedules, _db.schedulePrayers],
+    saved,
+  );
 
   /// Inserts or replaces a whole mosque with its schedules.
   Future<void> save(Mosque mosque) => _db.transaction(() async {

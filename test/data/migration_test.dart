@@ -12,31 +12,24 @@ import 'package:jamaah/src/domain/prayer.dart';
 
 /// The drift migration harness.
 ///
-/// The app is at `schemaVersion` 1, so there is no migration to run yet — what
-/// this pins down is that the schema we create today is exactly the one drift
-/// generated code believes in, and that the exported snapshot the future
-/// migration tests build on stays in step with the Dart tables.
+/// Pins the schema created today against drift's generated code and the exported
+/// snapshot. The upgrade itself (v1 to v2, with data) is tested by the generated
+/// test in test/drift/app/migration_test.dart.
 ///
-/// While no build of the app has reached a device, schema changes are folded back
-/// into v1: edit the tables, keep `schemaVersion` at 1, delete
-/// `drift_schema_v1.json`, then re-run `dart run drift_dev make-migrations`.
-/// `make-migrations` refuses to overwrite a snapshot that differs from the tables,
-/// which is how it notices an accidental edit to a version already in use.
-///
-/// Once v1 is on a device: bump `schemaVersion`, write `onUpgrade`, run
-/// `dart run drift_dev make-migrations` (which exports `drift_schema_v<N>.json`
-/// and, from two versions onwards, generates the verifier helper and a skeleton
-/// migration test), then add a case here that migrates the old version and
-/// asserts the data survived.
+/// To change the schema: edit the tables, bump `schemaVersion`, add the step to
+/// `stepByStep` in app_database.dart, run `dart run drift_dev make-migrations`
+/// (which exports `drift_schema_v<N>.json` and regenerates test/drift/app), and
+/// extend the data-integrity test there. Never edit an exported snapshot: a
+/// version that has reached a device is fixed.
 void main() {
   late AppDatabase db;
 
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
 
-  test('a freshly created v1 database matches drift\'s own expectations',
+  test('a freshly created database matches drift\'s own expectations',
       () async {
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 2);
     await db.validateDatabaseSchema();
   });
 

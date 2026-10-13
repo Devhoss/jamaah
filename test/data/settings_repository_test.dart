@@ -364,4 +364,99 @@ void main() {
       expect(emissions.last.minuteOffsets, {Prayer.asr: 3});
     });
   });
+
+  group('per-prayer notification settings (schema v2)', () {
+    test('vibrate, the reminder before the Adhan and ring in silent round-trip',
+        () async {
+      final alerts = AdhanAlertSettings.defaults()
+          .copyWith(fullScreen: true)
+          .withAlert(
+            Prayer.fajr,
+            const AdhanAlert(
+              enabled: true,
+              soundModeOverride: AdhanSoundMode.full,
+              vibrate: false,
+              preAdhanMinutes: 15,
+              ringInSilent: true,
+            ),
+          )
+          .withAlert(
+            Prayer.sunrise,
+            const AdhanAlert(enabled: false, preAdhanMinutes: 20),
+          );
+      await settings.saveAdhanAlerts(alerts);
+
+      final read = (await settings.read()).adhanAlerts;
+      expect(read.fullScreen, isTrue);
+      expect(read.alertFor(Prayer.fajr), alerts.alertFor(Prayer.fajr));
+      expect(read.alertFor(Prayer.sunrise).preAdhanMinutes, 20);
+      expect(read.alertFor(Prayer.sunrise).enabled, isFalse);
+    });
+
+    test('a fresh install vibrates, has no early reminder, and is not full screen',
+        () async {
+      final read = (await settings.read()).adhanAlerts;
+      expect(read.fullScreen, isFalse);
+      for (final prayer in Prayer.adhanPrayers) {
+        final alert = read.alertFor(prayer);
+        expect(alert.vibrate, isTrue, reason: '$prayer');
+        expect(alert.preAdhanMinutes, isNull, reason: '$prayer');
+        expect(alert.ringInSilent, isFalse, reason: '$prayer');
+      }
+    });
+
+    test('the database refuses an early reminder outside 1..120', () async {
+      await expectLater(
+        db.customStatement(
+          "UPDATE adhan_alert_rows SET pre_adhan_minutes = 0 WHERE prayer = 'fajr'",
+        ),
+        throwsA(anything),
+      );
+    });
+  });
+
+  group('travel mode', () {
+    test('starts off, and round-trips', () async {
+      expect((await settings.read()).travel, const TravelSettings());
+
+      const travel = TravelSettings(
+        travelMode: true,
+        pauseIqamaReminders: true,
+        followLocation: true,
+      );
+      await settings.saveTravel(travel);
+      final read = (await settings.read()).travel;
+      expect(read, travel);
+      expect(read.iqamaRemindersPaused, isTrue);
+    });
+
+    test('switching travel mode off keeps the pause choice for next time',
+        () async {
+      await settings.saveTravel(
+        const TravelSettings(travelMode: true, pauseIqamaReminders: true),
+      );
+      await settings.saveTravel(
+        const TravelSettings(travelMode: false, pauseIqamaReminders: true),
+      );
+      final read = (await settings.read()).travel;
+      expect(read.pauseIqamaReminders, isTrue);
+      expect(read.iqamaRemindersPaused, isFalse);
+    });
+
+    test('watch re-emits on every change, not just the first', () async {
+      final seen = <AppSettingsSnapshot>[];
+      final sub = settings.watch().listen(seen.add);
+      await pumpEventQueue();
+
+      await settings.saveTravel(const TravelSettings(travelMode: true));
+      await pumpEventQueue();
+      await settings.saveTravel(
+        const TravelSettings(travelMode: true, pauseIqamaReminders: true),
+      );
+      await pumpEventQueue();
+      await sub.cancel();
+
+      expect(seen.last.travel.iqamaRemindersPaused, isTrue);
+    });
+  });
 }

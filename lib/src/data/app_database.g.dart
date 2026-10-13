@@ -263,8 +263,57 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
     requiredDuringInsert: false,
     $customConstraints: 'NULL CHECK (sound_override IN (\'full\',\'short\',\'standard\',\'silent\'))',
   );
+  static const VerificationMeta _vibrateMeta = const VerificationMeta(
+    'vibrate',
+  );
   @override
-  List<GeneratedColumn> get $columns => [prayer, enabled, soundOverride];
+  late final GeneratedColumn<bool> vibrate = GeneratedColumn<bool>(
+    'vibrate',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("vibrate" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _preAdhanMinutesMeta = const VerificationMeta(
+    'preAdhanMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> preAdhanMinutes = GeneratedColumn<int>(
+    'pre_adhan_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL CHECK (pre_adhan_minutes BETWEEN 1 AND 120)',
+  );
+  static const VerificationMeta _ringInSilentMeta = const VerificationMeta(
+    'ringInSilent',
+  );
+  @override
+  late final GeneratedColumn<bool> ringInSilent = GeneratedColumn<bool>(
+    'ring_in_silent',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("ring_in_silent" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    prayer,
+    enabled,
+    soundOverride,
+    vibrate,
+    preAdhanMinutes,
+    ringInSilent,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -300,6 +349,30 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
         ),
       );
     }
+    if (data.containsKey('vibrate')) {
+      context.handle(
+        _vibrateMeta,
+        vibrate.isAcceptableOrUnknown(data['vibrate']!, _vibrateMeta),
+      );
+    }
+    if (data.containsKey('pre_adhan_minutes')) {
+      context.handle(
+        _preAdhanMinutesMeta,
+        preAdhanMinutes.isAcceptableOrUnknown(
+          data['pre_adhan_minutes']!,
+          _preAdhanMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ring_in_silent')) {
+      context.handle(
+        _ringInSilentMeta,
+        ringInSilent.isAcceptableOrUnknown(
+          data['ring_in_silent']!,
+          _ringInSilentMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -321,6 +394,18 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
         DriftSqlType.string,
         data['${effectivePrefix}sound_override'],
       ),
+      vibrate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}vibrate'],
+      )!,
+      preAdhanMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pre_adhan_minutes'],
+      ),
+      ringInSilent: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}ring_in_silent'],
+      )!,
     );
   }
 
@@ -336,10 +421,22 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
 
   /// Null means "use the global default sound mode".
   final String? soundOverride;
+
+  /// Schema v2. Whether the alert vibrates; on for every existing row.
+  final bool vibrate;
+
+  /// Schema v2. Minutes before the Adhan for a heads-up; null means none.
+  final int? preAdhanMinutes;
+
+  /// Schema v2. Play the Adhan through the alarm volume even on silent.
+  final bool ringInSilent;
   const AdhanAlertRow({
     required this.prayer,
     required this.enabled,
     this.soundOverride,
+    required this.vibrate,
+    this.preAdhanMinutes,
+    required this.ringInSilent,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -349,6 +446,11 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
     if (!nullToAbsent || soundOverride != null) {
       map['sound_override'] = Variable<String>(soundOverride);
     }
+    map['vibrate'] = Variable<bool>(vibrate);
+    if (!nullToAbsent || preAdhanMinutes != null) {
+      map['pre_adhan_minutes'] = Variable<int>(preAdhanMinutes);
+    }
+    map['ring_in_silent'] = Variable<bool>(ringInSilent);
     return map;
   }
 
@@ -359,6 +461,11 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       soundOverride: soundOverride == null && nullToAbsent
           ? const Value.absent()
           : Value(soundOverride),
+      vibrate: Value(vibrate),
+      preAdhanMinutes: preAdhanMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preAdhanMinutes),
+      ringInSilent: Value(ringInSilent),
     );
   }
 
@@ -371,6 +478,9 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       prayer: serializer.fromJson<String>(json['prayer']),
       enabled: serializer.fromJson<bool>(json['enabled']),
       soundOverride: serializer.fromJson<String?>(json['soundOverride']),
+      vibrate: serializer.fromJson<bool>(json['vibrate']),
+      preAdhanMinutes: serializer.fromJson<int?>(json['preAdhanMinutes']),
+      ringInSilent: serializer.fromJson<bool>(json['ringInSilent']),
     );
   }
   @override
@@ -380,6 +490,9 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       'prayer': serializer.toJson<String>(prayer),
       'enabled': serializer.toJson<bool>(enabled),
       'soundOverride': serializer.toJson<String?>(soundOverride),
+      'vibrate': serializer.toJson<bool>(vibrate),
+      'preAdhanMinutes': serializer.toJson<int?>(preAdhanMinutes),
+      'ringInSilent': serializer.toJson<bool>(ringInSilent),
     };
   }
 
@@ -387,12 +500,20 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
     String? prayer,
     bool? enabled,
     Value<String?> soundOverride = const Value.absent(),
+    bool? vibrate,
+    Value<int?> preAdhanMinutes = const Value.absent(),
+    bool? ringInSilent,
   }) => AdhanAlertRow(
     prayer: prayer ?? this.prayer,
     enabled: enabled ?? this.enabled,
     soundOverride: soundOverride.present
         ? soundOverride.value
         : this.soundOverride,
+    vibrate: vibrate ?? this.vibrate,
+    preAdhanMinutes: preAdhanMinutes.present
+        ? preAdhanMinutes.value
+        : this.preAdhanMinutes,
+    ringInSilent: ringInSilent ?? this.ringInSilent,
   );
   AdhanAlertRow copyWithCompanion(AdhanAlertRowsCompanion data) {
     return AdhanAlertRow(
@@ -401,6 +522,13 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       soundOverride: data.soundOverride.present
           ? data.soundOverride.value
           : this.soundOverride,
+      vibrate: data.vibrate.present ? data.vibrate.value : this.vibrate,
+      preAdhanMinutes: data.preAdhanMinutes.present
+          ? data.preAdhanMinutes.value
+          : this.preAdhanMinutes,
+      ringInSilent: data.ringInSilent.present
+          ? data.ringInSilent.value
+          : this.ringInSilent,
     );
   }
 
@@ -409,49 +537,77 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
     return (StringBuffer('AdhanAlertRow(')
           ..write('prayer: $prayer, ')
           ..write('enabled: $enabled, ')
-          ..write('soundOverride: $soundOverride')
+          ..write('soundOverride: $soundOverride, ')
+          ..write('vibrate: $vibrate, ')
+          ..write('preAdhanMinutes: $preAdhanMinutes, ')
+          ..write('ringInSilent: $ringInSilent')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(prayer, enabled, soundOverride);
+  int get hashCode => Object.hash(
+    prayer,
+    enabled,
+    soundOverride,
+    vibrate,
+    preAdhanMinutes,
+    ringInSilent,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AdhanAlertRow &&
           other.prayer == this.prayer &&
           other.enabled == this.enabled &&
-          other.soundOverride == this.soundOverride);
+          other.soundOverride == this.soundOverride &&
+          other.vibrate == this.vibrate &&
+          other.preAdhanMinutes == this.preAdhanMinutes &&
+          other.ringInSilent == this.ringInSilent);
 }
 
 class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
   final Value<String> prayer;
   final Value<bool> enabled;
   final Value<String?> soundOverride;
+  final Value<bool> vibrate;
+  final Value<int?> preAdhanMinutes;
+  final Value<bool> ringInSilent;
   final Value<int> rowid;
   const AdhanAlertRowsCompanion({
     this.prayer = const Value.absent(),
     this.enabled = const Value.absent(),
     this.soundOverride = const Value.absent(),
+    this.vibrate = const Value.absent(),
+    this.preAdhanMinutes = const Value.absent(),
+    this.ringInSilent = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AdhanAlertRowsCompanion.insert({
     required String prayer,
     this.enabled = const Value.absent(),
     this.soundOverride = const Value.absent(),
+    this.vibrate = const Value.absent(),
+    this.preAdhanMinutes = const Value.absent(),
+    this.ringInSilent = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : prayer = Value(prayer);
   static Insertable<AdhanAlertRow> custom({
     Expression<String>? prayer,
     Expression<bool>? enabled,
     Expression<String>? soundOverride,
+    Expression<bool>? vibrate,
+    Expression<int>? preAdhanMinutes,
+    Expression<bool>? ringInSilent,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (prayer != null) 'prayer': prayer,
       if (enabled != null) 'enabled': enabled,
       if (soundOverride != null) 'sound_override': soundOverride,
+      if (vibrate != null) 'vibrate': vibrate,
+      if (preAdhanMinutes != null) 'pre_adhan_minutes': preAdhanMinutes,
+      if (ringInSilent != null) 'ring_in_silent': ringInSilent,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -460,12 +616,18 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     Value<String>? prayer,
     Value<bool>? enabled,
     Value<String?>? soundOverride,
+    Value<bool>? vibrate,
+    Value<int?>? preAdhanMinutes,
+    Value<bool>? ringInSilent,
     Value<int>? rowid,
   }) {
     return AdhanAlertRowsCompanion(
       prayer: prayer ?? this.prayer,
       enabled: enabled ?? this.enabled,
       soundOverride: soundOverride ?? this.soundOverride,
+      vibrate: vibrate ?? this.vibrate,
+      preAdhanMinutes: preAdhanMinutes ?? this.preAdhanMinutes,
+      ringInSilent: ringInSilent ?? this.ringInSilent,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -482,6 +644,15 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     if (soundOverride.present) {
       map['sound_override'] = Variable<String>(soundOverride.value);
     }
+    if (vibrate.present) {
+      map['vibrate'] = Variable<bool>(vibrate.value);
+    }
+    if (preAdhanMinutes.present) {
+      map['pre_adhan_minutes'] = Variable<int>(preAdhanMinutes.value);
+    }
+    if (ringInSilent.present) {
+      map['ring_in_silent'] = Variable<bool>(ringInSilent.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -494,6 +665,9 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
           ..write('prayer: $prayer, ')
           ..write('enabled: $enabled, ')
           ..write('soundOverride: $soundOverride, ')
+          ..write('vibrate: $vibrate, ')
+          ..write('preAdhanMinutes: $preAdhanMinutes, ')
+          ..write('ringInSilent: $ringInSilent, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2156,6 +2330,9 @@ typedef $$AdhanAlertRowsTableCreateCompanionBuilder =
       required String prayer,
       Value<bool> enabled,
       Value<String?> soundOverride,
+      Value<bool> vibrate,
+      Value<int?> preAdhanMinutes,
+      Value<bool> ringInSilent,
       Value<int> rowid,
     });
 typedef $$AdhanAlertRowsTableUpdateCompanionBuilder =
@@ -2163,6 +2340,9 @@ typedef $$AdhanAlertRowsTableUpdateCompanionBuilder =
       Value<String> prayer,
       Value<bool> enabled,
       Value<String?> soundOverride,
+      Value<bool> vibrate,
+      Value<int?> preAdhanMinutes,
+      Value<bool> ringInSilent,
       Value<int> rowid,
     });
 
@@ -2187,6 +2367,21 @@ class $$AdhanAlertRowsTableFilterComposer
 
   ColumnFilters<String> get soundOverride => $composableBuilder(
     column: $table.soundOverride,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get vibrate => $composableBuilder(
+    column: $table.vibrate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get preAdhanMinutes => $composableBuilder(
+    column: $table.preAdhanMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get ringInSilent => $composableBuilder(
+    column: $table.ringInSilent,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2214,6 +2409,21 @@ class $$AdhanAlertRowsTableOrderingComposer
     column: $table.soundOverride,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get vibrate => $composableBuilder(
+    column: $table.vibrate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get preAdhanMinutes => $composableBuilder(
+    column: $table.preAdhanMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get ringInSilent => $composableBuilder(
+    column: $table.ringInSilent,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AdhanAlertRowsTableAnnotationComposer
@@ -2233,6 +2443,19 @@ class $$AdhanAlertRowsTableAnnotationComposer
 
   GeneratedColumn<String> get soundOverride => $composableBuilder(
     column: $table.soundOverride,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get vibrate =>
+      $composableBuilder(column: $table.vibrate, builder: (column) => column);
+
+  GeneratedColumn<int> get preAdhanMinutes => $composableBuilder(
+    column: $table.preAdhanMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get ringInSilent => $composableBuilder(
+    column: $table.ringInSilent,
     builder: (column) => column,
   );
 }
@@ -2273,11 +2496,17 @@ class $$AdhanAlertRowsTableTableManager
                 Value<String> prayer = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
                 Value<String?> soundOverride = const Value.absent(),
+                Value<bool> vibrate = const Value.absent(),
+                Value<int?> preAdhanMinutes = const Value.absent(),
+                Value<bool> ringInSilent = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AdhanAlertRowsCompanion(
                 prayer: prayer,
                 enabled: enabled,
                 soundOverride: soundOverride,
+                vibrate: vibrate,
+                preAdhanMinutes: preAdhanMinutes,
+                ringInSilent: ringInSilent,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2285,11 +2514,17 @@ class $$AdhanAlertRowsTableTableManager
                 required String prayer,
                 Value<bool> enabled = const Value.absent(),
                 Value<String?> soundOverride = const Value.absent(),
+                Value<bool> vibrate = const Value.absent(),
+                Value<int?> preAdhanMinutes = const Value.absent(),
+                Value<bool> ringInSilent = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AdhanAlertRowsCompanion.insert(
                 prayer: prayer,
                 enabled: enabled,
                 soundOverride: soundOverride,
+                vibrate: vibrate,
+                preAdhanMinutes: preAdhanMinutes,
+                ringInSilent: ringInSilent,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

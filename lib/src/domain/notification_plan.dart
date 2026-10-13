@@ -13,6 +13,10 @@ class PlannedNotification {
     required this.at,
     required this.soundMode,
     required this.mosqueId,
+    this.vibrate = true,
+    this.ringInSilent = false,
+    this.fullScreen = false,
+    this.minutesBefore,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -24,17 +28,32 @@ class PlannedNotification {
   /// UTC instant the notification should fire.
   final DateTime at;
 
-  /// Null for Iqama reminders: they always use the standard notification sound.
+  /// The Adhan's sound mode. Null for reminders (before an Adhan or an Iqama):
+  /// they always use the standard notification sound.
   final AdhanSoundMode? soundMode;
 
   /// Which mosque this belongs to; empty for Adhan alerts (which are global).
   final String mosqueId;
 
+  final bool vibrate;
+
+  /// Adhan only: play through the alarm volume even when the phone is on silent.
+  final bool ringInSilent;
+
+  /// Adhan only: show the full-screen page when the phone is idle.
+  final bool fullScreen;
+
+  /// For reminders: how many minutes ahead of the Adhan or Iqama this fires.
+  final int? minutesBefore;
+
   /// True when the reminder has already fired and must not be re-scheduled.
   bool isInPast(DateTime now) => at.isBefore(now);
 }
 
-enum NotificationKind { adhan, iqama }
+/// The three independent notifications the app can plan. Adhan alerts and the
+/// reminder before them come from the global per-prayer settings; Iqama
+/// reminders come from the active mosque (AGENTS.md).
+enum NotificationKind { adhan, preAdhan, iqama }
 
 /// Inputs needed to plan a rolling window of notifications.
 class NotificationPlanInput {
@@ -45,6 +64,7 @@ class NotificationPlanInput {
     required this.zoneOffsetFor,
     required this.adhanAlerts,
     this.activeMosque,
+    this.iqamaRemindersPaused = false,
     this.windowDays = 7,
   });
 
@@ -64,15 +84,22 @@ class NotificationPlanInput {
 
   final AdhanAlertSettings adhanAlerts;
   final Mosque? activeMosque;
+
+  /// Travel mode's manual pause: no Iqama reminders are planned. Adhan alerts
+  /// and the reminders before them are not affected.
+  final bool iqamaRemindersPaused;
+
   final int windowDays;
 }
 
 /// Builds the rolling notification window.
 ///
-/// Two independent streams:
+/// Three independent streams:
 ///  - Adhan alerts: global settings, any of the six prayers.
+///  - Reminders before an Adhan: also global, per prayer, on or off on their own.
 ///  - Iqama reminders: the active mosque's schedule, only prayers that have a
-///    configured Iqama time and an enabled reminder.
+///    configured Iqama time and an enabled reminder, and none while travel mode
+///    has them paused.
 class NotificationPlanner {
   const NotificationPlanner();
 
@@ -102,17 +129,41 @@ class NotificationPlanner {
       final minutes = times[prayer];
       if (minutes == null) continue;
       final alert = input.adhanAlerts.alertFor(prayer);
-      if (!alert.enabled) continue;
-      out.add(
-        PlannedNotification(
-          id: notificationId(NotificationKind.adhan, prayer, day),
-          kind: NotificationKind.adhan,
-          prayer: prayer,
-          at: instantFor(day, minutes, zoneOffset),
-          soundMode: input.adhanAlerts.soundModeFor(prayer),
-          mosqueId: '',
-        ),
-      );
+      final adhanAt = instantFor(day, minutes, zoneOffset);
+      if (alert.enabled) {
+        final mode = input.adhanAlerts.soundModeFor(prayer);
+        final plays = mode == AdhanSoundMode.full || mode == AdhanSoundMode.short;
+        out.add(
+          PlannedNotification(
+            id: notificationId(NotificationKind.adhan, prayer, day),
+            kind: NotificationKind.adhan,
+            prayer: prayer,
+            at: adhanAt,
+            soundMode: mode,
+            mosqueId: '',
+            vibrate: alert.vibrate,
+            // Ringing in silent only means something for a recording that plays.
+            ringInSilent: plays && alert.ringInSilent,
+            fullScreen: input.adhanAlerts.fullScreen,
+          ),
+        );
+      }
+      if (alert.preAdhanMinutes case final before?) {
+        out.add(
+          PlannedNotification(
+            id: notificationId(NotificationKind.preAdhan, prayer, day),
+            kind: NotificationKind.preAdhan,
+            prayer: prayer,
+            // Real elapsed minutes, so a reminder across a DST change or midnight
+            // still lands exactly [before] minutes ahead of the Adhan.
+            at: adhanAt.subtract(Duration(minutes: before)),
+            soundMode: null,
+            mosqueId: '',
+            vibrate: alert.vibrate,
+            minutesBefore: before,
+          ),
+        );
+      }
     }
     return out;
   }
@@ -122,6 +173,7 @@ class NotificationPlanner {
     LocalDay day,
     int zoneOffset,
   ) {
+    if (input.iqamaRemindersPaused) return const [];
     final mosque = input.activeMosque;
     if (mosque == null) return const [];
     final schedule = mosque.scheduleFor(day);
@@ -151,6 +203,7 @@ class NotificationPlanner {
           at: instantFor(targetDay, reminderAt.minutes, offset),
           soundMode: null,
           mosqueId: mosque.id,
+          minutesBefore: iqama.reminderMinutesBefore,
         ),
       );
     }
@@ -170,24 +223,12 @@ class NotificationPlanner {
 
 /// Stable notification id, independent of list order or app restarts.
 ///
-/// Collisions would silently drop a reminder, so the hash spreads across a wide
-/// id space. 32-bit int keeps it inside Android's and PendingIntent's limits.
+/// Built from its parts rather than hashed, so two notifications can never share
+/// an id: `kind * 1 000 000 + days since 1970 * 10 + prayer`. It stays inside a
+/// positive 32-bit int (Android's limit) until the year 2243.
 int notificationId(NotificationKind kind, Prayer prayer, LocalDay day) {
-  // Distinct, small, pray-specific salts.
-  const prayerSalt = {
-    Prayer.fajr: 1,
-    Prayer.sunrise: 2,
-    Prayer.dhuhr: 3,
-    Prayer.asr: 4,
-    Prayer.maghrib: 5,
-    Prayer.isha: 6,
-  };
-  final kindSalt = kind == NotificationKind.adhan ? 0x1000 : 0x2000;
-  var hash = 17;
-  hash = 31 * hash + prayerSalt[prayer]!;
-  hash = 31 * hash + kindSalt;
-  hash = 31 * hash + day.year;
-  hash = 31 * hash + day.month;
-  hash = 31 * hash + day.day;
-  return hash & 0x7FFFFFFF;
+  final days = DateTime.utc(day.year, day.month, day.day)
+      .difference(DateTime.utc(1970))
+      .inDays;
+  return kind.index * 1000000 + days * 10 + prayer.index;
 }

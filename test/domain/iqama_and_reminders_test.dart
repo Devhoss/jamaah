@@ -409,7 +409,7 @@ void main() {
           }
         }
       }
-      expect(ids, hasLength(2 * 6 * 7));
+      expect(ids, hasLength(NotificationKind.values.length * 6 * 7));
     });
   });
 

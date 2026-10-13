@@ -6,6 +6,7 @@ import '../domain/prayer.dart';
 import '../domain/prayer_times_parameters.dart';
 import '../domain/zone_offsets.dart';
 import 'app_database.dart';
+import 'table_watch.dart';
 
 /// Where the user's prayer times are calculated from.
 class StoredLocation {
@@ -75,6 +76,7 @@ class AppSettingsSnapshot {
     required this.minuteOffsets,
     required this.themeMode,
     required this.adhanAlerts,
+    this.travel = const TravelSettings(),
     this.activeMosqueId,
     this.location,
   });
@@ -88,6 +90,9 @@ class AppSettingsSnapshot {
 
   final AppThemeMode themeMode;
   final AdhanAlertSettings adhanAlerts;
+
+  /// Travel mode and its manual Iqama pause.
+  final TravelSettings travel;
 
   /// Mosque whose Iqama schedule drives reminders. Null until the user picks one.
   final String? activeMosqueId;
@@ -146,6 +151,11 @@ class SettingsRepository {
         AppThemeMode.system,
       ),
       adhanAlerts: _adhanAlerts(values, alerts),
+      travel: TravelSettings(
+        travelMode: values[SettingKeys.travelMode] == 'true',
+        pauseIqamaReminders: values[SettingKeys.pauseIqamaReminders] == 'true',
+        followLocation: values[SettingKeys.followLocation] == 'true',
+      ),
       activeMosqueId: values[SettingKeys.activeMosqueId],
       location: _location(values),
     );
@@ -153,13 +163,11 @@ class SettingsRepository {
 
   /// Re-emits whenever any stored setting changes, including the per-prayer Adhan
   /// alerts and offsets that live in their own tables.
-  Stream<AppSettingsSnapshot> watch() => _db
-      .customSelect(
-        'SELECT 1',
-        readsFrom: {_db.appSettings, _db.adhanAlertRows, _db.prayerOffsets},
-      )
-      .watch()
-      .asyncMap((_) => read());
+  Stream<AppSettingsSnapshot> watch() => watchTables(
+    _db,
+    [_db.appSettings, _db.adhanAlertRows, _db.prayerOffsets],
+    read,
+  );
 
   Future<void> setPrayerTimesPreferences({
     CalculationMethod? calculationMethod,
@@ -211,18 +219,34 @@ class SettingsRepository {
           SettingKeys.adhanDefaultSoundMode,
           alerts.defaultSoundMode.storageKey,
         );
+        await _put(SettingKeys.adhanFullScreen, '${alerts.fullScreen}');
         for (final prayer in Prayer.adhanPrayers) {
           final alert = alerts.alertFor(prayer);
           final row = AdhanAlertRowsCompanion.insert(
             prayer: prayer.name,
             enabled: Value(alert.enabled),
             soundOverride: Value(alert.soundModeOverride?.storageKey),
+            vibrate: Value(alert.vibrate),
+            preAdhanMinutes: Value(alert.preAdhanMinutes),
+            ringInSilent: Value(alert.ringInSilent),
           );
           await _db
               .into(_db.adhanAlertRows)
               .insert(row, onConflict: DoUpdate((_) => row));
         }
       });
+
+  /// Travel mode and its manual Iqama pause. The pause is kept when travel mode
+  /// is switched off, so it is remembered for the next trip, but it only takes
+  /// effect while travel mode is on.
+  Future<void> saveTravel(TravelSettings travel) => _db.transaction(() async {
+    await _put(SettingKeys.travelMode, '${travel.travelMode}');
+    await _put(
+      SettingKeys.pauseIqamaReminders,
+      '${travel.pauseIqamaReminders}',
+    );
+    await _put(SettingKeys.followLocation, '${travel.followLocation}');
+  });
 
   /// Passing null forgets the location; the Today screen then shows the
   /// "set your location" state again.
@@ -296,6 +320,7 @@ class SettingsRepository {
       defaultSoundMode: AdhanSoundModeX.fromStorageKey(
         values[SettingKeys.adhanDefaultSoundMode],
       ),
+      fullScreen: values[SettingKeys.adhanFullScreen] == 'true',
       alerts: {
         for (final prayer in Prayer.adhanPrayers)
           if (byPrayer[prayer.name] case final row?)
@@ -304,6 +329,14 @@ class SettingsRepository {
               soundModeOverride: row.soundOverride == null
                   ? null
                   : AdhanSoundModeX.fromStorageKey(row.soundOverride),
+              vibrate: row.vibrate,
+              // A stored value outside the allowed range (only possible by
+              // hand) is read as "no reminder" rather than crashing the app.
+              preAdhanMinutes: switch (row.preAdhanMinutes) {
+                final m? when m >= 1 && m <= 120 => m,
+                _ => null,
+              },
+              ringInSilent: row.ringInSilent,
             ),
       },
     );
