@@ -341,6 +341,28 @@ void main() {
       expect(list.last.schedules.single.configuredCount, 0);
     });
 
+    test('mosques added on the same instant keep the newest first', () async {
+      final sameInstant = MosqueRepository(
+        db,
+        clock: FixedClock(DateTime.utc(2026, 10, 13, 9)),
+      );
+      final first = await sameInstant.add(
+        name: 'First',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      final second = await sameInstant.add(
+        name: 'Second',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      expect((await sameInstant.saved()).map((m) => m.id), [
+        second.id,
+        first.id,
+      ]);
+    });
+
     test('watchSaved re-emits when a mosque is added', () async {
       final seen = <List<Mosque>>[];
       final sub = mosques.watchSaved().listen(seen.add);
@@ -356,6 +378,374 @@ void main() {
 
       expect(seen.first, isEmpty);
       expect(seen.last, hasLength(1));
+    });
+
+    /// Today reads the active mosque from this stream, so an Iqama edit that did
+    /// not re-emit would leave the card showing the old time until a restart.
+    Future<List<List<Mosque>>> emissionsDuring(
+      Future<void> Function() change,
+    ) async {
+      final seen = <List<Mosque>>[];
+      final sub = mosques.watchSaved().listen(seen.add);
+      await pumpEventQueue();
+      final before = seen.length;
+      await change();
+      await pumpEventQueue();
+      await sub.cancel();
+      return seen.sublist(before);
+    }
+
+    test('watchSaved re-emits when an Iqama time changes', () async {
+      final mosque = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      final after = await emissionsDuring(
+        () => mosques.setIqama(mosque.id, Prayer.fajr, LocalTime.of(5, 40)),
+      );
+
+      expect(after, isNotEmpty);
+      expect(
+        after.last.single.schedules.single.iqamaFor(Prayer.fajr).iqama,
+        LocalTime.of(5, 40),
+      );
+    });
+
+    test('watchSaved re-emits when a reminder is toggled', () async {
+      final mosque = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      await mosques.setIqama(mosque.id, Prayer.asr, LocalTime.of(16, 0));
+
+      final after = await emissionsDuring(
+        () => mosques.setReminderEnabled(mosque.id, Prayer.asr, enabled: true),
+      );
+
+      expect(
+        after.last.single.schedules.single.iqamaFor(Prayer.asr).hasReminder,
+        isTrue,
+      );
+    });
+
+    test('watchSaved re-emits when the name changes', () async {
+      final mosque = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      final after = await emissionsDuring(
+        () => mosques.updateDetails(mosque.id, name: 'Al-Nasr', address: ''),
+      );
+
+      expect(after.last.single.name, 'Al-Nasr');
+    });
+
+    test('watchSaved lists newest first, like saved', () async {
+      final older = await mosques.add(
+        name: 'Older',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 2));
+      final newer = await mosques.add(
+        name: 'Newer',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      final first = await mosques.watchSaved().first;
+      expect(first.map((m) => m.id), [newer.id, older.id]);
+    });
+  });
+
+  group('adding by hand', () {
+    test('the name and address are trimmed', () async {
+      final added = await mosques.add(
+        name: '  Masjid al-Nasr ',
+        address: ' 1 Example Road  ',
+        source: MosqueSource.manual,
+      );
+
+      final stored = await mosques.byId(added.id);
+      expect(stored!.name, 'Masjid al-Nasr');
+      expect(stored.address, '1 Example Road');
+    });
+
+    test('a blank name is refused and nothing is stored', () async {
+      await expectLater(
+        mosques.add(name: '   ', address: 'x', source: MosqueSource.manual),
+        throwsArgumentError,
+      );
+      expect(await mosques.saved(), isEmpty);
+    });
+
+    test('the created and schedule stamps come from the injected clock',
+        () async {
+      final instant = DateTime.utc(2026, 10, 13, 8, 15);
+      final repo = MosqueRepository(db, clock: FixedClock(instant));
+
+      final added = await repo.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      final stored = await repo.byId(added.id);
+      expect(
+        stored!.createdAt.millisecondsSinceEpoch,
+        instant.millisecondsSinceEpoch,
+      );
+      expect(
+        stored.schedules.single.updatedAt.millisecondsSinceEpoch,
+        instant.millisecondsSinceEpoch,
+      );
+    });
+
+    test('the first mosque saved becomes the active one', () async {
+      final added = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      expect(
+        (await settings.read()).activeMosqueId,
+        added.id,
+        reason: 'the prototype makes the first saved mosque active, so Today '
+            'has a mosque to read without an extra step',
+      );
+    });
+
+    test('a later mosque does not take over the active one', () async {
+      final first = await mosques.add(
+        name: 'First',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      await mosques.add(
+        name: 'Second',
+        address: '',
+        source: MosqueSource.manual,
+      );
+
+      expect((await settings.read()).activeMosqueId, first.id);
+    });
+  });
+
+  group('editing name and address', () {
+    late Mosque mosque;
+
+    setUp(() async {
+      mosque = await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '1 Example Road',
+        source: MosqueSource.manual,
+      );
+      await mosques.setIqama(
+        mosque.id,
+        Prayer.fajr,
+        LocalTime.of(5, 40),
+        reminderEnabled: true,
+        reminderMinutesBefore: 15,
+      );
+    });
+
+    test('changes the details and keeps every Iqama entry', () async {
+      await mosques.updateDetails(
+        mosque.id,
+        name: ' Al-Nasr Mosque ',
+        address: ' 2 Other Street ',
+      );
+
+      final stored = await mosques.byId(mosque.id);
+      expect(stored!.name, 'Al-Nasr Mosque');
+      expect(stored.address, '2 Other Street');
+      final fajr = stored.schedules.single.iqamaFor(Prayer.fajr);
+      expect(fajr.iqama, LocalTime.of(5, 40));
+      expect(fajr.hasReminder, isTrue);
+      expect(fajr.reminderMinutesBefore, 15);
+    });
+
+    test('keeps a dated schedule the UI does not show', () async {
+      final stored = (await mosques.byId(mosque.id))!;
+      final winter = Schedule.empty(
+        mosqueId: mosque.id,
+        effectiveFrom: const LocalDay(2027, 1, 1),
+      );
+      await mosques.save(
+        stored.copyWith(schedules: [...stored.schedules, winter]),
+      );
+
+      await mosques.updateDetails(mosque.id, name: 'Renamed', address: '');
+
+      expect((await mosques.byId(mosque.id))!.schedules, hasLength(2));
+    });
+
+    test('a blank name is refused and the old one stays', () async {
+      await expectLater(
+        mosques.updateDetails(mosque.id, name: '  ', address: ''),
+        throwsArgumentError,
+      );
+      expect((await mosques.byId(mosque.id))!.name, 'Masjid al-Nasr');
+    });
+
+    test('an unknown mosque is an error, not a silent no-op', () async {
+      await expectLater(
+        mosques.updateDetails('nope', name: 'x', address: ''),
+        throwsArgumentError,
+      );
+    });
+  });
+
+  group('the quick reminder toggle', () {
+    late String mosqueId;
+
+    setUp(() async {
+      mosqueId = (await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      )).id;
+    });
+
+    test('turns a reminder on and keeps the time and interval', () async {
+      await mosques.setIqama(
+        mosqueId,
+        Prayer.maghrib,
+        LocalTime.of(18, 30),
+        reminderMinutesBefore: 5,
+      );
+
+      await mosques.setReminderEnabled(mosqueId, Prayer.maghrib, enabled: true);
+
+      final entry = (await mosques.byId(mosqueId))!
+          .schedules
+          .single
+          .iqamaFor(Prayer.maghrib);
+      expect(entry.iqama, LocalTime.of(18, 30));
+      expect(entry.reminderEnabled, isTrue);
+      expect(entry.reminderMinutesBefore, 5);
+    });
+
+    test('turns a reminder off and keeps the time', () async {
+      await mosques.setIqama(
+        mosqueId,
+        Prayer.maghrib,
+        LocalTime.of(18, 30),
+        reminderEnabled: true,
+      );
+
+      await mosques.setReminderEnabled(
+        mosqueId,
+        Prayer.maghrib,
+        enabled: false,
+      );
+
+      final entry = (await mosques.byId(mosqueId))!
+          .schedules
+          .single
+          .iqamaFor(Prayer.maghrib);
+      expect(entry.iqama, LocalTime.of(18, 30));
+      expect(entry.reminderEnabled, isFalse);
+    });
+
+    test('refuses to turn on a reminder for an unconfigured prayer', () async {
+      await expectLater(
+        mosques.setReminderEnabled(mosqueId, Prayer.isha, enabled: true),
+        throwsA(isA<ReminderWithoutIqamaException>()),
+      );
+      expect(
+        (await mosques.byId(mosqueId))!
+            .schedules
+            .single
+            .iqamaFor(Prayer.isha)
+            .reminderEnabled,
+        isFalse,
+        reason: 'AGENTS.md: a reminder never exists without an Iqama time',
+      );
+    });
+
+    test('sunrise is refused', () async {
+      await expectLater(
+        mosques.setReminderEnabled(mosqueId, Prayer.sunrise, enabled: true),
+        throwsA(isA<IqamaNotAllowedException>()),
+      );
+    });
+
+    test('stamps the schedule with the injected clock', () async {
+      await mosques.setIqama(mosqueId, Prayer.asr, LocalTime.of(16, 0));
+      final instant = DateTime.utc(2026, 10, 13, 12, 0);
+
+      await MosqueRepository(
+        db,
+        clock: FixedClock(instant),
+      ).setReminderEnabled(mosqueId, Prayer.asr, enabled: true);
+
+      expect(
+        (await mosques.byId(mosqueId))!
+            .schedules
+            .single
+            .updatedAt
+            .millisecondsSinceEpoch,
+        instant.millisecondsSinceEpoch,
+      );
+    });
+  });
+
+  group('reminder interval bounds', () {
+    late String mosqueId;
+
+    setUp(() async {
+      mosqueId = (await mosques.add(
+        name: 'Masjid al-Nasr',
+        address: '',
+        source: MosqueSource.manual,
+      )).id;
+    });
+
+    test('1 and 120 minutes are accepted', () async {
+      await mosques.setIqama(
+        mosqueId,
+        Prayer.fajr,
+        LocalTime.of(5, 0),
+        reminderEnabled: true,
+        reminderMinutesBefore: 1,
+      );
+      await mosques.setIqama(
+        mosqueId,
+        Prayer.isha,
+        LocalTime.of(20, 0),
+        reminderEnabled: true,
+        reminderMinutesBefore: 120,
+      );
+    });
+
+    test('0 and 121 minutes are refused before they are stored', () async {
+      for (final minutes in [0, 121, -10]) {
+        await expectLater(
+          mosques.setIqama(
+            mosqueId,
+            Prayer.fajr,
+            LocalTime.of(5, 0),
+            reminderEnabled: true,
+            reminderMinutesBefore: minutes,
+          ),
+          throwsArgumentError,
+        );
+      }
+      expect(
+        (await mosques.byId(mosqueId))!
+            .schedules
+            .single
+            .iqamaFor(Prayer.fajr)
+            .isConfigured,
+        isFalse,
+      );
     });
   });
 }

@@ -25,6 +25,9 @@ class Mosque {
   }) : createdAt = createdAt ?? DateTime.now();
 
   /// Creates a new mosque with a fresh id and one empty schedule.
+  ///
+  /// A caller with a clock of its own passes [now], which stamps both the mosque
+  /// and its schedule.
   factory Mosque.draft({
     required String name,
     required String address,
@@ -32,16 +35,21 @@ class Mosque {
     double? latitude,
     double? longitude,
     String? placeId,
-  }) => Mosque(
-    id: _uuid.v4(),
-    name: name,
-    address: address,
-    source: source,
-    latitude: latitude,
-    longitude: longitude,
-    placeId: placeId,
-    schedules: [Schedule.empty()],
-  );
+    DateTime? now,
+  }) {
+    final id = _uuid.v4();
+    return Mosque(
+      id: id,
+      name: name,
+      address: address,
+      source: source,
+      latitude: latitude,
+      longitude: longitude,
+      placeId: placeId,
+      schedules: [Schedule.empty(mosqueId: id, updatedAt: now)],
+      createdAt: now,
+    );
+  }
 
   final String id;
   final String name;

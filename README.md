@@ -88,6 +88,10 @@ Adhan alerts and offsets, mosques, Iqama schedules. Sunrise cannot get an Iqama
 time — a CHECK constraint in `schedule_prayers` and a guard in `MosqueRepository`
 both enforce it. Deleting a mosque clears the active-mosque setting in the same
 transaction, so reminders never point at a mosque that is gone.
+The first mosque saved becomes the active one when none is active (as in the
+prototype); a later one never takes over. A reminder can only be switched on for a
+prayer with an Iqama time, and its interval is 1–120 minutes. `watchSaved()` re-emits
+on any mosque, schedule or Iqama change, so Today follows an edit immediately.
 
 ## Location
 
@@ -146,7 +150,7 @@ The first screen the user sees, and the only one that reads the stored place.
 ## Tests
 
 ```bash
-flutter test       # 244 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
+flutter test       # 285 tests: prayer times, today-in-zone and iqama/reminder math, qibla,
                    # notification planning, storage, the placeholder city list, the location
                    # flow, the Today screen, the app shell, the manifest guard
 flutter analyze

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../domain/app_clock.dart';
+import '../domain/iqama_editing.dart';
 import '../domain/mosque.dart';
 import '../domain/prayer.dart';
 import '../domain/time_model.dart';
@@ -19,6 +20,18 @@ class IqamaNotAllowedException implements Exception {
       'reminder.';
 }
 
+/// Thrown when a reminder is switched on for a prayer with no Iqama time: a
+/// reminder can never exist without one (AGENTS.md).
+class ReminderWithoutIqamaException implements Exception {
+  ReminderWithoutIqamaException(this.prayer);
+
+  final Prayer prayer;
+
+  @override
+  String toString() =>
+      '$prayer has no Iqama time, so it cannot have an Iqama reminder.';
+}
+
 /// Stores and loads saved mosques with their Iqama schedules.
 ///
 /// Every Iqama time the user has not entered stays "Not configured": nothing here
@@ -32,18 +45,29 @@ class MosqueRepository {
   final AppDatabase _db;
   final AppClock _clock;
 
-  /// Saved mosques, newest first.
+  /// Saved mosques, newest first. Two added on the same instant fall back to
+  /// insertion order, so the newest still leads.
   Future<List<Mosque>> saved() async {
     final rows = await (_db.select(_db.mosques)
-          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+          ..orderBy([
+            (t) => OrderingTerm.desc(t.createdAt),
+            (t) => OrderingTerm.desc(t.rowId),
+          ]))
         .get();
     return Future.wait(rows.map(_load));
   }
 
+  /// [saved], re-emitted whenever a mosque, a schedule or an Iqama entry changes.
+  ///
+  /// Watching only the mosques table would miss an Iqama edit, which writes
+  /// schedules and schedule_prayers alone, and Today would keep the old time.
   Stream<List<Mosque>> watchSaved() => _db
-      .select(_db.mosques)
+      .customSelect(
+        'SELECT 1',
+        readsFrom: {_db.mosques, _db.schedules, _db.schedulePrayers},
+      )
       .watch()
-      .asyncMap((rows) => Future.wait(rows.map(_load)));
+      .asyncMap((_) => saved());
 
   /// Inserts or replaces a whole mosque with its schedules.
   Future<void> save(Mosque mosque) => _db.transaction(() async {
@@ -57,6 +81,10 @@ class MosqueRepository {
 
   /// Adds a mosque from a discovery result or manual entry, with one empty
   /// schedule — every Iqama time starts "Not configured".
+  ///
+  /// The name is required and both fields are trimmed. When no mosque is active
+  /// yet, this one becomes active, as in the prototype, so Today has a mosque to
+  /// read without an extra step. An existing active mosque is never replaced.
   Future<Mosque> add({
     required String name,
     required String address,
@@ -66,16 +94,58 @@ class MosqueRepository {
     String? placeId,
   }) async {
     final mosque = Mosque.draft(
-      name: name,
-      address: address,
+      name: _requireName(name),
+      address: MosqueDetailsInput.address(address),
       source: source,
       latitude: latitude,
       longitude: longitude,
       placeId: placeId,
+      now: _clock.nowUtc(),
     );
-    await save(mosque);
+    await _db.transaction(() async {
+      await save(mosque);
+      final active = await (_db.select(_db.appSettings)
+            ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
+          .getSingleOrNull();
+      if (active?.value == null) {
+        await _db
+            .into(_db.appSettings)
+            .insert(
+              AppSettingRow(key: SettingKeys.activeMosqueId, value: mosque.id),
+              mode: InsertMode.insertOrReplace,
+            );
+      }
+    });
     return mosque;
   }
+
+  /// Changes a mosque's name and address, leaving every schedule untouched.
+  Future<void> updateDetails(
+    String mosqueId, {
+    required String name,
+    required String address,
+  }) async {
+    final cleanName = _requireName(name);
+    final changed = await (_db.update(_db.mosques)
+          ..where((t) => t.id.equals(mosqueId)))
+        .write(
+          MosquesCompanion(
+            name: Value(cleanName),
+            address: Value(MosqueDetailsInput.address(address)),
+          ),
+        );
+    if (changed == 0) {
+      throw ArgumentError.value(
+        mosqueId,
+        'mosqueId',
+        'No saved mosque has this id',
+      );
+    }
+  }
+
+  String _requireName(String raw) =>
+      MosqueDetailsInput.name(raw) ??
+      (throw ArgumentError.value(raw, 'name', 'A mosque needs a name'));
 
   /// Deletes a mosque. If it was the active one, the active-mosque setting is
   /// cleared in the same transaction so reminders stop pointing at a mosque that
@@ -104,13 +174,16 @@ class MosqueRepository {
     int reminderMinutesBefore = 10,
   }) async {
     if (!prayer.canHaveIqama) throw IqamaNotAllowedException(prayer);
+    if (!ReminderInterval.isValid(reminderMinutesBefore)) {
+      throw ArgumentError.value(
+        reminderMinutesBefore,
+        'reminderMinutesBefore',
+        'must be ${ReminderInterval.minMinutes}..${ReminderInterval.maxMinutes}',
+      );
+    }
 
     final now = _clock.nowUtc();
-    final mosque = await requireById(mosqueId);
-    // Resolved on the device's own calendar day, since that is the day the user is
-    // editing a mosque's schedule for; the place's prayer day is the reading side.
-    final schedule = mosque.scheduleFor(LocalDay.fromDateTime(now.toLocal())) ??
-        Schedule.empty(mosqueId: mosqueId, updatedAt: now);
+    final schedule = await _scheduleInForce(mosqueId, now);
 
     final updated = schedule.withPrayer(
       PrayerIqama(
@@ -128,6 +201,42 @@ class MosqueRepository {
       await _saveSchedule(mosqueId, updated);
     });
     return updated;
+  }
+
+  /// Switches one prayer's reminder on or off, keeping its time and interval.
+  ///
+  /// Switching on a prayer with no Iqama time is refused: a reminder never
+  /// exists without one (AGENTS.md).
+  Future<Schedule> setReminderEnabled(
+    String mosqueId,
+    Prayer prayer, {
+    required bool enabled,
+  }) async {
+    if (!prayer.canHaveIqama) throw IqamaNotAllowedException(prayer);
+
+    final now = _clock.nowUtc();
+    final schedule = await _scheduleInForce(mosqueId, now);
+    final entry = schedule.iqamaFor(prayer);
+    if (enabled && !entry.isConfigured) {
+      throw ReminderWithoutIqamaException(prayer);
+    }
+
+    final updated = schedule.withPrayer(
+      entry.copyWith(reminderEnabled: enabled),
+      updatedAt: now,
+    );
+    await _db.transaction(() => _saveSchedule(mosqueId, updated));
+    return updated;
+  }
+
+  /// The schedule an edit at [now] belongs to.
+  ///
+  /// Resolved on the device's own calendar day, since that is the day the user is
+  /// editing a mosque's schedule for; the place's prayer day is the reading side.
+  Future<Schedule> _scheduleInForce(String mosqueId, DateTime now) async {
+    final mosque = await requireById(mosqueId);
+    return mosque.scheduleFor(LocalDay.fromDateTime(now.toLocal())) ??
+        Schedule.empty(mosqueId: mosqueId, updatedAt: now);
   }
 
   Future<Mosque?> byId(String id) async {
