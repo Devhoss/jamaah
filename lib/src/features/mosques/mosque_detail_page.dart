@@ -14,6 +14,7 @@ import '../../domain/mosque.dart';
 import '../../domain/prayer.dart';
 import '../../domain/time_model.dart';
 import '../components/app_widgets.dart';
+import 'enter_all_five_sheet.dart';
 import 'iqama_editor_sheet.dart';
 import 'mosque_details_sheet.dart';
 
@@ -147,6 +148,20 @@ class MosqueDetailPage extends ConsumerWidget {
                 jumuah: true,
               ),
             ],
+          ),
+          const SizedBox(height: AppSpace.md),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: OutlinedButton.icon(
+              onPressed: () => showEnterAllFive(
+                context,
+                mosque: mosque,
+                schedule: schedule,
+                adhanToday: today?.day.times ?? const {},
+              ),
+              icon: const Icon(Icons.edit_note),
+              label: Text(l10n.enterAllFive),
+            ),
           ),
           const SizedBox(height: AppSpace.md),
           Text(
@@ -292,14 +307,29 @@ class _IqamaRow extends ConsumerWidget {
           Flexible(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: entry.iqama != null
-                  ? Text(
-                      clock.time(entry.iqama!),
-                      textAlign: TextAlign.end,
-                      style: const TextStyle(
-                        fontSize: AppType.rowSize,
-                        fontWeight: FontWeight.w600,
-                      ),
+              child: entry.isConfigured
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Today's time: a fixed one, or the Adhan plus the
+                        // minutes (2026-10-14).
+                        if (entry.timeOfDay(adhan) case final at?)
+                          Text(
+                            clock.time(at),
+                            textAlign: TextAlign.end,
+                            style: const TextStyle(
+                              fontSize: AppType.rowSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        if (entry.afterAdhanMinutes case final minutes?)
+                          Text(
+                            l10n.rowAfterAdhan(minutes),
+                            textAlign: TextAlign.end,
+                            style: small,
+                          ),
+                      ],
                     )
                   : AppTag(l10n.notConfigured, tone: AppTagTone.warning),
             ),
@@ -344,9 +374,17 @@ class _IqamaRow extends ConsumerWidget {
 
   String _reminderLine(AppLocalizations l10n) {
     if (!entry.isConfigured) return l10n.rowReminderNeedsIqama;
+    final time = entry.timeOfDay(adhan);
+    // Minutes after the Adhan with no place to read the Adhan from: the
+    // reminder is set, but its time today cannot be said.
+    if (time == null) {
+      return entry.hasReminder
+          ? l10n.reminderBeforeIqama(entry.reminderMinutesBefore)
+          : l10n.rowReminderOff;
+    }
     final summary = IqamaSummary.of(
       prayer: prayer,
-      iqama: entry.iqama,
+      iqama: time,
       reminderEnabled: entry.reminderEnabled,
       reminderMinutesBefore: entry.reminderMinutesBefore,
     );

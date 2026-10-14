@@ -581,6 +581,16 @@ AR = {
     'alertPreAdhanRingInSilent': 'التذكير يرنّ والهاتف صامت',
     'onbRingInSilent': 'التنبيه حتى لو كان هاتفي صامتًا',
     'onbRingInSilentHint': 'للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات.',
+    'iqamaModeAfterAdhan': 'دقائق بعد الأذان',
+    'iqamaModeFixed': 'وقت ثابت',
+    'iqamaMinutesLabel': 'عدد الدقائق بعد الأذان',
+    'iqamaAfterAdhanPreview': minutes('minutes', before='الأذان {adhan} + ', after=' = الإقامة {iqama} اليوم'),
+    'iqamaMinutesInvalid': 'أدخل من 1 إلى 90 دقيقة',
+    'iqamaNeedsAdhan': 'حدّد موقعك لترى وقت اليوم.',
+    'rowAfterAdhan': minutes('minutes', after=' بعد الأذان'),
+    'enterAllFive': 'إدخال الدقائق للصلوات الخمس',
+    'enterAllFiveTitle': 'الإقامة: الدقائق بعد الأذان',
+    'enterAllFiveHint': 'كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها.',
 }
 
 

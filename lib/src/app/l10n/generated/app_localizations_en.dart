@@ -1930,4 +1930,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onbRingInSilentHint =>
       'For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings.';
+
+  @override
+  String get iqamaModeAfterAdhan => 'Minutes after Adhan';
+
+  @override
+  String get iqamaModeFixed => 'Fixed time';
+
+  @override
+  String get iqamaMinutesLabel => 'Minutes after the Adhan';
+
+  @override
+  String iqamaAfterAdhanPreview(String adhan, int minutes, String iqama) {
+    return 'Adhan $adhan + $minutes min = Iqama $iqama today';
+  }
+
+  @override
+  String get iqamaMinutesInvalid => 'Enter 1 to 90 minutes';
+
+  @override
+  String get iqamaNeedsAdhan => 'Set your location to see today’s time.';
+
+  @override
+  String rowAfterAdhan(int minutes) {
+    return '$minutes min after Adhan';
+  }
+
+  @override
+  String get enterAllFive => 'Enter minutes for all five';
+
+  @override
+  String get enterAllFiveTitle => 'Iqama: minutes after the Adhan';
+
+  @override
+  String get enterAllFiveHint =>
+      'As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are.';
 }

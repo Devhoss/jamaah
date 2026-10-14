@@ -992,5 +992,17 @@
   "ringInSilentSome": "On for some prayers. Each prayer’s page can change it.",
   "alertPreAdhanRingInSilent": "Reminder rings on silent",
   "onbRingInSilent": "Ring even when my phone is on silent",
-  "onbRingInSilentHint": "For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings."
+  "onbRingInSilentHint": "For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings.",
+  "iqamaModeAfterAdhan": "Minutes after Adhan",
+  "iqamaModeFixed": "Fixed time",
+  "iqamaMinutesLabel": "Minutes after the Adhan",
+  "iqamaAfterAdhanPreview": "Adhan {adhan} + {minutes} min = Iqama {iqama} today",
+  "@iqamaAfterAdhanPreview": {"placeholders": {"adhan": {"type": "String"}, "minutes": {"type": "int"}, "iqama": {"type": "String"}}},
+  "iqamaMinutesInvalid": "Enter 1 to 90 minutes",
+  "iqamaNeedsAdhan": "Set your location to see today’s time.",
+  "rowAfterAdhan": "{minutes} min after Adhan",
+  "@rowAfterAdhan": {"placeholders": {"minutes": {"type": "int"}}},
+  "enterAllFive": "Enter minutes for all five",
+  "enterAllFiveTitle": "Iqama: minutes after the Adhan",
+  "enterAllFiveHint": "As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are."
 }

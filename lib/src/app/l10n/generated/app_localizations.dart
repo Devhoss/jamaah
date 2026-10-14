@@ -3215,6 +3215,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings.'**
   String get onbRingInSilentHint;
+
+  /// No description provided for @iqamaModeAfterAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes after Adhan'**
+  String get iqamaModeAfterAdhan;
+
+  /// No description provided for @iqamaModeFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed time'**
+  String get iqamaModeFixed;
+
+  /// No description provided for @iqamaMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes after the Adhan'**
+  String get iqamaMinutesLabel;
+
+  /// No description provided for @iqamaAfterAdhanPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan {adhan} + {minutes} min = Iqama {iqama} today'**
+  String iqamaAfterAdhanPreview(String adhan, int minutes, String iqama);
+
+  /// No description provided for @iqamaMinutesInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 1 to 90 minutes'**
+  String get iqamaMinutesInvalid;
+
+  /// No description provided for @iqamaNeedsAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location to see today’s time.'**
+  String get iqamaNeedsAdhan;
+
+  /// No description provided for @rowAfterAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min after Adhan'**
+  String rowAfterAdhan(int minutes);
+
+  /// No description provided for @enterAllFive.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter minutes for all five'**
+  String get enterAllFive;
+
+  /// No description provided for @enterAllFiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama: minutes after the Adhan'**
+  String get enterAllFiveTitle;
+
+  /// No description provided for @enterAllFiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are.'**
+  String get enterAllFiveHint;
 }
 
 class _AppLocalizationsDelegate

@@ -187,6 +187,16 @@ void main() {
       Prayer.sunrise => throw ArgumentError('Sunrise has no Iqama'),
     };
     await tapText(tester, name);
+    // These tests use the time picker: a new Iqama opens on "Minutes after
+    // Adhan" (2026-10-14), so switch to a fixed time first.
+    final pickerField = find.descendant(
+      of: find.byType(IqamaEditorSheet),
+      matching: find.byIcon(Icons.schedule),
+    );
+    if (pickerField.evaluate().isEmpty) {
+      await tester.tap(find.text(t.iqamaModeFixed));
+      await tester.pumpAndSettle();
+    }
   }
 
   Future<void> chooseTime(WidgetTester tester, LocalTime time) async {

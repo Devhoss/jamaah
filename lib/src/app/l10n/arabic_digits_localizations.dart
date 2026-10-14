@@ -1232,6 +1232,30 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get onbRingInSilentHint => arabicDigits(super.onbRingInSilentHint);
 
   @override
+  String get iqamaModeAfterAdhan => arabicDigits(super.iqamaModeAfterAdhan);
+
+  @override
+  String get iqamaModeFixed => arabicDigits(super.iqamaModeFixed);
+
+  @override
+  String get iqamaMinutesLabel => arabicDigits(super.iqamaMinutesLabel);
+
+  @override
+  String get iqamaMinutesInvalid => arabicDigits(super.iqamaMinutesInvalid);
+
+  @override
+  String get iqamaNeedsAdhan => arabicDigits(super.iqamaNeedsAdhan);
+
+  @override
+  String get enterAllFive => arabicDigits(super.enterAllFive);
+
+  @override
+  String get enterAllFiveTitle => arabicDigits(super.enterAllFiveTitle);
+
+  @override
+  String get enterAllFiveHint => arabicDigits(super.enterAllFiveHint);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1678,4 +1702,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String extraDuhaRule(int minutes) =>
       arabicDigits(super.extraDuhaRule(minutes));
+
+  @override
+  String iqamaAfterAdhanPreview(String adhan, int minutes, String iqama) =>
+      arabicDigits(super.iqamaAfterAdhanPreview(adhan, minutes, iqama));
+
+  @override
+  String rowAfterAdhan(int minutes) =>
+      arabicDigits(super.rowAfterAdhan(minutes));
 }

@@ -102,8 +102,16 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
   ConsumerState<IqamaEditorSheet> createState() => _IqamaEditorSheetState();
 }
 
+/// How the Iqama is entered: as the mosque publishes it, minutes after the
+/// Adhan (the default for a new entry), or as a fixed time (2026-10-14).
+enum _Mode { afterAdhan, fixed }
+
 class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   late LocalTime? _time = widget.current.iqama;
+  late _Mode _mode = widget.current.iqama != null ? _Mode.fixed : _Mode.afterAdhan;
+  late final _afterField = TextEditingController(
+    text: widget.current.afterAdhanMinutes?.toString() ?? '',
+  );
   late bool _reminderOn = widget.current.hasReminder;
   late int _presetMinutes = widget.current.reminderMinutesBefore;
   late bool _custom = !ReminderInterval.presets.contains(
@@ -117,8 +125,31 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   @override
   void dispose() {
     _customField.dispose();
+    _afterField.dispose();
     super.dispose();
   }
+
+  /// The minutes typed, or null while they are not a whole number in range.
+  int? get _afterMinutes {
+    final n = int.tryParse(_afterField.text.trim());
+    return n != null && n >= kMinAfterAdhanMinutes && n <= kMaxAfterAdhanMinutes
+        ? n
+        : null;
+  }
+
+  /// Something to save: a picked time, or valid minutes.
+  bool get _hasEntry =>
+      _mode == _Mode.fixed ? _time != null : _afterMinutes != null;
+
+  /// Today's Iqama for the summary: the picked time, or the Adhan plus the
+  /// minutes (null without a place to read the Adhan from).
+  LocalTime? get _iqamaToday => switch (_mode) {
+    _Mode.fixed => _time,
+    _Mode.afterAdhan => switch ((widget.adhan, _afterMinutes)) {
+      (final adhan?, final after?) => LocalTime((adhan.minutes + after) % 1440),
+      _ => null,
+    },
+  };
 
   ReminderMinutesInput get _customInput =>
       ReminderInterval.parseCustom(_customField.text);
@@ -131,7 +162,7 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   }
 
   bool get _canSave =>
-      !_saving && _time != null && (!_reminderOn || _minutes != null);
+      !_saving && _hasEntry && (!_reminderOn || _minutes != null);
 
   Future<void> _pickTime() async {
     final picked = await ref.read(iqamaTimePickerProvider)(
@@ -148,10 +179,13 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
     // A reminder that is off keeps the last interval the user chose, so
     // switching it back on later does not reset their choice.
     final minutes = _minutes ?? widget.current.reminderMinutesBefore;
+    final fixed = _mode == _Mode.fixed ? _time : null;
+    final after = _mode == _Mode.afterAdhan ? _afterMinutes : null;
     if (widget.jumuah) {
       await repository.setJumuah(
         widget.mosque.id,
-        _time,
+        fixed,
+        afterAdhanMinutes: after,
         reminderEnabled: _reminderOn,
         reminderMinutesBefore: minutes,
       );
@@ -163,7 +197,8 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
         .setIqama(
           widget.mosque.id,
           widget.prayer,
-          _time,
+          fixed,
+          afterAdhanMinutes: after,
           reminderEnabled: _reminderOn,
           // A reminder that is off keeps the last interval the user chose, so
           // switching it back on later does not reset their choice.
@@ -235,26 +270,74 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
                 style: theme.textTheme.bodyMedium?.copyWith(color: ink.muted),
               ),
               const SizedBox(height: AppSpace.lg),
-              _TimeField(
-                label: l10n.iqamaTimeLabel,
-                value: _time == null ? null : clock.time(_time!),
-                placeholder: widget.adhan == null
-                    ? l10n.iqamaChooseTime
-                    : l10n.iqamaStartsAtAdhan(clock.time(widget.adhan!)),
-                onTap: _saving ? null : _pickTime,
+              SegmentedButton<_Mode>(
+                segments: [
+                  ButtonSegment(
+                    value: _Mode.afterAdhan,
+                    label: Text(l10n.iqamaModeAfterAdhan),
+                  ),
+                  ButtonSegment(
+                    value: _Mode.fixed,
+                    label: Text(l10n.iqamaModeFixed),
+                  ),
+                ],
+                selected: {_mode},
+                showSelectedIcon: false,
+                onSelectionChanged: _saving
+                    ? null
+                    : (s) => setState(() => _mode = s.single),
               ),
+              const SizedBox(height: AppSpace.md),
+              if (_mode == _Mode.fixed)
+                _TimeField(
+                  label: l10n.iqamaTimeLabel,
+                  value: _time == null ? null : clock.time(_time!),
+                  placeholder: widget.adhan == null
+                      ? l10n.iqamaChooseTime
+                      : l10n.iqamaStartsAtAdhan(clock.time(widget.adhan!)),
+                  onTap: _saving ? null : _pickTime,
+                )
+              else ...[
+                TextField(
+                  controller: _afterField,
+                  autofocus: _afterField.text.isEmpty,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: l10n.iqamaMinutesLabel,
+                    errorText:
+                        _afterField.text.isNotEmpty && _afterMinutes == null
+                        ? l10n.iqamaMinutesInvalid
+                        : null,
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: AppSpace.xs),
+                Text(
+                  switch ((widget.adhan, _afterMinutes, _iqamaToday)) {
+                    (final adhan?, final after?, final iqama?) =>
+                      l10n.iqamaAfterAdhanPreview(
+                        clock.time(adhan),
+                        after,
+                        clock.time(iqama),
+                      ),
+                    (null, _, _) => l10n.iqamaNeedsAdhan,
+                    _ => '',
+                  },
+                  style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+                ),
+              ],
               const SizedBox(height: AppSpace.md),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(l10n.remindMeBefore),
-                subtitle: _time == null ? Text(l10n.reminderNeedsTime) : null,
-                value: _time != null && _reminderOn,
+                subtitle: !_hasEntry ? Text(l10n.reminderNeedsTime) : null,
+                value: _hasEntry && _reminderOn,
                 // A reminder can only exist alongside an Iqama time (AGENTS.md).
-                onChanged: _time == null || _saving
+                onChanged: !_hasEntry || _saving
                     ? null
                     : (on) => setState(() => _reminderOn = on),
               ),
-              if (_time != null && _reminderOn) ...[
+              if (_hasEntry && _reminderOn) ...[
                 Wrap(
                   spacing: AppSpace.sm,
                   runSpacing: AppSpace.sm,
@@ -338,8 +421,10 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   }
 
   String _summary(AppLocalizations l10n, ClockFormat clock, String prayer) {
-    final time = _time;
-    if (time == null) return l10n.summaryNoTime;
+    final time = _iqamaToday;
+    if (time == null) {
+      return _hasEntry ? l10n.iqamaNeedsAdhan : l10n.summaryNoTime;
+    }
     final minutes = _minutes;
     if (_reminderOn && minutes == null) {
       // Custom is open but not valid yet: say what the field needs instead of a

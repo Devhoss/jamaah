@@ -202,6 +202,8 @@ void main() {
       await tapText(tester, t.jumuahRowHint);
       expect(find.byType(IqamaEditorSheet), findsOneWidget);
       expect(find.text(t.iqamaEditorTitle(t.prayerJumuah)), findsOneWidget);
+      await tester.tap(find.text(t.iqamaModeFixed));
+      await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
           of: find.byType(IqamaEditorSheet),

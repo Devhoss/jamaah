@@ -2063,4 +2063,57 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get onbRingInSilentHint =>
       'للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات.';
+
+  @override
+  String get iqamaModeAfterAdhan => 'دقائق بعد الأذان';
+
+  @override
+  String get iqamaModeFixed => 'وقت ثابت';
+
+  @override
+  String get iqamaMinutesLabel => 'عدد الدقائق بعد الأذان';
+
+  @override
+  String iqamaAfterAdhanPreview(String adhan, int minutes, String iqama) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'الأذان $adhan + $minutes دقيقة = الإقامة $iqama اليوم',
+      many: 'الأذان $adhan + $minutes دقيقة = الإقامة $iqama اليوم',
+      few: 'الأذان $adhan + $minutes دقائق = الإقامة $iqama اليوم',
+      two: 'الأذان $adhan + دقيقتين = الإقامة $iqama اليوم',
+      one: 'الأذان $adhan + دقيقة = الإقامة $iqama اليوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get iqamaMinutesInvalid => 'أدخل من 1 إلى 90 دقيقة';
+
+  @override
+  String get iqamaNeedsAdhan => 'حدّد موقعك لترى وقت اليوم.';
+
+  @override
+  String rowAfterAdhan(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes دقيقة بعد الأذان',
+      many: '$minutes دقيقة بعد الأذان',
+      few: '$minutes دقائق بعد الأذان',
+      two: 'دقيقتين بعد الأذان',
+      one: 'دقيقة بعد الأذان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get enterAllFive => 'إدخال الدقائق للصلوات الخمس';
+
+  @override
+  String get enterAllFiveTitle => 'الإقامة: الدقائق بعد الأذان';
+
+  @override
+  String get enterAllFiveHint =>
+      'كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها.';
 }

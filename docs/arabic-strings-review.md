@@ -530,3 +530,13 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 517 | `alertPreAdhanRingInSilent` | Reminder rings on silent | التذكير يرنّ والهاتف صامت |
 | 518 | `onbRingInSilent` | Ring even when my phone is on silent | التنبيه حتى لو كان هاتفي صامتًا |
 | 519 | `onbRingInSilentHint` | For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings. | للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات. |
+| 520 | `iqamaModeAfterAdhan` | Minutes after Adhan | دقائق بعد الأذان |
+| 521 | `iqamaModeFixed` | Fixed time | وقت ثابت |
+| 522 | `iqamaMinutesLabel` | Minutes after the Adhan | عدد الدقائق بعد الأذان |
+| 523 | `iqamaAfterAdhanPreview` | Adhan {adhan} + {minutes} min = Iqama {iqama} today | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} اليوم} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} اليوم} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} اليوم} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم}} |
+| 524 | `iqamaMinutesInvalid` | Enter 1 to 90 minutes | أدخل من 1 إلى 90 دقيقة |
+| 525 | `iqamaNeedsAdhan` | Set your location to see today’s time. | حدّد موقعك لترى وقت اليوم. |
+| 526 | `rowAfterAdhan` | {minutes} min after Adhan | {minutes, plural, =1{دقيقة بعد الأذان} =2{دقيقتين بعد الأذان} few{{minutes} دقائق بعد الأذان} many{{minutes} دقيقة بعد الأذان} other{{minutes} دقيقة بعد الأذان}} |
+| 527 | `enterAllFive` | Enter minutes for all five | إدخال الدقائق للصلوات الخمس |
+| 528 | `enterAllFiveTitle` | Iqama: minutes after the Adhan | الإقامة: الدقائق بعد الأذان |
+| 529 | `enterAllFiveHint` | As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are. | كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها. |

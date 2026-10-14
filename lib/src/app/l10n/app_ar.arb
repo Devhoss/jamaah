@@ -518,5 +518,15 @@
   "ringInSilentSome": "مفعّل لبعض الصلوات. ويمكن تغييره من صفحة كل صلاة.",
   "alertPreAdhanRingInSilent": "التذكير يرنّ والهاتف صامت",
   "onbRingInSilent": "التنبيه حتى لو كان هاتفي صامتًا",
-  "onbRingInSilentHint": "للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات."
+  "onbRingInSilentHint": "للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات.",
+  "iqamaModeAfterAdhan": "دقائق بعد الأذان",
+  "iqamaModeFixed": "وقت ثابت",
+  "iqamaMinutesLabel": "عدد الدقائق بعد الأذان",
+  "iqamaAfterAdhanPreview": "{minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} اليوم} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} اليوم} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} اليوم} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم}}",
+  "iqamaMinutesInvalid": "أدخل من 1 إلى 90 دقيقة",
+  "iqamaNeedsAdhan": "حدّد موقعك لترى وقت اليوم.",
+  "rowAfterAdhan": "{minutes, plural, =1{دقيقة بعد الأذان} =2{دقيقتين بعد الأذان} few{{minutes} دقائق بعد الأذان} many{{minutes} دقيقة بعد الأذان} other{{minutes} دقيقة بعد الأذان}}",
+  "enterAllFive": "إدخال الدقائق للصلوات الخمس",
+  "enterAllFiveTitle": "الإقامة: الدقائق بعد الأذان",
+  "enterAllFiveHint": "كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها."
 }
