@@ -249,4 +249,78 @@ void main() {
     expect(c.group, ChannelGroup.extra);
     expect(c.sound, ChannelSound.chime);
   });
+
+  group('ringing on silent goes through the app’s own player (2026-10-14)', () {
+    // A channel sound is muted with the phone on silent, even on the alarm
+    // stream (seen on a Samsung A53): only a sound the app plays rings.
+    PlannedNotification reminder({
+      NotificationKind kind = NotificationKind.iqama,
+      ReminderSound sound = ReminderSound.chime,
+      bool ring = true,
+    }) => PlannedNotification(
+      id: 1,
+      kind: kind,
+      prayer: Prayer.fajr,
+      at: DateTime.utc(2026),
+      soundMode: null,
+      mosqueId: '',
+      reminderSound: sound,
+      ringInSilent: ring,
+    );
+
+    test('a reminder that rings on silent is played by the app', () {
+      expect(playsInApp(reminder()), isTrue);
+      expect(playsInApp(reminder(kind: NotificationKind.extra)), isTrue);
+      expect(playsInApp(reminder(ring: false)), isFalse);
+      expect(
+        playsInApp(reminder(sound: ReminderSound.silent)),
+        isFalse,
+        reason: 'nothing to play',
+      );
+    });
+
+    test('so is a short Adhan or a reminder before the Adhan', () {
+      final short = PlannedNotification(
+        id: 1,
+        kind: NotificationKind.adhan,
+        prayer: Prayer.fajr,
+        at: DateTime.utc(2026),
+        soundMode: AdhanSoundMode.short,
+        mosqueId: '',
+        ringInSilent: true,
+      );
+      expect(playsInApp(short), isTrue);
+      final before = PlannedNotification(
+        id: 2,
+        kind: NotificationKind.preAdhan,
+        prayer: Prayer.fajr,
+        at: DateTime.utc(2026),
+        soundMode: null,
+        mosqueId: '',
+        ringInSilent: true,
+      );
+      expect(playsInApp(before), isTrue);
+    });
+
+    test('the app is told which sound to play', () {
+      expect(inAppSound(reminder()), (sound: 'raw', raw: 'reminder_chime'));
+      expect(
+        inAppSound(reminder(sound: ReminderSound.hayya)),
+        (sound: 'raw', raw: ShortAdhan.hayya.raw),
+      );
+      expect(
+        inAppSound(reminder(sound: ReminderSound.standard)),
+        (sound: 'standard', raw: ''),
+      );
+      final full = PlannedNotification(
+        id: 1,
+        kind: NotificationKind.adhan,
+        prayer: Prayer.fajr,
+        at: DateTime.utc(2026),
+        soundMode: AdhanSoundMode.full,
+        mosqueId: '',
+      );
+      expect(inAppSound(full), (sound: 'full', raw: ''));
+    });
+  });
 }

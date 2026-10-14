@@ -176,9 +176,31 @@ ChannelSpec _adhanChannel(PlannedNotification n) {
   );
 }
 
-/// True for an Adhan the app plays itself (native AdhanService) rather than as
-/// a notification sound: the full recording, which is too long for a channel
-/// sound, and any Adhan shown full screen.
+/// True for what the app plays itself (native AdhanService) rather than as a
+/// notification sound: the full recording, which is too long for a channel
+/// sound; any Adhan shown full screen; and anything set to ring on silent
+/// that has a sound. A channel's sound is muted with the phone on silent even
+/// on the alarm stream (seen on a Samsung A53, 2026-10-14); a sound the app
+/// plays on the alarm stream is not.
 bool playsInApp(PlannedNotification n) =>
-    n.kind == NotificationKind.adhan &&
-    (n.soundMode == AdhanSoundMode.full || n.fullScreen);
+    (n.kind == NotificationKind.adhan &&
+        (n.soundMode == AdhanSoundMode.full || n.fullScreen)) ||
+    (n.ringInSilent && channelFor(n).sound != ChannelSound.none);
+
+/// What the app's own player plays for [n]: an Adhan by its sound mode (and
+/// recording), anything else by its channel's sound: a bundled raw sound by
+/// name, the phone's notification sound, or none.
+({String sound, String raw}) inAppSound(PlannedNotification n) {
+  if (n.kind == NotificationKind.adhan) {
+    return (sound: (n.soundMode ?? AdhanSoundMode.standard).name, raw: '');
+  }
+  final sound = channelFor(n).sound;
+  return switch (rawSoundFor(sound)) {
+    final raw? => (sound: 'raw', raw: raw),
+    null when sound == ChannelSound.platformDefault => (
+      sound: 'standard',
+      raw: '',
+    ),
+    null => (sound: 'silent', raw: ''),
+  };
+}

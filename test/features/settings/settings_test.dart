@@ -333,6 +333,19 @@ void main() {
       expect((await settings.read()).jamaahReminders.ringInSilent, isTrue);
     });
 
+    testApp('a test reminder that rings on silent is played by the app', (
+      tester,
+    ) async {
+      await settings.saveJamaahReminders(
+        const JamaahReminderSettings(ringInSilent: true),
+      );
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsReminderTest);
+      expect(gateway.playedNow, hasLength(1));
+      expect(gateway.shownNow, isEmpty);
+    });
+
     testApp('vibration can be turned off', (tester) async {
       await open(tester);
       await openPrayer(tester, Prayer.asr);

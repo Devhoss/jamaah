@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-import '../../domain/adhan_alerts.dart';
 import '../../domain/notification_channels.dart';
 import 'notification_sync.dart';
 
@@ -165,7 +164,8 @@ class LocalNotificationsGateway implements NotificationGateway {
     'at': item.at.millisecondsSinceEpoch,
     'title': item.title,
     'body': item.body,
-    'sound': (item.planned.soundMode ?? AdhanSoundMode.standard).name,
+    'sound': inAppSound(item.planned).sound,
+    'raw': inAppSound(item.planned).raw,
     'recording': item.planned.recordingAsset ?? '',
     'ringInSilent': item.planned.ringInSilent,
     'fullScreen': item.planned.fullScreen,

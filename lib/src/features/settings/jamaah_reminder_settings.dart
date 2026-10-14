@@ -110,17 +110,21 @@ class _JamaahReminderSoundRowsState
       planned,
       mosqueName: (_) => active?.name,
     );
-    await ref
-        .read(notificationGatewayProvider)
-        .showNow(
-          ScheduledItem(
-            planned: planned,
-            channel: channelFor(planned),
-            title: text.title,
-            body: text.body,
-            stopLabel: l10n.adhanStop,
-          ),
-        );
+    final item = ScheduledItem(
+      planned: planned,
+      channel: channelFor(planned),
+      title: text.title,
+      body: text.body,
+      stopLabel: l10n.adhanStop,
+    );
+    final gateway = ref.read(notificationGatewayProvider);
+    // A reminder set to ring on silent is played by the app, as the real one
+    // will be.
+    if (playsInApp(planned)) {
+      await gateway.playAdhanNow(item);
+    } else {
+      await gateway.showNow(item);
+    }
     if (mounted) setState(() => _sent = true);
   }
 

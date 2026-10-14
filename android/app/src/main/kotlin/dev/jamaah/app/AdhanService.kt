@@ -104,6 +104,10 @@ class AdhanService : Service(), SensorEventListener {
             // Flutter assets below; the short Adhan stands in if there is none.
             "full", "short" -> if (alarm.recording.isEmpty()) shortAdhan else null
             "standard" -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            // A reminder's chime or clip, by its res/raw name (kept by keep.xml).
+            "raw" -> resources.getIdentifier(alarm.raw, "raw", packageName)
+                .takeIf { it != 0 }
+                ?.let { Uri.parse("android.resource://$packageName/$it") }
             else -> null // silent: shown, not heard
         }
         val fromAssets =
