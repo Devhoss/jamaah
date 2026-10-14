@@ -274,25 +274,72 @@ class DayIqama {
   final bool jumuahNotSet;
 }
 
-/// The user-entered Iqama for one prayer of one schedule.
+/// The range of "minutes after the Adhan" an Iqama can be (2026-10-14).
+const kMinAfterAdhanMinutes = 1;
+const kMaxAfterAdhanMinutes = 90;
+
+/// The user-entered Iqama for one prayer of one schedule: a fixed time, or
+/// "N minutes after the Adhan" as the mosque publishes it (2026-10-14). Both
+/// are the user's own entry; the app only adds the minutes to the day's
+/// Adhan. Neither set means "Not configured".
 class PrayerIqama {
   const PrayerIqama({
     required this.prayer,
     this.iqama,
+    this.afterAdhanMinutes,
     this.reminderEnabled = false,
     this.reminderMinutesBefore = 10,
-  });
+  }) : assert(iqama == null || afterAdhanMinutes == null);
 
   final Prayer prayer;
 
-  /// Null means "Not configured".
+  /// A fixed Iqama time. Null when not configured or set as minutes.
   final LocalTime? iqama;
+
+  /// Minutes after the day's Adhan. Null when not configured or fixed.
+  final int? afterAdhanMinutes;
 
   final bool reminderEnabled;
 
   final int reminderMinutesBefore;
 
-  bool get isConfigured => iqama != null;
+  bool get isConfigured => iqama != null || afterAdhanMinutes != null;
+
+  bool get isAfterAdhan => afterAdhanMinutes != null;
+
+  /// The Iqama as minutes from the day's midnight, given that day's Adhan
+  /// ([adhanMinutes]): may be 1440 or more, meaning the next date. Null when
+  /// not configured, or when it counts from an Adhan the day does not have.
+  int? minutesOfDay(int? adhanMinutes) {
+    if (iqama case final fixed?) return fixed.minutes;
+    final after = afterAdhanMinutes;
+    if (after == null || adhanMinutes == null) return null;
+    return adhanMinutes + after;
+  }
+
+  /// [minutesOfDay] as a wall-clock time, wrapped to 0..1439.
+  LocalTime? timeOfDay(int? adhanMinutes) => switch (minutesOfDay(
+    adhanMinutes,
+  )) {
+    final m? => LocalTime(m % 1440),
+    null => null,
+  };
+
+  /// The same entry as a fixed time; the minutes are cleared.
+  PrayerIqama withFixed(LocalTime time) => PrayerIqama(
+    prayer: prayer,
+    iqama: time,
+    reminderEnabled: reminderEnabled,
+    reminderMinutesBefore: reminderMinutesBefore,
+  );
+
+  /// The same entry as minutes after the Adhan; a fixed time is cleared.
+  PrayerIqama withAfterAdhan(int minutes) => PrayerIqama(
+    prayer: prayer,
+    afterAdhanMinutes: minutes,
+    reminderEnabled: reminderEnabled,
+    reminderMinutesBefore: reminderMinutesBefore,
+  );
 
   /// A reminder only exists for a prayer with a configured Iqama time.
   bool get hasReminder => isConfigured && reminderEnabled;
@@ -308,6 +355,7 @@ class PrayerIqama {
   }) => PrayerIqama(
     prayer: prayer,
     iqama: clearIqama ? null : (iqama ?? this.iqama),
+    afterAdhanMinutes: clearIqama || iqama != null ? null : afterAdhanMinutes,
     reminderEnabled: reminderEnabled ?? this.reminderEnabled,
     reminderMinutesBefore: reminderMinutesBefore ?? this.reminderMinutesBefore,
   );
@@ -317,10 +365,16 @@ class PrayerIqama {
       other is PrayerIqama &&
       other.prayer == prayer &&
       other.iqama == iqama &&
+      other.afterAdhanMinutes == afterAdhanMinutes &&
       other.reminderEnabled == reminderEnabled &&
       other.reminderMinutesBefore == reminderMinutesBefore;
 
   @override
-  int get hashCode =>
-      Object.hash(prayer, iqama, reminderEnabled, reminderMinutesBefore);
+  int get hashCode => Object.hash(
+    prayer,
+    iqama,
+    afterAdhanMinutes,
+    reminderEnabled,
+    reminderMinutesBefore,
+  );
 }
