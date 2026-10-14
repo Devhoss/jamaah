@@ -48,6 +48,9 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 
 ## Data model
 - Mosque: id, name, address, optional coordinates, optional provider place ID, list of schedules.
+- Schedule: Jumu'ah (added 2026-10-14) is one more entry like the five, stored on the schedule (schema v4),
+  "Not configured" by default; on the place's Fridays it replaces Dhuhr's Iqama (Dhuhr's own, with a note,
+  while it is unset). `Schedule.iqamaOn(day, prayer)` resolves it.
 - Schedule: per prayer (fajr, dhuhr, asr, maghrib, isha) a nullable local time of day, reminderEnabled,
   reminderMinutesBefore, updatedAt. UI shows "Set by you · last updated <date>".
 - Schedule resolution: the schedule in force on a given date is the one with the latest effectiveFrom
@@ -65,6 +68,8 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
   (Isha 120 min in Ramadan), Karachi, JAKIM (20°/18°), MUIS, KEMENAG, Diyanet, UOIF, Kuwait, Qatar,
   Dubai, Gulf, Jordan, Algeria, Morocco, Tunisia, Russia, Portugal, Tehran, Ja'fari.
   Asr: Standard/Hanafi. Per-prayer minute offsets.
+- Extra times (2026-10-14): Imsak, Duha, last third of the night — derived from the day's times, optional
+  rows on Today and optional alerts; never an Iqama, never "next prayer".
 - Handle high latitudes via the library's rules and state which rule applies. Default rule:
   middleOfTheNight, selectable in Settings; add a quiet note whenever the rule actually moves a time.
 - Recompute on location, method, date, timezone and DST changes.

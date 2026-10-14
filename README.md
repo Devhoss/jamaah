@@ -164,6 +164,10 @@ The first screen the user sees, and the only one that reads the stored place.
   shows the day's Adhan time as a small secondary line and the mosque's Iqama time or
   "Not configured", plus a quick reminder switch that stays disabled until a time
   exists. "Set by you · last updated <date>" comes from the injected clock.
+- Under them, **Jumu’ah**: the mosque's own Friday time, "Not configured" until set,
+  with its own Jama’ah reminder. On the place's Fridays it replaces Dhuhr's Iqama on
+  Today and in the reminders, and Dhuhr is called Jumu’ah. With no Jumu’ah time the
+  Dhuhr Iqama is used and Today says so.
 - The **Iqama editor** names the mosque and prayer, uses the device's time picker
   (12/24-hour from the system), and saves nothing until Save. An Iqama not entered
   yet reads "Adhan 5:36 AM · tap to set" and the picker opens at that Adhan time —
@@ -208,6 +212,13 @@ time zone, Custom angles, and 23 published methods, each listed with its angles 
 regions read from the parameters the calculator uses), the **Asr method**
 (Standard / Hanafi), the **higher-latitude rule**, and **manual adjustments** of up to
 ±30 minutes per prayer. Every change recomputes Today and reschedules notifications.
+
+**Extra times** (Settings → Extra times): Imsak (Fajr − 0–20 min, default 10), Duha
+(sunrise + 10–30 min, default 15) and the last third of the night (Maghrib + ⅔ of the
+night to the next Fajr, measured between instants). Each can be shown on Today as a
+quiet row (Imsak by default) and alerted with the Jama’ah reminder sound on its own
+"Other times" channel. They never have an Iqama and are never the next prayer
+(`lib/src/domain/extra_times.dart`).
 
 ## Notifications
 
