@@ -3101,6 +3101,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Extra time'**
   String get kindExtra;
+
+  /// No description provided for @settingsExtraTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra times'**
+  String get settingsExtraTimes;
+
+  /// No description provided for @extraTimesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Times beside the five prayers, worked out from your prayer times. They have no Iqama.'**
+  String get extraTimesIntro;
+
+  /// No description provided for @extraShowOnToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on Today'**
+  String get extraShowOnToday;
+
+  /// No description provided for @extraAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get extraAlert;
+
+  /// No description provided for @extraAlertHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses your Jama’ah reminder sound.'**
+  String get extraAlertHint;
+
+  /// No description provided for @extraImsakRule.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min before Fajr'**
+  String extraImsakRule(int minutes);
+
+  /// No description provided for @extraDuhaRule.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min after sunrise'**
+  String extraDuhaRule(int minutes);
+
+  /// No description provided for @extraQiyamRule.
+  ///
+  /// In en, this message translates to:
+  /// **'The last third of the time from Maghrib to Fajr.'**
+  String get extraQiyamRule;
+
+  /// No description provided for @extraNoneShown.
+  ///
+  /// In en, this message translates to:
+  /// **'None shown'**
+  String get extraNoneShown;
+
+  /// No description provided for @listSeparator.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get listSeparator;
 }
 
 class _AppLocalizationsDelegate

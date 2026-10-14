@@ -562,6 +562,16 @@ AR = {
     'notifQiyamBody': 'دخل الثلث الأخير من الليل.',
     'channelExtra': 'أوقات أخرى · {sound}',
     'kindExtra': 'وقت إضافي',
+    'settingsExtraTimes': 'أوقات إضافية',
+    'extraTimesIntro': 'أوقات إلى جانب الصلوات الخمس، تُحسب من مواقيت صلاتك. ولا إقامة لها.',
+    'extraShowOnToday': 'إظهار في صفحة اليوم',
+    'extraAlert': 'تنبيه',
+    'extraAlertHint': 'يستخدم صوت تذكير الجماعة.',
+    'extraImsakRule': plural('minutes', one='قبل الفجر بدقيقة', two='قبل الفجر بدقيقتين', few='قبل الفجر بـ{n} دقائق', many='قبل الفجر بـ{n} دقيقة', zero='عند الفجر'),
+    'extraDuhaRule': minutes('minutes', after=' بعد الشروق'),
+    'extraQiyamRule': 'الثلث الأخير من الوقت بين المغرب والفجر.',
+    'extraNoneShown': 'لا شيء معروض',
+    'listSeparator': '، ',
 }
 
 

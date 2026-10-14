@@ -1864,4 +1864,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kindExtra => 'Extra time';
+
+  @override
+  String get settingsExtraTimes => 'Extra times';
+
+  @override
+  String get extraTimesIntro =>
+      'Times beside the five prayers, worked out from your prayer times. They have no Iqama.';
+
+  @override
+  String get extraShowOnToday => 'Show on Today';
+
+  @override
+  String get extraAlert => 'Alert';
+
+  @override
+  String get extraAlertHint => 'Uses your Jama’ah reminder sound.';
+
+  @override
+  String extraImsakRule(int minutes) {
+    return '$minutes min before Fajr';
+  }
+
+  @override
+  String extraDuhaRule(int minutes) {
+    return '$minutes min after sunrise';
+  }
+
+  @override
+  String get extraQiyamRule =>
+      'The last third of the time from Maghrib to Fajr.';
+
+  @override
+  String get extraNoneShown => 'None shown';
+
+  @override
+  String get listSeparator => ', ';
 }

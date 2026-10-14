@@ -21,6 +21,7 @@ import '../components/app_widgets.dart';
 import '../mosques/mosque_detail_page.dart';
 import '../onboarding/onboarding_page.dart';
 import 'adhan_recordings_page.dart';
+import 'extra_times_page.dart';
 import 'jamaah_reminder_settings.dart';
 import 'prayer_alert_page.dart';
 import 'prayer_time_settings.dart';
@@ -122,6 +123,20 @@ class SettingsPage extends ConsumerWidget {
         children: [
           AppSectionHeader(l10n.settingsPrayerTimesSection),
           const PrayerTimesSettingsSection(),
+          const SizedBox(height: AppSpace.md),
+          AppRows(
+            children: [
+              AppRow(
+                leading: null,
+                onTap: () => openExtraTimes(context),
+                title: _TwoLines(
+                  first: l10n.settingsExtraTimes,
+                  second: extraTimesSummary(l10n, settings.extraTimes),
+                ),
+                trailing: Icon(Icons.chevron_right, color: ink.muted),
+              ),
+            ],
+          ),
           AppSectionHeader(l10n.settingsAdhanSection),
           AppRows(
             children: [

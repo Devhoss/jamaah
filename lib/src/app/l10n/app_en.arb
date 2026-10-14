@@ -971,5 +971,17 @@
   "notifQiyamBody": "The last third of the night has begun.",
   "channelExtra": "Other times · {sound}",
   "@channelExtra": {"placeholders": {"sound": {"type": "String"}}},
-  "kindExtra": "Extra time"
+  "kindExtra": "Extra time",
+  "settingsExtraTimes": "Extra times",
+  "extraTimesIntro": "Times beside the five prayers, worked out from your prayer times. They have no Iqama.",
+  "extraShowOnToday": "Show on Today",
+  "extraAlert": "Alert",
+  "extraAlertHint": "Uses your Jama’ah reminder sound.",
+  "extraImsakRule": "{minutes} min before Fajr",
+  "@extraImsakRule": {"placeholders": {"minutes": {"type": "int"}}},
+  "extraDuhaRule": "{minutes} min after sunrise",
+  "@extraDuhaRule": {"placeholders": {"minutes": {"type": "int"}}},
+  "extraQiyamRule": "The last third of the time from Maghrib to Fajr.",
+  "extraNoneShown": "None shown",
+  "listSeparator": ", "
 }

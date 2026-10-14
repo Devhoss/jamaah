@@ -1978,4 +1978,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get kindExtra => 'وقت إضافي';
+
+  @override
+  String get settingsExtraTimes => 'أوقات إضافية';
+
+  @override
+  String get extraTimesIntro =>
+      'أوقات إلى جانب الصلوات الخمس، تُحسب من مواقيت صلاتك. ولا إقامة لها.';
+
+  @override
+  String get extraShowOnToday => 'إظهار في صفحة اليوم';
+
+  @override
+  String get extraAlert => 'تنبيه';
+
+  @override
+  String get extraAlertHint => 'يستخدم صوت تذكير الجماعة.';
+
+  @override
+  String extraImsakRule(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'قبل الفجر بـ$minutes دقيقة',
+      many: 'قبل الفجر بـ$minutes دقيقة',
+      few: 'قبل الفجر بـ$minutes دقائق',
+      two: 'قبل الفجر بدقيقتين',
+      one: 'قبل الفجر بدقيقة',
+      zero: 'عند الفجر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String extraDuhaRule(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes دقيقة بعد الشروق',
+      many: '$minutes دقيقة بعد الشروق',
+      few: '$minutes دقائق بعد الشروق',
+      two: 'دقيقتين بعد الشروق',
+      one: 'دقيقة بعد الشروق',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get extraQiyamRule => 'الثلث الأخير من الوقت بين المغرب والفجر.';
+
+  @override
+  String get extraNoneShown => 'لا شيء معروض';
+
+  @override
+  String get listSeparator => '، ';
 }

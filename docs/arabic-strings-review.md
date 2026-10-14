@@ -511,3 +511,13 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 498 | `notifQiyamBody` | The last third of the night has begun. | دخل الثلث الأخير من الليل. |
 | 499 | `channelExtra` | Other times · {sound} | أوقات أخرى · {sound} |
 | 500 | `kindExtra` | Extra time | وقت إضافي |
+| 501 | `settingsExtraTimes` | Extra times | أوقات إضافية |
+| 502 | `extraTimesIntro` | Times beside the five prayers, worked out from your prayer times. They have no Iqama. | أوقات إلى جانب الصلوات الخمس، تُحسب من مواقيت صلاتك. ولا إقامة لها. |
+| 503 | `extraShowOnToday` | Show on Today | إظهار في صفحة اليوم |
+| 504 | `extraAlert` | Alert | تنبيه |
+| 505 | `extraAlertHint` | Uses your Jama’ah reminder sound. | يستخدم صوت تذكير الجماعة. |
+| 506 | `extraImsakRule` | {minutes} min before Fajr | {minutes, plural, =0{عند الفجر} =1{قبل الفجر بدقيقة} =2{قبل الفجر بدقيقتين} few{قبل الفجر بـ{minutes} دقائق} many{قبل الفجر بـ{minutes} دقيقة} other{قبل الفجر بـ{minutes} دقيقة}} |
+| 507 | `extraDuhaRule` | {minutes} min after sunrise | {minutes, plural, =1{دقيقة بعد الشروق} =2{دقيقتين بعد الشروق} few{{minutes} دقائق بعد الشروق} many{{minutes} دقيقة بعد الشروق} other{{minutes} دقيقة بعد الشروق}} |
+| 508 | `extraQiyamRule` | The last third of the time from Maghrib to Fajr. | الثلث الأخير من الوقت بين المغرب والفجر. |
+| 509 | `extraNoneShown` | None shown | لا شيء معروض |
+| 510 | `listSeparator` | ,  | ،  |

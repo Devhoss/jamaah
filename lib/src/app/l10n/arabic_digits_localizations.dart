@@ -1181,6 +1181,30 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get kindExtra => arabicDigits(super.kindExtra);
 
   @override
+  String get settingsExtraTimes => arabicDigits(super.settingsExtraTimes);
+
+  @override
+  String get extraTimesIntro => arabicDigits(super.extraTimesIntro);
+
+  @override
+  String get extraShowOnToday => arabicDigits(super.extraShowOnToday);
+
+  @override
+  String get extraAlert => arabicDigits(super.extraAlert);
+
+  @override
+  String get extraAlertHint => arabicDigits(super.extraAlertHint);
+
+  @override
+  String get extraQiyamRule => arabicDigits(super.extraQiyamRule);
+
+  @override
+  String get extraNoneShown => arabicDigits(super.extraNoneShown);
+
+  @override
+  String get listSeparator => arabicDigits(super.listSeparator);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1619,4 +1643,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String channelExtra(String sound) =>
       arabicDigits(super.channelExtra(sound));
+
+  @override
+  String extraImsakRule(int minutes) =>
+      arabicDigits(super.extraImsakRule(minutes));
+
+  @override
+  String extraDuhaRule(int minutes) =>
+      arabicDigits(super.extraDuhaRule(minutes));
 }
