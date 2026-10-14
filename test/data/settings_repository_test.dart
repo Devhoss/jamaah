@@ -6,6 +6,7 @@ import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/extra_times.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/prayer_times_parameters.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
@@ -571,6 +572,33 @@ void main() {
       await sub.cancel();
 
       expect(seen.last.travel.pauseAllIqamaReminders, isTrue);
+    });
+  });
+
+  group('extra times (2026-10-14)', () {
+    test('default to Imsak shown and no alerts', () async {
+      expect((await settings.read()).extraTimes, const ExtraTimesSettings());
+    });
+
+    test('round-trip, with the minutes kept in range', () async {
+      await settings.saveExtraTimes(
+        const ExtraTimesSettings(
+          imsakMinutes: 25,
+          duhaMinutes: 20,
+          shown: {ExtraTime.duha, ExtraTime.qiyam},
+          alerts: {ExtraTime.imsak},
+        ),
+      );
+      final read = (await settings.read()).extraTimes;
+      expect(read.imsakMinutes, 20);
+      expect(read.duhaMinutes, 20);
+      expect(read.shown, {ExtraTime.duha, ExtraTime.qiyam});
+      expect(read.alerts, {ExtraTime.imsak});
+    });
+
+    test('nothing shown stays nothing, not the default', () async {
+      await settings.saveExtraTimes(const ExtraTimesSettings(shown: {}));
+      expect((await settings.read()).extraTimes.shown, isEmpty);
     });
   });
 }

@@ -31,6 +31,12 @@ abstract final class SettingKeys {
   static const themeMode = 'theme_mode';
   static const appLanguage = 'app_language';
   static const onboardingDone = 'onboarding_done';
+
+  /// Extra times (2026-10-14): minutes, and comma lists of ExtraTime names.
+  static const extraImsakMinutes = 'extra_imsak_minutes';
+  static const extraDuhaMinutes = 'extra_duha_minutes';
+  static const extraShown = 'extra_shown';
+  static const extraAlerts = 'extra_alerts';
   static const hijriAdjustDays = 'hijri_adjust_days';
   static const inFlightPausedUntil = 'in_flight_paused_until';
   static const inFlightPrayer = 'in_flight_prayer';

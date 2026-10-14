@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../domain/adhan_alerts.dart';
 import '../domain/adhan_recordings.dart';
+import '../domain/extra_times.dart';
 import '../domain/hijri.dart';
 import '../domain/notification_plan.dart';
 import '../domain/place.dart';
@@ -89,6 +90,7 @@ class AppSettingsSnapshot {
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
     this.jamaahReminders = const JamaahReminderSettings(),
+    this.extraTimes = const ExtraTimesSettings(),
     this.activeMosqueId,
     this.location,
     this.placeCheckedAt,
@@ -123,6 +125,9 @@ class AppSettingsSnapshot {
 
   /// How Jama’ah (Iqama) reminders sound.
   final JamaahReminderSettings jamaahReminders;
+
+  /// Imsak, Duha and the last third of the night: how, and which are shown.
+  final ExtraTimesSettings extraTimes;
 
   /// Mosque whose Iqama schedule drives reminders. Null until the user picks one.
   final String? activeMosqueId;
@@ -224,6 +229,18 @@ class SettingsRepository {
           ReminderSound.chime,
         ),
         vibrate: values[SettingKeys.jamaahReminderVibrate] != 'false',
+      ),
+      extraTimes: ExtraTimesSettings(
+        imsakMinutes: clampImsakMinutes(
+          int.tryParse(values[SettingKeys.extraImsakMinutes] ?? '') ?? 10,
+        ),
+        duhaMinutes: clampDuhaMinutes(
+          int.tryParse(values[SettingKeys.extraDuhaMinutes] ?? '') ?? 15,
+        ),
+        shown: _extraSet(values[SettingKeys.extraShown], const {
+          ExtraTime.imsak,
+        }),
+        alerts: _extraSet(values[SettingKeys.extraAlerts], const {}),
       ),
       activeMosqueId: values[SettingKeys.activeMosqueId],
       location: _location(values),
@@ -398,6 +415,27 @@ class SettingsRepository {
         );
       });
 
+  /// The extra times' minutes, and which are shown and alerted.
+  Future<void> saveExtraTimes(ExtraTimesSettings extra) =>
+      _db.transaction(() async {
+        await _put(
+          SettingKeys.extraImsakMinutes,
+          '${clampImsakMinutes(extra.imsakMinutes)}',
+        );
+        await _put(
+          SettingKeys.extraDuhaMinutes,
+          '${clampDuhaMinutes(extra.duhaMinutes)}',
+        );
+        await _put(
+          SettingKeys.extraShown,
+          extra.shown.map((t) => t.name).join(','),
+        );
+        await _put(
+          SettingKeys.extraAlerts,
+          extra.alerts.map((t) => t.name).join(','),
+        );
+      });
+
   /// Travel mode and its options, and the pause on every Iqama reminder.
   Future<void> saveTravel(TravelSettings travel) => _db.transaction(() async {
     await _put(SettingKeys.travelModeOn, '${travel.travelMode}');
@@ -559,4 +597,13 @@ extension PlaceStorage on Place {
     userName: userName,
     usesGps: fromDevice,
   );
+}
+
+/// A stored comma list of extra times; absent means [fallback], empty none.
+Set<ExtraTime> _extraSet(String? stored, Set<ExtraTime> fallback) {
+  if (stored == null) return fallback;
+  return {
+    for (final name in stored.split(','))
+      if (ExtraTime.values.asNameMap()[name] case final t?) t,
+  };
 }
