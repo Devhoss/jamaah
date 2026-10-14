@@ -603,7 +603,6 @@ extension PlaceStorage on Place {
 Set<ExtraTime> _extraSet(String? stored, Set<ExtraTime> fallback) {
   if (stored == null) return fallback;
   return {
-    for (final name in stored.split(','))
-      if (ExtraTime.values.asNameMap()[name] case final t?) t,
+    for (final name in stored.split(',')) ?ExtraTime.values.asNameMap()[name],
   };
 }

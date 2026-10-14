@@ -961,5 +961,15 @@
       "mosque": { "type": "String" }
     }
   },
-  "tagRemindersPaused": "Reminders paused"
+  "tagRemindersPaused": "Reminders paused",
+  "prayerJumuah": "Jumu’ah",
+  "extraImsak": "Imsak",
+  "extraDuha": "Duha",
+  "extraQiyam": "Last third of the night",
+  "notifImsakBody": "Imsak: stop eating before Fajr.",
+  "notifDuhaBody": "The time for Duha prayer has begun.",
+  "notifQiyamBody": "The last third of the night has begun.",
+  "channelExtra": "Other times · {sound}",
+  "@channelExtra": {"placeholders": {"sound": {"type": "String"}}},
+  "kindExtra": "Extra time"
 }

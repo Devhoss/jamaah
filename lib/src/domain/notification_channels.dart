@@ -58,7 +58,7 @@ class ChannelSpec {
   String toString() => 'ChannelSpec($id)';
 }
 
-enum ChannelGroup { adhan, preAdhan, iqama }
+enum ChannelGroup { adhan, preAdhan, iqama, extra }
 
 /// Bumped whenever a bundled sound file changes. The version is part of every
 /// Adhan channel id, so a new recording gets new channels and the old ones are
@@ -103,10 +103,17 @@ ChannelSpec channelFor(PlannedNotification n) => switch (n.kind) {
     vibrate: n.vibrate,
     alarmStream: false,
   ),
-  NotificationKind.iqama => _iqamaChannel(n),
+  NotificationKind.iqama => _reminderChannel(n, 'iqama', ChannelGroup.iqama),
+  NotificationKind.extra => _reminderChannel(n, 'extra', ChannelGroup.extra),
 };
 
-ChannelSpec _iqamaChannel(PlannedNotification n) {
+/// A channel that plays the Jama’ah reminder sound: the reminders themselves,
+/// and the extra-time alerts, which sound the same but are their own channel.
+ChannelSpec _reminderChannel(
+  PlannedNotification n,
+  String prefix,
+  ChannelGroup group,
+) {
   final reminder = n.reminderSound ?? ReminderSound.chime;
   final sound = switch (reminder) {
     ReminderSound.chime => ChannelSound.chime,
@@ -115,14 +122,14 @@ ChannelSpec _iqamaChannel(PlannedNotification n) {
     ReminderSound.silent => ChannelSound.none,
   };
   final parts = [
-    'iqama',
+    prefix,
     reminder.name,
     n.vibrate ? 'vib' : 'still',
     ?_versionTag(sound),
   ];
   return ChannelSpec(
     id: '$kChannelPrefix${parts.join('_')}',
-    group: ChannelGroup.iqama,
+    group: group,
     sound: sound,
     vibrate: n.vibrate,
     alarmStream: false,

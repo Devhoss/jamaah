@@ -232,4 +232,21 @@ void main() {
       reason: 'reminders are always ordinary notifications',
     );
   });
+
+  test('extra-time alerts get their own channel, with the reminder sound', () {
+    final c = channelFor(
+      PlannedNotification(
+        id: 1,
+        kind: NotificationKind.extra,
+        prayer: Prayer.fajr,
+        at: DateTime.utc(2026),
+        soundMode: null,
+        mosqueId: '',
+        reminderSound: ReminderSound.chime,
+      ),
+    );
+    expect(c.id, 'jamaah_extra_chime_vib_c$kReminderChimeVersion');
+    expect(c.group, ChannelGroup.extra);
+    expect(c.sound, ChannelSound.chime);
+  });
 }

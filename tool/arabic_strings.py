@@ -553,6 +553,15 @@ AR = {
     'pausedAllNote': 'جميع تذكيرات الجماعة موقوفة مؤقتًا.',
     'pausedMosqueNote': 'تذكيرات الجماعة في {mosque} موقوفة مؤقتًا.',
     'tagRemindersPaused': 'التذكيرات موقوفة',
+    'prayerJumuah': 'الجمعة',
+    'extraImsak': 'الإمساك',
+    'extraDuha': 'الضحى',
+    'extraQiyam': 'الثلث الأخير من الليل',
+    'notifImsakBody': 'الإمساك: أمسك عن الطعام قبل الفجر.',
+    'notifDuhaBody': 'دخل وقت صلاة الضحى.',
+    'notifQiyamBody': 'دخل الثلث الأخير من الليل.',
+    'channelExtra': 'أوقات أخرى · {sound}',
+    'kindExtra': 'وقت إضافي',
 }
 
 

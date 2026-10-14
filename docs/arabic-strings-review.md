@@ -502,3 +502,12 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 489 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
 | 490 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
 | 491 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |
+| 492 | `prayerJumuah` | Jumu’ah | الجمعة |
+| 493 | `extraImsak` | Imsak | الإمساك |
+| 494 | `extraDuha` | Duha | الضحى |
+| 495 | `extraQiyam` | Last third of the night | الثلث الأخير من الليل |
+| 496 | `notifImsakBody` | Imsak: stop eating before Fajr. | الإمساك: أمسك عن الطعام قبل الفجر. |
+| 497 | `notifDuhaBody` | The time for Duha prayer has begun. | دخل وقت صلاة الضحى. |
+| 498 | `notifQiyamBody` | The last third of the night has begun. | دخل الثلث الأخير من الليل. |
+| 499 | `channelExtra` | Other times · {sound} | أوقات أخرى · {sound} |
+| 500 | `kindExtra` | Extra time | وقت إضافي |

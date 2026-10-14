@@ -1,4 +1,5 @@
 import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/extra_times.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/notification_plan.dart';
 import 'package:jamaah/src/domain/prayer.dart';
@@ -792,6 +793,132 @@ void main() {
         updatedAt: a.updatedAt,
       );
       expect(a == b, isFalse);
+    });
+  });
+
+  group('the plan: extra times and Friday (2026-10-14)', () {
+    const friday = LocalDay(2026, 10, 16);
+    const thursday = LocalDay(2026, 10, 15);
+    const times = {
+      Prayer.fajr: 4 * 60 + 20,
+      Prayer.sunrise: 5 * 60 + 38,
+      Prayer.dhuhr: 11 * 60 + 25,
+      Prayer.asr: 14 * 60 + 40,
+      Prayer.maghrib: 17 * 60 + 13,
+      Prayer.isha: 18 * 60 + 30,
+    };
+
+    Mosque mosque({PrayerIqama? jumuah}) => Mosque(
+      id: 'm1',
+      name: 'Masjid Al-Huda',
+      address: '12 Garden Rd',
+      source: MosqueSource.manual,
+      schedules: [
+        Schedule.empty(mosqueId: 'm1')
+            .withPrayer(
+              const PrayerIqama(
+                prayer: Prayer.dhuhr,
+                iqama: LocalTime(12 * 60 + 15),
+                reminderEnabled: true,
+              ),
+            )
+            .copyWith(jumuah: jumuah),
+      ],
+    );
+
+    List<PlannedNotification> plan(
+      LocalDay today, {
+      Mosque? active,
+      AdhanAlertSettings alerts = const AdhanAlertSettings(),
+      List<ExtraTimeAt> extraTimes = const [],
+      JamaahReminderSettings reminders = const JamaahReminderSettings(),
+    }) => const NotificationPlanner().plan(
+      NotificationPlanInput(
+        today: today,
+        now: DateTime.utc(2026, 10, 14),
+        prayerTimeOf: {today: times, today.addDays(1): times},
+        zoneOffsetFor: (_) => 180,
+        adhanAlerts: alerts,
+        activeMosque: active,
+        jamaahReminders: reminders,
+        extraTimes: extraTimes,
+        windowDays: 1,
+      ),
+    );
+
+    test('extra-time alerts are planned with the reminder sound', () {
+      final at = DateTime.utc(2026, 10, 15, 1, 10);
+      final planned = plan(
+        thursday,
+        extraTimes: [
+          ExtraTimeAt(
+            time: ExtraTime.imsak,
+            day: thursday,
+            at: const LocalTime(4 * 60 + 10),
+            utc: at,
+          ),
+        ],
+        reminders: const JamaahReminderSettings(sound: ReminderSound.hayya),
+      );
+      final n = planned.singleWhere((n) => n.kind == NotificationKind.extra);
+      expect(n.extraTime, ExtraTime.imsak);
+      expect(n.at, at);
+      expect(n.reminderSound, ReminderSound.hayya);
+      expect(n.id, extraNotificationId(ExtraTime.imsak, thursday));
+    });
+
+    test('extra-time ids never meet any other id', () {
+      final ids = {
+        // Extra-time alerts never use the prayer-keyed id.
+        for (final kind in NotificationKind.values)
+          if (kind != NotificationKind.extra)
+            for (final p in Prayer.values) notificationId(kind, p, friday),
+      };
+      for (final t in ExtraTime.values) {
+        expect(ids.add(extraNotificationId(t, friday)), isTrue);
+      }
+    });
+
+    test("on a Friday the Jumu'ah reminder replaces Dhuhr's", () {
+      final active = mosque(
+        jumuah: const PrayerIqama(
+          prayer: Prayer.dhuhr,
+          iqama: LocalTime(11 * 60 + 45),
+          reminderEnabled: true,
+          reminderMinutesBefore: 20,
+        ),
+      );
+      final fri = plan(friday, active: active)
+          .where((n) => n.kind == NotificationKind.iqama)
+          .single;
+      expect(fri.jumuah, isTrue);
+      expect(fri.minutesBefore, 20);
+      expect(fri.at, DateTime.utc(2026, 10, 16, 8, 25)); // 11:25 at +3
+
+      final thu = plan(thursday, active: active)
+          .where((n) => n.kind == NotificationKind.iqama)
+          .single;
+      expect(thu.jumuah, isFalse);
+      expect(thu.at, DateTime.utc(2026, 10, 15, 9, 5)); // 12:05 at +3
+    });
+
+    test("Friday without Jumu'ah still reminds at the Dhuhr Iqama", () {
+      final fri = plan(friday, active: mosque())
+          .where((n) => n.kind == NotificationKind.iqama)
+          .single;
+      expect(fri.jumuah, isTrue);
+      expect(fri.at, DateTime.utc(2026, 10, 16, 9, 5));
+    });
+
+    test("Friday's Dhuhr Adhan and the reminder before it are Jumu'ah's", () {
+      final alerts = const AdhanAlertSettings().withAlert(
+        Prayer.dhuhr,
+        const AdhanAlert(enabled: true, preAdhanMinutes: 10),
+      );
+      final fri = plan(friday, alerts: alerts);
+      expect(fri, hasLength(2));
+      expect(fri.every((n) => n.jumuah), isTrue);
+      expect(plan(thursday, alerts: alerts).any((n) => n.jumuah), isFalse);
     });
   });
 }

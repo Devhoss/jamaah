@@ -1,5 +1,7 @@
+import '../../domain/extra_times.dart';
 import '../../domain/prayer.dart';
 import '../../domain/prayer_times_parameters.dart';
+import '../../domain/time_model.dart';
 import 'generated/app_localizations.dart';
 
 /// The name of one of the six daily times, in the app's current locale.
@@ -13,6 +15,19 @@ String prayerName(AppLocalizations l10n, Prayer prayer) => switch (prayer) {
   Prayer.asr => l10n.prayerAsr,
   Prayer.maghrib => l10n.prayerMaghrib,
   Prayer.isha => l10n.prayerIsha,
+};
+
+/// [prayerName], except that Friday's Dhuhr is Jumu'ah (by the place's date).
+String prayerNameOn(AppLocalizations l10n, Prayer prayer, LocalDay day) =>
+    prayer == Prayer.dhuhr && day.isFriday
+    ? l10n.prayerJumuah
+    : prayerName(l10n, prayer);
+
+/// The name of an extra time (2026-10-14).
+String extraTimeName(AppLocalizations l10n, ExtraTime time) => switch (time) {
+  ExtraTime.imsak => l10n.extraImsak,
+  ExtraTime.duha => l10n.extraDuha,
+  ExtraTime.qiyam => l10n.extraQiyam,
 };
 
 /// The night rule's name as the Settings screen spells it.

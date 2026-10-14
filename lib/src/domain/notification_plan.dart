@@ -1,5 +1,6 @@
 import 'adhan_alerts.dart';
 import 'adhan_recordings.dart';
+import 'extra_times.dart';
 import 'mosque.dart';
 import 'prayer.dart';
 import 'time_model.dart';
@@ -22,6 +23,8 @@ class PlannedNotification {
     this.reminderSound,
     this.shortAdhan,
     this.estimated = false,
+    this.extraTime,
+    this.jumuah = false,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -65,6 +68,13 @@ class PlannedNotification {
   /// calculated for a fixed place, and the notification says so.
   final bool estimated;
 
+  /// Extra-time alerts only: which time (2026-10-14).
+  final ExtraTime? extraTime;
+
+  /// Friday's Dhuhr (its Adhan, the reminder before it, or its Jama’ah
+  /// reminder): titled Jumu'ah.
+  final bool jumuah;
+
   /// True when the reminder has already fired and must not be re-scheduled.
   bool isInPast(DateTime now) => at.isBefore(now);
 }
@@ -78,6 +88,7 @@ PlannedNotification adhanAlert(
   required DateTime at,
   required int id,
   bool estimated = false,
+  bool jumuah = false,
 }) {
   final alert = alerts.alertFor(prayer);
   final mode = alerts.soundModeFor(prayer);
@@ -100,6 +111,7 @@ PlannedNotification adhanAlert(
     },
     shortAdhan: alerts.shortAdhan,
     estimated: estimated,
+    jumuah: jumuah,
   );
 }
 
@@ -138,8 +150,9 @@ int inFlightAlertId(Prayer prayer) => 999970 + prayer.index;
 
 /// The three independent notifications the app can plan. Adhan alerts and the
 /// reminder before them come from the global per-prayer settings; Iqama
-/// reminders come from the active mosque (AGENTS.md).
-enum NotificationKind { adhan, preAdhan, iqama }
+/// reminders come from the active mosque (AGENTS.md). Extra-time alerts are
+/// the times beside the five the user asked to be told of (2026-10-14).
+enum NotificationKind { adhan, preAdhan, iqama, extra }
 
 /// Inputs needed to plan a rolling window of notifications.
 class NotificationPlanInput {
@@ -152,6 +165,7 @@ class NotificationPlanInput {
     this.activeMosque,
     this.iqamaRemindersPaused = false,
     this.jamaahReminders = const JamaahReminderSettings(),
+    this.extraTimes = const [],
     this.windowDays = 7,
   });
 
@@ -179,6 +193,10 @@ class NotificationPlanInput {
   /// How the Iqama reminders sound and whether they vibrate.
   final JamaahReminderSettings jamaahReminders;
 
+  /// The extra times to alert, already chosen: they sound like a Jama’ah
+  /// reminder.
+  final List<ExtraTimeAt> extraTimes;
+
   final int windowDays;
 }
 
@@ -205,6 +223,27 @@ class NotificationPlanner {
       out.addAll(_iqamaNotifications(input, day, zoneOffset));
     }
 
+    for (final e in input.extraTimes) {
+      out.add(
+        PlannedNotification(
+          id: extraNotificationId(e.time, e.day),
+          kind: NotificationKind.extra,
+          // The prayer each time leads to or follows, for anything keyed by it.
+          prayer: switch (e.time) {
+            ExtraTime.imsak => Prayer.fajr,
+            ExtraTime.duha => Prayer.sunrise,
+            ExtraTime.qiyam => Prayer.isha,
+          },
+          at: e.utc,
+          soundMode: null,
+          mosqueId: '',
+          vibrate: input.jamaahReminders.vibrate,
+          reminderSound: input.jamaahReminders.sound,
+          extraTime: e.time,
+        ),
+      );
+    }
+
     return out..sort((a, b) => a.at.compareTo(b.at));
   }
 
@@ -219,6 +258,7 @@ class NotificationPlanner {
       final minutes = times[prayer];
       if (minutes == null) continue;
       final alert = input.adhanAlerts.alertFor(prayer);
+      final jumuah = prayer == Prayer.dhuhr && day.isFriday;
       final adhanAt = instantFor(day, minutes, zoneOffset);
       if (alert.enabled) {
         out.add(
@@ -227,6 +267,7 @@ class NotificationPlanner {
             prayer,
             at: adhanAt,
             id: notificationId(NotificationKind.adhan, prayer, day),
+            jumuah: jumuah,
           ),
         );
       }
@@ -243,6 +284,7 @@ class NotificationPlanner {
             mosqueId: '',
             vibrate: alert.vibrate,
             minutesBefore: before,
+            jumuah: jumuah,
           ),
         );
       }
@@ -264,7 +306,9 @@ class NotificationPlanner {
     final adhanTimes = input.prayerTimeOf[day] ?? const {};
     final out = <PlannedNotification>[];
     for (final prayer in Prayer.iqamaPrayers) {
-      final iqama = schedule.iqamaFor(prayer);
+      // On a Friday, Dhuhr's is Jumu'ah's (or Dhuhr's own while it has none).
+      final resolved = schedule.iqamaOn(day, prayer);
+      final iqama = resolved.entry;
       if (!iqama.hasReminder) continue;
 
       // An Iqama can sit after midnight: an Isha Iqama of 00:30 follows the 19:45
@@ -288,6 +332,7 @@ class NotificationPlanner {
           minutesBefore: iqama.reminderMinutesBefore,
           vibrate: input.jamaahReminders.vibrate,
           reminderSound: input.jamaahReminders.sound,
+          jumuah: resolved.isJumuah,
         ),
       );
     }
@@ -315,4 +360,12 @@ int notificationId(NotificationKind kind, Prayer prayer, LocalDay day) {
       .difference(DateTime.utc(1970))
       .inDays;
   return kind.index * 1000000 + days * 10 + prayer.index;
+}
+
+/// The id of an extra-time alert: its own kind, so it can never meet another.
+int extraNotificationId(ExtraTime time, LocalDay day) {
+  final days = DateTime.utc(day.year, day.month, day.day)
+      .difference(DateTime.utc(1970))
+      .inDays;
+  return NotificationKind.extra.index * 1000000 + days * 10 + time.index;
 }

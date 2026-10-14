@@ -1949,4 +1949,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tagRemindersPaused => 'التذكيرات موقوفة';
+
+  @override
+  String get prayerJumuah => 'الجمعة';
+
+  @override
+  String get extraImsak => 'الإمساك';
+
+  @override
+  String get extraDuha => 'الضحى';
+
+  @override
+  String get extraQiyam => 'الثلث الأخير من الليل';
+
+  @override
+  String get notifImsakBody => 'الإمساك: أمسك عن الطعام قبل الفجر.';
+
+  @override
+  String get notifDuhaBody => 'دخل وقت صلاة الضحى.';
+
+  @override
+  String get notifQiyamBody => 'دخل الثلث الأخير من الليل.';
+
+  @override
+  String channelExtra(String sound) {
+    return 'أوقات أخرى · $sound';
+  }
+
+  @override
+  String get kindExtra => 'وقت إضافي';
 }

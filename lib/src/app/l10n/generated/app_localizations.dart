@@ -3047,6 +3047,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminders paused'**
   String get tagRemindersPaused;
+
+  /// No description provided for @prayerJumuah.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu’ah'**
+  String get prayerJumuah;
+
+  /// No description provided for @extraImsak.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsak'**
+  String get extraImsak;
+
+  /// No description provided for @extraDuha.
+  ///
+  /// In en, this message translates to:
+  /// **'Duha'**
+  String get extraDuha;
+
+  /// No description provided for @extraQiyam.
+  ///
+  /// In en, this message translates to:
+  /// **'Last third of the night'**
+  String get extraQiyam;
+
+  /// No description provided for @notifImsakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsak: stop eating before Fajr.'**
+  String get notifImsakBody;
+
+  /// No description provided for @notifDuhaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The time for Duha prayer has begun.'**
+  String get notifDuhaBody;
+
+  /// No description provided for @notifQiyamBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The last third of the night has begun.'**
+  String get notifQiyamBody;
+
+  /// No description provided for @channelExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'Other times · {sound}'**
+  String channelExtra(String sound);
+
+  /// No description provided for @kindExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra time'**
+  String get kindExtra;
 }
 
 class _AppLocalizationsDelegate

@@ -292,6 +292,7 @@ class _PendingRow extends StatelessWidget {
                   NotificationKind.adhan => l10n.kindAdhan,
                   NotificationKind.preAdhan => l10n.kindPreAdhan,
                   NotificationKind.iqama => l10n.kindIqama,
+                  NotificationKind.extra => l10n.kindExtra,
                 },
               ?item.body,
             ].join(' · '),

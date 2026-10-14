@@ -11,6 +11,7 @@ import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/mosque_repository.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/extra_times.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/notification_plan.dart';
 import 'package:jamaah/src/domain/place.dart';
@@ -124,6 +125,47 @@ void main() {
             .map((n) => (n.recordingAsset, n.shortAdhan)),
         everyElement((kHayyaAsset, ShortAdhan.hayya)),
       );
+    });
+
+    group('extra-time alerts (2026-10-14)', () {
+      final zone = zoneOffsetsFor('Africa/Cairo');
+      final now = DateTime.utc(2026, 10, 14, 10, 0);
+      List<PlannedNotification> planWith(
+        ExtraTimesSettings extra, {
+        InFlightHold? hold,
+      }) => buildNotificationPlan(
+        calculator: calculatorFor(30.0444, 31.2357, zone),
+        zone: zone,
+        nowUtc: now,
+        alerts: AdhanAlertSettings.defaults(),
+        travel: const TravelSettings(),
+        activeMosque: null,
+        extraTimes: extra,
+        inFlight: hold,
+      );
+
+      test('one alert a day for each alerted time, none for the others', () {
+        final plan = planWith(
+          const ExtraTimesSettings(alerts: {ExtraTime.qiyam}),
+        );
+        expect(plan, hasLength(7));
+        expect(plan.every((n) => n.extraTime == ExtraTime.qiyam), isTrue);
+        expect(plan.map((n) => n.text(t).title).toSet(), {t.extraQiyam});
+      });
+
+      test('nothing while none is alerted', () {
+        expect(planWith(const ExtraTimesSettings()), isEmpty);
+      });
+
+      test('held by in-flight mode like everything else', () {
+        final until = now.add(const Duration(days: 2));
+        final plan = planWith(
+          const ExtraTimesSettings(alerts: {ExtraTime.imsak}),
+          hold: InFlightHold(pausedUntil: until),
+        );
+        expect(plan.every((n) => !n.at.isBefore(until)), isTrue);
+        expect(plan, isNotEmpty);
+      });
     });
 
     group('in-flight mode’s hold', () {
@@ -571,3 +613,8 @@ void main() {
 }
 
 typedef ScheduledKind = ({NotificationKind kind, Prayer prayer});
+
+extension on PlannedNotification {
+  ({String title, String body}) text(AppLocalizationsEn t) =>
+      notificationText(t, this, mosqueName: (_) => null);
+}

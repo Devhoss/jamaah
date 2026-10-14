@@ -1835,4 +1835,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tagRemindersPaused => 'Reminders paused';
+
+  @override
+  String get prayerJumuah => 'Jumu’ah';
+
+  @override
+  String get extraImsak => 'Imsak';
+
+  @override
+  String get extraDuha => 'Duha';
+
+  @override
+  String get extraQiyam => 'Last third of the night';
+
+  @override
+  String get notifImsakBody => 'Imsak: stop eating before Fajr.';
+
+  @override
+  String get notifDuhaBody => 'The time for Duha prayer has begun.';
+
+  @override
+  String get notifQiyamBody => 'The last third of the night has begun.';
+
+  @override
+  String channelExtra(String sound) {
+    return 'Other times · $sound';
+  }
+
+  @override
+  String get kindExtra => 'Extra time';
 }

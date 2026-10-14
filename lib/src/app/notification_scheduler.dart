@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/notifications/local_notifications_gateway.dart';
 import '../data/notifications/notification_sync.dart';
 import '../domain/adhan_alerts.dart';
+import '../domain/extra_times.dart';
 import '../domain/mosque.dart';
 import '../domain/notification_channels.dart';
 import '../domain/notification_plan.dart';
@@ -35,6 +36,7 @@ List<PlannedNotification> buildNotificationPlan({
   required Mosque? activeMosque,
   JamaahReminderSettings reminders = const JamaahReminderSettings(),
   InFlightHold? inFlight,
+  ExtraTimesSettings extraTimes = const ExtraTimesSettings(),
   int windowDays = 7,
 }) {
   final today = LocalMoment.inZone(zone: zone, utcInstant: nowUtc).day;
@@ -60,6 +62,15 @@ List<PlannedNotification> buildNotificationPlan({
           travel.pauseAllIqamaReminders ||
           (activeMosque?.remindersPaused ?? false),
       jamaahReminders: reminders,
+      extraTimes: [
+        for (final d in days.take(windowDays))
+          for (final e in extraTimesFor(
+            calculator: calculator,
+            day: d,
+            settings: extraTimes,
+          ))
+            if (extraTimes.alerts.contains(e.time)) e,
+      ],
       windowDays: windowDays,
     ),
   );
@@ -105,7 +116,7 @@ List<PlannedNotification> applyInFlightHold(
   PlannedNotification n, {
   required String? Function(String mosqueId) mosqueName,
 }) {
-  final prayer = prayerName(l10n, n.prayer);
+  final prayer = n.jumuah ? l10n.prayerJumuah : prayerName(l10n, n.prayer);
   final sunrise = n.prayer == Prayer.sunrise;
   return switch (n.kind) {
     NotificationKind.adhan when n.estimated => (
@@ -133,6 +144,14 @@ List<PlannedNotification> applyInFlightHold(
         _ => l10n.notifIqamaBodyNoMosque(prayer, n.minutesBefore ?? 0),
       },
     ),
+    NotificationKind.extra => (
+      title: extraTimeName(l10n, n.extraTime!),
+      body: switch (n.extraTime!) {
+        ExtraTime.imsak => l10n.notifImsakBody,
+        ExtraTime.duha => l10n.notifDuhaBody,
+        ExtraTime.qiyam => l10n.notifQiyamBody,
+      },
+    ),
   };
 }
 
@@ -144,6 +163,9 @@ String channelDisplayName(AppLocalizations l10n, ChannelSpec c) {
     ),
     ChannelGroup.preAdhan => l10n.channelPreAdhan,
     ChannelGroup.iqama => l10n.channelIqama(
+      reminderSoundName(l10n, c.reminderSound ?? ReminderSound.chime),
+    ),
+    ChannelGroup.extra => l10n.channelExtra(
       reminderSoundName(l10n, c.reminderSound ?? ReminderSound.chime),
     ),
   };
@@ -294,6 +316,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               activeMosque: active,
               reminders: settings.jamaahReminders,
               inFlight: settings.inFlight,
+              extraTimes: settings.extraTimes,
             );
       final report = await NotificationSync(gateway).apply(
         plan: plan,
