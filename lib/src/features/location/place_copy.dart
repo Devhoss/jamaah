@@ -1,5 +1,6 @@
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../domain/place.dart';
+import '../../domain/place_near.dart';
 
 /// The copy for a place: what it is called, and what each failure says.
 ///
@@ -18,3 +19,16 @@ String placeFailureMessage(AppLocalizations l10n, PlaceFailure failure) =>
       PlaceFailure.timeout => l10n.locationTimeout,
       PlaceFailure.unavailable => l10n.locationUnavailable,
     };
+
+/// [placeLabel], with "near Cairo" added for a place found by the phone, so
+/// the user can see what was found (no network needed; see place_near.dart).
+String placeDescription(AppLocalizations l10n, Place place) {
+  final label = placeLabel(l10n, place);
+  if (!place.fromDevice || place.userName != null) return label;
+  final near = nearName(
+    latitude: place.latitude,
+    longitude: place.longitude,
+    ianaZone: place.ianaZone,
+  );
+  return near == null ? label : l10n.placeNear(label, near);
+}

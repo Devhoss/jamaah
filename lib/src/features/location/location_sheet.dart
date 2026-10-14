@@ -66,7 +66,7 @@ class _LocationSheet extends ConsumerWidget {
               const SizedBox(height: AppSpace.lg),
               AppPrompt(
                 children: [
-                  Text(l10n.currentPlaceLabel(placeLabel(l10n, place))),
+                  Text(l10n.currentPlaceLabel(placeDescription(l10n, place))),
                   const SizedBox(height: AppSpace.sm),
                   Align(
                     alignment: AlignmentDirectional.centerStart,

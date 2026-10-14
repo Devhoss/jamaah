@@ -21,11 +21,13 @@ import 'location_permission.dart';
 class DevicePlaceSource implements PlaceSource {
   const DevicePlaceSource({
     this.timeout = const Duration(seconds: 12),
+    this.lastKnownMaxAge = const Duration(minutes: 30),
     this.permissions = const LocationPermissions(),
   });
 
   /// How long to wait for a fix before giving up and offering the city list.
   final Duration timeout;
+  final Duration lastKnownMaxAge;
   final LocationPermissions permissions;
 
   @override
@@ -56,31 +58,28 @@ class DevicePlaceSource implements PlaceSource {
   }
 
   /// One coarse fix and the zone it is in, every failure as a value.
+  ///
+  /// When no fresh fix comes in time (indoors, the phone just woken), the
+  /// phone's last known position is used if it is recent: older than
+  /// [lastKnownMaxAge] it could be from before a flight, and is not.
   Future<PlaceReading> _read() async {
     try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.low,
-        ),
-      ).timeout(timeout);
-      // The zone where the phone is, not the one its clock is set to: a phone
-      // still on home time after a flight must not move the place's times.
-      final ianaZone =
-          zoneAt(latitude: position.latitude, longitude: position.longitude) ??
-          await _ianaZoneName();
-
-      // A device place has no human-readable name we are allowed to invent:
-      // reverse geocoding needs the network. The zone is stored as the label and
-      // the UI shows its own "this device" wording for it.
-      return PlaceFound(
-        Place(
-          displayName: ianaZone,
-          latitude: position.latitude,
-          longitude: position.longitude,
-          ianaZone: ianaZone,
-          fromDevice: true,
-        ),
-      );
+      final Position position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.low,
+          ),
+        ).timeout(timeout);
+      } on TimeoutException {
+        final last = await Geolocator.getLastKnownPosition();
+        if (last == null ||
+            DateTime.now().difference(last.timestamp) > lastKnownMaxAge) {
+          rethrow;
+        }
+        return await _found(last);
+      }
+      return await _found(position);
     } on LocationServiceDisabledException {
       return const PlaceRejected(PlaceFailure.serviceDisabled);
     } on PermissionDeniedException {
@@ -90,6 +89,27 @@ class DevicePlaceSource implements PlaceSource {
     } on Object {
       return const PlaceRejected(PlaceFailure.unavailable);
     }
+  }
+
+  Future<PlaceReading> _found(Position position) async {
+    // The zone where the phone is, not the one its clock is set to: a phone
+    // still on home time after a flight must not move the place's times.
+    final ianaZone =
+        zoneAt(latitude: position.latitude, longitude: position.longitude) ??
+        await _ianaZoneName();
+
+    // A device place has no human-readable name we are allowed to invent:
+    // reverse geocoding needs the network. The zone is stored as the label and
+    // the UI shows its own "this device" wording for it.
+    return PlaceFound(
+      Place(
+        displayName: ianaZone,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        ianaZone: ianaZone,
+        fromDevice: true,
+      ),
+    );
   }
 
   @override

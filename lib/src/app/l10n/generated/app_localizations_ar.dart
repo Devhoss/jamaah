@@ -1411,6 +1411,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onbLanguage => 'اللغة';
 
   @override
+  String onbPlaceFound(String city) {
+    return 'وجدناك قرب $city';
+  }
+
+  @override
+  String placeNear(String place, String city) {
+    return '$place، قرب $city';
+  }
+
+  @override
   String onbPlaceDone(String place) {
     return 'مواقيت الصلاة في $place';
   }

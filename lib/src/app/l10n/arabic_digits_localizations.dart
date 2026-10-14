@@ -1499,6 +1499,13 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
       arabicDigits(super.onbStep(current, total));
 
   @override
+  String onbPlaceFound(String city) => arabicDigits(super.onbPlaceFound(city));
+
+  @override
+  String placeNear(String place, String city) =>
+      arabicDigits(super.placeNear(place, city));
+
+  @override
   String onbPlaceDone(String place) => arabicDigits(super.onbPlaceDone(place));
 
   @override

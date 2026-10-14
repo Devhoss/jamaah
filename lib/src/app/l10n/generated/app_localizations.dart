@@ -2256,6 +2256,18 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get onbLanguage;
 
+  /// No description provided for @onbPlaceFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Found you near {city}'**
+  String onbPlaceFound(String city);
+
+  /// No description provided for @placeNear.
+  ///
+  /// In en, this message translates to:
+  /// **'{place}, near {city}'**
+  String placeNear(String place, String city);
+
   /// No description provided for @onbPlaceDone.
   ///
   /// In en, this message translates to:

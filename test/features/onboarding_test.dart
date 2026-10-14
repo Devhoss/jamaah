@@ -42,7 +42,11 @@ void main() {
     addTearDown(db.close);
   });
 
-  Future<void> open(WidgetTester tester, {double textScale = 1.0}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    double textScale = 1.0,
+    PlaceReading reading = const PlaceRejected(PlaceFailure.denied),
+  }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -54,9 +58,7 @@ void main() {
             FixedClock(DateTime.utc(2026, 10, 14, 7, 0)),
           ),
           phoneUtcOffsetProvider.overrideWithValue(null),
-          placeSourceProvider.overrideWithValue(
-            FakePlaceSource(const PlaceRejected(PlaceFailure.denied)),
-          ),
+          placeSourceProvider.overrideWithValue(FakePlaceSource(reading)),
           notificationGatewayProvider.overrideWithValue(
             FakeNotificationGateway(),
           ),
@@ -143,6 +145,24 @@ void main() {
     expect(find.byType(AppShell), findsOneWidget);
   });
 
+  testApp('using the phone’s location says where it found you', (tester) async {
+    await open(tester, reading: const PlaceFound(devicePlace));
+    await tapText(tester, t.onbContinue);
+    await tapText(tester, t.locationUseDevice);
+    expect(find.text(t.onbPlaceFound('Cairo')), findsOneWidget);
+    expect((await settings.read()).location!.usesGps, isTrue);
+  });
+
+  testApp('a refusal is said plainly, with the city list still there', (
+    tester,
+  ) async {
+    await open(tester);
+    await tapText(tester, t.onbContinue);
+    await tapText(tester, t.locationUseDevice);
+    expect(find.text(t.locationDenied), findsOneWidget);
+    expect(find.text(t.locationChooseCity), findsOneWidget);
+  });
+
   testApp('everything can be left for later', (tester) async {
     await open(tester);
     await tapText(tester, t.onbContinue);
@@ -195,11 +215,9 @@ void main() {
     }
     await tapText(tester, t.onbStart);
     expect(find.byType(SettingsPage), findsOneWidget);
-    expect(
-      (await settings.read()).adhanAlerts.enabledPrayers,
-      [Prayer.maghrib],
-      reason: 'replaying changes nothing the user did not change',
-    );
+    expect((await settings.read()).adhanAlerts.enabledPrayers, [
+      Prayer.maghrib,
+    ], reason: 'replaying changes nothing the user did not change');
     expect(
       permissionAsks,
       0,

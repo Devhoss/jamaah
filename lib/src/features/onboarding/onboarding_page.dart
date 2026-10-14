@@ -11,6 +11,7 @@ import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/place.dart';
+import '../../domain/place_near.dart';
 import '../../domain/prayer.dart';
 import '../location/city_list_page.dart';
 import '../location/location_controller.dart';
@@ -231,8 +232,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         ),
       ),
       const SizedBox(height: AppSpace.xl),
-      if (place != null) ...[
-        _Done(l10n.onbPlaceDone(placeLabel(l10n, place))),
+      if (place != null && !state.isRequesting) ...[
+        _Done(switch ((place.fromDevice, _foundNear(place))) {
+          (true, final city?) => l10n.onbPlaceFound(city),
+          _ => l10n.onbPlaceDone(placeDescription(l10n, place)),
+        }),
         const SizedBox(height: AppSpace.md),
       ],
       if (state.failure case final failure?) ...[
@@ -243,7 +247,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         const SizedBox(height: AppSpace.md),
       ],
       if (state.isRequesting)
-        Text(l10n.locationRequesting, style: theme.textTheme.bodyMedium)
+        Row(
+          children: [
+            const SizedBox.square(
+              dimension: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: AppSpace.md),
+            Expanded(
+              child: Text(
+                l10n.locationRequesting,
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        )
       else
         FilledButton.tonal(
           onPressed: controller.useDeviceLocation,
@@ -345,6 +363,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     ];
   }
 }
+
+String? _foundNear(Place place) => nearName(
+  latitude: place.latitude,
+  longitude: place.longitude,
+  ianaZone: place.ianaZone,
+);
 
 class _Done extends StatelessWidget {
   const _Done(this.text);
