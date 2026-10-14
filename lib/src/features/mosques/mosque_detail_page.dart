@@ -51,6 +51,16 @@ class MosqueDetailPage extends ConsumerWidget {
     final day = ref.watch(scheduleDayProvider);
     final schedule = mosque.scheduleFor(day);
     final today = ref.watch(todayProvider);
+    // Tomorrow's Adhan and the time now, for "minutes after the Adhan"
+    // previews that name the next Iqama.
+    final tomorrowTimes = today == null
+        ? const <Prayer, int>{}
+        : ref
+                  .watch(prayerTimesCalculatorProvider)
+                  ?.forDay(today.day.day.addDays(1))
+                  .times ??
+              const <Prayer, int>{};
+    final nowMinutes = today?.moment.minutesOfDay;
     final clock = ClockFormat.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
 
@@ -134,6 +144,8 @@ class MosqueDetailPage extends ConsumerWidget {
                   entry:
                       schedule?.iqamaFor(prayer) ?? PrayerIqama(prayer: prayer),
                   adhan: today?.day.timeOf(prayer),
+                  adhanTomorrow: tomorrowTimes[prayer],
+                  nowMinutes: nowMinutes,
                   clock: clock,
                 ),
               // Jumu'ah (2026-10-14): its own time, used on Fridays.
@@ -144,6 +156,8 @@ class MosqueDetailPage extends ConsumerWidget {
                     schedule?.jumuah ??
                     const PrayerIqama(prayer: Prayer.dhuhr),
                 adhan: today?.day.timeOf(Prayer.dhuhr),
+                adhanTomorrow: tomorrowTimes[Prayer.dhuhr],
+                nowMinutes: nowMinutes,
                 clock: clock,
                 jumuah: true,
               ),
@@ -158,6 +172,8 @@ class MosqueDetailPage extends ConsumerWidget {
                 mosque: mosque,
                 schedule: schedule,
                 adhanToday: today?.day.times ?? const {},
+                adhanTomorrow: tomorrowTimes,
+                nowMinutes: nowMinutes ?? 0,
               ),
               icon: const Icon(Icons.edit_note),
               label: Text(l10n.enterAllFive),
@@ -244,6 +260,8 @@ class _IqamaRow extends ConsumerWidget {
     required this.prayer,
     required this.entry,
     required this.adhan,
+    this.adhanTomorrow,
+    this.nowMinutes,
     required this.clock,
     this.jumuah = false,
   });
@@ -257,6 +275,10 @@ class _IqamaRow extends ConsumerWidget {
 
   /// Minutes from midnight, or null when there is no place or no time today.
   final int? adhan;
+
+  /// Tomorrow's Adhan and the place's time now, for the editor's preview.
+  final int? adhanTomorrow;
+  final int? nowMinutes;
   final ClockFormat clock;
 
   @override
@@ -274,6 +296,8 @@ class _IqamaRow extends ConsumerWidget {
         prayer: prayer,
         current: entry,
         adhan: adhan == null ? null : LocalTime(adhan!),
+        adhanTomorrow: adhanTomorrow == null ? null : LocalTime(adhanTomorrow!),
+        nowMinutes: nowMinutes,
         jumuah: jumuah,
       ),
       // The Iqama value shares the title's width rather than sitting in the fixed

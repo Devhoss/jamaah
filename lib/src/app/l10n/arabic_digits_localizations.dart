@@ -1710,4 +1710,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String rowAfterAdhan(int minutes) =>
       arabicDigits(super.rowAfterAdhan(minutes));
+
+  @override
+  String iqamaAfterAdhanPreviewTomorrow(
+    String adhan,
+    int minutes,
+    String iqama,
+  ) =>
+      arabicDigits(super.iqamaAfterAdhanPreviewTomorrow(adhan, minutes, iqama));
 }

@@ -2116,4 +2116,22 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get enterAllFiveHint =>
       'كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها.';
+
+  @override
+  String iqamaAfterAdhanPreviewTomorrow(
+    String adhan,
+    int minutes,
+    String iqama,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'الأذان $adhan + $minutes دقيقة = الإقامة $iqama غدًا',
+      many: 'الأذان $adhan + $minutes دقيقة = الإقامة $iqama غدًا',
+      few: 'الأذان $adhan + $minutes دقائق = الإقامة $iqama غدًا',
+      two: 'الأذان $adhan + دقيقتين = الإقامة $iqama غدًا',
+      one: 'الأذان $adhan + دقيقة = الإقامة $iqama غدًا',
+    );
+    return '$_temp0';
+  }
 }

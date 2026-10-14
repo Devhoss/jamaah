@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/iqama_editing.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
@@ -60,5 +61,55 @@ void main() {
   test('the allowed range', () {
     expect(kMinAfterAdhanMinutes, 1);
     expect(kMaxAfterAdhanMinutes, 90);
+  });
+
+  group('the next one, for the editor’s preview', () {
+    test('still ahead today: today’s Adhan', () {
+      final n = nextIqamaAfterAdhan(
+        minutes: 22,
+        nowMinutes: 4 * 60,
+        adhanToday: 5 * 60 + 30,
+        adhanTomorrow: 5 * 60 + 31,
+      )!;
+      expect(n.adhan, const LocalTime(5 * 60 + 30));
+      expect(n.iqama, const LocalTime(5 * 60 + 52));
+      expect(n.tomorrow, isFalse);
+    });
+
+    test('already gone today: tomorrow’s Adhan, said as tomorrow', () {
+      final n = nextIqamaAfterAdhan(
+        minutes: 22,
+        nowMinutes: 22 * 60 + 15,
+        adhanToday: 5 * 60 + 30,
+        adhanTomorrow: 5 * 60 + 31,
+      )!;
+      expect(n.adhan, const LocalTime(5 * 60 + 31));
+      expect(n.iqama, const LocalTime(5 * 60 + 53));
+      expect(n.tomorrow, isTrue);
+    });
+
+    test('ahead but past midnight is tomorrow’s date', () {
+      final n = nextIqamaAfterAdhan(
+        minutes: 20,
+        nowMinutes: 22 * 60,
+        adhanToday: 23 * 60 + 50,
+        adhanTomorrow: 23 * 60 + 51,
+      )!;
+      expect(n.adhan, const LocalTime(23 * 60 + 50));
+      expect(n.iqama, const LocalTime(10));
+      expect(n.tomorrow, isTrue);
+    });
+
+    test('no Adhan to count from: nothing', () {
+      expect(
+        nextIqamaAfterAdhan(
+          minutes: 22,
+          nowMinutes: 600,
+          adhanToday: null,
+          adhanTomorrow: null,
+        ),
+        isNull,
+      );
+    });
   });
 }

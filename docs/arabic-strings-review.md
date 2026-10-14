@@ -540,3 +540,4 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 527 | `enterAllFive` | Enter minutes for all five | إدخال الدقائق للصلوات الخمس |
 | 528 | `enterAllFiveTitle` | Iqama: minutes after the Adhan | الإقامة: الدقائق بعد الأذان |
 | 529 | `enterAllFiveHint` | As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are. | كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها. |
+| 530 | `iqamaAfterAdhanPreviewTomorrow` | Adhan {adhan} + {minutes} min = Iqama {iqama} tomorrow | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} غدًا} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} غدًا} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} غدًا} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا}} |

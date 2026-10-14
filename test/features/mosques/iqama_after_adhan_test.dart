@@ -125,6 +125,17 @@ void main() {
     return container.read(todayProvider)!.day.timeOf(p)!;
   }
 
+  int tomorrowAdhanOf(WidgetTester tester, Prayer p) {
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    final today = container.read(todayProvider)!.day.day;
+    return container
+        .read(prayerTimesCalculatorProvider)!
+        .forDay(today.addDays(1))
+        .timeOf(p)!;
+  }
+
   String hhmm(int minutes) =>
       '${(minutes ~/ 60 % 24).toString().padLeft(2, '0')}:'
       '${(minutes % 60).toString().padLeft(2, '0')}';
@@ -137,6 +148,7 @@ void main() {
     final m = await addActive();
     await open(tester);
     final fajr = adhanOf(tester, Prayer.fajr);
+    final fajrTomorrow = tomorrowAdhanOf(tester, Prayer.fajr);
     await openMosque(tester);
     await tapText(tester, t.prayerFajr);
     expect(find.byType(IqamaEditorSheet), findsOneWidget);
@@ -146,8 +158,16 @@ void main() {
       '22',
     );
     await tester.pumpAndSettle();
+    // At 10:00 today's Fajr is gone: the preview names tomorrow's, from
+    // tomorrow's own Adhan.
     expect(
-      find.text(t.iqamaAfterAdhanPreview(hhmm(fajr), 22, hhmm(fajr + 22))),
+      find.text(
+        t.iqamaAfterAdhanPreviewTomorrow(
+          hhmm(fajrTomorrow),
+          22,
+          hhmm(fajrTomorrow + 22),
+        ),
+      ),
       findsOneWidget,
     );
     await tapText(tester, t.save);
@@ -157,6 +177,26 @@ void main() {
     expect(e.iqama, isNull);
     expect(find.text(t.rowAfterAdhan(22)), findsOneWidget);
     expect(find.text(hhmm(fajr + 22)), findsWidgets);
+  });
+
+  testApp('before Fajr, the preview names today’s Iqama', (tester) async {
+    // 03:00 in Cairo.
+    clock = FixedClock(DateTime.utc(2026, 10, 14, 0, 0));
+    mosques = MosqueRepository(db, clock: clock);
+    await addActive();
+    await open(tester);
+    final fajr = adhanOf(tester, Prayer.fajr);
+    await openMosque(tester);
+    await tapText(tester, t.prayerFajr);
+    await tester.enterText(
+      find.widgetWithText(TextField, t.iqamaMinutesLabel),
+      '22',
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text(t.iqamaAfterAdhanPreview(hhmm(fajr), 22, hhmm(fajr + 22))),
+      findsOneWidget,
+    );
   });
 
   testApp('a fixed time is still there for mosques that use one', (

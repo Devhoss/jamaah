@@ -3275,6 +3275,16 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are.'**
   String get enterAllFiveHint;
+
+  /// No description provided for @iqamaAfterAdhanPreviewTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan {adhan} + {minutes} min = Iqama {iqama} tomorrow'**
+  String iqamaAfterAdhanPreviewTomorrow(
+    String adhan,
+    int minutes,
+    String iqama,
+  );
 }
 
 class _AppLocalizationsDelegate

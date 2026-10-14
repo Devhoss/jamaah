@@ -1965,4 +1965,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get enterAllFiveHint =>
       'As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are.';
+
+  @override
+  String iqamaAfterAdhanPreviewTomorrow(
+    String adhan,
+    int minutes,
+    String iqama,
+  ) {
+    return 'Adhan $adhan + $minutes min = Iqama $iqama tomorrow';
+  }
 }

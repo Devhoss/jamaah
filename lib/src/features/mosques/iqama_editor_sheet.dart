@@ -50,6 +50,8 @@ Future<void> showIqamaEditor(
   required Prayer prayer,
   required PrayerIqama current,
   LocalTime? adhan,
+  LocalTime? adhanTomorrow,
+  int? nowMinutes,
   bool jumuah = false,
 }) {
   assert(prayer.canHaveIqama, 'Sunrise has no Iqama (AGENTS.md)');
@@ -62,6 +64,8 @@ Future<void> showIqamaEditor(
       prayer: prayer,
       current: current,
       adhan: adhan,
+      adhanTomorrow: adhanTomorrow,
+      nowMinutes: nowMinutes,
       jumuah: jumuah,
     ),
   );
@@ -78,6 +82,8 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
     required this.prayer,
     required this.current,
     this.adhan,
+    this.adhanTomorrow,
+    this.nowMinutes,
     this.jumuah = false,
     super.key,
   });
@@ -93,6 +99,11 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
   /// shown as the Iqama and never saved without the user confirming a time
   /// (AGENTS.md: Iqama is never derived from Adhan).
   final LocalTime? adhan;
+
+  /// Tomorrow's Adhan and the place's time now, so the preview of "minutes
+  /// after the Adhan" names the next Iqama, today's or tomorrow's.
+  final LocalTime? adhanTomorrow;
+  final int? nowMinutes;
 
   /// Editing the mosque's Jumu'ah (2026-10-14): [prayer] is Dhuhr, and the
   /// time is saved as Jumu'ah's, never Dhuhr's.
@@ -141,14 +152,24 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   bool get _hasEntry =>
       _mode == _Mode.fixed ? _time != null : _afterMinutes != null;
 
-  /// Today's Iqama for the summary: the picked time, or the Adhan plus the
-  /// minutes (null without a place to read the Adhan from).
+  /// The next Iqama the minutes give: today's while it is still ahead,
+  /// otherwise tomorrow's (null without an Adhan to count from).
+  ({LocalTime adhan, LocalTime iqama, bool tomorrow})? get _next =>
+      switch (_afterMinutes) {
+        final after? => nextIqamaAfterAdhan(
+          minutes: after,
+          nowMinutes: widget.nowMinutes ?? 0,
+          adhanToday: widget.adhan?.minutes,
+          adhanTomorrow: widget.adhanTomorrow?.minutes,
+        ),
+        null => null,
+      };
+
+  /// The Iqama for the summary: the picked time, or the next one the minutes
+  /// give.
   LocalTime? get _iqamaToday => switch (_mode) {
     _Mode.fixed => _time,
-    _Mode.afterAdhan => switch ((widget.adhan, _afterMinutes)) {
-      (final adhan?, final after?) => LocalTime((adhan.minutes + after) % 1440),
-      _ => null,
-    },
+    _Mode.afterAdhan => _next?.iqama,
   };
 
   ReminderMinutesInput get _customInput =>
@@ -313,14 +334,19 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
                 ),
                 const SizedBox(height: AppSpace.xs),
                 Text(
-                  switch ((widget.adhan, _afterMinutes, _iqamaToday)) {
-                    (final adhan?, final after?, final iqama?) =>
-                      l10n.iqamaAfterAdhanPreview(
-                        clock.time(adhan),
-                        after,
-                        clock.time(iqama),
-                      ),
-                    (null, _, _) => l10n.iqamaNeedsAdhan,
+                  switch ((_next, _afterMinutes)) {
+                    (final next?, final after?) => next.tomorrow
+                        ? l10n.iqamaAfterAdhanPreviewTomorrow(
+                            clock.time(next.adhan),
+                            after,
+                            clock.time(next.iqama),
+                          )
+                        : l10n.iqamaAfterAdhanPreview(
+                            clock.time(next.adhan),
+                            after,
+                            clock.time(next.iqama),
+                          ),
+                    _ when widget.adhan == null => l10n.iqamaNeedsAdhan,
                     _ => '',
                   },
                   style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),

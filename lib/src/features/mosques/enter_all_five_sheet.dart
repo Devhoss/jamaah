@@ -7,6 +7,7 @@ import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
+import '../../domain/iqama_editing.dart';
 import '../../domain/mosque.dart';
 import '../../domain/prayer.dart';
 import '../../domain/time_model.dart';
@@ -18,6 +19,8 @@ Future<void> showEnterAllFive(
   required Mosque mosque,
   required Schedule? schedule,
   required Map<Prayer, int> adhanToday,
+  Map<Prayer, int> adhanTomorrow = const {},
+  int nowMinutes = 0,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -26,6 +29,8 @@ Future<void> showEnterAllFive(
     mosque: mosque,
     schedule: schedule,
     adhanToday: adhanToday,
+    adhanTomorrow: adhanTomorrow,
+    nowMinutes: nowMinutes,
   ),
 );
 
@@ -37,6 +42,8 @@ class EnterAllFiveSheet extends ConsumerStatefulWidget {
     required this.mosque,
     required this.schedule,
     required this.adhanToday,
+    this.adhanTomorrow = const {},
+    this.nowMinutes = 0,
     super.key,
   });
 
@@ -45,6 +52,11 @@ class EnterAllFiveSheet extends ConsumerStatefulWidget {
 
   /// Today's Adhan times at the current place; empty without a place.
   final Map<Prayer, int> adhanToday;
+
+  /// Tomorrow's Adhan times and the place's time now, so each line names the
+  /// next Iqama, today's or tomorrow's.
+  final Map<Prayer, int> adhanTomorrow;
+  final int nowMinutes;
 
   @override
   ConsumerState<EnterAllFiveSheet> createState() => _EnterAllFiveSheetState();
@@ -68,6 +80,17 @@ class _EnterAllFiveSheetState extends ConsumerState<EnterAllFiveSheet> {
   }
 
   int? _valueOf(Prayer p) => int.tryParse(_fields[p]!.text.trim());
+
+  ({LocalTime adhan, LocalTime iqama, bool tomorrow})? _next(Prayer p) {
+    final n = _valueOf(p);
+    if (n == null || !_valid(p)) return null;
+    return nextIqamaAfterAdhan(
+      minutes: n,
+      nowMinutes: widget.nowMinutes,
+      adhanToday: widget.adhanToday[p],
+      adhanTomorrow: widget.adhanTomorrow[p],
+    );
+  }
 
   bool _valid(Prayer p) {
     final text = _fields[p]!.text.trim();
@@ -132,12 +155,14 @@ class _EnterAllFiveSheetState extends ConsumerState<EnterAllFiveSheet> {
                   name: prayerName(l10n, p),
                   controller: _fields[p]!,
                   error: _valid(p) ? null : l10n.iqamaMinutesInvalid,
-                  result: switch ((widget.adhanToday[p], _valueOf(p))) {
-                    (final adhan?, final n?) when _valid(p) =>
-                      l10n.iqamaAfterAdhanPreview(
-                        clock.time(LocalTime(adhan)),
-                        n,
-                        clock.time(LocalTime((adhan + n) % 1440)),
+                  result: switch ((widget.adhanToday[p], _next(p))) {
+                    (_, (:final adhan, :final iqama, :final tomorrow)?) =>
+                      (tomorrow
+                      ? l10n.iqamaAfterAdhanPreviewTomorrow
+                      : l10n.iqamaAfterAdhanPreview)(
+                        clock.time(adhan),
+                        _valueOf(p)!,
+                        clock.time(iqama),
                       ),
                     (final adhan?, _) => l10n.rowAdhanTime(
                       clock.time(LocalTime(adhan)),

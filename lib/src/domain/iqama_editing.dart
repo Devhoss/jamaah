@@ -2,6 +2,33 @@ import 'mosque.dart';
 import 'prayer.dart';
 import 'time_model.dart';
 
+/// The next Iqama an entry of [minutes] after the Adhan gives, from
+/// [nowMinutes] on the place's clock: today's if it is still ahead, otherwise
+/// tomorrow's, counted from tomorrow's own Adhan. [tomorrow] is true when it
+/// falls on tomorrow's date. Null without an Adhan to count from. Only for
+/// showing the user what their minutes mean (2026-10-14).
+({LocalTime adhan, LocalTime iqama, bool tomorrow})? nextIqamaAfterAdhan({
+  required int minutes,
+  required int nowMinutes,
+  required int? adhanToday,
+  required int? adhanTomorrow,
+}) {
+  if (adhanToday != null && adhanToday + minutes > nowMinutes) {
+    final at = adhanToday + minutes;
+    return (
+      adhan: LocalTime(adhanToday),
+      iqama: LocalTime(at % 1440),
+      tomorrow: at >= 1440,
+    );
+  }
+  if (adhanTomorrow == null) return null;
+  return (
+    adhan: LocalTime(adhanTomorrow),
+    iqama: LocalTime((adhanTomorrow + minutes) % 1440),
+    tomorrow: true,
+  );
+}
+
 /// The reminder interval choices the Iqama editor offers.
 abstract final class ReminderInterval {
   /// The chips shown before "Custom", as in the prototype.

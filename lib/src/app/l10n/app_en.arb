@@ -1004,5 +1004,7 @@
   "@rowAfterAdhan": {"placeholders": {"minutes": {"type": "int"}}},
   "enterAllFive": "Enter minutes for all five",
   "enterAllFiveTitle": "Iqama: minutes after the Adhan",
-  "enterAllFiveHint": "As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are."
+  "enterAllFiveHint": "As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are.",
+  "iqamaAfterAdhanPreviewTomorrow": "Adhan {adhan} + {minutes} min = Iqama {iqama} tomorrow",
+  "@iqamaAfterAdhanPreviewTomorrow": {"placeholders": {"adhan": {"type": "String"}, "minutes": {"type": "int"}, "iqama": {"type": "String"}}}
 }

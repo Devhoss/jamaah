@@ -591,6 +591,7 @@ AR = {
     'enterAllFive': 'إدخال الدقائق للصلوات الخمس',
     'enterAllFiveTitle': 'الإقامة: الدقائق بعد الأذان',
     'enterAllFiveHint': 'كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها.',
+    'iqamaAfterAdhanPreviewTomorrow': minutes('minutes', before='الأذان {adhan} + ', after=' = الإقامة {iqama} غدًا'),
 }
 
 

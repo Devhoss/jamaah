@@ -528,5 +528,6 @@
   "rowAfterAdhan": "{minutes, plural, =1{دقيقة بعد الأذان} =2{دقيقتين بعد الأذان} few{{minutes} دقائق بعد الأذان} many{{minutes} دقيقة بعد الأذان} other{{minutes} دقيقة بعد الأذان}}",
   "enterAllFive": "إدخال الدقائق للصلوات الخمس",
   "enterAllFiveTitle": "الإقامة: الدقائق بعد الأذان",
-  "enterAllFiveHint": "كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها."
+  "enterAllFiveHint": "كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها.",
+  "iqamaAfterAdhanPreviewTomorrow": "{minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} غدًا} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} غدًا} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} غدًا} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا}}"
 }
