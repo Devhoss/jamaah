@@ -527,7 +527,10 @@ class _PrayerRows extends StatelessWidget {
   /// Sunrise is never asked for: it has no Iqama (AGENTS.md).
   String? _iqama(Prayer prayer) {
     if (!prayer.canHaveIqama || _jumuahNotSet(prayer)) return null;
-    final at = schedule?.iqamaOn(today.day.day, prayer).entry.iqama;
+    final at = schedule
+        ?.iqamaOn(today.day.day, prayer)
+        .entry
+        .timeOfDay(today.day.timeOf(prayer));
     return at == null ? null : clock.time(at);
   }
 }

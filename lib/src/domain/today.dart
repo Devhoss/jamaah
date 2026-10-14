@@ -299,26 +299,40 @@ final class IqamaNotConfigured extends NextIqama {
 /// the day's entered times have all run out does the card reach for tomorrow's Fajr,
 /// and it reads that day's schedule to do so.
 ///
-/// Nothing here consults the calculated Adhan times: an Iqama is the user's own data
-/// (AGENTS.md), so it is never a guess and never borrowed from another prayer.
+/// The Adhan times are read only to add an Iqama entered as "N minutes after
+/// the Adhan" (2026-10-14): the minutes are the user's, the app only adds.
+/// [adhanTimesOn] gives the times of days other than [today]'s.
 NextIqama readNextIqama({
   required Mosque? mosque,
   required TodayReading today,
+  Map<Prayer, int> Function(LocalDay day)? adhanTimesOn,
 }) {
   if (mosque == null) return const IqamaNotConfigured();
   final moment = today.moment;
   final tomorrow = moment.day.addDays(1);
+  final yesterday = moment.day.addDays(-1);
   final todaySchedule = mosque.scheduleFor(moment.day);
   final tomorrowSchedule = mosque.scheduleFor(tomorrow);
+  Map<Prayer, int> adhanOn(LocalDay d) => d == today.day.day
+      ? today.day.times
+      : (adhanTimesOn?.call(d) ?? const {});
 
   IqamaUpcoming? earliest;
-  for (final prayer in Prayer.iqamaPrayers) {
+  // Yesterday's Isha too: minutes after a late Adhan can run past midnight.
+  for (final (day, prayer) in [
+    (yesterday, Prayer.isha),
+    for (final p in Prayer.iqamaPrayers) (moment.day, p),
+  ]) {
     // On a Friday, Dhuhr's is Jumu'ah's (or Dhuhr's own while it has none).
-    final resolved = todaySchedule?.iqamaOn(moment.day, prayer);
+    final resolved = mosque.scheduleFor(day)?.iqamaOn(day, prayer);
     final entry = resolved?.entry;
-    final at = entry?.iqama;
-    if (resolved == null || entry == null || at == null) continue;
-    final until = _minutesUntil(moment, moment.day, at);
+    final minutes = entry?.minutesOfDay(adhanOn(day)[prayer]);
+    if (resolved == null || entry == null || minutes == null) continue;
+    // Yesterday only counts for an Iqama that ran on into today.
+    if (day == yesterday && minutes < 1440) continue;
+    final on = day.addDays(minutes ~/ 1440);
+    final at = LocalTime(minutes % 1440);
+    final until = _minutesUntil(moment, on, at);
     // Measured in real minutes rather than on the wall clock, so an hour the day
     // has already lived through on a clock-changing morning is not offered again.
     if (until <= 0) continue;
@@ -326,10 +340,10 @@ NextIqama readNextIqama({
       earliest = IqamaUpcoming(
         prayer: prayer,
         mosqueName: mosque.name,
-        on: moment.day,
+        on: on,
         at: at,
         minutesUntil: until,
-        isTomorrow: false,
+        isTomorrow: on != moment.day,
         reminderEnabled: entry.reminderEnabled,
         reminderMinutesBefore: entry.reminderMinutesBefore,
         isJumuah: resolved.isJumuah,
@@ -340,7 +354,7 @@ NextIqama readNextIqama({
   if (earliest != null) return earliest;
 
   final fajrEntry = tomorrowSchedule?.iqamaFor(Prayer.fajr);
-  final fajrAt = fajrEntry?.iqama;
+  final fajrAt = fajrEntry?.timeOfDay(adhanOn(tomorrow)[Prayer.fajr]);
   if (fajrEntry != null && fajrAt != null) {
     return IqamaUpcoming(
       prayer: Prayer.fajr,

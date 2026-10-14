@@ -573,6 +573,87 @@ void main() {
     });
   });
 
+  group('Iqama as minutes after the Adhan (2026-10-14)', () {
+    final zone = zoneOffsetsFor('Africa/Cairo');
+    const day = LocalDay(2026, 10, 14);
+    TodayReading at(LocalDay d, int minutes) => readToday(
+      calculator: cairo,
+      moment: LocalMoment.inZone(
+        zone: zone,
+        utcInstant: zone.utcInstantOf(day: d, time: LocalTime(minutes)),
+      ),
+    );
+    Mosque mosque(Map<Prayer, int> after) => Mosque(
+      id: 'm1',
+      name: 'Masjid al-Nour',
+      address: '',
+      source: MosqueSource.manual,
+      schedules: [
+        Schedule.empty(mosqueId: 'm1').copyWith(
+          prayers: {
+            for (final p in Prayer.iqamaPrayers)
+              p: after[p] == null
+                  ? PrayerIqama(prayer: p)
+                  : PrayerIqama(prayer: p, afterAdhanMinutes: after[p]),
+          },
+        ),
+      ],
+    );
+    Map<Prayer, int> timesOn(LocalDay d) => cairo.forDay(d).times;
+
+    test('the next Iqama is the Adhan plus the minutes', () {
+      final dhuhr = cairo.forDay(day).timeOf(Prayer.dhuhr)!;
+      final next = readNextIqama(
+        mosque: mosque({Prayer.dhuhr: 20}),
+        today: at(day, 10 * 60),
+        adhanTimesOn: timesOn,
+      ) as IqamaUpcoming;
+      expect(next.prayer, Prayer.dhuhr);
+      expect(next.at, LocalTime(dhuhr + 20));
+    });
+
+    test('an Isha Iqama past midnight is still ahead just after midnight', () {
+      // A made-up late Isha: Adhan 23:50 + 20 min is 00:10 the next date.
+      final calc = _FixedTimesCalculator({
+        Prayer.fajr: 5 * 60,
+        Prayer.sunrise: 6 * 60,
+        Prayer.dhuhr: 12 * 60,
+        Prayer.asr: 15 * 60,
+        Prayer.maghrib: 21 * 60,
+        Prayer.isha: 23 * 60 + 50,
+      });
+      final reading = readToday(
+        calculator: calc,
+        moment: LocalMoment.inZone(
+          zone: calc.zone,
+          utcInstant: calc.zone.utcInstantOf(
+            day: day.addDays(1),
+            time: const LocalTime(5),
+          ),
+        ),
+      );
+      final next = readNextIqama(
+        mosque: mosque({Prayer.isha: 20}),
+        today: reading,
+        adhanTimesOn: (d) => calc.forDay(d).times,
+      ) as IqamaUpcoming;
+      expect(next.prayer, Prayer.isha);
+      expect(next.at, const LocalTime(10));
+      expect(next.minutesUntil, 5);
+    });
+
+    test("after Isha, tomorrow's Fajr counts from tomorrow's Adhan", () {
+      final fajr = cairo.forDay(day.addDays(1)).timeOf(Prayer.fajr)!;
+      final next = readNextIqama(
+        mosque: mosque({Prayer.fajr: 22}),
+        today: at(day, 23 * 60),
+        adhanTimesOn: timesOn,
+      ) as IqamaUpcoming;
+      expect(next.isTomorrow, isTrue);
+      expect(next.at, LocalTime(fajr + 22));
+    });
+  });
+
   group("Jumu'ah on the card (2026-10-14)", () {
     // Cairo, Friday 16 October 2026 at 10:00.
     final zone = zoneOffsetsFor('Africa/Cairo');
@@ -650,4 +731,19 @@ class _NoTimesCalculator extends PrayerTimesCalculator {
     times: const {},
     unavailable: Prayer.values.toSet(),
   );
+}
+
+/// Every day has these times, in Cairo's zone.
+class _FixedTimesCalculator extends PrayerTimesCalculator {
+  _FixedTimesCalculator(this.fixed)
+    : super(
+        latitude: 30.0444,
+        longitude: 31.2357,
+        zone: zoneOffsetsFor('Africa/Cairo'),
+      );
+
+  final Map<Prayer, int> fixed;
+
+  @override
+  PrayerDay forDay(LocalDay day) => PrayerDay(day: day, times: fixed);
 }

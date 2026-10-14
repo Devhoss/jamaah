@@ -940,5 +940,54 @@ void main() {
       expect(plan(thursday, alerts: alerts).any((n) => n.jumuah), isFalse);
     });
   });
+
+  group('the plan: Iqama after the Adhan (2026-10-14)', () {
+    const day = LocalDay(2026, 10, 15);
+    Mosque mosque(Prayer prayer, int after) => Mosque(
+      id: 'm1',
+      name: 'Masjid',
+      address: '',
+      source: MosqueSource.manual,
+      schedules: [
+        Schedule.empty(mosqueId: 'm1').withPrayer(
+          PrayerIqama(
+            prayer: prayer,
+            afterAdhanMinutes: after,
+            reminderEnabled: true,
+          ),
+        ),
+      ],
+    );
+    List<PlannedNotification> plan(Mosque m, Map<Prayer, int> times) =>
+        const NotificationPlanner().plan(
+          NotificationPlanInput(
+            today: day,
+            now: DateTime.utc(2026, 10, 15),
+            prayerTimeOf: {day: times},
+            zoneOffsetFor: (_) => 180,
+            adhanAlerts: const AdhanAlertSettings(),
+            activeMosque: m,
+            windowDays: 1,
+          ),
+        );
+
+    test('the reminder is the Adhan plus the minutes, less the lead time', () {
+      final n = plan(mosque(Prayer.fajr, 22), {Prayer.fajr: 4 * 60 + 29})
+          .single;
+      // 04:29 + 22 = 04:51, less 10 = 04:41 at +3 = 01:41 UTC.
+      expect(n.at, DateTime.utc(2026, 10, 15, 1, 41));
+    });
+
+    test('an Isha past midnight lands on the next date', () {
+      final n = plan(mosque(Prayer.isha, 20), {Prayer.isha: 23 * 60 + 50})
+          .single;
+      // 23:50 + 20 = 00:10 on the 16th, less 10 = 00:00 at +3 = 21:00 UTC.
+      expect(n.at, DateTime.utc(2026, 10, 15, 21, 0));
+    });
+
+    test('no Adhan that day, no reminder', () {
+      expect(plan(mosque(Prayer.fajr, 22), const {}), isEmpty);
+    });
+  });
 }
 

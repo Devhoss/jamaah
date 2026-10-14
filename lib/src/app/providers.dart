@@ -182,7 +182,12 @@ final activeMosqueScheduleProvider = Provider<Schedule?>((ref) {
 final nextIqamaProvider = Provider<NextIqama?>((ref) {
   final today = ref.watch(todayProvider);
   if (today == null) return null;
-  return readNextIqama(mosque: ref.watch(activeMosqueProvider), today: today);
+  final calculator = ref.watch(prayerTimesCalculatorProvider);
+  return readNextIqama(
+    mosque: ref.watch(activeMosqueProvider),
+    today: today,
+    adhanTimesOn: (day) => calculator?.forDay(day).times ?? const {},
+  );
 });
 
 /// `--dart-define-from-file=.env` values: which discovery provider, and the key.

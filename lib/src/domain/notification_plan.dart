@@ -320,19 +320,35 @@ class NotificationPlanner {
       // Adhan is the only signal we have, and only Isha can cross midnight: a
       // fixed Jumu'ah a few minutes before the computed Dhuhr is still Friday's.
       final adhan = adhanTimes[prayer];
-      final targetDay =
-          (prayer == Prayer.isha && adhan != null && iqama.iqama!.minutes < adhan)
-          ? day.addDays(1)
-          : day;
-      final offset = input.zoneOffsetFor(targetDay);
-
-      final reminderAt = iqama.iqama!.plusMinutes(-iqama.reminderMinutesBefore);
+      final DateTime iqamaAt;
+      if (iqama.afterAdhanMinutes case final after?) {
+        // Minutes after the day's Adhan, added to its instant: past midnight
+        // and across a clock change alike. No Adhan that day, no Iqama.
+        if (adhan == null) continue;
+        iqamaAt = instantFor(
+          day,
+          adhan,
+          input.zoneOffsetFor(day),
+        ).add(Duration(minutes: after));
+      } else {
+        final targetDay =
+            (prayer == Prayer.isha &&
+                adhan != null &&
+                iqama.iqama!.minutes < adhan)
+            ? day.addDays(1)
+            : day;
+        iqamaAt = instantFor(
+          targetDay,
+          iqama.iqama!.minutes,
+          input.zoneOffsetFor(targetDay),
+        );
+      }
       out.add(
         PlannedNotification(
           id: notificationId(NotificationKind.iqama, prayer, day),
           kind: NotificationKind.iqama,
           prayer: prayer,
-          at: instantFor(targetDay, reminderAt.minutes, offset),
+          at: iqamaAt.subtract(Duration(minutes: iqama.reminderMinutesBefore)),
           soundMode: null,
           mosqueId: mosque.id,
           minutesBefore: iqama.reminderMinutesBefore,
