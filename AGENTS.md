@@ -124,6 +124,8 @@ static-bearing fallback when sensors/location are unavailable. Supporting featur
 
 ## Visual design
 - Light first: warm off-white, deep forest green, restrained sage; dark theme secondary.
+  (2026-10-14: a full visual redesign, colours included, is with Claude Design — brief in docs/design-brief/;
+  this palette is the prototype's and will be replaced by the new design's tokens.)
 - Strong typography, efficient spacing, 48dp minimum touch targets, quiet transitions.
 - Avoid: gold gradients, mosque silhouettes everywhere, ornate decorative patterns, glassmorphism,
   stacked floating cards, streaks, badges, feeds, gamification.

@@ -72,7 +72,11 @@ cannot be built.
 - **Copy:** all copy lives in translation files. If you want different wording,
   list it separately from the visuals so it can be changed in both languages.
 
-## Current visual language (for reference, not to keep)
+## Current visual language (for reference only: replace all of it)
+
+This is a full redesign, colours included. Nothing below has to survive: the
+palette, the green, the type sizes, the radii and the spacing are all open.
+They are listed only so you can see what the screenshots are made of.
 
 | Token | Light | Dark |
 |---|---|---|
@@ -87,8 +91,8 @@ cannot be built.
 - **Radii:** hero 22, card 18, sheet 24.
 - **Spacing:** 4/8/12/16/20/24.
 - **Type sizes:** title 28, row 17, body 14, hero time 40.
-- **Intended feel:** light first (warm off-white, deep green, restrained sage),
-  dark theme secondary. Most of the owner's testing is in dark.
+- **Themes:** both light and dark are needed. Most of the owner's testing is
+  in dark.
 - **Earlier exploration:** an interactive prototype is in
   `docs/prayer-prototype.html`. It is useful for tone. Its sample mosques and
   times are invented and must not appear in designs.
