@@ -169,10 +169,13 @@ class MosqueRepository {
     String mosqueId,
     Prayer prayer,
     LocalTime? iqama, {
+    int? afterAdhanMinutes,
     bool reminderEnabled = false,
     int reminderMinutesBefore = 10,
   }) async {
     if (!prayer.canHaveIqama) throw IqamaNotAllowedException(prayer);
+    _checkAfterAdhan(afterAdhanMinutes);
+    assert(iqama == null || afterAdhanMinutes == null);
     if (!ReminderInterval.isValid(reminderMinutesBefore)) {
       throw ArgumentError.value(
         reminderMinutesBefore,
@@ -188,8 +191,9 @@ class MosqueRepository {
       PrayerIqama(
         prayer: prayer,
         iqama: iqama,
+        afterAdhanMinutes: iqama == null ? afterAdhanMinutes : null,
         reminderEnabled: prayer.canHaveIqama &&
-            iqama != null &&
+            (iqama != null || afterAdhanMinutes != null) &&
             reminderEnabled,
         reminderMinutesBefore: reminderMinutesBefore,
       ),
@@ -247,9 +251,11 @@ class MosqueRepository {
   Future<Schedule> setJumuah(
     String mosqueId,
     LocalTime? time, {
+    int? afterAdhanMinutes,
     bool reminderEnabled = false,
     int reminderMinutesBefore = 10,
   }) async {
+    _checkAfterAdhan(afterAdhanMinutes);
     if (!ReminderInterval.isValid(reminderMinutesBefore)) {
       throw ArgumentError.value(
         reminderMinutesBefore,
@@ -263,13 +269,49 @@ class MosqueRepository {
       jumuah: PrayerIqama(
         prayer: Prayer.dhuhr,
         iqama: time,
-        reminderEnabled: time != null && reminderEnabled,
+        afterAdhanMinutes: time == null ? afterAdhanMinutes : null,
+        reminderEnabled:
+            (time != null || afterAdhanMinutes != null) && reminderEnabled,
         reminderMinutesBefore: reminderMinutesBefore,
       ),
       updatedAt: now,
     );
     await _db.transaction(() => _saveSchedule(mosqueId, updated));
     return updated;
+  }
+
+  /// Several prayers' Iqama as minutes after the Adhan, in one go (the
+  /// "Enter all five" sheet). Prayers not in [minutes] are left as they are;
+  /// each one set keeps its reminder settings.
+  Future<Schedule> setAfterAdhanForAll(
+    String mosqueId,
+    Map<Prayer, int> minutes,
+  ) async {
+    for (final entry in minutes.entries) {
+      if (!entry.key.canHaveIqama) throw IqamaNotAllowedException(entry.key);
+      _checkAfterAdhan(entry.value);
+    }
+    final now = _clock.nowUtc();
+    var updated = await _scheduleInForce(mosqueId, now);
+    for (final entry in minutes.entries) {
+      updated = updated.withPrayer(
+        updated.iqamaFor(entry.key).withAfterAdhan(entry.value),
+        updatedAt: now,
+      );
+    }
+    await _db.transaction(() => _saveSchedule(mosqueId, updated));
+    return updated;
+  }
+
+  static void _checkAfterAdhan(int? minutes) {
+    if (minutes == null) return;
+    if (minutes < kMinAfterAdhanMinutes || minutes > kMaxAfterAdhanMinutes) {
+      throw ArgumentError.value(
+        minutes,
+        'afterAdhanMinutes',
+        'must be $kMinAfterAdhanMinutes..$kMaxAfterAdhanMinutes',
+      );
+    }
   }
 
   /// Switches the Jumu'ah reminder, keeping its time and interval. Refused
@@ -332,6 +374,7 @@ class MosqueRepository {
             effectiveFrom: _dayToInt(schedule.effectiveFrom),
             updatedAt: schedule.updatedAt.millisecondsSinceEpoch,
             jumuahMinutes: schedule.jumuah.iqama?.minutes,
+            jumuahAfterAdhanMinutes: schedule.jumuah.afterAdhanMinutes,
             jumuahReminderEnabled: schedule.jumuah.reminderEnabled,
             jumuahReminderMinutesBefore: schedule.jumuah.reminderMinutesBefore,
           ),
@@ -349,6 +392,7 @@ class MosqueRepository {
               scheduleId: schedule.id,
               prayer: prayer.name,
               iqamaMinutes: entry.iqama?.minutes,
+              iqamaAfterAdhanMinutes: entry.afterAdhanMinutes,
               reminderEnabled: entry.reminderEnabled,
               reminderMinutesBefore: entry.reminderMinutesBefore,
             ),
@@ -387,6 +431,9 @@ class MosqueRepository {
                 final m? => LocalTime(m),
                 null => null,
               },
+              afterAdhanMinutes: schedule.jumuahMinutes == null
+                  ? schedule.jumuahAfterAdhanMinutes
+                  : null,
               reminderEnabled: schedule.jumuahReminderEnabled,
               reminderMinutesBefore: schedule.jumuahReminderMinutesBefore,
             ),
@@ -395,6 +442,14 @@ class MosqueRepository {
                 prayer: PrayerIqama(
                   prayer: prayer,
                   iqama: _minutesOf(prayerRows, schedule.id, prayer),
+                  afterAdhanMinutes: _minutesOf(
+                            prayerRows,
+                            schedule.id,
+                            prayer,
+                          ) ==
+                          null
+                      ? _afterAdhanOf(prayerRows, schedule.id, prayer)
+                      : null,
                   reminderEnabled: _reminderEnabledOf(
                     prayerRows,
                     schedule.id,
@@ -424,6 +479,15 @@ class MosqueRepository {
         ? null
         : LocalTime(row!.iqamaMinutes!);
   }
+
+  int? _afterAdhanOf(
+    List<SchedulePrayerRow> rows,
+    String scheduleId,
+    Prayer prayer,
+  ) => rows
+      .where((r) => r.scheduleId == scheduleId && r.prayer == prayer.name)
+      .firstOrNull
+      ?.iqamaAfterAdhanMinutes;
 
   bool _reminderEnabledOf(
     List<SchedulePrayerRow> rows,

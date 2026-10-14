@@ -897,4 +897,67 @@ void main() {
       expect(current((await mosques.byId(m.id))!).jumuah.hasReminder, isTrue);
     });
   });
+
+  group('minutes after the Adhan (2026-10-14)', () {
+    Future<Mosque> add() => mosques.add(
+      name: 'Masjid al-Nasr',
+      address: '1 Example Road',
+      source: MosqueSource.manual,
+    );
+    Schedule current(Mosque m) =>
+        m.scheduleFor(LocalDay.fromDateTime(DateTime.now()))!;
+
+    test('are stored and read back, and replace a fixed time', () async {
+      final m = await add();
+      await mosques.setIqama(m.id, Prayer.fajr, const LocalTime(336));
+      await mosques.setIqama(
+        m.id,
+        Prayer.fajr,
+        null,
+        afterAdhanMinutes: 22,
+        reminderEnabled: true,
+      );
+      final e = current((await mosques.byId(m.id))!).iqamaFor(Prayer.fajr);
+      expect(e.afterAdhanMinutes, 22);
+      expect(e.iqama, isNull);
+      expect(e.hasReminder, isTrue);
+    });
+
+    test('Jumu’ah can count from the Adhan too', () async {
+      final m = await add();
+      await mosques.setJumuah(m.id, null, afterAdhanMinutes: 30);
+      expect(current((await mosques.byId(m.id))!).jumuah.afterAdhanMinutes, 30);
+    });
+
+    test('all five at once, leaving out the empty ones', () async {
+      final m = await add();
+      await mosques.setIqama(m.id, Prayer.isha, const LocalTime(1200));
+      await mosques.setAfterAdhanForAll(m.id, {
+        Prayer.fajr: 22,
+        Prayer.dhuhr: 20,
+        Prayer.asr: 20,
+        Prayer.maghrib: 10,
+      });
+      final s = current((await mosques.byId(m.id))!);
+      expect(s.iqamaFor(Prayer.fajr).afterAdhanMinutes, 22);
+      expect(s.iqamaFor(Prayer.maghrib).afterAdhanMinutes, 10);
+      expect(
+        s.iqamaFor(Prayer.isha).iqama,
+        const LocalTime(1200),
+        reason: 'left empty, so left as it was',
+      );
+    });
+
+    test('out of range is refused', () async {
+      final m = await add();
+      expect(
+        () => mosques.setIqama(m.id, Prayer.fajr, null, afterAdhanMinutes: 0),
+        throwsArgumentError,
+      );
+      expect(
+        () => mosques.setAfterAdhanForAll(m.id, {Prayer.fajr: 91}),
+        throwsArgumentError,
+      );
+    });
+  });
 }

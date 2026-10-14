@@ -1613,6 +1613,17 @@ class $SchedulesTable extends Schedules
         requiredDuringInsert: false,
         defaultValue: const Constant(10),
       );
+  static const VerificationMeta _jumuahAfterAdhanMinutesMeta =
+      const VerificationMeta('jumuahAfterAdhanMinutes');
+  @override
+  late final GeneratedColumn<int> jumuahAfterAdhanMinutes =
+      GeneratedColumn<int>(
+        'jumuah_after_adhan_minutes',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1622,6 +1633,7 @@ class $SchedulesTable extends Schedules
     jumuahMinutes,
     jumuahReminderEnabled,
     jumuahReminderMinutesBefore,
+    jumuahAfterAdhanMinutes,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1692,6 +1704,15 @@ class $SchedulesTable extends Schedules
         ),
       );
     }
+    if (data.containsKey('jumuah_after_adhan_minutes')) {
+      context.handle(
+        _jumuahAfterAdhanMinutesMeta,
+        jumuahAfterAdhanMinutes.isAcceptableOrUnknown(
+          data['jumuah_after_adhan_minutes']!,
+          _jumuahAfterAdhanMinutesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1729,6 +1750,10 @@ class $SchedulesTable extends Schedules
         DriftSqlType.int,
         data['${effectivePrefix}jumuah_reminder_minutes_before'],
       )!,
+      jumuahAfterAdhanMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jumuah_after_adhan_minutes'],
+      ),
     );
   }
 
@@ -1751,6 +1776,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
   final int? jumuahMinutes;
   final bool jumuahReminderEnabled;
   final int jumuahReminderMinutesBefore;
+
+  /// Schema v6: Jumu'ah as minutes after Dhuhr's Adhan.
+  final int? jumuahAfterAdhanMinutes;
   const ScheduleRow({
     required this.id,
     required this.mosqueId,
@@ -1759,6 +1787,7 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
     this.jumuahMinutes,
     required this.jumuahReminderEnabled,
     required this.jumuahReminderMinutesBefore,
+    this.jumuahAfterAdhanMinutes,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1776,6 +1805,11 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
     map['jumuah_reminder_minutes_before'] = Variable<int>(
       jumuahReminderMinutesBefore,
     );
+    if (!nullToAbsent || jumuahAfterAdhanMinutes != null) {
+      map['jumuah_after_adhan_minutes'] = Variable<int>(
+        jumuahAfterAdhanMinutes,
+      );
+    }
     return map;
   }
 
@@ -1792,6 +1826,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           : Value(jumuahMinutes),
       jumuahReminderEnabled: Value(jumuahReminderEnabled),
       jumuahReminderMinutesBefore: Value(jumuahReminderMinutesBefore),
+      jumuahAfterAdhanMinutes: jumuahAfterAdhanMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(jumuahAfterAdhanMinutes),
     );
   }
 
@@ -1812,6 +1849,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
       jumuahReminderMinutesBefore: serializer.fromJson<int>(
         json['jumuahReminderMinutesBefore'],
       ),
+      jumuahAfterAdhanMinutes: serializer.fromJson<int?>(
+        json['jumuahAfterAdhanMinutes'],
+      ),
     );
   }
   @override
@@ -1827,6 +1867,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
       'jumuahReminderMinutesBefore': serializer.toJson<int>(
         jumuahReminderMinutesBefore,
       ),
+      'jumuahAfterAdhanMinutes': serializer.toJson<int?>(
+        jumuahAfterAdhanMinutes,
+      ),
     };
   }
 
@@ -1838,6 +1881,7 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
     Value<int?> jumuahMinutes = const Value.absent(),
     bool? jumuahReminderEnabled,
     int? jumuahReminderMinutesBefore,
+    Value<int?> jumuahAfterAdhanMinutes = const Value.absent(),
   }) => ScheduleRow(
     id: id ?? this.id,
     mosqueId: mosqueId ?? this.mosqueId,
@@ -1851,6 +1895,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
     jumuahReminderEnabled: jumuahReminderEnabled ?? this.jumuahReminderEnabled,
     jumuahReminderMinutesBefore:
         jumuahReminderMinutesBefore ?? this.jumuahReminderMinutesBefore,
+    jumuahAfterAdhanMinutes: jumuahAfterAdhanMinutes.present
+        ? jumuahAfterAdhanMinutes.value
+        : this.jumuahAfterAdhanMinutes,
   );
   ScheduleRow copyWithCompanion(SchedulesCompanion data) {
     return ScheduleRow(
@@ -1869,6 +1916,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
       jumuahReminderMinutesBefore: data.jumuahReminderMinutesBefore.present
           ? data.jumuahReminderMinutesBefore.value
           : this.jumuahReminderMinutesBefore,
+      jumuahAfterAdhanMinutes: data.jumuahAfterAdhanMinutes.present
+          ? data.jumuahAfterAdhanMinutes.value
+          : this.jumuahAfterAdhanMinutes,
     );
   }
 
@@ -1881,7 +1931,8 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           ..write('updatedAt: $updatedAt, ')
           ..write('jumuahMinutes: $jumuahMinutes, ')
           ..write('jumuahReminderEnabled: $jumuahReminderEnabled, ')
-          ..write('jumuahReminderMinutesBefore: $jumuahReminderMinutesBefore')
+          ..write('jumuahReminderMinutesBefore: $jumuahReminderMinutesBefore, ')
+          ..write('jumuahAfterAdhanMinutes: $jumuahAfterAdhanMinutes')
           ..write(')'))
         .toString();
   }
@@ -1895,6 +1946,7 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
     jumuahMinutes,
     jumuahReminderEnabled,
     jumuahReminderMinutesBefore,
+    jumuahAfterAdhanMinutes,
   );
   @override
   bool operator ==(Object other) =>
@@ -1907,7 +1959,8 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           other.jumuahMinutes == this.jumuahMinutes &&
           other.jumuahReminderEnabled == this.jumuahReminderEnabled &&
           other.jumuahReminderMinutesBefore ==
-              this.jumuahReminderMinutesBefore);
+              this.jumuahReminderMinutesBefore &&
+          other.jumuahAfterAdhanMinutes == this.jumuahAfterAdhanMinutes);
 }
 
 class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
@@ -1918,6 +1971,7 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
   final Value<int?> jumuahMinutes;
   final Value<bool> jumuahReminderEnabled;
   final Value<int> jumuahReminderMinutesBefore;
+  final Value<int?> jumuahAfterAdhanMinutes;
   final Value<int> rowid;
   const SchedulesCompanion({
     this.id = const Value.absent(),
@@ -1927,6 +1981,7 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     this.jumuahMinutes = const Value.absent(),
     this.jumuahReminderEnabled = const Value.absent(),
     this.jumuahReminderMinutesBefore = const Value.absent(),
+    this.jumuahAfterAdhanMinutes = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SchedulesCompanion.insert({
@@ -1937,6 +1992,7 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     this.jumuahMinutes = const Value.absent(),
     this.jumuahReminderEnabled = const Value.absent(),
     this.jumuahReminderMinutesBefore = const Value.absent(),
+    this.jumuahAfterAdhanMinutes = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        mosqueId = Value(mosqueId),
@@ -1949,6 +2005,7 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     Expression<int>? jumuahMinutes,
     Expression<bool>? jumuahReminderEnabled,
     Expression<int>? jumuahReminderMinutesBefore,
+    Expression<int>? jumuahAfterAdhanMinutes,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1961,6 +2018,8 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
         'jumuah_reminder_enabled': jumuahReminderEnabled,
       if (jumuahReminderMinutesBefore != null)
         'jumuah_reminder_minutes_before': jumuahReminderMinutesBefore,
+      if (jumuahAfterAdhanMinutes != null)
+        'jumuah_after_adhan_minutes': jumuahAfterAdhanMinutes,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1973,6 +2032,7 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     Value<int?>? jumuahMinutes,
     Value<bool>? jumuahReminderEnabled,
     Value<int>? jumuahReminderMinutesBefore,
+    Value<int?>? jumuahAfterAdhanMinutes,
     Value<int>? rowid,
   }) {
     return SchedulesCompanion(
@@ -1985,6 +2045,8 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
           jumuahReminderEnabled ?? this.jumuahReminderEnabled,
       jumuahReminderMinutesBefore:
           jumuahReminderMinutesBefore ?? this.jumuahReminderMinutesBefore,
+      jumuahAfterAdhanMinutes:
+          jumuahAfterAdhanMinutes ?? this.jumuahAfterAdhanMinutes,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2017,6 +2079,11 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
         jumuahReminderMinutesBefore.value,
       );
     }
+    if (jumuahAfterAdhanMinutes.present) {
+      map['jumuah_after_adhan_minutes'] = Variable<int>(
+        jumuahAfterAdhanMinutes.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2033,6 +2100,7 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
           ..write('jumuahMinutes: $jumuahMinutes, ')
           ..write('jumuahReminderEnabled: $jumuahReminderEnabled, ')
           ..write('jumuahReminderMinutesBefore: $jumuahReminderMinutesBefore, ')
+          ..write('jumuahAfterAdhanMinutes: $jumuahAfterAdhanMinutes, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2080,6 +2148,16 @@ class $SchedulePrayersTable extends SchedulePrayers
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _iqamaAfterAdhanMinutesMeta =
+      const VerificationMeta('iqamaAfterAdhanMinutes');
+  @override
+  late final GeneratedColumn<int> iqamaAfterAdhanMinutes = GeneratedColumn<int>(
+    'iqama_after_adhan_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _reminderEnabledMeta = const VerificationMeta(
     'reminderEnabled',
   );
@@ -2111,6 +2189,7 @@ class $SchedulePrayersTable extends SchedulePrayers
     scheduleId,
     prayer,
     iqamaMinutes,
+    iqamaAfterAdhanMinutes,
     reminderEnabled,
     reminderMinutesBefore,
   ];
@@ -2148,6 +2227,15 @@ class $SchedulePrayersTable extends SchedulePrayers
         iqamaMinutes.isAcceptableOrUnknown(
           data['iqama_minutes']!,
           _iqamaMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('iqama_after_adhan_minutes')) {
+      context.handle(
+        _iqamaAfterAdhanMinutesMeta,
+        iqamaAfterAdhanMinutes.isAcceptableOrUnknown(
+          data['iqama_after_adhan_minutes']!,
+          _iqamaAfterAdhanMinutesMeta,
         ),
       );
     }
@@ -2190,6 +2278,10 @@ class $SchedulePrayersTable extends SchedulePrayers
         DriftSqlType.int,
         data['${effectivePrefix}iqama_minutes'],
       ),
+      iqamaAfterAdhanMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}iqama_after_adhan_minutes'],
+      ),
       reminderEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}reminder_enabled'],
@@ -2214,12 +2306,17 @@ class SchedulePrayerRow extends DataClass
 
   /// Minutes from local midnight. Null is "Not configured".
   final int? iqamaMinutes;
+
+  /// Schema v6 (2026-10-14): the Iqama as minutes after the day's Adhan,
+  /// instead of [iqamaMinutes]. At most one of the two is set.
+  final int? iqamaAfterAdhanMinutes;
   final bool reminderEnabled;
   final int reminderMinutesBefore;
   const SchedulePrayerRow({
     required this.scheduleId,
     required this.prayer,
     this.iqamaMinutes,
+    this.iqamaAfterAdhanMinutes,
     required this.reminderEnabled,
     required this.reminderMinutesBefore,
   });
@@ -2230,6 +2327,9 @@ class SchedulePrayerRow extends DataClass
     map['prayer'] = Variable<String>(prayer);
     if (!nullToAbsent || iqamaMinutes != null) {
       map['iqama_minutes'] = Variable<int>(iqamaMinutes);
+    }
+    if (!nullToAbsent || iqamaAfterAdhanMinutes != null) {
+      map['iqama_after_adhan_minutes'] = Variable<int>(iqamaAfterAdhanMinutes);
     }
     map['reminder_enabled'] = Variable<bool>(reminderEnabled);
     map['reminder_minutes_before'] = Variable<int>(reminderMinutesBefore);
@@ -2243,6 +2343,9 @@ class SchedulePrayerRow extends DataClass
       iqamaMinutes: iqamaMinutes == null && nullToAbsent
           ? const Value.absent()
           : Value(iqamaMinutes),
+      iqamaAfterAdhanMinutes: iqamaAfterAdhanMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iqamaAfterAdhanMinutes),
       reminderEnabled: Value(reminderEnabled),
       reminderMinutesBefore: Value(reminderMinutesBefore),
     );
@@ -2257,6 +2360,9 @@ class SchedulePrayerRow extends DataClass
       scheduleId: serializer.fromJson<String>(json['scheduleId']),
       prayer: serializer.fromJson<String>(json['prayer']),
       iqamaMinutes: serializer.fromJson<int?>(json['iqamaMinutes']),
+      iqamaAfterAdhanMinutes: serializer.fromJson<int?>(
+        json['iqamaAfterAdhanMinutes'],
+      ),
       reminderEnabled: serializer.fromJson<bool>(json['reminderEnabled']),
       reminderMinutesBefore: serializer.fromJson<int>(
         json['reminderMinutesBefore'],
@@ -2270,6 +2376,7 @@ class SchedulePrayerRow extends DataClass
       'scheduleId': serializer.toJson<String>(scheduleId),
       'prayer': serializer.toJson<String>(prayer),
       'iqamaMinutes': serializer.toJson<int?>(iqamaMinutes),
+      'iqamaAfterAdhanMinutes': serializer.toJson<int?>(iqamaAfterAdhanMinutes),
       'reminderEnabled': serializer.toJson<bool>(reminderEnabled),
       'reminderMinutesBefore': serializer.toJson<int>(reminderMinutesBefore),
     };
@@ -2279,12 +2386,16 @@ class SchedulePrayerRow extends DataClass
     String? scheduleId,
     String? prayer,
     Value<int?> iqamaMinutes = const Value.absent(),
+    Value<int?> iqamaAfterAdhanMinutes = const Value.absent(),
     bool? reminderEnabled,
     int? reminderMinutesBefore,
   }) => SchedulePrayerRow(
     scheduleId: scheduleId ?? this.scheduleId,
     prayer: prayer ?? this.prayer,
     iqamaMinutes: iqamaMinutes.present ? iqamaMinutes.value : this.iqamaMinutes,
+    iqamaAfterAdhanMinutes: iqamaAfterAdhanMinutes.present
+        ? iqamaAfterAdhanMinutes.value
+        : this.iqamaAfterAdhanMinutes,
     reminderEnabled: reminderEnabled ?? this.reminderEnabled,
     reminderMinutesBefore: reminderMinutesBefore ?? this.reminderMinutesBefore,
   );
@@ -2297,6 +2408,9 @@ class SchedulePrayerRow extends DataClass
       iqamaMinutes: data.iqamaMinutes.present
           ? data.iqamaMinutes.value
           : this.iqamaMinutes,
+      iqamaAfterAdhanMinutes: data.iqamaAfterAdhanMinutes.present
+          ? data.iqamaAfterAdhanMinutes.value
+          : this.iqamaAfterAdhanMinutes,
       reminderEnabled: data.reminderEnabled.present
           ? data.reminderEnabled.value
           : this.reminderEnabled,
@@ -2312,6 +2426,7 @@ class SchedulePrayerRow extends DataClass
           ..write('scheduleId: $scheduleId, ')
           ..write('prayer: $prayer, ')
           ..write('iqamaMinutes: $iqamaMinutes, ')
+          ..write('iqamaAfterAdhanMinutes: $iqamaAfterAdhanMinutes, ')
           ..write('reminderEnabled: $reminderEnabled, ')
           ..write('reminderMinutesBefore: $reminderMinutesBefore')
           ..write(')'))
@@ -2323,6 +2438,7 @@ class SchedulePrayerRow extends DataClass
     scheduleId,
     prayer,
     iqamaMinutes,
+    iqamaAfterAdhanMinutes,
     reminderEnabled,
     reminderMinutesBefore,
   );
@@ -2333,6 +2449,7 @@ class SchedulePrayerRow extends DataClass
           other.scheduleId == this.scheduleId &&
           other.prayer == this.prayer &&
           other.iqamaMinutes == this.iqamaMinutes &&
+          other.iqamaAfterAdhanMinutes == this.iqamaAfterAdhanMinutes &&
           other.reminderEnabled == this.reminderEnabled &&
           other.reminderMinutesBefore == this.reminderMinutesBefore);
 }
@@ -2341,6 +2458,7 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
   final Value<String> scheduleId;
   final Value<String> prayer;
   final Value<int?> iqamaMinutes;
+  final Value<int?> iqamaAfterAdhanMinutes;
   final Value<bool> reminderEnabled;
   final Value<int> reminderMinutesBefore;
   final Value<int> rowid;
@@ -2348,6 +2466,7 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
     this.scheduleId = const Value.absent(),
     this.prayer = const Value.absent(),
     this.iqamaMinutes = const Value.absent(),
+    this.iqamaAfterAdhanMinutes = const Value.absent(),
     this.reminderEnabled = const Value.absent(),
     this.reminderMinutesBefore = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2356,6 +2475,7 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
     required String scheduleId,
     required String prayer,
     this.iqamaMinutes = const Value.absent(),
+    this.iqamaAfterAdhanMinutes = const Value.absent(),
     this.reminderEnabled = const Value.absent(),
     this.reminderMinutesBefore = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2365,6 +2485,7 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
     Expression<String>? scheduleId,
     Expression<String>? prayer,
     Expression<int>? iqamaMinutes,
+    Expression<int>? iqamaAfterAdhanMinutes,
     Expression<bool>? reminderEnabled,
     Expression<int>? reminderMinutesBefore,
     Expression<int>? rowid,
@@ -2373,6 +2494,8 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
       if (scheduleId != null) 'schedule_id': scheduleId,
       if (prayer != null) 'prayer': prayer,
       if (iqamaMinutes != null) 'iqama_minutes': iqamaMinutes,
+      if (iqamaAfterAdhanMinutes != null)
+        'iqama_after_adhan_minutes': iqamaAfterAdhanMinutes,
       if (reminderEnabled != null) 'reminder_enabled': reminderEnabled,
       if (reminderMinutesBefore != null)
         'reminder_minutes_before': reminderMinutesBefore,
@@ -2384,6 +2507,7 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
     Value<String>? scheduleId,
     Value<String>? prayer,
     Value<int?>? iqamaMinutes,
+    Value<int?>? iqamaAfterAdhanMinutes,
     Value<bool>? reminderEnabled,
     Value<int>? reminderMinutesBefore,
     Value<int>? rowid,
@@ -2392,6 +2516,8 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
       scheduleId: scheduleId ?? this.scheduleId,
       prayer: prayer ?? this.prayer,
       iqamaMinutes: iqamaMinutes ?? this.iqamaMinutes,
+      iqamaAfterAdhanMinutes:
+          iqamaAfterAdhanMinutes ?? this.iqamaAfterAdhanMinutes,
       reminderEnabled: reminderEnabled ?? this.reminderEnabled,
       reminderMinutesBefore:
           reminderMinutesBefore ?? this.reminderMinutesBefore,
@@ -2410,6 +2536,11 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
     }
     if (iqamaMinutes.present) {
       map['iqama_minutes'] = Variable<int>(iqamaMinutes.value);
+    }
+    if (iqamaAfterAdhanMinutes.present) {
+      map['iqama_after_adhan_minutes'] = Variable<int>(
+        iqamaAfterAdhanMinutes.value,
+      );
     }
     if (reminderEnabled.present) {
       map['reminder_enabled'] = Variable<bool>(reminderEnabled.value);
@@ -2431,6 +2562,7 @@ class SchedulePrayersCompanion extends UpdateCompanion<SchedulePrayerRow> {
           ..write('scheduleId: $scheduleId, ')
           ..write('prayer: $prayer, ')
           ..write('iqamaMinutes: $iqamaMinutes, ')
+          ..write('iqamaAfterAdhanMinutes: $iqamaAfterAdhanMinutes, ')
           ..write('reminderEnabled: $reminderEnabled, ')
           ..write('reminderMinutesBefore: $reminderMinutesBefore, ')
           ..write('rowid: $rowid')
@@ -3418,6 +3550,7 @@ typedef $$SchedulesTableCreateCompanionBuilder = SchedulesCompanion Function({
   Value<int?> jumuahMinutes,
   Value<bool> jumuahReminderEnabled,
   Value<int> jumuahReminderMinutesBefore,
+  Value<int?> jumuahAfterAdhanMinutes,
   Value<int> rowid,
 });
 typedef $$SchedulesTableUpdateCompanionBuilder = SchedulesCompanion Function({
@@ -3428,6 +3561,7 @@ typedef $$SchedulesTableUpdateCompanionBuilder = SchedulesCompanion Function({
   Value<int?> jumuahMinutes,
   Value<bool> jumuahReminderEnabled,
   Value<int> jumuahReminderMinutesBefore,
+  Value<int?> jumuahAfterAdhanMinutes,
   Value<int> rowid,
 });
 
@@ -3509,6 +3643,11 @@ class $$SchedulesTableFilterComposer
 
   ColumnFilters<int> get jumuahReminderMinutesBefore => $composableBuilder(
     column: $table.jumuahReminderMinutesBefore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get jumuahAfterAdhanMinutes => $composableBuilder(
+    column: $table.jumuahAfterAdhanMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3600,6 +3739,11 @@ class $$SchedulesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get jumuahAfterAdhanMinutes => $composableBuilder(
+    column: $table.jumuahAfterAdhanMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$MosquesTableOrderingComposer get mosqueId {
     final $$MosquesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3656,6 +3800,11 @@ class $$SchedulesTableAnnotationComposer
 
   GeneratedColumn<int> get jumuahReminderMinutesBefore => $composableBuilder(
     column: $table.jumuahReminderMinutesBefore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get jumuahAfterAdhanMinutes => $composableBuilder(
+    column: $table.jumuahAfterAdhanMinutes,
     builder: (column) => column,
   );
 
@@ -3743,6 +3892,7 @@ class $$SchedulesTableTableManager
                 Value<int?> jumuahMinutes = const Value.absent(),
                 Value<bool> jumuahReminderEnabled = const Value.absent(),
                 Value<int> jumuahReminderMinutesBefore = const Value.absent(),
+                Value<int?> jumuahAfterAdhanMinutes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SchedulesCompanion(
                 id: id,
@@ -3752,6 +3902,7 @@ class $$SchedulesTableTableManager
                 jumuahMinutes: jumuahMinutes,
                 jumuahReminderEnabled: jumuahReminderEnabled,
                 jumuahReminderMinutesBefore: jumuahReminderMinutesBefore,
+                jumuahAfterAdhanMinutes: jumuahAfterAdhanMinutes,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3763,6 +3914,7 @@ class $$SchedulesTableTableManager
                 Value<int?> jumuahMinutes = const Value.absent(),
                 Value<bool> jumuahReminderEnabled = const Value.absent(),
                 Value<int> jumuahReminderMinutesBefore = const Value.absent(),
+                Value<int?> jumuahAfterAdhanMinutes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SchedulesCompanion.insert(
                 id: id,
@@ -3772,6 +3924,7 @@ class $$SchedulesTableTableManager
                 jumuahMinutes: jumuahMinutes,
                 jumuahReminderEnabled: jumuahReminderEnabled,
                 jumuahReminderMinutesBefore: jumuahReminderMinutesBefore,
+                jumuahAfterAdhanMinutes: jumuahAfterAdhanMinutes,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -3869,6 +4022,7 @@ typedef $$SchedulePrayersTableCreateCompanionBuilder =
       required String scheduleId,
       required String prayer,
       Value<int?> iqamaMinutes,
+      Value<int?> iqamaAfterAdhanMinutes,
       Value<bool> reminderEnabled,
       Value<int> reminderMinutesBefore,
       Value<int> rowid,
@@ -3878,6 +4032,7 @@ typedef $$SchedulePrayersTableUpdateCompanionBuilder =
       Value<String> scheduleId,
       Value<String> prayer,
       Value<int?> iqamaMinutes,
+      Value<int?> iqamaAfterAdhanMinutes,
       Value<bool> reminderEnabled,
       Value<int> reminderMinutesBefore,
       Value<int> rowid,
@@ -3930,6 +4085,11 @@ class $$SchedulePrayersTableFilterComposer
 
   ColumnFilters<int> get iqamaMinutes => $composableBuilder(
     column: $table.iqamaMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get iqamaAfterAdhanMinutes => $composableBuilder(
+    column: $table.iqamaAfterAdhanMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3986,6 +4146,11 @@ class $$SchedulePrayersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get iqamaAfterAdhanMinutes => $composableBuilder(
+    column: $table.iqamaAfterAdhanMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get reminderEnabled => $composableBuilder(
     column: $table.reminderEnabled,
     builder: (column) => ColumnOrderings(column),
@@ -4034,6 +4199,11 @@ class $$SchedulePrayersTableAnnotationComposer
 
   GeneratedColumn<int> get iqamaMinutes => $composableBuilder(
     column: $table.iqamaMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get iqamaAfterAdhanMinutes => $composableBuilder(
+    column: $table.iqamaAfterAdhanMinutes,
     builder: (column) => column,
   );
 
@@ -4104,6 +4274,7 @@ class $$SchedulePrayersTableTableManager
                 Value<String> scheduleId = const Value.absent(),
                 Value<String> prayer = const Value.absent(),
                 Value<int?> iqamaMinutes = const Value.absent(),
+                Value<int?> iqamaAfterAdhanMinutes = const Value.absent(),
                 Value<bool> reminderEnabled = const Value.absent(),
                 Value<int> reminderMinutesBefore = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4111,6 +4282,7 @@ class $$SchedulePrayersTableTableManager
                 scheduleId: scheduleId,
                 prayer: prayer,
                 iqamaMinutes: iqamaMinutes,
+                iqamaAfterAdhanMinutes: iqamaAfterAdhanMinutes,
                 reminderEnabled: reminderEnabled,
                 reminderMinutesBefore: reminderMinutesBefore,
                 rowid: rowid,
@@ -4120,6 +4292,7 @@ class $$SchedulePrayersTableTableManager
                 required String scheduleId,
                 required String prayer,
                 Value<int?> iqamaMinutes = const Value.absent(),
+                Value<int?> iqamaAfterAdhanMinutes = const Value.absent(),
                 Value<bool> reminderEnabled = const Value.absent(),
                 Value<int> reminderMinutesBefore = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4127,6 +4300,7 @@ class $$SchedulePrayersTableTableManager
                 scheduleId: scheduleId,
                 prayer: prayer,
                 iqamaMinutes: iqamaMinutes,
+                iqamaAfterAdhanMinutes: iqamaAfterAdhanMinutes,
                 reminderEnabled: reminderEnabled,
                 reminderMinutesBefore: reminderMinutesBefore,
                 rowid: rowid,

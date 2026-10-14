@@ -200,6 +200,9 @@ class Schedules extends Table {
   IntColumn get jumuahReminderMinutesBefore =>
       integer().withDefault(const Constant(10))();
 
+  /// Schema v6: Jumu'ah as minutes after Dhuhr's Adhan.
+  IntColumn get jumuahAfterAdhanMinutes => integer().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -223,6 +226,10 @@ class SchedulePrayers extends Table {
   /// Minutes from local midnight. Null is "Not configured".
   IntColumn get iqamaMinutes => integer().nullable()();
 
+  /// Schema v6 (2026-10-14): the Iqama as minutes after the day's Adhan,
+  /// instead of [iqamaMinutes]. At most one of the two is set.
+  IntColumn get iqamaAfterAdhanMinutes => integer().nullable()();
+
   BoolColumn get reminderEnabled => boolean().withDefault(const Constant(false))();
 
   IntColumn get reminderMinutesBefore => integer().withDefault(const Constant(10))();
@@ -235,7 +242,8 @@ class SchedulePrayers extends Table {
 ///
 /// `schemaVersion` 2 added the per-prayer notification columns to
 /// [AdhanAlertRows]; 3 added [Mosques.remindersPaused]; 4 added Jumu'ah to
-/// [Schedules]; 5 added [AdhanAlertRows.preAdhanRingInSilent]. v1 was already on a device, so v2 is a real migration and
+/// [Schedules]; 5 added [AdhanAlertRows.preAdhanRingInSilent]; 6 added
+/// Iqama times as minutes after the Adhan. v1 was already on a device, so v2 is a real migration and
 /// keeps every existing row (see test/data/migration_test.dart).
 @DriftDatabase(
   tables: [
@@ -254,7 +262,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : this(driftDatabase(name: 'jamaah'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -295,6 +303,16 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(
           schema.adhanAlertRows,
           schema.adhanAlertRows.preAdhanRingInSilent,
+        );
+      },
+      from5To6: (m, schema) async {
+        await m.addColumn(
+          schema.schedulePrayers,
+          schema.schedulePrayers.iqamaAfterAdhanMinutes,
+        );
+        await m.addColumn(
+          schema.schedules,
+          schema.schedules.jumuahAfterAdhanMinutes,
         );
       },
     ),
