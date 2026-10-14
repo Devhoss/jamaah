@@ -1906,4 +1906,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jumuahRowHint => 'Fridays, in place of Dhuhr';
+
+  @override
+  String get jumuahRowNotSet => 'Jumu’ah time not set';
 }

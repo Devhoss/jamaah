@@ -3173,6 +3173,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fridays, in place of Dhuhr'**
   String get jumuahRowHint;
+
+  /// No description provided for @jumuahRowNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu’ah time not set'**
+  String get jumuahRowNotSet;
 }
 
 class _AppLocalizationsDelegate

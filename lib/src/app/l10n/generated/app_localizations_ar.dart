@@ -2039,4 +2039,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get jumuahRowHint => 'يوم الجمعة بدلًا من الظهر';
+
+  @override
+  String get jumuahRowNotSet => 'وقت الجمعة غير محدَّد';
 }

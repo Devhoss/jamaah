@@ -153,6 +153,27 @@ void main() {
         expect(plan.map((n) => n.text(t).title).toSet(), {t.extraQiyam});
       });
 
+      test('after midnight, the night in progress keeps its alert', () {
+        // 01:00 in Cairo on 15 October: tonight's last third is still ahead.
+        final early = DateTime.utc(2026, 10, 14, 22, 0);
+        final plan = buildNotificationPlan(
+          calculator: calculatorFor(30.0444, 31.2357, zone),
+          zone: zone,
+          nowUtc: early,
+          alerts: AdhanAlertSettings.defaults(),
+          travel: const TravelSettings(),
+          activeMosque: null,
+          extraTimes: const ExtraTimesSettings(alerts: {ExtraTime.qiyam}),
+        );
+        final first = plan.first.at;
+        expect(first.isAfter(early), isTrue);
+        expect(
+          first.difference(early),
+          lessThan(const Duration(hours: 4)),
+          reason: 'the alert at about 02:40 tonight, not tomorrow night',
+        );
+      });
+
       test('nothing while none is alerted', () {
         expect(planWith(const ExtraTimesSettings()), isEmpty);
       });

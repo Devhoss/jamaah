@@ -523,3 +523,4 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 510 | `listSeparator` | ,  | ،  |
 | 511 | `jumuahNotSetNote` | Jumu’ah time not set · showing Dhuhr Iqama | لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر |
 | 512 | `jumuahRowHint` | Fridays, in place of Dhuhr | يوم الجمعة بدلًا من الظهر |
+| 513 | `jumuahRowNotSet` | Jumu’ah time not set | وقت الجمعة غير محدَّد |

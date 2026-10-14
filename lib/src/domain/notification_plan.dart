@@ -311,11 +311,13 @@ class NotificationPlanner {
       final iqama = resolved.entry;
       if (!iqama.hasReminder) continue;
 
-      // An Iqama can sit after midnight: an Isha Iqama of 00:30 follows the 19:45
-      // Adhan, so it belongs to the *next* calendar day. Deciding by comparing with
-      // the Adhan is the only signal we have.
+      // An Isha Iqama can sit after midnight: 00:30 follows the 19:45 Adhan, so
+      // it belongs to the *next* calendar day. Deciding by comparing with the
+      // Adhan is the only signal we have, and only Isha can cross midnight: a
+      // fixed Jumu'ah a few minutes before the computed Dhuhr is still Friday's.
       final adhan = adhanTimes[prayer];
-      final targetDay = (adhan != null && iqama.iqama!.minutes < adhan)
+      final targetDay =
+          (prayer == Prayer.isha && adhan != null && iqama.iqama!.minutes < adhan)
           ? day.addDays(1)
           : day;
       final offset = input.zoneOffsetFor(targetDay);
@@ -332,7 +334,8 @@ class NotificationPlanner {
           minutesBefore: iqama.reminderMinutesBefore,
           vibrate: input.jamaahReminders.vibrate,
           reminderSound: input.jamaahReminders.sound,
-          jumuah: resolved.isJumuah,
+          // Dhuhr's own Iqama, while Jumu'ah has no time, is called Dhuhr's.
+          jumuah: resolved.isJumuah && !resolved.jumuahNotSet,
         ),
       );
     }

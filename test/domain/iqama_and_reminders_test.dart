@@ -906,8 +906,27 @@ void main() {
       final fri = plan(friday, active: mosque())
           .where((n) => n.kind == NotificationKind.iqama)
           .single;
-      expect(fri.jumuah, isTrue);
+      expect(
+        fri.jumuah,
+        isFalse,
+        reason: "Dhuhr's Iqama is never presented as Jumu'ah's",
+      );
       expect(fri.at, DateTime.utc(2026, 10, 16, 9, 5));
+    });
+
+    test("a Jumu'ah earlier than Dhuhr's Adhan stays on the Friday", () {
+      // A fixed 11:20 Jumu'ah while the computed Dhuhr is 11:25.
+      final active = mosque(
+        jumuah: const PrayerIqama(
+          prayer: Prayer.dhuhr,
+          iqama: LocalTime(11 * 60 + 20),
+          reminderEnabled: true,
+        ),
+      );
+      final fri = plan(friday, active: active)
+          .where((n) => n.kind == NotificationKind.iqama)
+          .single;
+      expect(fri.at, DateTime.utc(2026, 10, 16, 8, 10)); // 11:10 at +3
     });
 
     test("Friday's Dhuhr Adhan and the reminder before it are Jumu'ah's", () {

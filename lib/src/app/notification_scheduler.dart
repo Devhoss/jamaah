@@ -63,13 +63,16 @@ List<PlannedNotification> buildNotificationPlan({
           (activeMosque?.remindersPaused ?? false),
       jamaahReminders: reminders,
       extraTimes: [
-        for (final d in days.take(windowDays))
+        // From yesterday: after midnight, the night in progress is yesterday
+        // evening's, and its last third is still ahead.
+        for (final d in [today.addDays(-1), ...days.take(windowDays)])
           for (final e in extraTimesFor(
             calculator: calculator,
             day: d,
             settings: extraTimes,
           ))
-            if (extraTimes.alerts.contains(e.time)) e,
+            if (extraTimes.alerts.contains(e.time) && e.utc.isAfter(nowUtc))
+              e,
       ],
       windowDays: windowDays,
     ),

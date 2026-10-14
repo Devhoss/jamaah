@@ -1211,6 +1211,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get jumuahRowHint => arabicDigits(super.jumuahRowHint);
 
   @override
+  String get jumuahRowNotSet => arabicDigits(super.jumuahRowNotSet);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 

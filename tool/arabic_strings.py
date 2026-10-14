@@ -574,6 +574,7 @@ AR = {
     'listSeparator': '، ',
     'jumuahNotSetNote': 'لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر',
     'jumuahRowHint': 'يوم الجمعة بدلًا من الظهر',
+    'jumuahRowNotSet': 'وقت الجمعة غير محدَّد',
 }
 
 

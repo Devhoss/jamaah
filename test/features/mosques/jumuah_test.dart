@@ -139,7 +139,12 @@ void main() {
       await open(tester);
       expect(find.text(t.jumuahNotSetNote), findsOneWidget);
       final at = clockText(tester, const LocalTime(12 * 60 + 55));
-      expect(find.text(t.rowIqama(at)), findsOneWidget);
+      expect(
+        find.text(t.rowIqama(at)),
+        findsNothing,
+        reason: "the Jumu'ah row never shows Dhuhr's Iqama as its own",
+      );
+      expect(find.text(t.jumuahRowNotSet), findsOneWidget);
     });
 
     testApp('a Thursday is Dhuhr as usual', (tester) async {

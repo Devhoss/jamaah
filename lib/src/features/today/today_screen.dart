@@ -495,6 +495,7 @@ class _PrayerRows extends StatelessWidget {
             name: prayerNameOn(l10n, prayer, today.day.day),
             adhan: _time(prayer),
             iqama: _iqama(prayer),
+            iqamaNote: _jumuahNotSet(prayer) ? l10n.jumuahRowNotSet : null,
             reminderOn:
                 prayer.canHaveIqama &&
                 (schedule?.iqamaOn(today.day.day, prayer).entry.hasReminder ??
@@ -517,10 +518,15 @@ class _PrayerRows extends StatelessWidget {
     return minutes == null ? null : clock.time(LocalTime(minutes));
   }
 
+  /// A Friday whose mosque has no Jumu'ah time: the row says so rather than
+  /// show Dhuhr's Iqama as Jumu'ah's.
+  bool _jumuahNotSet(Prayer prayer) =>
+      schedule?.iqamaOn(today.day.day, prayer).jumuahNotSet ?? false;
+
   /// The mosque's own Iqama for this prayer, or null when it has not been entered.
   /// Sunrise is never asked for: it has no Iqama (AGENTS.md).
   String? _iqama(Prayer prayer) {
-    if (!prayer.canHaveIqama) return null;
+    if (!prayer.canHaveIqama || _jumuahNotSet(prayer)) return null;
     final at = schedule?.iqamaOn(today.day.day, prayer).entry.iqama;
     return at == null ? null : clock.time(at);
   }
@@ -553,6 +559,7 @@ class _PrayerRow extends StatelessWidget {
     required this.name,
     required this.adhan,
     required this.iqama,
+    this.iqamaNote,
     required this.reminderOn,
     required this.muted,
     required this.selected,
@@ -563,6 +570,9 @@ class _PrayerRow extends StatelessWidget {
   final String name;
   final String? adhan;
   final String? iqama;
+
+  /// Said in place of the Iqama: Friday with no Jumu'ah time.
+  final String? iqamaNote;
 
   /// The saved reminder setting for this prayer's Iqama, shown as a bell. Nothing
   /// has been scheduled — the notifications step owns that.
@@ -603,6 +613,7 @@ class _PrayerRow extends StatelessWidget {
           if (isNext) AppTag(l10n.tagNext),
           if (iqama != null)
             Text(l10n.rowIqama(iqama!), style: _detailStyle(ink)),
+          if (iqamaNote != null) Text(iqamaNote!, style: _detailStyle(ink)),
           if (reminderOn)
             Semantics(
               label: l10n.reminderOnSemantics,

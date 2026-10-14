@@ -985,5 +985,6 @@
   "extraNoneShown": "None shown",
   "listSeparator": ", ",
   "jumuahNotSetNote": "Jumu’ah time not set · showing Dhuhr Iqama",
-  "jumuahRowHint": "Fridays, in place of Dhuhr"
+  "jumuahRowHint": "Fridays, in place of Dhuhr",
+  "jumuahRowNotSet": "Jumu’ah time not set"
 }
