@@ -34,6 +34,7 @@ List<PlannedNotification> buildNotificationPlan({
   required TravelSettings travel,
   required Mosque? activeMosque,
   JamaahReminderSettings reminders = const JamaahReminderSettings(),
+  InFlightHold? inFlight,
   int windowDays = 7,
 }) {
   final today = LocalMoment.inZone(zone: zone, utcInstant: nowUtc).day;
@@ -42,7 +43,7 @@ List<PlannedNotification> buildNotificationPlan({
   final days = [for (var i = 0; i <= windowDays; i++) today.addDays(i)];
   final times = {for (final d in days) d: calculator.forDay(d).times};
 
-  return const NotificationPlanner().plan(
+  final plan = const NotificationPlanner().plan(
     NotificationPlanInput(
       today: today,
       now: nowUtc,
@@ -62,6 +63,40 @@ List<PlannedNotification> buildNotificationPlan({
       windowDays: windowDays,
     ),
   );
+  return applyInFlightHold(plan, inFlight, alerts: alerts, nowUtc: nowUtc);
+}
+
+/// [plan] with in-flight mode's hold applied: nothing from the regular plan
+/// until the hold ends, plus the alert for the next prayer projected along
+/// the route (as that prayer's Adhan alert is set up; none if it is off).
+List<PlannedNotification> applyInFlightHold(
+  List<PlannedNotification> plan,
+  InFlightHold? hold, {
+  required AdhanAlertSettings alerts,
+  required DateTime nowUtc,
+}) {
+  if (hold == null || !hold.activeAt(nowUtc)) return plan;
+  final out = [
+    for (final n in plan)
+      if (!n.at.isBefore(hold.pausedUntil)) n,
+  ];
+  final prayer = hold.prayer;
+  final at = hold.at;
+  if (prayer != null &&
+      at != null &&
+      at.isAfter(nowUtc) &&
+      alerts.alertFor(prayer).enabled) {
+    out.add(
+      adhanAlert(
+        alerts,
+        prayer,
+        at: at,
+        id: inFlightAlertId(prayer),
+        estimated: true,
+      ),
+    );
+  }
+  return out..sort((a, b) => a.at.compareTo(b.at));
 }
 
 /// The words a notification shows.
@@ -73,6 +108,10 @@ List<PlannedNotification> buildNotificationPlan({
   final prayer = prayerName(l10n, n.prayer);
   final sunrise = n.prayer == Prayer.sunrise;
   return switch (n.kind) {
+    NotificationKind.adhan when n.estimated => (
+      title: l10n.notifAdhanTitle(prayer),
+      body: l10n.notifInFlightBody(prayer),
+    ),
     NotificationKind.adhan => (
       title: l10n.notifAdhanTitle(prayer),
       body: sunrise ? l10n.notifSunriseBody : l10n.notifAdhanBody(prayer),
@@ -254,6 +293,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               travel: settings.travel,
               activeMosque: active,
               reminders: settings.jamaahReminders,
+              inFlight: settings.inFlight,
             );
       final report = await NotificationSync(gateway).apply(
         plan: plan,

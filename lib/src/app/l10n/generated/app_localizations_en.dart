@@ -1281,6 +1281,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inFlightTitle => 'In flight';
 
   @override
+  String notifInFlightBody(String prayer) {
+    return 'It\'s time for $prayer, estimated for the aircraft\'s route.';
+  }
+
+  @override
+  String inFlightAlongRoute(String prayer, String countdown) {
+    return 'Along this route: $prayer, $countdown';
+  }
+
+  @override
+  String inFlightAlongRouteThen(String prayer, String time) {
+    return 'Then $prayer, about $time on your phone';
+  }
+
+  @override
+  String inFlightAboutOnPhone(String time) {
+    return 'About $time on your phone';
+  }
+
+  @override
+  String get inFlightAssumesCourse =>
+      'Assumes the aircraft keeps its course and speed; updated with each GPS fix.';
+
+  @override
+  String inFlightAlertsHeld(String place, String time) {
+    return 'Alerts for $place are paused until $time. The next prayer along the route is alerted instead.';
+  }
+
+  @override
+  String get inFlightEnd => 'End in-flight mode';
+
+  @override
+  String inFlightHeldNote(String time) {
+    return 'In-flight mode: regular alerts are paused until $time.';
+  }
+
+  @override
   String get inFlightCardTitle => 'On a flight?';
 
   @override

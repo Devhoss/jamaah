@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/prayer.dart';
+import 'package:jamaah/src/domain/notification_plan.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/arabic_digits_localizations.dart';
@@ -89,6 +91,11 @@ void main() {
             FakeNotificationGateway(),
           ),
           flightGpsProvider.overrideWithValue(gps),
+          // Inline: no isolate inside a widget test.
+          routeProjectorProvider.overrideWithValue(
+            (calculator, fix, now) async =>
+                projectAlongRoute(calculator: calculator, fix: fix, now: now),
+          ),
         ],
         child: Builder(
           builder: (context) => MediaQuery(
@@ -183,6 +190,69 @@ void main() {
     );
     expect(find.textContaining('to the left of the nose'), findsOneWidget);
     expect(find.text(t.inFlightHeadingGps('315')), findsOneWidget);
+  });
+
+  testApp('moving: the route ahead, regular alerts held, and an end', (
+    tester,
+  ) async {
+    await open(tester);
+    await openCard(tester, t.inFlightCardTitle);
+    await tapStart(tester, t.inFlightStart);
+    await settleWhileWaiting(tester);
+    gps.controller.add(cruising());
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('Along this route: ${t.prayerAsr}'),
+      findsOneWidget,
+    );
+    final hold = (await settings.read()).inFlight!;
+    expect(hold.pausedUntil, now.add(const Duration(minutes: 90)));
+    expect(hold.prayer, Prayer.asr);
+
+    // Today underneath has its own "End" too; this is the screen's.
+    final end = find.descendant(
+      of: find.byType(InFlightPage),
+      matching: find.text(t.inFlightEnd),
+    );
+    await tester.scrollUntilVisible(
+      end,
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(end);
+    await tester.pumpAndSettle();
+    expect((await settings.read()).inFlight, isNull);
+    expect(find.byType(InFlightPage), findsNothing);
+  });
+
+  testApp('standing still, regular alerts are not held', (tester) async {
+    await open(tester);
+    await openCard(tester, t.inFlightCardTitle);
+    await tapStart(tester, t.inFlightStart);
+    await settleWhileWaiting(tester);
+    gps.controller.add(cruising().copyWithCourse(null, speed: 0));
+    await tester.pumpAndSettle();
+    expect(find.text(t.inFlightNow(t.prayerDhuhr)), findsOneWidget);
+    expect((await settings.read()).inFlight, isNull);
+  });
+
+  testApp('Today says while regular alerts are held, and can end it', (
+    tester,
+  ) async {
+    await settings.saveInFlight(
+      InFlightHold(pausedUntil: now.add(const Duration(minutes: 50))),
+    );
+    await open(tester);
+    expect(
+      find.textContaining('In-flight mode: regular alerts'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text(t.inFlightEnd));
+    await tester.pumpAndSettle();
+    expect((await settings.read()).inFlight, isNull);
+    expect(find.textContaining('In-flight mode: regular alerts'), findsNothing);
   });
 
   testApp('a heading from the seat-back map overrides the GPS course', (

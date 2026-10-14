@@ -106,6 +106,24 @@ class TodayScreen extends ConsumerWidget {
             now: ref.watch(minuteClockProvider),
           ),
         if (_zoneNote(ref, l10n, place) case final note?) _Note(note),
+        if (settings.requireValue.inFlight case final hold?
+            when hold.activeAt(ref.watch(minuteClockProvider)))
+          Row(
+            children: [
+              Expanded(
+                child: _Note(
+                  l10n.inFlightHeldNote(
+                    _phoneClock(context, hold.pausedUntil),
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () =>
+                    ref.read(settingsRepositoryProvider).saveInFlight(null),
+                child: Text(l10n.inFlightEnd),
+              ),
+            ],
+          ),
         // In-flight mode lives under travel mode (docs/in-flight-mode.md).
         if (settings.requireValue.travel.travelMode)
           AppPrompt(
@@ -597,6 +615,12 @@ class _TodayNotes extends StatelessWidget {
         ? l10n.latitudeNorth(value)
         : l10n.latitudeSouth(value);
   }
+}
+
+/// [utc] on the phone's own clock.
+String _phoneClock(BuildContext context, DateTime utc) {
+  final local = utc.toLocal();
+  return ClockFormat.of(context).time(LocalTime.of(local.hour, local.minute));
 }
 
 /// When the place's clock and the phone's clock disagree (a phone left on home

@@ -867,6 +867,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get inFlightTitle => arabicDigits(super.inFlightTitle);
 
   @override
+  String get inFlightAssumesCourse => arabicDigits(super.inFlightAssumesCourse);
+
+  @override
+  String get inFlightEnd => arabicDigits(super.inFlightEnd);
+
+  @override
   String get inFlightCardTitle => arabicDigits(super.inFlightCardTitle);
 
   @override
@@ -1379,6 +1385,30 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String zoneNotePlace(String place, String placeOffset, String phoneOffset) =>
       arabicDigits(super.zoneNotePlace(place, placeOffset, phoneOffset));
+
+  @override
+  String notifInFlightBody(String prayer) =>
+      arabicDigits(super.notifInFlightBody(prayer));
+
+  @override
+  String inFlightAlongRoute(String prayer, String countdown) =>
+      arabicDigits(super.inFlightAlongRoute(prayer, countdown));
+
+  @override
+  String inFlightAlongRouteThen(String prayer, String time) =>
+      arabicDigits(super.inFlightAlongRouteThen(prayer, time));
+
+  @override
+  String inFlightAboutOnPhone(String time) =>
+      arabicDigits(super.inFlightAboutOnPhone(time));
+
+  @override
+  String inFlightAlertsHeld(String place, String time) =>
+      arabicDigits(super.inFlightAlertsHeld(place, time));
+
+  @override
+  String inFlightHeldNote(String time) =>
+      arabicDigits(super.inFlightHeldNote(time));
 
   @override
   String inFlightAltitudeSpeed(String altitude, String speed) =>

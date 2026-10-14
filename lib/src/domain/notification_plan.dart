@@ -21,6 +21,7 @@ class PlannedNotification {
     this.recordingAsset,
     this.reminderSound,
     this.shortAdhan,
+    this.estimated = false,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -60,9 +61,80 @@ class PlannedNotification {
   /// and what the app plays for a short Adhan shown full screen).
   final ShortAdhan? shortAdhan;
 
+  /// In-flight mode: the time is projected along the aircraft's route, not
+  /// calculated for a fixed place, and the notification says so.
+  final bool estimated;
+
   /// True when the reminder has already fired and must not be re-scheduled.
   bool isInPast(DateTime now) => at.isBefore(now);
 }
+
+/// The Adhan alert for [prayer] at [at], as the user set it up: sound, the
+/// recording or clip, vibration, ringing in silent and full screen. Used for
+/// the day's plan and for in-flight mode's projected alert alike.
+PlannedNotification adhanAlert(
+  AdhanAlertSettings alerts,
+  Prayer prayer, {
+  required DateTime at,
+  required int id,
+  bool estimated = false,
+}) {
+  final alert = alerts.alertFor(prayer);
+  final mode = alerts.soundModeFor(prayer);
+  final plays = mode == AdhanSoundMode.full || mode == AdhanSoundMode.short;
+  return PlannedNotification(
+    id: id,
+    kind: NotificationKind.adhan,
+    prayer: prayer,
+    at: at,
+    soundMode: mode,
+    mosqueId: '',
+    vibrate: alert.vibrate,
+    // Ringing in silent only means something for a recording that plays.
+    ringInSilent: plays && alert.ringInSilent,
+    fullScreen: alerts.fullScreen,
+    recordingAsset: switch (mode) {
+      AdhanSoundMode.full => adhanRecordingById(alerts.fullRecording).asset,
+      AdhanSoundMode.short => alerts.shortAdhan.asset,
+      _ => null,
+    },
+    shortAdhan: alerts.shortAdhan,
+    estimated: estimated,
+  );
+}
+
+/// In-flight mode's hold on notifications (2026-10-14, phase 2).
+///
+/// While it lasts, the regular notifications for the last place are held
+/// (they are for the ground, not the aircraft) and one alert is set for the
+/// next prayer projected along the route. It ends on its own at
+/// [pausedUntil], about 90 minutes after the last GPS fix, so a forgotten
+/// in-flight mode never silences the regular notifications for long.
+class InFlightHold {
+  const InFlightHold({required this.pausedUntil, this.prayer, this.at});
+
+  final DateTime pausedUntil;
+
+  /// The next prayer along the route and when, UTC; null when none is known.
+  final Prayer? prayer;
+  final DateTime? at;
+
+  bool activeAt(DateTime now) => pausedUntil.isAfter(now);
+
+  @override
+  bool operator ==(Object other) =>
+      other is InFlightHold &&
+      other.pausedUntil == pausedUntil &&
+      other.prayer == prayer &&
+      other.at == at;
+
+  @override
+  int get hashCode => Object.hash(pausedUntil, prayer, at);
+}
+
+/// The id of in-flight mode's projected alert: one per prayer, outside every
+/// id the day's plan uses.
+int inFlightAlertId(Prayer prayer) => 999970 + prayer.index;
 
 /// The three independent notifications the app can plan. Adhan alerts and the
 /// reminder before them come from the global per-prayer settings; Iqama
@@ -149,28 +221,12 @@ class NotificationPlanner {
       final alert = input.adhanAlerts.alertFor(prayer);
       final adhanAt = instantFor(day, minutes, zoneOffset);
       if (alert.enabled) {
-        final mode = input.adhanAlerts.soundModeFor(prayer);
-        final plays = mode == AdhanSoundMode.full || mode == AdhanSoundMode.short;
         out.add(
-          PlannedNotification(
-            id: notificationId(NotificationKind.adhan, prayer, day),
-            kind: NotificationKind.adhan,
-            prayer: prayer,
+          adhanAlert(
+            input.adhanAlerts,
+            prayer,
             at: adhanAt,
-            soundMode: mode,
-            mosqueId: '',
-            vibrate: alert.vibrate,
-            // Ringing in silent only means something for a recording that plays.
-            ringInSilent: plays && alert.ringInSilent,
-            fullScreen: input.adhanAlerts.fullScreen,
-            recordingAsset: switch (mode) {
-              AdhanSoundMode.full => adhanRecordingById(
-                input.adhanAlerts.fullRecording,
-              ).asset,
-              AdhanSoundMode.short => input.adhanAlerts.shortAdhan.asset,
-              _ => null,
-            },
-            shortAdhan: input.adhanAlerts.shortAdhan,
+            id: notificationId(NotificationKind.adhan, prayer, day),
           ),
         );
       }

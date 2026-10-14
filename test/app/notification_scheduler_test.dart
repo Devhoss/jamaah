@@ -20,6 +20,7 @@ import 'package:jamaah/src/domain/prayer_times_parameters.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/today.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
+
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_notification_gateway.dart';
 import '../helpers/fake_place_source.dart';
@@ -48,32 +49,34 @@ void main() {
       minuteOffsets: const {},
     );
 
-    test('an enabled Adhan is planned at the computed time on each of 7 days',
-        () {
-      final zone = zoneOffsetsFor('Africa/Cairo');
-      final calculator = calculatorFor(30.0444, 31.2357, zone);
-      final plan = buildNotificationPlan(
-        calculator: calculator,
-        zone: zone,
-        nowUtc: DateTime.utc(2026, 10, 13, 0, 0),
-        alerts: AdhanAlertSettings.defaults().withAlert(
-          Prayer.dhuhr,
-          const AdhanAlert(enabled: true),
-        ),
-        travel: const TravelSettings(),
-        activeMosque: null,
-      );
-
-      expect(plan, hasLength(7));
-      for (final n in plan) {
-        final day = LocalMoment.inZone(zone: zone, utcInstant: n.at).day;
-        final expected = zone.utcInstantOf(
-          day: day,
-          time: LocalTime(calculator.forDay(day).times[Prayer.dhuhr]!),
+    test(
+      'an enabled Adhan is planned at the computed time on each of 7 days',
+      () {
+        final zone = zoneOffsetsFor('Africa/Cairo');
+        final calculator = calculatorFor(30.0444, 31.2357, zone);
+        final plan = buildNotificationPlan(
+          calculator: calculator,
+          zone: zone,
+          nowUtc: DateTime.utc(2026, 10, 13, 0, 0),
+          alerts: AdhanAlertSettings.defaults().withAlert(
+            Prayer.dhuhr,
+            const AdhanAlert(enabled: true),
+          ),
+          travel: const TravelSettings(),
+          activeMosque: null,
         );
-        expect(n.at, expected, reason: '$day');
-      }
-    });
+
+        expect(plan, hasLength(7));
+        for (final n in plan) {
+          final day = LocalMoment.inZone(zone: zone, utcInstant: n.at).day;
+          final expected = zone.utcInstantOf(
+            day: day,
+            time: LocalTime(calculator.forDay(day).times[Prayer.dhuhr]!),
+          );
+          expect(n.at, expected, reason: '$day');
+        }
+      },
+    );
 
     test('a full Adhan carries its recording; a short one its clip', () {
       final zone = zoneOffsetsFor('Africa/Cairo');
@@ -109,7 +112,9 @@ void main() {
         everyElement(adhanRecordingById('makkah').asset),
       );
       expect(
-        plan.where((n) => n.prayer == Prayer.dhuhr).map((n) => n.recordingAsset),
+        plan
+            .where((n) => n.prayer == Prayer.dhuhr)
+            .map((n) => n.recordingAsset),
         everyElement(ShortAdhan.naghshbandi.asset),
         reason: 'a short Adhan shown full screen plays the chosen clip',
       );
@@ -119,6 +124,77 @@ void main() {
             .map((n) => (n.recordingAsset, n.shortAdhan)),
         everyElement((kHayyaAsset, ShortAdhan.hayya)),
       );
+    });
+
+    group('in-flight mode’s hold', () {
+      final zone = zoneOffsetsFor('Africa/Cairo');
+      final now = DateTime.utc(2026, 10, 14, 10, 0);
+      final alerts = AdhanAlertSettings.defaults()
+          .withAlert(Prayer.maghrib, const AdhanAlert(enabled: true))
+          .withAlert(Prayer.isha, const AdhanAlert(enabled: true));
+      List<PlannedNotification> planWith(InFlightHold? hold) =>
+          buildNotificationPlan(
+            calculator: calculatorFor(30.0444, 31.2357, zone),
+            zone: zone,
+            nowUtc: now,
+            alerts: alerts,
+            travel: const TravelSettings(),
+            activeMosque: null,
+            inFlight: hold,
+          );
+
+      test('holds the regular alerts and alerts the projected prayer', () {
+        final until = now.add(const Duration(hours: 4));
+        final projected = now.add(const Duration(hours: 6, minutes: 3));
+        final plan = planWith(
+          InFlightHold(
+            pausedUntil: until,
+            prayer: Prayer.maghrib,
+            at: projected,
+          ),
+        );
+        final regular = plan.where((n) => !n.estimated);
+        expect(regular.every((n) => !n.at.isBefore(until)), isTrue);
+        expect(regular, isNotEmpty, reason: 'later days are kept');
+        final estimated = plan.where((n) => n.estimated).single;
+        expect(estimated.prayer, Prayer.maghrib);
+        expect(estimated.at, projected);
+        expect(estimated.id, inFlightAlertId(Prayer.maghrib));
+        expect(estimated.soundMode, alerts.soundModeFor(Prayer.maghrib));
+      });
+
+      test('no projected alert for a prayer whose alert is off', () {
+        final plan = planWith(
+          InFlightHold(
+            pausedUntil: now.add(const Duration(hours: 4)),
+            prayer: Prayer.asr,
+            at: now.add(const Duration(hours: 2)),
+          ),
+        );
+        expect(plan.where((n) => n.estimated), isEmpty);
+      });
+
+      test('an expired hold changes nothing', () {
+        expect(
+          planWith(
+            InFlightHold(
+              pausedUntil: now.subtract(const Duration(minutes: 1)),
+              prayer: Prayer.maghrib,
+              at: now.add(const Duration(hours: 2)),
+            ),
+          ).map((n) => n.id),
+          planWith(null).map((n) => n.id),
+        );
+      });
+
+      test('the estimated alert says it is estimated', () {
+        final text = notificationText(
+          t,
+          adhanAlert(alerts, Prayer.maghrib, at: now, id: 1, estimated: true),
+          mosqueName: (_) => null,
+        );
+        expect(text.body, t.notifInFlightBody(t.prayerMaghrib));
+      });
     });
 
     test('a daylight-saving change inside the window is honoured', () {
@@ -173,16 +249,16 @@ void main() {
         TravelSettings travel, {
         Mosque? active,
       }) => buildNotificationPlan(
-            calculator: calculatorFor(30.0444, 31.2357, zone),
-            zone: zone,
-            nowUtc: DateTime.utc(2026, 10, 13, 0),
-            alerts: AdhanAlertSettings.defaults().withAlert(
-              Prayer.asr,
-              const AdhanAlert(enabled: true),
-            ),
-            travel: travel,
-            activeMosque: active ?? mosque,
-          );
+        calculator: calculatorFor(30.0444, 31.2357, zone),
+        zone: zone,
+        nowUtc: DateTime.utc(2026, 10, 13, 0),
+        alerts: AdhanAlertSettings.defaults().withAlert(
+          Prayer.asr,
+          const AdhanAlert(enabled: true),
+        ),
+        travel: travel,
+        activeMosque: active ?? mosque,
+      );
 
       final quiet = buildNotificationPlan(
         calculator: calculatorFor(30.0444, 31.2357, zone),
@@ -197,10 +273,9 @@ void main() {
         ),
       );
       expect(quiet, hasLength(7));
-      expect(
-        quiet.map((n) => (n.reminderSound, n.vibrate)).toSet(),
-        {(ReminderSound.silent, false)},
-      );
+      expect(quiet.map((n) => (n.reminderSound, n.vibrate)).toSet(), {
+        (ReminderSound.silent, false),
+      });
 
       final home = planWith(const TravelSettings());
       final all = planWith(const TravelSettings(pauseAllIqamaReminders: true));
@@ -325,8 +400,7 @@ void main() {
       expect(gateway.scheduled, isEmpty);
     });
 
-    test('turning on an Iqama reminder schedules it, and turning it off removes it',
-        () async {
+    test('turning on an Iqama reminder schedules it, and turning it off removes it', () async {
       final mosque = await mosques.add(
         name: 'Masjid al-Nour',
         address: '',
@@ -383,10 +457,7 @@ void main() {
       await settings.setActiveMosqueId(second.id);
       await settle();
       expect(kinds().map((k) => k.prayer).toSet(), {Prayer.maghrib});
-      expect(
-        gateway.scheduled.values.first.planned.mosqueId,
-        second.id,
-      );
+      expect(gateway.scheduled.values.first.planned.mosqueId, second.id);
     });
 
     test('Adhan alert changes reschedule straight away', () async {
@@ -397,41 +468,42 @@ void main() {
         ),
       );
       await settle();
-      expect(
-        kinds().map((k) => k.kind).toSet(),
-        {NotificationKind.adhan, NotificationKind.preAdhan},
-      );
+      expect(kinds().map((k) => k.kind).toSet(), {
+        NotificationKind.adhan,
+        NotificationKind.preAdhan,
+      });
     });
 
-    test('pausing all Iqama reminders removes them until it is lifted',
-        () async {
-      final mosque = await mosques.add(
-        name: 'Masjid',
-        address: '',
-        source: MosqueSource.manual,
-      );
-      await mosques.setIqama(
-        mosque.id,
-        Prayer.asr,
-        LocalTime.of(16, 15),
-        reminderEnabled: true,
-      );
-      await settle();
-      expect(gateway.scheduled, hasLength(7));
+    test(
+      'pausing all Iqama reminders removes them until it is lifted',
+      () async {
+        final mosque = await mosques.add(
+          name: 'Masjid',
+          address: '',
+          source: MosqueSource.manual,
+        );
+        await mosques.setIqama(
+          mosque.id,
+          Prayer.asr,
+          LocalTime.of(16, 15),
+          reminderEnabled: true,
+        );
+        await settle();
+        expect(gateway.scheduled, hasLength(7));
 
-      await settings.saveTravel(
-        const TravelSettings(pauseAllIqamaReminders: true),
-      );
-      await settle();
-      expect(gateway.scheduled, isEmpty);
+        await settings.saveTravel(
+          const TravelSettings(pauseAllIqamaReminders: true),
+        );
+        await settle();
+        expect(gateway.scheduled, isEmpty);
 
-      await settings.saveTravel(const TravelSettings());
-      await settle();
-      expect(gateway.scheduled, hasLength(7));
-    });
+        await settings.saveTravel(const TravelSettings());
+        await settle();
+        expect(gateway.scheduled, hasLength(7));
+      },
+    );
 
-    test('a paused mosque is silent only while it is the active one',
-        () async {
+    test('a paused mosque is silent only while it is the active one', () async {
       final home = await mosques.add(
         name: 'Home',
         address: '',
@@ -462,10 +534,9 @@ void main() {
       await settings.setActiveMosqueId(away.id);
       await settle();
       expect(gateway.scheduled, hasLength(7));
-      expect(
-        gateway.scheduled.values.map((s) => s.planned.mosqueId).toSet(),
-        {away.id},
-      );
+      expect(gateway.scheduled.values.map((s) => s.planned.mosqueId).toSet(), {
+        away.id,
+      });
 
       // Home again: still paused, its Iqama times untouched.
       await settings.setActiveMosqueId(home.id);

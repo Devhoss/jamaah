@@ -1,6 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/domain/notification_plan.dart';
 import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
@@ -505,6 +506,19 @@ void main() {
       );
       await settings.saveJamaahReminders(changed);
       expect((await settings.read()).jamaahReminders, changed);
+    });
+
+    test('in-flight mode’s hold round-trips, and ends', () async {
+      expect((await settings.read()).inFlight, isNull);
+      final hold = InFlightHold(
+        pausedUntil: DateTime.utc(2026, 10, 14, 14),
+        prayer: Prayer.maghrib,
+        at: DateTime.utc(2026, 10, 14, 15, 41),
+      );
+      await settings.saveInFlight(hold);
+      expect((await settings.read()).inFlight, hold);
+      await settings.saveInFlight(null);
+      expect((await settings.read()).inFlight, isNull);
     });
 
     test('the theme choice round-trips', () async {

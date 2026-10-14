@@ -1,5 +1,7 @@
 # In-flight mode — plan
 
+Status (2026-10-14): phase 1 and phase 2 built; to be tried on a real flight.
+
 Agreed with the owner on 2026-10-14. The app is used by cabin crew and travellers;
 on a flight there is no network, the phone's clock may be on any zone, and the
 compass is unreliable inside the aircraft. GPS works in airplane mode and gives
@@ -14,9 +16,11 @@ position, altitude, ground speed and course, which is everything this needs.
   after Maghrib moves with Maghrib. Dhuhr and Asr do not depend on altitude.
 - **Opened from travel mode.** With travel mode on, Today shows an "On a flight?"
   card that opens the in-flight screen. Nothing new on the top bar.
-- **Notifications from the projection** (phase 2). While in-flight mode is on, the
-  next prayer is projected along the route and alerted; the regular notifications
-  for the last place pause meanwhile.
+- **Notifications from the projection** (phase 2). While in-flight mode is on and
+  the aircraft is moving, the next prayer is projected along the route and alerted;
+  the regular notifications for the last place pause meanwhile. Standing still (at
+  home, at the gate) nothing is paused. The pause ends 90 minutes after the last
+  fix, or with "End in-flight mode".
 - **Two phases.**
 - **Out of scope:** travel rulings (shortening, combining).
 

@@ -185,4 +185,109 @@ void main() {
       );
     });
   });
+
+  group('along the route', () {
+    test('a great-circle step lands where it should', () {
+      final p = destinationPoint(
+        latitude: 0,
+        longitude: 0,
+        bearing: 90,
+        distanceMeters: 111195,
+      );
+      expect(p.latitude, closeTo(0, 1e-6));
+      expect(p.longitude, closeTo(1, 1e-3));
+    });
+
+    InFlightFix flying(double course, {double speed = 250, DateTime? at}) =>
+        InFlightFix(
+          latitude: cairoLat,
+          longitude: cairoLng,
+          at: at ?? DateTime.utc(2026, 10, 14, 10, 0),
+          altitudeMeters: 11000,
+          speedMetersPerSecond: speed,
+          courseDegrees: course,
+        );
+
+    test('standing still, there is nothing to project', () {
+      final still = InFlightFix(
+        latitude: cairoLat,
+        longitude: cairoLng,
+        at: DateTime.utc(2026, 10, 14, 10, 0),
+      );
+      expect(
+        projectAlongRoute(calculator: calc(), fix: still, now: still.at),
+        isEmpty,
+      );
+    });
+
+    test('barely moving, the projection agrees with here and now', () {
+      // 15:50 in Cairo, minutes before Asr, so the aircraft has not gone far.
+      final fix = flying(
+        270,
+        speed: 10,
+        at: DateTime.utc(2026, 10, 14, 12, 50),
+      );
+      final here = inFlightTimes(
+        calculator: calc(),
+        zone: cairoZone,
+        fix: fix,
+        now: fix.at,
+      );
+      final route = projectAlongRoute(
+        calculator: calc(),
+        fix: fix,
+        now: fix.at,
+      );
+      expect(here.next, Prayer.asr);
+      expect(route.first.prayer, Prayer.asr);
+      expect(
+        route.first.at.difference(here.nextAt!).inSeconds.abs(),
+        lessThanOrEqualTo(90),
+        reason: 'both round to whole minutes',
+      );
+    });
+
+    test('flying west chases the sun; flying east meets the night', () {
+      final noon = DateTime.utc(2026, 10, 14, 10, 0);
+      ProjectedPrayer first(double course, {double speed = 250}) =>
+          projectAlongRoute(
+            calculator: calc(),
+            fix: flying(course, speed: speed),
+            now: noon,
+          ).first;
+      final still = first(270, speed: 10);
+      expect(still.prayer, Prayer.asr);
+      expect(first(270).prayer, Prayer.asr);
+      expect(
+        first(270).at.isAfter(still.at.add(const Duration(hours: 1))),
+        isTrue,
+        reason: 'at 900 km/h west the aircraft nearly keeps pace with the sun',
+      );
+      expect(
+        first(90).at.isBefore(still.at.subtract(const Duration(minutes: 30))),
+        isTrue,
+      );
+    });
+
+    test('the times come in order, and quickly enough to redo every fix', () {
+      final sw = Stopwatch()..start();
+      final route = projectAlongRoute(
+        calculator: calc(),
+        fix: flying(90),
+        now: DateTime.utc(2026, 10, 14, 10, 0),
+        maxEvents: 3,
+      );
+      sw.stop();
+      expect(route, hasLength(3));
+      for (var i = 1; i < route.length; i++) {
+        expect(route[i].at.isAfter(route[i - 1].at), isTrue);
+      }
+      expect(route.map((e) => e.prayer), [
+        Prayer.asr,
+        Prayer.maghrib,
+        Prayer.isha,
+      ]);
+      expect(sw.elapsedMilliseconds, lessThan(3000));
+    });
+  });
 }

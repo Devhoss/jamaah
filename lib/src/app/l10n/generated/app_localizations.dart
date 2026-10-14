@@ -2208,6 +2208,54 @@ abstract class AppLocalizations {
   /// **'In flight'**
   String get inFlightTitle;
 
+  /// No description provided for @notifInFlightBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s time for {prayer}, estimated for the aircraft\'s route.'**
+  String notifInFlightBody(String prayer);
+
+  /// No description provided for @inFlightAlongRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Along this route: {prayer}, {countdown}'**
+  String inFlightAlongRoute(String prayer, String countdown);
+
+  /// No description provided for @inFlightAlongRouteThen.
+  ///
+  /// In en, this message translates to:
+  /// **'Then {prayer}, about {time} on your phone'**
+  String inFlightAlongRouteThen(String prayer, String time);
+
+  /// No description provided for @inFlightAboutOnPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'About {time} on your phone'**
+  String inFlightAboutOnPhone(String time);
+
+  /// No description provided for @inFlightAssumesCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Assumes the aircraft keeps its course and speed; updated with each GPS fix.'**
+  String get inFlightAssumesCourse;
+
+  /// No description provided for @inFlightAlertsHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts for {place} are paused until {time}. The next prayer along the route is alerted instead.'**
+  String inFlightAlertsHeld(String place, String time);
+
+  /// No description provided for @inFlightEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End in-flight mode'**
+  String get inFlightEnd;
+
+  /// No description provided for @inFlightHeldNote.
+  ///
+  /// In en, this message translates to:
+  /// **'In-flight mode: regular alerts are paused until {time}.'**
+  String inFlightHeldNote(String time);
+
   /// No description provided for @inFlightCardTitle.
   ///
   /// In en, this message translates to:

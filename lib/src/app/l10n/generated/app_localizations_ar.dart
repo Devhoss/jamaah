@@ -1383,6 +1383,43 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inFlightTitle => 'على متن الطائرة';
 
   @override
+  String notifInFlightBody(String prayer) {
+    return 'حان موعد $prayer، بتقدير مسار الطائرة.';
+  }
+
+  @override
+  String inFlightAlongRoute(String prayer, String countdown) {
+    return 'على هذا المسار: $prayer، $countdown';
+  }
+
+  @override
+  String inFlightAlongRouteThen(String prayer, String time) {
+    return 'ثم $prayer، نحو $time على ساعة هاتفك';
+  }
+
+  @override
+  String inFlightAboutOnPhone(String time) {
+    return 'نحو $time على ساعة هاتفك';
+  }
+
+  @override
+  String get inFlightAssumesCourse =>
+      'على افتراض أن الطائرة تحافظ على اتجاهها وسرعتها؛ ويتحدّث مع كل قراءة GPS.';
+
+  @override
+  String inFlightAlertsHeld(String place, String time) {
+    return 'تنبيهات $place موقوفة حتى $time، ويُنبَّه بدلًا منها للصلاة التالية على مسار الرحلة.';
+  }
+
+  @override
+  String get inFlightEnd => 'إنهاء وضع الطيران';
+
+  @override
+  String inFlightHeldNote(String time) {
+    return 'وضع الطيران: التنبيهات المعتادة موقوفة حتى $time.';
+  }
+
+  @override
   String get inFlightCardTitle => 'على متن رحلة؟';
 
   @override

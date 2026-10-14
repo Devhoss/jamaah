@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../domain/adhan_alerts.dart';
 import '../domain/adhan_recordings.dart';
 import '../domain/hijri.dart';
+import '../domain/notification_plan.dart';
 import '../domain/place.dart';
 import '../domain/prayer.dart';
 import '../domain/prayer_times_parameters.dart';
@@ -83,6 +84,7 @@ class AppSettingsSnapshot {
     required this.themeMode,
     this.language = AppLanguage.system,
     this.hijriAdjustDays = 0,
+    this.inFlight,
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
     this.jamaahReminders = const JamaahReminderSettings(),
@@ -107,6 +109,9 @@ class AppSettingsSnapshot {
 
   /// Days the Hijri date is moved from the calculated one (−2…+2).
   final int hijriAdjustDays;
+
+  /// In-flight mode's hold on notifications, while one has been set.
+  final InFlightHold? inFlight;
   final AdhanAlertSettings adhanAlerts;
 
   /// Travel mode and its manual Iqama pause.
@@ -186,6 +191,7 @@ class SettingsRepository {
       hijriAdjustDays: clampHijriAdjust(
         int.tryParse(values[SettingKeys.hijriAdjustDays] ?? '') ?? 0,
       ),
+      inFlight: _inFlight(values),
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
       travel: TravelSettings(
@@ -284,6 +290,45 @@ class SettingsRepository {
 
   Future<void> setLanguage(AppLanguage language) =>
       _put(SettingKeys.appLanguage, language.name);
+
+  /// Sets in-flight mode's hold (see [InFlightHold]); null ends it.
+  Future<void> saveInFlight(InFlightHold? hold) => _db.transaction(() async {
+    if (hold == null) {
+      for (final key in const [
+        SettingKeys.inFlightPausedUntil,
+        SettingKeys.inFlightPrayer,
+        SettingKeys.inFlightAt,
+      ]) {
+        await (_db.delete(
+          _db.appSettings,
+        )..where((r) => r.key.equals(key))).go();
+      }
+      return;
+    }
+    await _put(
+      SettingKeys.inFlightPausedUntil,
+      '${hold.pausedUntil.toUtc().millisecondsSinceEpoch}',
+    );
+    await _put(SettingKeys.inFlightPrayer, hold.prayer?.name ?? '');
+    await _put(
+      SettingKeys.inFlightAt,
+      hold.at == null ? '' : '${hold.at!.toUtc().millisecondsSinceEpoch}',
+    );
+  });
+
+  InFlightHold? _inFlight(Map<String, String?> values) {
+    DateTime? instant(String key) => switch (int.tryParse(values[key] ?? '')) {
+      final ms? => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true),
+      null => null,
+    };
+    final until = instant(SettingKeys.inFlightPausedUntil);
+    if (until == null) return null;
+    return InFlightHold(
+      pausedUntil: until,
+      prayer: _prayerByName(values[SettingKeys.inFlightPrayer] ?? ''),
+      at: instant(SettingKeys.inFlightAt),
+    );
+  }
 
   Future<void> setHijriAdjustDays(int days) =>
       _put(SettingKeys.hijriAdjustDays, '${clampHijriAdjust(days)}');

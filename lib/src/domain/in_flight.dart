@@ -273,3 +273,152 @@ double qiblaFromNose({
 double _norm(double degrees) => (degrees % 360 + 360) % 360;
 double _rad(double degrees) => degrees * math.pi / 180;
 double _deg(double radians) => radians * 180 / math.pi;
+
+// ---------------------------------------------------------------------------
+// Phase 2: along the route (2026-10-14).
+
+/// A zone whose clock is the sun's at [longitude] (15° per hour), used when
+/// projecting along a route: the prayer day turns at solar midnight, and no
+/// time-zone map has to be read hundreds of times.
+class SolarTimeZone extends ZoneOffsets {
+  const SolarTimeZone(this.longitude);
+
+  final double longitude;
+
+  @override
+  String get zoneName => 'solar';
+
+  @override
+  int offsetMinutesAt(DateTime utcInstant) => (longitude * 4).round();
+}
+
+/// The point [distanceMeters] from [latitude], [longitude] along the
+/// great circle that starts on [bearing] (degrees from true north).
+({double latitude, double longitude}) destinationPoint({
+  required double latitude,
+  required double longitude,
+  required double bearing,
+  required double distanceMeters,
+}) {
+  const earthRadius = 6371008.8;
+  final d = distanceMeters / earthRadius;
+  final phi1 = _rad(latitude), lambda1 = _rad(longitude), theta = _rad(bearing);
+  final phi2 = math.asin(
+    math.sin(phi1) * math.cos(d) +
+        math.cos(phi1) * math.sin(d) * math.cos(theta),
+  );
+  final lambda2 =
+      lambda1 +
+      math.atan2(
+        math.sin(theta) * math.sin(d) * math.cos(phi1),
+        math.cos(d) - math.sin(phi1) * math.sin(phi2),
+      );
+  return (latitude: _deg(phi2), longitude: ((_deg(lambda2) + 540) % 360) - 180);
+}
+
+/// One prayer time met along the route.
+class ProjectedPrayer {
+  const ProjectedPrayer({
+    required this.prayer,
+    required this.at,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  final Prayer prayer;
+
+  /// When it is expected, UTC.
+  final DateTime at;
+
+  /// Where the aircraft is expected to be then.
+  final double latitude;
+  final double longitude;
+}
+
+/// The prayer times the aircraft is expected to meet in the next [horizon],
+/// assuming it keeps its current course, speed and altitude: the moving point
+/// is stepped forward every [step], and each change of prayer period is
+/// narrowed down to well under a minute. Empty when the aircraft is not
+/// moving (then the "here and now" times are the answer).
+///
+/// [calculator] carries the user's method and settings; its position and zone
+/// are replaced at each point.
+List<ProjectedPrayer> projectAlongRoute({
+  required PrayerTimesCalculator calculator,
+  required InFlightFix fix,
+  required DateTime now,
+  Duration horizon = const Duration(hours: 12),
+  Duration step = const Duration(minutes: 2),
+  int maxEvents = 3,
+}) {
+  if (!fix.hasCourse) return const [];
+  final speed = fix.speedMetersPerSecond!;
+  final course = fix.courseDegrees!;
+
+  ({double latitude, double longitude}) at(DateTime t) => destinationPoint(
+    latitude: fix.latitude,
+    longitude: fix.longitude,
+    bearing: course,
+    distanceMeters: speed * t.difference(fix.at).inMilliseconds / 1000,
+  );
+
+  Prayer phase(DateTime t) {
+    final p = at(t);
+    final zone = SolarTimeZone(p.longitude);
+    final times = inFlightTimes(
+      calculator: calculator.copyWith(
+        latitude: p.latitude,
+        longitude: p.longitude,
+        zone: zone,
+      ),
+      zone: zone,
+      fix: InFlightFix(
+        latitude: p.latitude,
+        longitude: p.longitude,
+        at: t,
+        altitudeMeters: fix.altitudeMeters,
+      ),
+      now: t,
+    ).times;
+    // The last time already reached at this point; before Fajr, Isha.
+    var current = Prayer.isha;
+    for (final prayer in Prayer.adhanPrayers) {
+      final when = times[prayer];
+      if (when != null && !when.isAfter(t)) current = prayer;
+    }
+    return current;
+  }
+
+  final events = <ProjectedPrayer>[];
+  var before = now;
+  var last = phase(now);
+  final end = now.add(horizon);
+  while (before.isBefore(end) && events.length < maxEvents) {
+    final after = before.add(step);
+    final next = phase(after);
+    if (next != last) {
+      // Narrow the change down between the two steps.
+      var lo = before, hi = after;
+      for (var i = 0; i < 8; i++) {
+        final mid = lo.add(hi.difference(lo) ~/ 2);
+        if (phase(mid) == last) {
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      final p = at(hi);
+      events.add(
+        ProjectedPrayer(
+          prayer: next,
+          at: hi,
+          latitude: p.latitude,
+          longitude: p.longitude,
+        ),
+      );
+      last = next;
+    }
+    before = after;
+  }
+  return events;
+}

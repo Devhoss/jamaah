@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -14,12 +15,14 @@ import '../../app/theme/tokens.dart';
 import '../../data/flight_gps.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/in_flight.dart';
+import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
 import '../../domain/prayer_times_calculator.dart';
 import '../../domain/qibla.dart' as qibla;
 import '../../domain/time_model.dart';
 import '../../domain/zone_lookup.dart';
 import '../../domain/zone_offsets.dart';
+import '../location/place_copy.dart';
 import '../components/app_widgets.dart';
 
 Future<void> openInFlight(BuildContext context) =>
@@ -28,6 +31,24 @@ Future<void> openInFlight(BuildContext context) =>
 
 /// A fix older than this counts as lost; the last one is still shown.
 const _lostAfter = Duration(minutes: 2);
+
+/// How long after the last fix the regular notifications stay held.
+const _holdAfterFix = Duration(minutes: 90);
+
+/// Projects along the route off the UI thread; overridden in tests to run
+/// inline.
+typedef RouteProjector = Future<List<ProjectedPrayer>> Function(
+  PrayerTimesCalculator calculator,
+  InFlightFix fix,
+  DateTime now,
+);
+
+final routeProjectorProvider = Provider<RouteProjector>(
+  (ref) =>
+      (calculator, fix, now) => Isolate.run(
+        () => projectAlongRoute(calculator: calculator, fix: fix, now: now),
+      ),
+);
 
 /// In-flight mode, phase 1 (docs/in-flight-mode.md): where the aircraft is from
 /// GPS, the prayer times there as seen from the aircraft, and the Qibla
@@ -50,6 +71,10 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
   /// A heading typed in from the seat-back map; overrides the GPS course.
   double? _manualHeading;
 
+  /// The prayers the aircraft is expected to meet, from the latest fix.
+  List<ProjectedPrayer> _route = const [];
+  int _routeRun = 0;
+
   @override
   void dispose() {
     _sub?.cancel();
@@ -70,9 +95,100 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
     }
     await _sub?.cancel();
     _sub = gps.fixes().listen((fix) {
-      if (mounted) setState(() => _fix = fix);
+      if (!mounted) return;
+      setState(() => _fix = fix);
+      unawaited(_onFix(fix));
     });
     setState(() => _stage = _Stage.live);
+  }
+
+  /// The calculator for [fix]'s position and zone, with the user's settings.
+  ({PrayerTimesCalculator calculator, ZoneOffsets zone}) _calculatorFor(
+    InFlightFix fix,
+    AppSettingsSnapshot settings,
+  ) {
+    // The zone where the aircraft is, from the bundled map; never the phone's.
+    final zoneName =
+        zoneAt(latitude: fix.latitude, longitude: fix.longitude) ?? 'UTC';
+    final zone = zoneOffsetsFor(zoneName);
+    return (
+      calculator: PrayerTimesCalculator(
+        latitude: fix.latitude,
+        longitude: fix.longitude,
+        zone: zone,
+        method: settings.calculationMethod.resolvedFor(zoneName),
+        madhab: settings.madhab,
+        highLatitudeRule: settings.highLatitudeRule,
+        minuteOffsets: settings.minuteOffsets,
+        customAngles: settings.customAngles,
+        hijriAdjustDays: settings.hijriAdjustDays,
+      ),
+      zone: zone,
+    );
+  }
+
+  /// Each fix: project along the route (off the UI thread), then keep the
+  /// notification hold current (docs/in-flight-mode.md, phase 2).
+  Future<void> _onFix(InFlightFix fix) async {
+    final run = ++_routeRun;
+    final settings =
+        ref.read(appSettingsProvider).value ?? SettingsRepository.defaults;
+    final now = ref.read(appClockProvider).nowUtc();
+    final (:calculator, :zone) = _calculatorFor(fix, settings);
+    final route = fix.hasCourse
+        ? await ref.read(routeProjectorProvider)(calculator, fix, now)
+        : const <ProjectedPrayer>[];
+    if (!mounted || run != _routeRun) return;
+    setState(() => _route = route);
+
+    // Regular alerts are held only while the aircraft is moving: at home or
+    // at the gate they are already for where the user is.
+    if (!fix.hasCourse) return;
+
+    // The next prayer along the route.
+    final here = inFlightTimes(
+      calculator: calculator,
+      zone: zone,
+      fix: fix,
+      now: now,
+    );
+    final next = route.isNotEmpty
+        ? (prayer: route.first.prayer, at: route.first.at)
+        : (prayer: here.next, at: here.nextAt);
+    final wanted = InFlightHold(
+      pausedUntil: fix.at.add(_holdAfterFix),
+      prayer: next.prayer,
+      at: next.at,
+    );
+    final current = settings.inFlight;
+    // Written only when it matters, so the notifications are not rebuilt on
+    // every fix.
+    final stale =
+        current == null ||
+        wanted.pausedUntil.difference(current.pausedUntil) >=
+            const Duration(minutes: 15) ||
+        current.prayer != wanted.prayer ||
+        (current.at == null) != (wanted.at == null) ||
+        (current.at != null &&
+            wanted.at != null &&
+            current.at!.difference(wanted.at!).abs() >=
+                const Duration(minutes: 2));
+    // Checked again: "End in-flight mode" may have been tapped meanwhile,
+    // and must not be undone by a projection that was already running.
+    if (stale && mounted && run == _routeRun) {
+      await ref.read(settingsRepositoryProvider).saveInFlight(wanted);
+    }
+  }
+
+  Future<void> _end() async {
+    _routeRun++; // discards any projection still running
+    // The hold is cleared first, so ending takes effect at once; the GPS
+    // stops alongside.
+    final sub = _sub;
+    _sub = null;
+    unawaited(sub?.cancel());
+    await ref.read(settingsRepositoryProvider).saveInFlight(null);
+    if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _enterHeading() async {
@@ -216,21 +332,7 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
         ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
     final clock = ClockFormat.of(context);
 
-    // The zone where the aircraft is, from the bundled map; never the phone's.
-    final zoneName =
-        zoneAt(latitude: fix.latitude, longitude: fix.longitude) ?? 'UTC';
-    final zone = zoneOffsetsFor(zoneName);
-    final calculator = PrayerTimesCalculator(
-      latitude: fix.latitude,
-      longitude: fix.longitude,
-      zone: zone,
-      method: settings.calculationMethod.resolvedFor(zoneName),
-      madhab: settings.madhab,
-      highLatitudeRule: settings.highLatitudeRule,
-      minuteOffsets: settings.minuteOffsets,
-      customAngles: settings.customAngles,
-      hijriAdjustDays: settings.hijriAdjustDays,
-    );
+    final (:calculator, :zone) = _calculatorFor(fix, settings);
     final times = inFlightTimes(
       calculator: calculator,
       zone: zone,
@@ -300,6 +402,40 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
           style: theme.textTheme.headlineSmall,
         ),
         Text(l10n.inFlightOnPhone(onPhone(times.nextAt!)), style: muted),
+      ],
+      if (_route.isNotEmpty) ...[
+        const SizedBox(height: AppSpace.md),
+        Text(
+          l10n.inFlightAlongRoute(
+            prayerName(l10n, _route.first.prayer),
+            countdown(_route.first.at),
+          ),
+          style: theme.textTheme.titleMedium,
+        ),
+        Text(l10n.inFlightAboutOnPhone(onPhone(_route.first.at)), style: muted),
+        for (final later in _route.skip(1))
+          Text(
+            l10n.inFlightAlongRouteThen(
+              prayerName(l10n, later.prayer),
+              onPhone(later.at),
+            ),
+            style: muted,
+          ),
+        Text(l10n.inFlightAssumesCourse, style: muted),
+      ],
+      if (settings.inFlight case final hold? when hold.activeAt(now)) ...[
+        const SizedBox(height: AppSpace.md),
+        Text(
+          l10n.inFlightAlertsHeld(switch (ref.watch(currentPlaceProvider)) {
+            final p? => placeLabel(l10n, p),
+            null => l10n.locationCurrentPlace,
+          }, onPhone(hold.pausedUntil)),
+          style: muted,
+        ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(onPressed: _end, child: Text(l10n.inFlightEnd)),
+        ),
       ],
       if (sunset > 0) ...[
         const SizedBox(height: AppSpace.sm),

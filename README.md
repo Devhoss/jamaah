@@ -287,8 +287,14 @@ regions read from the parameters the calculator uses), the **Asr method**
   sunrise and Maghrib as seen from the aircraft (horizon dip at altitude,
   `domain/in_flight.dart`); the day's times aboard; and the Qibla relative to the
   aircraft's nose from the GPS course, or a heading typed in from the seat-back map. The
-  phone's compass is not used aboard. Phase 2 (projection along the route, in-flight
-  notifications) is next.
+  phone's compass is not used aboard.
+- **In flight, phase 2:** while moving, the next prayers are projected along the current
+  course and speed ("Along this route: Maghrib, in 1 h 40 m"), stepping the point forward
+  and finding where the prayer period changes (`projectAlongRoute`, run off the UI
+  thread). The screen also sets an `InFlightHold`: regular notifications for the last
+  place are held, and the next projected prayer is alerted as that prayer's Adhan alert
+  is set up, saying it is estimated. The hold ends on its own 90 minutes after the last
+  GPS fix, or with "End in-flight mode" (on the screen or on Today).
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 
