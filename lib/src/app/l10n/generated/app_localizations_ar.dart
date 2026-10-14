@@ -2032,4 +2032,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get listSeparator => '، ';
+
+  @override
+  String get jumuahNotSetNote =>
+      'لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر';
+
+  @override
+  String get jumuahRowHint => 'يوم الجمعة بدلًا من الظهر';
 }

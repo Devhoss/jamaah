@@ -270,7 +270,7 @@ class _HeroCard extends StatelessWidget {
           ),
           Text(
             l10n.prayerAtTime(
-              prayerName(l10n, next.prayer),
+              prayerNameOn(l10n, next.prayer, next.on),
               clock.time(next.at),
             ),
             style: const TextStyle(
@@ -324,7 +324,9 @@ class _HeroCard extends StatelessWidget {
           children: [
             Text(
               l10n.prayerAtTime(
-                prayerName(l10n, iqama.prayer),
+                iqama.isJumuah
+                    ? l10n.prayerJumuah
+                    : prayerName(l10n, iqama.prayer),
                 clock.time(iqama.at),
               ),
               style: TextStyle(
@@ -344,6 +346,7 @@ class _HeroCard extends StatelessWidget {
             if (iqama.isTomorrow) Text(l10n.tomorrow, style: _heroLabel),
           ],
         ),
+        if (iqama.jumuahNotSet) Text(l10n.jumuahNotSetNote, style: _heroLabel),
         const SizedBox(height: 2),
         Text(
           iqama.reminderEnabled
@@ -489,12 +492,13 @@ class _PrayerRows extends StatelessWidget {
         for (final prayer in Prayer.adhanPrayers) ...[
           if (prayer == Prayer.fajr) ...extra(ExtraTime.imsak),
           _PrayerRow(
-            name: prayerName(l10n, prayer),
+            name: prayerNameOn(l10n, prayer, today.day.day),
             adhan: _time(prayer),
             iqama: _iqama(prayer),
             reminderOn:
                 prayer.canHaveIqama &&
-                (schedule?.iqamaFor(prayer).hasReminder ?? false),
+                (schedule?.iqamaOn(today.day.day, prayer).entry.hasReminder ??
+                    false),
             muted: prayer == Prayer.sunrise,
             selected: prayer == inForce,
             isNext: prayer == next,
@@ -517,7 +521,7 @@ class _PrayerRows extends StatelessWidget {
   /// Sunrise is never asked for: it has no Iqama (AGENTS.md).
   String? _iqama(Prayer prayer) {
     if (!prayer.canHaveIqama) return null;
-    final at = schedule?.iqamaFor(prayer).iqama;
+    final at = schedule?.iqamaOn(today.day.day, prayer).entry.iqama;
     return at == null ? null : clock.time(at);
   }
 }

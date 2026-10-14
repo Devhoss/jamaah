@@ -306,7 +306,8 @@ void main() {
 
         expect(find.byType(MosqueDetailPage), findsOneWidget);
         expect(find.textContaining(t.mosqueSourceGoogle), findsOneWidget);
-        expect(find.text(t.notConfigured), findsNWidgets(5));
+        // The five prayers and Jumu'ah.
+        expect(find.text(t.notConfigured), findsNWidgets(6));
       },
     );
 

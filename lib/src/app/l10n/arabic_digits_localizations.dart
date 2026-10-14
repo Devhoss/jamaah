@@ -1205,6 +1205,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get listSeparator => arabicDigits(super.listSeparator);
 
   @override
+  String get jumuahNotSetNote => arabicDigits(super.jumuahNotSetNote);
+
+  @override
+  String get jumuahRowHint => arabicDigits(super.jumuahRowHint);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 

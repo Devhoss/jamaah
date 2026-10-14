@@ -50,6 +50,7 @@ Future<void> showIqamaEditor(
   required Prayer prayer,
   required PrayerIqama current,
   LocalTime? adhan,
+  bool jumuah = false,
 }) {
   assert(prayer.canHaveIqama, 'Sunrise has no Iqama (AGENTS.md)');
   return showModalBottomSheet<void>(
@@ -61,6 +62,7 @@ Future<void> showIqamaEditor(
       prayer: prayer,
       current: current,
       adhan: adhan,
+      jumuah: jumuah,
     ),
   );
 }
@@ -76,6 +78,7 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
     required this.prayer,
     required this.current,
     this.adhan,
+    this.jumuah = false,
     super.key,
   });
 
@@ -90,6 +93,10 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
   /// shown as the Iqama and never saved without the user confirming a time
   /// (AGENTS.md: Iqama is never derived from Adhan).
   final LocalTime? adhan;
+
+  /// Editing the mosque's Jumu'ah (2026-10-14): [prayer] is Dhuhr, and the
+  /// time is saved as Jumu'ah's, never Dhuhr's.
+  final bool jumuah;
 
   @override
   ConsumerState<IqamaEditorSheet> createState() => _IqamaEditorSheetState();
@@ -137,8 +144,22 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   Future<void> _save() async {
     if (!_canSave) return;
     setState(() => _saving = true);
-    await ref
-        .read(mosqueRepositoryProvider)
+    final repository = ref.read(mosqueRepositoryProvider);
+    // A reminder that is off keeps the last interval the user chose, so
+    // switching it back on later does not reset their choice.
+    final minutes = _minutes ?? widget.current.reminderMinutesBefore;
+    if (widget.jumuah) {
+      await repository.setJumuah(
+        widget.mosque.id,
+        _time,
+        reminderEnabled: _reminderOn,
+        reminderMinutesBefore: minutes,
+      );
+      if (_reminderOn) await ref.read(notificationPermissionRequestProvider)();
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
+    await repository
         .setIqama(
           widget.mosque.id,
           widget.prayer,
@@ -155,6 +176,17 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
 
   Future<void> _clear() async {
     setState(() => _saving = true);
+    if (widget.jumuah) {
+      await ref
+          .read(mosqueRepositoryProvider)
+          .setJumuah(
+            widget.mosque.id,
+            null,
+            reminderMinutesBefore: widget.current.reminderMinutesBefore,
+          );
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
     await ref
         .read(mosqueRepositoryProvider)
         .setIqama(
@@ -172,7 +204,9 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
     final theme = Theme.of(context);
     final ink = AppInk.of(context);
     final clock = ClockFormat.of(context);
-    final prayerLabel = prayerName(l10n, widget.prayer);
+    final prayerLabel = widget.jumuah
+        ? l10n.prayerJumuah
+        : prayerName(l10n, widget.prayer);
 
     return SafeArea(
       child: Padding(

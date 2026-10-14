@@ -983,5 +983,7 @@
   "@extraDuhaRule": {"placeholders": {"minutes": {"type": "int"}}},
   "extraQiyamRule": "The last third of the time from Maghrib to Fajr.",
   "extraNoneShown": "None shown",
-  "listSeparator": ", "
+  "listSeparator": ", ",
+  "jumuahNotSetNote": "Jumu’ah time not set · showing Dhuhr Iqama",
+  "jumuahRowHint": "Fridays, in place of Dhuhr"
 }

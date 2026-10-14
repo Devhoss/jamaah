@@ -1900,4 +1900,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get listSeparator => ', ';
+
+  @override
+  String get jumuahNotSetNote => 'Jumu’ah time not set · showing Dhuhr Iqama';
+
+  @override
+  String get jumuahRowHint => 'Fridays, in place of Dhuhr';
 }

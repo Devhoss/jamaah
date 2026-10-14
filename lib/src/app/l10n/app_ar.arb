@@ -509,5 +509,7 @@
   "extraDuhaRule": "{minutes, plural, =1{دقيقة بعد الشروق} =2{دقيقتين بعد الشروق} few{{minutes} دقائق بعد الشروق} many{{minutes} دقيقة بعد الشروق} other{{minutes} دقيقة بعد الشروق}}",
   "extraQiyamRule": "الثلث الأخير من الوقت بين المغرب والفجر.",
   "extraNoneShown": "لا شيء معروض",
-  "listSeparator": "، "
+  "listSeparator": "، ",
+  "jumuahNotSetNote": "لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر",
+  "jumuahRowHint": "يوم الجمعة بدلًا من الظهر"
 }

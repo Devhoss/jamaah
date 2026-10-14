@@ -572,6 +572,8 @@ AR = {
     'extraQiyamRule': 'الثلث الأخير من الوقت بين المغرب والفجر.',
     'extraNoneShown': 'لا شيء معروض',
     'listSeparator': '، ',
+    'jumuahNotSetNote': 'لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر',
+    'jumuahRowHint': 'يوم الجمعة بدلًا من الظهر',
 }
 
 

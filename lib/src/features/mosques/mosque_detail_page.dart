@@ -135,6 +135,17 @@ class MosqueDetailPage extends ConsumerWidget {
                   adhan: today?.day.timeOf(prayer),
                   clock: clock,
                 ),
+              // Jumu'ah (2026-10-14): its own time, used on Fridays.
+              _IqamaRow(
+                mosque: mosque,
+                prayer: Prayer.dhuhr,
+                entry:
+                    schedule?.jumuah ??
+                    const PrayerIqama(prayer: Prayer.dhuhr),
+                adhan: today?.day.timeOf(Prayer.dhuhr),
+                clock: clock,
+                jumuah: true,
+              ),
             ],
           ),
           const SizedBox(height: AppSpace.md),
@@ -219,11 +230,15 @@ class _IqamaRow extends ConsumerWidget {
     required this.entry,
     required this.adhan,
     required this.clock,
+    this.jumuah = false,
   });
 
   final Mosque mosque;
   final Prayer prayer;
   final PrayerIqama entry;
+
+  /// The Jumu'ah row: [prayer] is Dhuhr, [entry] the mosque's Jumu'ah.
+  final bool jumuah;
 
   /// Minutes from midnight, or null when there is no place or no time today.
   final int? adhan;
@@ -233,7 +248,7 @@ class _IqamaRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final ink = AppInk.of(context);
-    final name = prayerName(l10n, prayer);
+    final name = jumuah ? l10n.prayerJumuah : prayerName(l10n, prayer);
     final small = TextStyle(fontSize: 12, color: ink.muted);
 
     return AppRow(
@@ -244,6 +259,7 @@ class _IqamaRow extends ConsumerWidget {
         prayer: prayer,
         current: entry,
         adhan: adhan == null ? null : LocalTime(adhan!),
+        jumuah: jumuah,
       ),
       // The Iqama value shares the title's width rather than sitting in the fixed
       // trailing slot, so at a large text size it wraps instead of pushing the row
@@ -261,7 +277,9 @@ class _IqamaRow extends ConsumerWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (adhan != null)
+                if (jumuah)
+                  Text(l10n.jumuahRowHint, style: small)
+                else if (adhan != null)
                   Text(
                     l10n.rowAdhanTime(clock.time(LocalTime(adhan!))),
                     style: small,
@@ -299,9 +317,19 @@ class _IqamaRow extends ConsumerWidget {
               // says what to do instead.
               onChanged: entry.isConfigured
                   ? (on) async {
-                      await ref
-                          .read(mosqueRepositoryProvider)
-                          .setReminderEnabled(mosque.id, prayer, enabled: on);
+                      final repository = ref.read(mosqueRepositoryProvider);
+                      if (jumuah) {
+                        await repository.setJumuahReminderEnabled(
+                          mosque.id,
+                          enabled: on,
+                        );
+                      } else {
+                        await repository.setReminderEnabled(
+                          mosque.id,
+                          prayer,
+                          enabled: on,
+                        );
+                      }
                       if (on) {
                         await ref.read(notificationPermissionRequestProvider)();
                       }

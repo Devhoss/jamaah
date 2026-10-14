@@ -572,6 +572,65 @@ void main() {
       );
     });
   });
+
+  group("Jumu'ah on the card (2026-10-14)", () {
+    // Cairo, Friday 16 October 2026 at 10:00.
+    final zone = zoneOffsetsFor('Africa/Cairo');
+    TodayReading at(LocalDay day) => readToday(
+      calculator: cairo,
+      moment: LocalMoment.inZone(
+        zone: zone,
+        utcInstant: zone.utcInstantOf(day: day, time: const LocalTime(600)),
+      ),
+    );
+    Mosque mosque({LocalTime? jumuah}) => Mosque(
+      id: 'm1',
+      name: 'Masjid al-Nour',
+      address: '12 Garden Road',
+      source: MosqueSource.manual,
+      schedules: [
+        Schedule.empty(mosqueId: 'm1')
+            .withPrayer(
+              const PrayerIqama(prayer: Prayer.dhuhr, iqama: LocalTime(775)),
+            )
+            .copyWith(
+              jumuah: jumuah == null
+                  ? null
+                  : PrayerIqama(prayer: Prayer.dhuhr, iqama: jumuah),
+            ),
+      ],
+    );
+
+    test("a Friday's next Iqama is Jumu'ah's time", () {
+      final next = readNextIqama(
+        mosque: mosque(jumuah: const LocalTime(735)),
+        today: at(const LocalDay(2026, 10, 16)),
+      ) as IqamaUpcoming;
+      expect(next.prayer, Prayer.dhuhr);
+      expect(next.at, const LocalTime(735));
+      expect(next.isJumuah, isTrue);
+      expect(next.jumuahNotSet, isFalse);
+    });
+
+    test("without Jumu'ah, Dhuhr's time, flagged", () {
+      final next = readNextIqama(
+        mosque: mosque(),
+        today: at(const LocalDay(2026, 10, 16)),
+      ) as IqamaUpcoming;
+      expect(next.at, const LocalTime(775));
+      expect(next.isJumuah, isTrue);
+      expect(next.jumuahNotSet, isTrue);
+    });
+
+    test('Thursday is Dhuhr', () {
+      final next = readNextIqama(
+        mosque: mosque(jumuah: const LocalTime(735)),
+        today: at(const LocalDay(2026, 10, 15)),
+      ) as IqamaUpcoming;
+      expect(next.at, const LocalTime(775));
+      expect(next.isJumuah, isFalse);
+    });
+  });
 }
 
 /// A place whose day has no computable times at all — the case the calculator

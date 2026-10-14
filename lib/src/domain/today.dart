@@ -245,10 +245,19 @@ final class IqamaUpcoming extends NextIqama {
     required this.isTomorrow,
     required this.reminderEnabled,
     required this.reminderMinutesBefore,
+    this.isJumuah = false,
+    this.jumuahNotSet = false,
   });
 
   final Prayer prayer;
   final String mosqueName;
+
+  /// Friday's Dhuhr: named Jumu'ah (2026-10-14).
+  final bool isJumuah;
+
+  /// Friday, but the mosque has no Jumu'ah time: [at] is Dhuhr's own Iqama,
+  /// and the card says so.
+  final bool jumuahNotSet;
 
   /// The day the Iqama falls on — tomorrow once the day's times have run out.
   final LocalDay on;
@@ -304,9 +313,11 @@ NextIqama readNextIqama({
 
   IqamaUpcoming? earliest;
   for (final prayer in Prayer.iqamaPrayers) {
-    final entry = todaySchedule?.iqamaFor(prayer);
+    // On a Friday, Dhuhr's is Jumu'ah's (or Dhuhr's own while it has none).
+    final resolved = todaySchedule?.iqamaOn(moment.day, prayer);
+    final entry = resolved?.entry;
     final at = entry?.iqama;
-    if (entry == null || at == null) continue;
+    if (resolved == null || entry == null || at == null) continue;
     final until = _minutesUntil(moment, moment.day, at);
     // Measured in real minutes rather than on the wall clock, so an hour the day
     // has already lived through on a clock-changing morning is not offered again.
@@ -321,6 +332,8 @@ NextIqama readNextIqama({
         isTomorrow: false,
         reminderEnabled: entry.reminderEnabled,
         reminderMinutesBefore: entry.reminderMinutesBefore,
+        isJumuah: resolved.isJumuah,
+        jumuahNotSet: resolved.jumuahNotSet,
       );
     }
   }
@@ -343,6 +356,7 @@ NextIqama readNextIqama({
 
   final anythingEntered =
       (todaySchedule?.configuredCount ?? 0) > 0 ||
+      (todaySchedule?.jumuah.isConfigured ?? false) ||
       (tomorrowSchedule?.configuredCount ?? 0) > 0;
   return anythingEntered
       ? IqamaNoneLeftToday(mosqueName: mosque.name)

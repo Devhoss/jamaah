@@ -3161,6 +3161,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **', '**
   String get listSeparator;
+
+  /// No description provided for @jumuahNotSetNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu’ah time not set · showing Dhuhr Iqama'**
+  String get jumuahNotSetNote;
+
+  /// No description provided for @jumuahRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fridays, in place of Dhuhr'**
+  String get jumuahRowHint;
 }
 
 class _AppLocalizationsDelegate

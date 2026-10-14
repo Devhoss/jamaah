@@ -521,3 +521,5 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 508 | `extraQiyamRule` | The last third of the time from Maghrib to Fajr. | الثلث الأخير من الوقت بين المغرب والفجر. |
 | 509 | `extraNoneShown` | None shown | لا شيء معروض |
 | 510 | `listSeparator` | ,  | ،  |
+| 511 | `jumuahNotSetNote` | Jumu’ah time not set · showing Dhuhr Iqama | لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر |
+| 512 | `jumuahRowHint` | Fridays, in place of Dhuhr | يوم الجمعة بدلًا من الظهر |

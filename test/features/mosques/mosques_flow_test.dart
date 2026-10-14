@@ -233,7 +233,7 @@ void main() {
       expect(find.text('Masjid al-Nour'), findsOneWidget);
       expect(
         find.text(t.notConfigured),
-        findsNWidgets(5),
+        findsNWidgets(6),
         reason: 'AGENTS.md: a new mosque never gets invented Iqama times',
       );
       expect(
@@ -430,7 +430,7 @@ void main() {
         find.text(t.rowReminderAt(at(LocalTime.of(5, 25)))),
         findsOneWidget,
       );
-      expect(find.text(t.notConfigured), findsNWidgets(4));
+      expect(find.text(t.notConfigured), findsNWidgets(5));
       await reveal(tester, find.text(t.scheduleSetByYou('12 Oct 2026')));
       expect(find.text(t.scheduleSetByYou('12 Oct 2026')), findsOneWidget);
     });
@@ -449,7 +449,7 @@ void main() {
         ).isConfigured,
         isFalse,
       );
-      expect(find.text(t.notConfigured), findsNWidgets(5));
+      expect(find.text(t.notConfigured), findsNWidgets(6));
     });
 
     testApp('Clear returns the prayer to not configured', (tester) async {
@@ -469,7 +469,7 @@ void main() {
       final asr = storedEntry(await savedMosque('Masjid al-Nour'), Prayer.asr);
       expect(asr.isConfigured, isFalse);
       expect(asr.hasReminder, isFalse);
-      expect(find.text(t.notConfigured), findsNWidgets(5));
+      expect(find.text(t.notConfigured), findsNWidgets(6));
     });
 
     testApp('a custom interval is checked before it can be saved', (
@@ -570,7 +570,7 @@ void main() {
         isTrue,
         reason: 'no prayer has a time yet, so no reminder can be switched on',
       );
-      expect(find.text(t.rowReminderNeedsIqama), findsNWidgets(5));
+      expect(find.text(t.rowReminderNeedsIqama), findsNWidgets(6));
 
       final mosque = await savedMosque('Masjid al-Nour');
       await mosques.setIqama(mosque.id, Prayer.fajr, LocalTime.of(5, 40));
@@ -790,7 +790,7 @@ void main() {
       await tapText(tester, t.mosqueHasNoIqama('Masjid al-Nour'));
 
       expect(find.byType(MosqueDetailPage), findsOneWidget);
-      expect(find.text(t.notConfigured), findsNWidgets(5));
+      expect(find.text(t.notConfigured), findsNWidgets(6));
     });
 
     testApp('without a place the schedule still opens, minus Adhan lines', (
@@ -799,7 +799,7 @@ void main() {
       await open(tester, withPlace: false);
       await addThroughSheet(tester);
 
-      expect(find.text(t.notConfigured), findsNWidgets(5));
+      expect(find.text(t.notConfigured), findsNWidgets(6));
       expect(
         find.textContaining(RegExp('^${RegExp.escape(t.rowAdhanTime(''))}')),
         findsNothing,
