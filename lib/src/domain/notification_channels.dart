@@ -97,11 +97,13 @@ const kChannelPrefix = 'jamaah_';
 ChannelSpec channelFor(PlannedNotification n) => switch (n.kind) {
   NotificationKind.adhan => _adhanChannel(n),
   NotificationKind.preAdhan => ChannelSpec(
-    id: '${kChannelPrefix}reminder_${n.vibrate ? 'vib' : 'still'}',
+    id:
+        '${kChannelPrefix}reminder_${n.vibrate ? 'vib' : 'still'}'
+        '${n.ringInSilent ? '_alarm' : ''}',
     group: ChannelGroup.preAdhan,
     sound: ChannelSound.platformDefault,
     vibrate: n.vibrate,
-    alarmStream: false,
+    alarmStream: n.ringInSilent,
   ),
   NotificationKind.iqama => _reminderChannel(n, 'iqama', ChannelGroup.iqama),
   NotificationKind.extra => _reminderChannel(n, 'extra', ChannelGroup.extra),
@@ -121,10 +123,13 @@ ChannelSpec _reminderChannel(
     ReminderSound.standard => ChannelSound.platformDefault,
     ReminderSound.silent => ChannelSound.none,
   };
+  // A silent reminder has nothing to play through the alarm volume.
+  final alarm = n.ringInSilent && sound != ChannelSound.none;
   final parts = [
     prefix,
     reminder.name,
     n.vibrate ? 'vib' : 'still',
+    if (alarm) 'alarm',
     ?_versionTag(sound),
   ];
   return ChannelSpec(
@@ -132,7 +137,7 @@ ChannelSpec _reminderChannel(
     group: group,
     sound: sound,
     vibrate: n.vibrate,
-    alarmStream: false,
+    alarmStream: alarm,
     reminderSound: reminder,
   );
 }
@@ -148,10 +153,9 @@ ChannelSpec _adhanChannel(PlannedNotification n) {
     AdhanSoundMode.standard => ChannelSound.platformDefault,
     AdhanSoundMode.silent => ChannelSound.none,
   };
-  final plays = sound == ChannelSound.adhanShort || sound == ChannelSound.hayya;
-  // Ring in silent only applies to a recording that plays (the planner already
+  // Ring in silent applies to any Adhan with a sound (the planner already
   // drops it otherwise); silent with vibration off is fully quiet.
-  final alarm = n.ringInSilent && plays;
+  final alarm = n.ringInSilent && sound != ChannelSound.none;
   final vibrate = n.vibrate;
   final parts = [
     'adhan',

@@ -1563,14 +1563,14 @@ abstract class AppLocalizations {
   /// No description provided for @alertRingInSilentHint.
   ///
   /// In en, this message translates to:
-  /// **'Plays through the alarm volume, so you hear it even on silent. Off by default, so nothing surprises you in a quiet room.'**
+  /// **'Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet.'**
   String get alertRingInSilentHint;
 
-  /// No description provided for @alertRingInSilentNeedsAdhan.
+  /// No description provided for @alertRingInSilentNeedsSound.
   ///
   /// In en, this message translates to:
-  /// **'Only for the full or short Adhan.'**
-  String get alertRingInSilentNeedsAdhan;
+  /// **'Silent has no sound to ring.'**
+  String get alertRingInSilentNeedsSound;
 
   /// No description provided for @alertReminderHeader.
   ///
@@ -3179,6 +3179,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Jumu’ah time not set'**
   String get jumuahRowNotSet;
+
+  /// No description provided for @settingsAdhanRingInSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan rings on silent'**
+  String get settingsAdhanRingInSilent;
+
+  /// No description provided for @settingsPreAdhanRingInSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders before the Adhan ring on silent'**
+  String get settingsPreAdhanRingInSilent;
+
+  /// No description provided for @ringInSilentSome.
+  ///
+  /// In en, this message translates to:
+  /// **'On for some prayers. Each prayer’s page can change it.'**
+  String get ringInSilentSome;
+
+  /// No description provided for @alertPreAdhanRingInSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder rings on silent'**
+  String get alertPreAdhanRingInSilent;
+
+  /// No description provided for @onbRingInSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring even when my phone is on silent'**
+  String get onbRingInSilent;
+
+  /// No description provided for @onbRingInSilentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings.'**
+  String get onbRingInSilentHint;
 }
 
 class _AppLocalizationsDelegate

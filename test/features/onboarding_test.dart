@@ -181,6 +181,36 @@ void main() {
     );
   });
 
+  testApp('alerts can be set to ring on silent, all of them at once', (
+    tester,
+  ) async {
+    await open(tester);
+    await tapText(tester, t.onbContinue);
+    await tapText(tester, t.onbNotNow); // place
+    await tapText(tester, t.onbNotNow); // mosque
+    await tapText(tester, t.onbRingInSilent);
+    await tapText(tester, t.onbContinue);
+    final s = await settings.read();
+    expect(s.adhanAlerts.ringInSilentFor(RingTarget.adhan), RingCoverage.all);
+    expect(
+      s.adhanAlerts.ringInSilentFor(RingTarget.preAdhan),
+      RingCoverage.all,
+    );
+    expect(s.jamaahReminders.ringInSilent, isTrue);
+  });
+
+  testApp('left alone, nothing rings on silent', (tester) async {
+    await open(tester);
+    await tapText(tester, t.onbContinue);
+    await tapText(tester, t.onbNotNow);
+    await tapText(tester, t.onbNotNow);
+    expect(find.text(t.onbRingInSilent), findsOneWidget);
+    await tapText(tester, t.onbContinue);
+    final s = await settings.read();
+    expect(s.adhanAlerts.ringInSilentFor(RingTarget.adhan), RingCoverage.none);
+    expect(s.jamaahReminders.ringInSilent, isFalse);
+  });
+
   testApp('Back returns to the step before', (tester) async {
     await open(tester);
     await tapText(tester, t.onbContinue);

@@ -229,6 +229,7 @@ class SettingsRepository {
           ReminderSound.chime,
         ),
         vibrate: values[SettingKeys.jamaahReminderVibrate] != 'false',
+        ringInSilent: values[SettingKeys.jamaahReminderRingInSilent] == 'true',
       ),
       extraTimes: ExtraTimesSettings(
         imsakMinutes: clampImsakMinutes(
@@ -385,6 +386,7 @@ class SettingsRepository {
             vibrate: Value(alert.vibrate),
             preAdhanMinutes: Value(alert.preAdhanMinutes),
             ringInSilent: Value(alert.ringInSilent),
+            preAdhanRingInSilent: Value(alert.preAdhanRingInSilent),
           );
           await _db
               .into(_db.adhanAlertRows)
@@ -412,6 +414,10 @@ class SettingsRepository {
         await _put(
           SettingKeys.jamaahReminderVibrate,
           '${reminders.vibrate}',
+        );
+        await _put(
+          SettingKeys.jamaahReminderRingInSilent,
+          '${reminders.ringInSilent}',
         );
       });
 
@@ -543,6 +549,7 @@ class SettingsRepository {
                 _ => null,
               },
               ringInSilent: row.ringInSilent,
+              preAdhanRingInSilent: row.preAdhanRingInSilent,
             ),
       },
     );

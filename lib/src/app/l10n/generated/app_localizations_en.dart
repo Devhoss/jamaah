@@ -913,10 +913,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertRingInSilentHint =>
-      'Plays through the alarm volume, so you hear it even on silent. Off by default, so nothing surprises you in a quiet room.';
+      'Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet.';
 
   @override
-  String get alertRingInSilentNeedsAdhan => 'Only for the full or short Adhan.';
+  String get alertRingInSilentNeedsSound => 'Silent has no sound to ring.';
 
   @override
   String get alertReminderHeader => 'Reminder before the Adhan';
@@ -1909,4 +1909,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jumuahRowNotSet => 'Jumu’ah time not set';
+
+  @override
+  String get settingsAdhanRingInSilent => 'Adhan rings on silent';
+
+  @override
+  String get settingsPreAdhanRingInSilent =>
+      'Reminders before the Adhan ring on silent';
+
+  @override
+  String get ringInSilentSome =>
+      'On for some prayers. Each prayer’s page can change it.';
+
+  @override
+  String get alertPreAdhanRingInSilent => 'Reminder rings on silent';
+
+  @override
+  String get onbRingInSilent => 'Ring even when my phone is on silent';
+
+  @override
+  String get onbRingInSilentHint =>
+      'For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings.';
 }

@@ -10,6 +10,7 @@ import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
 import '../../data/settings_repository.dart';
+import '../../domain/adhan_alerts.dart';
 import '../../domain/place.dart';
 import '../../domain/place_near.dart';
 import '../../domain/prayer.dart';
@@ -46,6 +47,7 @@ const _steps = 5;
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   int _step = 0;
   bool? _alertsOn;
+  bool _ringInSilent = false;
   bool? _travelOn;
 
   /// On a first run alerts start on; replayed, the switch shows whether the
@@ -74,6 +76,22 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       // Asked here, right after the user chose alerts, with the reason on
       // screen.
       await ref.read(notificationPermissionRequestProvider)();
+    }
+    // Only ever turns ringing on silent on (2026-10-14): left off, the user's
+    // own settings stay as they are.
+    if (_ringInSilent) {
+      await updateAdhanAlerts(
+        ref,
+        (a) => a
+            .withRingInSilentForAll(RingTarget.adhan, on: true)
+            .withRingInSilentForAll(RingTarget.preAdhan, on: true),
+      );
+      final reminders =
+          (ref.read(appSettingsProvider).value ?? SettingsRepository.defaults)
+              .jamaahReminders;
+      await ref
+          .read(settingsRepositoryProvider)
+          .saveJamaahReminders(reminders.copyWith(ringInSilent: true));
     }
     _next();
   }
@@ -329,6 +347,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         subtitle: Text(l10n.onbAlertsSwitchHint),
         value: _alertsOn ?? _alertsDefault(),
         onChanged: (on) => setState(() => _alertsOn = on),
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(l10n.onbRingInSilent),
+        subtitle: Text(l10n.onbRingInSilentHint),
+        value: _ringInSilent,
+        onChanged: (on) => setState(() => _ringInSilent = on),
       ),
       const SizedBox(height: AppSpace.md),
       Text(

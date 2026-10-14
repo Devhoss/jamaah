@@ -560,7 +560,7 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get alertRingInSilentHint => arabicDigits(super.alertRingInSilentHint);
 
   @override
-  String get alertRingInSilentNeedsAdhan => arabicDigits(super.alertRingInSilentNeedsAdhan);
+  String get alertRingInSilentNeedsSound => arabicDigits(super.alertRingInSilentNeedsSound);
 
   @override
   String get alertReminderHeader => arabicDigits(super.alertReminderHeader);
@@ -1212,6 +1212,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
 
   @override
   String get jumuahRowNotSet => arabicDigits(super.jumuahRowNotSet);
+
+  @override
+  String get settingsAdhanRingInSilent => arabicDigits(super.settingsAdhanRingInSilent);
+
+  @override
+  String get settingsPreAdhanRingInSilent => arabicDigits(super.settingsPreAdhanRingInSilent);
+
+  @override
+  String get ringInSilentSome => arabicDigits(super.ringInSilentSome);
+
+  @override
+  String get alertPreAdhanRingInSilent => arabicDigits(super.alertPreAdhanRingInSilent);
+
+  @override
+  String get onbRingInSilent => arabicDigits(super.onbRingInSilent);
+
+  @override
+  String get onbRingInSilentHint => arabicDigits(super.onbRingInSilentHint);
 
   @override
   String prayerAtTime(String prayer, String time) =>

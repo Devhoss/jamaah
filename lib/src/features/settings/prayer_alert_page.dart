@@ -111,9 +111,7 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
       soundMode: mode,
       mosqueId: '',
       vibrate: alert.vibrate,
-      ringInSilent:
-          alert.ringInSilent &&
-          (mode == AdhanSoundMode.full || mode == AdhanSoundMode.short),
+      ringInSilent: alert.ringInSilent && mode != AdhanSoundMode.silent,
       fullScreen: alerts.fullScreen,
       recordingAsset: switch (mode) {
         AdhanSoundMode.full => adhanRecordingById(alerts.fullRecording).asset,
@@ -151,8 +149,8 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
         SettingsRepository.defaults.adhanAlerts;
     final alert = alerts.alertFor(_prayer);
     final effective = alerts.soundModeFor(_prayer);
-    final plays =
-        effective == AdhanSoundMode.full || effective == AdhanSoundMode.short;
+    // Any sound can ring on silent; only Silent has nothing to ring.
+    final plays = effective != AdhanSoundMode.silent;
     final small = theme.textTheme.bodySmall?.copyWith(color: ink.muted);
     final before = alert.preAdhanMinutes;
     final customSelected =
@@ -243,7 +241,7 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
                 subtitle: Text(
                   plays
                       ? l10n.alertRingInSilentHint
-                      : l10n.alertRingInSilentNeedsAdhan,
+                      : l10n.alertRingInSilentNeedsSound,
                 ),
                 value: plays && alert.ringInSilent,
                 onChanged: plays
@@ -287,6 +285,20 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
               ),
             ],
           ),
+          if (before != null) ...[
+            const SizedBox(height: AppSpace.md),
+            AppRows(
+              children: [
+                SwitchListTile(
+                  title: Text(l10n.alertPreAdhanRingInSilent),
+                  subtitle: Text(l10n.alertRingInSilentHint),
+                  value: alert.preAdhanRingInSilent,
+                  onChanged: (on) =>
+                      _change((a) => a.copyWith(preAdhanRingInSilent: on)),
+                ),
+              ],
+            ),
+          ],
           if (customSelected) ...[
             const SizedBox(height: AppSpace.md),
             TextField(

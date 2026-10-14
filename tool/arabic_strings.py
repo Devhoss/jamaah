@@ -295,8 +295,8 @@ AR = {
     'alertStopPreview': 'إيقاف',
     'alertVibrate': 'اهتزاز',
     'alertRingInSilent': 'التنبيه والهاتف صامت',
-    'alertRingInSilentHint': 'يُشغَّل بصوت المنبّه فتسمعه حتى والهاتف صامت. متوقف افتراضيًا حتى لا يفاجئك في مكان هادئ.',
-    'alertRingInSilentNeedsAdhan': 'للأذان الكامل أو القصير فقط.',
+    'alertRingInSilentHint': 'يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع.',
+    'alertRingInSilentNeedsSound': 'لا صوت في الوضع الصامت ليرنّ.',
     'alertReminderHeader': 'تذكير قبل الأذان',
     'alertReminderHint': 'تنبيه مستقل، حتى لو كان تنبيه الأذان نفسه متوقفًا.',
     'alertReminderNone': 'بدون',
@@ -575,6 +575,12 @@ AR = {
     'jumuahNotSetNote': 'لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر',
     'jumuahRowHint': 'يوم الجمعة بدلًا من الظهر',
     'jumuahRowNotSet': 'وقت الجمعة غير محدَّد',
+    'settingsAdhanRingInSilent': 'الأذان يرنّ والهاتف صامت',
+    'settingsPreAdhanRingInSilent': 'التذكير قبل الأذان يرنّ والهاتف صامت',
+    'ringInSilentSome': 'مفعّل لبعض الصلوات. ويمكن تغييره من صفحة كل صلاة.',
+    'alertPreAdhanRingInSilent': 'التذكير يرنّ والهاتف صامت',
+    'onbRingInSilent': 'التنبيه حتى لو كان هاتفي صامتًا',
+    'onbRingInSilentHint': 'للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات.',
 }
 
 

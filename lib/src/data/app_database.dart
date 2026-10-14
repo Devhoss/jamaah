@@ -68,6 +68,7 @@ abstract final class SettingKeys {
   static const adhanShortClip = 'adhan_short_clip';
   static const jamaahReminderSound = 'jamaah_reminder_sound';
   static const jamaahReminderVibrate = 'jamaah_reminder_vibrate';
+  static const jamaahReminderRingInSilent = 'jamaah_reminder_ring_in_silent';
 
   /// Travel mode and its manual Iqama pause (decided 2026-10-13). Absent means off.
   static const travelMode = 'travel_mode';
@@ -125,6 +126,10 @@ class AdhanAlertRows extends Table {
 
   /// Schema v2. Play the Adhan through the alarm volume even on silent.
   BoolColumn get ringInSilent => boolean().withDefault(const Constant(false))();
+
+  /// Schema v5 (2026-10-14). The reminder before the Adhan rings on silent too.
+  BoolColumn get preAdhanRingInSilent =>
+      boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {prayer};
@@ -230,7 +235,7 @@ class SchedulePrayers extends Table {
 ///
 /// `schemaVersion` 2 added the per-prayer notification columns to
 /// [AdhanAlertRows]; 3 added [Mosques.remindersPaused]; 4 added Jumu'ah to
-/// [Schedules]. v1 was already on a device, so v2 is a real migration and
+/// [Schedules]; 5 added [AdhanAlertRows.preAdhanRingInSilent]. v1 was already on a device, so v2 is a real migration and
 /// keeps every existing row (see test/data/migration_test.dart).
 @DriftDatabase(
   tables: [
@@ -249,7 +254,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : this(driftDatabase(name: 'jamaah'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -284,6 +289,12 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(
           schema.schedules,
           schema.schedules.jumuahReminderMinutesBefore,
+        );
+      },
+      from4To5: (m, schema) async {
+        await m.addColumn(
+          schema.adhanAlertRows,
+          schema.adhanAlertRows.preAdhanRingInSilent,
         );
       },
     ),

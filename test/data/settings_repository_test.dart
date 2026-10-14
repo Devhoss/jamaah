@@ -504,6 +504,7 @@ void main() {
       const changed = JamaahReminderSettings(
         sound: ReminderSound.standard,
         vibrate: false,
+        ringInSilent: true,
       );
       await settings.saveJamaahReminders(changed);
       expect((await settings.read()).jamaahReminders, changed);
@@ -600,5 +601,20 @@ void main() {
       await settings.saveExtraTimes(const ExtraTimesSettings(shown: {}));
       expect((await settings.read()).extraTimes.shown, isEmpty);
     });
+  });
+
+  test('the reminder before each Adhan keeps its own ring-on-silent', () async {
+    final alerts = (await settings.read()).adhanAlerts.withAlert(
+      Prayer.maghrib,
+      const AdhanAlert(
+        enabled: true,
+        preAdhanMinutes: 10,
+        preAdhanRingInSilent: true,
+      ),
+    );
+    await settings.saveAdhanAlerts(alerts);
+    final read = (await settings.read()).adhanAlerts.alertFor(Prayer.maghrib);
+    expect(read.preAdhanRingInSilent, isTrue);
+    expect(read.ringInSilent, isFalse);
   });
 }

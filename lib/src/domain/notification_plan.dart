@@ -45,7 +45,8 @@ class PlannedNotification {
 
   final bool vibrate;
 
-  /// Adhan only: play through the alarm volume even when the phone is on silent.
+  /// Play through the alarm volume even when the phone is on silent: the
+  /// Adhan, the reminder before it, and Jama’ah and extra-time reminders.
   final bool ringInSilent;
 
   /// Adhan only: show the full-screen page when the phone is idle.
@@ -92,7 +93,8 @@ PlannedNotification adhanAlert(
 }) {
   final alert = alerts.alertFor(prayer);
   final mode = alerts.soundModeFor(prayer);
-  final plays = mode == AdhanSoundMode.full || mode == AdhanSoundMode.short;
+  // Any Adhan that makes a sound can ring on silent; a silent one cannot.
+  final plays = mode != AdhanSoundMode.silent;
   return PlannedNotification(
     id: id,
     kind: NotificationKind.adhan,
@@ -238,6 +240,7 @@ class NotificationPlanner {
           soundMode: null,
           mosqueId: '',
           vibrate: input.jamaahReminders.vibrate,
+          ringInSilent: input.jamaahReminders.ringInSilent,
           reminderSound: input.jamaahReminders.sound,
           extraTime: e.time,
         ),
@@ -283,6 +286,7 @@ class NotificationPlanner {
             soundMode: null,
             mosqueId: '',
             vibrate: alert.vibrate,
+            ringInSilent: alert.preAdhanRingInSilent,
             minutesBefore: before,
             jumuah: jumuah,
           ),
@@ -333,6 +337,7 @@ class NotificationPlanner {
           mosqueId: mosque.id,
           minutesBefore: iqama.reminderMinutesBefore,
           vibrate: input.jamaahReminders.vibrate,
+          ringInSilent: input.jamaahReminders.ringInSilent,
           reminderSound: input.jamaahReminders.sound,
           // Dhuhr's own Iqama, while Jumu'ah has no time, is called Dhuhr's.
           jumuah: resolved.isJumuah && !resolved.jumuahNotSet,

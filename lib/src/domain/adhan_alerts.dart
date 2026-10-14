@@ -89,6 +89,42 @@ class AdhanAlertSettings {
 
   bool get hasAnyEnabled => enabledPrayers.isNotEmpty;
 
+  /// Whether [target] rings on silent for all six prayers, none or some: the
+  /// one switch in Settings reads this (2026-10-14).
+  RingCoverage ringInSilentFor(RingTarget target) {
+    final on = Prayer.adhanPrayers.where((p) => _rings(alertFor(p), target));
+    return switch (on.length) {
+      0 => RingCoverage.none,
+      final n when n == Prayer.adhanPrayers.length => RingCoverage.all,
+      _ => RingCoverage.some,
+    };
+  }
+
+  /// [target] set to ring on silent, or not, for every prayer at once. Each
+  /// prayer's page can still change its own afterwards.
+  AdhanAlertSettings withRingInSilentForAll(
+    RingTarget target, {
+    required bool on,
+  }) {
+    var next = this;
+    for (final p in Prayer.adhanPrayers) {
+      final a = alertFor(p);
+      next = next.withAlert(
+        p,
+        switch (target) {
+          RingTarget.adhan => a.copyWith(ringInSilent: on),
+          RingTarget.preAdhan => a.copyWith(preAdhanRingInSilent: on),
+        },
+      );
+    }
+    return next;
+  }
+
+  static bool _rings(AdhanAlert a, RingTarget target) => switch (target) {
+    RingTarget.adhan => a.ringInSilent,
+    RingTarget.preAdhan => a.preAdhanRingInSilent,
+  };
+
   @override
   bool operator ==(Object other) =>
       other is AdhanAlertSettings &&
@@ -108,6 +144,12 @@ class AdhanAlertSettings {
         alerts.length,
       );
 }
+
+/// What rings on silent: the Adhan, or the reminder before it.
+enum RingTarget { adhan, preAdhan }
+
+/// How many of the six prayers ring on silent.
+enum RingCoverage { none, some, all }
 
 bool _sameAlerts(Map<Prayer, AdhanAlert> a, Map<Prayer, AdhanAlert> b) {
   if (a.length != b.length) return false;
@@ -129,6 +171,7 @@ class AdhanAlert {
     this.vibrate = true,
     this.preAdhanMinutes,
     this.ringInSilent = false,
+    this.preAdhanRingInSilent = false,
   }) : assert(
          preAdhanMinutes == null ||
              (preAdhanMinutes >= ReminderInterval.minMinutes &&
@@ -151,6 +194,9 @@ class AdhanAlert {
   /// Off by default, so the app never surprises anyone in a quiet room.
   final bool ringInSilent;
 
+  /// The same for the reminder before the Adhan, on its own (2026-10-14).
+  final bool preAdhanRingInSilent;
+
   bool get hasPreAdhanReminder => preAdhanMinutes != null;
 
   AdhanAlert copyWith({
@@ -161,6 +207,7 @@ class AdhanAlert {
     int? preAdhanMinutes,
     bool clearPreAdhan = false,
     bool? ringInSilent,
+    bool? preAdhanRingInSilent,
   }) => AdhanAlert(
     enabled: enabled ?? this.enabled,
     soundModeOverride: clearOverride
@@ -171,6 +218,7 @@ class AdhanAlert {
         ? null
         : (preAdhanMinutes ?? this.preAdhanMinutes),
     ringInSilent: ringInSilent ?? this.ringInSilent,
+    preAdhanRingInSilent: preAdhanRingInSilent ?? this.preAdhanRingInSilent,
   );
 
   @override
@@ -180,7 +228,8 @@ class AdhanAlert {
       other.soundModeOverride == soundModeOverride &&
       other.vibrate == vibrate &&
       other.preAdhanMinutes == preAdhanMinutes &&
-      other.ringInSilent == ringInSilent;
+      other.ringInSilent == ringInSilent &&
+      other.preAdhanRingInSilent == preAdhanRingInSilent;
 
   @override
   int get hashCode => Object.hash(
@@ -189,6 +238,7 @@ class AdhanAlert {
     vibrate,
     preAdhanMinutes,
     ringInSilent,
+    preAdhanRingInSilent,
   );
 }
 
@@ -254,23 +304,33 @@ class JamaahReminderSettings {
   const JamaahReminderSettings({
     this.sound = ReminderSound.chime,
     this.vibrate = true,
+    this.ringInSilent = false,
   });
 
   final ReminderSound sound;
   final bool vibrate;
 
-  JamaahReminderSettings copyWith({ReminderSound? sound, bool? vibrate}) =>
-      JamaahReminderSettings(
-        sound: sound ?? this.sound,
-        vibrate: vibrate ?? this.vibrate,
-      );
+  /// Play through the alarm volume, so it is heard with the phone on silent
+  /// (2026-10-14). The extra-time alerts, which share this sound, follow it.
+  final bool ringInSilent;
+
+  JamaahReminderSettings copyWith({
+    ReminderSound? sound,
+    bool? vibrate,
+    bool? ringInSilent,
+  }) => JamaahReminderSettings(
+    sound: sound ?? this.sound,
+    vibrate: vibrate ?? this.vibrate,
+    ringInSilent: ringInSilent ?? this.ringInSilent,
+  );
 
   @override
   bool operator ==(Object other) =>
       other is JamaahReminderSettings &&
       other.sound == sound &&
-      other.vibrate == vibrate;
+      other.vibrate == vibrate &&
+      other.ringInSilent == ringInSilent;
 
   @override
-  int get hashCode => Object.hash(sound, vibrate);
+  int get hashCode => Object.hash(sound, vibrate, ringInSilent);
 }

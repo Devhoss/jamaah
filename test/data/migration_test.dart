@@ -29,7 +29,7 @@ void main() {
 
   test('a freshly created database matches drift\'s own expectations',
       () async {
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
     await db.validateDatabaseSchema();
   });
 

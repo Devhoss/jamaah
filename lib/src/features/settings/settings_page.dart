@@ -184,6 +184,29 @@ class SettingsPage extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpace.md),
           _FullScreenRow(alerts: alerts),
+          const SizedBox(height: AppSpace.md),
+          AppRows(
+            children: [
+              for (final (target, title) in [
+                (RingTarget.adhan, l10n.settingsAdhanRingInSilent),
+                (RingTarget.preAdhan, l10n.settingsPreAdhanRingInSilent),
+              ])
+                SwitchListTile(
+                  title: Text(title),
+                  subtitle: Text(
+                    alerts.ringInSilentFor(target) == RingCoverage.some
+                        ? l10n.ringInSilentSome
+                        : l10n.alertRingInSilentHint,
+                  ),
+                  // A mix reads as off: one tap rings them all.
+                  value: alerts.ringInSilentFor(target) == RingCoverage.all,
+                  onChanged: (on) => updateAdhanAlerts(
+                    ref,
+                    (a) => a.withRingInSilentForAll(target, on: on),
+                  ),
+                ),
+            ],
+          ),
           AppSectionHeader(l10n.settingsIqamaSection),
           Text(l10n.settingsIqamaBody, style: theme.textTheme.bodyMedium),
           const SizedBox(height: AppSpace.sm),

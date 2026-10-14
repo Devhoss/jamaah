@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/extra_times.dart';
 import 'package:jamaah/src/domain/mosque.dart';
+import 'package:jamaah/src/domain/notification_channels.dart';
 import 'package:jamaah/src/domain/notification_plan.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
@@ -184,11 +186,11 @@ void main() {
       expect(planned.every((n) => !n.vibrate), isTrue);
     });
 
-    test('ring in silent applies to a playing Adhan only', () {
+    test('ring in silent applies to any Adhan that makes a sound', () {
       for (final (mode, rings) in [
         (AdhanSoundMode.full, true),
         (AdhanSoundMode.short, true),
-        (AdhanSoundMode.standard, false),
+        (AdhanSoundMode.standard, true),
         (AdhanSoundMode.silent, false),
       ]) {
         final planned = plan(
@@ -278,6 +280,96 @@ void main() {
       );
       expect(late, greaterThan(0));
       expect(late, lessThan(0x7FFFFFFF));
+    });
+  });
+
+  group('ringing on silent (2026-10-14)', () {
+    test('the reminder before the Adhan rings on silent on its own switch', () {
+      final planned = plan(
+        AdhanAlertSettings.defaults().withAlert(
+          Prayer.dhuhr,
+          const AdhanAlert(
+            enabled: true,
+            preAdhanMinutes: 10,
+            preAdhanRingInSilent: true,
+          ),
+        ),
+      );
+      final adhan = planned.singleWhere((n) => n.kind == NotificationKind.adhan);
+      final before = planned.singleWhere(
+        (n) => n.kind == NotificationKind.preAdhan,
+      );
+      expect(adhan.ringInSilent, isFalse, reason: 'its own switch is off');
+      expect(before.ringInSilent, isTrue);
+      expect(channelFor(before).alarmStream, isTrue);
+      expect(channelFor(before).id, 'jamaah_reminder_vib_alarm');
+    });
+
+    test('Jama’ah reminders and extra-time alerts follow the reminder switch', () {
+      for (final ring in [false, true]) {
+        final planned = const NotificationPlanner().plan(
+          NotificationPlanInput(
+            today: day,
+            now: DateTime.utc(2026, 10, 12),
+            prayerTimeOf: {day: times},
+            zoneOffsetFor: (_) => 180,
+            adhanAlerts: AdhanAlertSettings.defaults(),
+            activeMosque: mosqueWithFajrReminder(),
+            jamaahReminders: JamaahReminderSettings(ringInSilent: ring),
+            extraTimes: [
+              ExtraTimeAt(
+                time: ExtraTime.imsak,
+                day: day,
+                at: const LocalTime(5 * 60 + 18),
+                utc: at(5 * 60 + 18),
+              ),
+            ],
+            windowDays: 1,
+          ),
+        );
+        expect(planned, hasLength(2));
+        for (final n in planned) {
+          expect(n.ringInSilent, ring, reason: n.kind.name);
+          expect(channelFor(n).alarmStream, ring, reason: n.kind.name);
+        }
+      }
+    });
+
+    test('a silent Jama’ah reminder stays silent', () {
+      final n = PlannedNotification(
+        id: 1,
+        kind: NotificationKind.iqama,
+        prayer: Prayer.fajr,
+        at: DateTime.utc(2026),
+        soundMode: null,
+        mosqueId: 'm1',
+        reminderSound: ReminderSound.silent,
+        ringInSilent: true,
+      );
+      expect(channelFor(n).alarmStream, isFalse);
+    });
+
+    test('one switch for every Adhan, and what it reads back', () {
+      final none = AdhanAlertSettings.defaults();
+      expect(none.ringInSilentFor(RingTarget.adhan), RingCoverage.none);
+      final all = none.withRingInSilentForAll(RingTarget.adhan, on: true);
+      expect(all.ringInSilentFor(RingTarget.adhan), RingCoverage.all);
+      expect(
+        Prayer.adhanPrayers.every((p) => all.alertFor(p).ringInSilent),
+        isTrue,
+      );
+      expect(all.ringInSilentFor(RingTarget.preAdhan), RingCoverage.none);
+      final some = all.withAlert(
+        Prayer.fajr,
+        all.alertFor(Prayer.fajr).copyWith(ringInSilent: false),
+      );
+      expect(some.ringInSilentFor(RingTarget.adhan), RingCoverage.some);
+      final before = none.withRingInSilentForAll(RingTarget.preAdhan, on: true);
+      expect(
+        Prayer.adhanPrayers.every((p) => before.alertFor(p).preAdhanRingInSilent),
+        isTrue,
+      );
+      expect(before.ringInSilentFor(RingTarget.adhan), RingCoverage.none);
     });
   });
 }

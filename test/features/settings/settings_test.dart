@@ -247,22 +247,90 @@ void main() {
       expect(find.text(t.alertStopPreview), findsNothing);
     });
 
-    testApp('ring in silent waits for a sound that plays', (tester) async {
+    testApp('ring in silent needs a sound, the standard one included', (
+      tester,
+    ) async {
       await open(tester);
       await openPrayer(tester, Prayer.isha);
 
       final ring = switchTile(t.alertRingInSilent);
-      await reveal(tester, ring);
-      expect(
-        tester.widget<SwitchListTile>(ring).onChanged,
-        isNull,
-        reason: 'the default is the standard sound: nothing to ring',
-      );
-      expect(find.text(t.alertRingInSilentNeedsAdhan), findsOneWidget);
-
-      await tapText(tester, t.soundModeShort);
       await tap(tester, ring);
-      expect((await stored()).alertFor(Prayer.isha).ringInSilent, isTrue);
+      expect(
+        (await stored()).alertFor(Prayer.isha).ringInSilent,
+        isTrue,
+        reason: 'the standard sound can ring on silent too',
+      );
+
+      await tester.scrollUntilVisible(
+        find.text(t.soundModeSilent),
+        -200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tapText(tester, t.soundModeSilent);
+      await reveal(tester, ring);
+      expect(tester.widget<SwitchListTile>(ring).onChanged, isNull);
+      expect(find.text(t.alertRingInSilentNeedsSound), findsOneWidget);
+    });
+
+    testApp('the reminder before the Adhan rings on silent on its own', (
+      tester,
+    ) async {
+      await open(tester);
+      await openPrayer(tester, Prayer.maghrib);
+      await tapText(tester, t.reminderMinutesChip(10));
+      await tap(tester, switchTile(t.alertPreAdhanRingInSilent));
+      final alert = (await stored()).alertFor(Prayer.maghrib);
+      expect(alert.preAdhanRingInSilent, isTrue);
+      expect(alert.ringInSilent, isFalse);
+    });
+
+    testApp('Settings rings every Adhan on silent with one switch', (
+      tester,
+    ) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await tap(tester, switchTile(t.settingsAdhanRingInSilent));
+      expect(
+        (await stored()).ringInSilentFor(RingTarget.adhan),
+        RingCoverage.all,
+      );
+      expect(
+        (await stored()).ringInSilentFor(RingTarget.preAdhan),
+        RingCoverage.none,
+        reason: 'the reminders before have their own switch',
+      );
+      await tap(tester, switchTile(t.settingsPreAdhanRingInSilent));
+      expect(
+        (await stored()).ringInSilentFor(RingTarget.preAdhan),
+        RingCoverage.all,
+      );
+    });
+
+    testApp('a mix of prayers is said, and one tap rings them all', (
+      tester,
+    ) async {
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings.defaults().withAlert(
+          Prayer.fajr,
+          const AdhanAlert(enabled: true, ringInSilent: true),
+        ),
+      );
+      await open(tester);
+      await openSettingsPage(tester);
+      await reveal(tester, find.text(t.ringInSilentSome));
+      expect(find.text(t.ringInSilentSome), findsOneWidget);
+      await tap(tester, switchTile(t.settingsAdhanRingInSilent));
+      expect(
+        (await stored()).ringInSilentFor(RingTarget.adhan),
+        RingCoverage.all,
+      );
+    });
+
+    testApp('Jama’ah reminders can ring on silent', (tester) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await tap(tester, switchTile(t.alertRingInSilent));
+      expect((await settings.read()).jamaahReminders.ringInSilent, isTrue);
     });
 
     testApp('vibration can be turned off', (tester) async {

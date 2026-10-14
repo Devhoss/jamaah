@@ -101,6 +101,7 @@ class _JamaahReminderSoundRowsState
       mosqueId: active?.id ?? '',
       minutesBefore: 10,
       vibrate: settings.vibrate,
+      ringInSilent: settings.ringInSilent,
       reminderSound: settings.sound,
     );
     await ref.read(notificationPermissionRequestProvider)();
@@ -158,6 +159,20 @@ class _JamaahReminderSoundRowsState
               title: Text(l10n.settingsReminderVibrate),
               value: reminders.vibrate,
               onChanged: (on) => _save(reminders.copyWith(vibrate: on)),
+            ),
+            SwitchListTile(
+              title: Text(l10n.alertRingInSilent),
+              subtitle: Text(
+                reminders.sound == ReminderSound.silent
+                    ? l10n.alertRingInSilentNeedsSound
+                    : l10n.alertRingInSilentHint,
+              ),
+              value:
+                  reminders.ringInSilent &&
+                  reminders.sound != ReminderSound.silent,
+              onChanged: reminders.sound == ReminderSound.silent
+                  ? null
+                  : (on) => _save(reminders.copyWith(ringInSilent: on)),
             ),
           ],
         ),

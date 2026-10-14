@@ -254,8 +254,8 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 241 | `alertStopPreview` | Stop | إيقاف |
 | 242 | `alertVibrate` | Vibrate | اهتزاز |
 | 243 | `alertRingInSilent` | Ring when the phone is on silent | التنبيه والهاتف صامت |
-| 244 | `alertRingInSilentHint` | Plays through the alarm volume, so you hear it even on silent. Off by default, so nothing surprises you in a quiet room. | يُشغَّل بصوت المنبّه فتسمعه حتى والهاتف صامت. متوقف افتراضيًا حتى لا يفاجئك في مكان هادئ. |
-| 245 | `alertRingInSilentNeedsAdhan` | Only for the full or short Adhan. | للأذان الكامل أو القصير فقط. |
+| 244 | `alertRingInSilentHint` | Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet. | يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع. |
+| 245 | `alertRingInSilentNeedsSound` | Silent has no sound to ring. | لا صوت في الوضع الصامت ليرنّ. |
 | 246 | `alertReminderHeader` | Reminder before the Adhan | تذكير قبل الأذان |
 | 247 | `alertReminderHint` | A separate heads-up, even if the Adhan alert itself is off. | تنبيه مستقل، حتى لو كان تنبيه الأذان نفسه متوقفًا. |
 | 248 | `alertReminderNone` | None | بدون |
@@ -524,3 +524,9 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 511 | `jumuahNotSetNote` | Jumu’ah time not set · showing Dhuhr Iqama | لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر |
 | 512 | `jumuahRowHint` | Fridays, in place of Dhuhr | يوم الجمعة بدلًا من الظهر |
 | 513 | `jumuahRowNotSet` | Jumu’ah time not set | وقت الجمعة غير محدَّد |
+| 514 | `settingsAdhanRingInSilent` | Adhan rings on silent | الأذان يرنّ والهاتف صامت |
+| 515 | `settingsPreAdhanRingInSilent` | Reminders before the Adhan ring on silent | التذكير قبل الأذان يرنّ والهاتف صامت |
+| 516 | `ringInSilentSome` | On for some prayers. Each prayer’s page can change it. | مفعّل لبعض الصلوات. ويمكن تغييره من صفحة كل صلاة. |
+| 517 | `alertPreAdhanRingInSilent` | Reminder rings on silent | التذكير يرنّ والهاتف صامت |
+| 518 | `onbRingInSilent` | Ring even when my phone is on silent | التنبيه حتى لو كان هاتفي صامتًا |
+| 519 | `onbRingInSilentHint` | For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings. | للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات. |

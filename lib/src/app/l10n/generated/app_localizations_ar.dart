@@ -993,10 +993,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get alertRingInSilentHint =>
-      'يُشغَّل بصوت المنبّه فتسمعه حتى والهاتف صامت. متوقف افتراضيًا حتى لا يفاجئك في مكان هادئ.';
+      'يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع.';
 
   @override
-  String get alertRingInSilentNeedsAdhan => 'للأذان الكامل أو القصير فقط.';
+  String get alertRingInSilentNeedsSound => 'لا صوت في الوضع الصامت ليرنّ.';
 
   @override
   String get alertReminderHeader => 'تذكير قبل الأذان';
@@ -2042,4 +2042,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get jumuahRowNotSet => 'وقت الجمعة غير محدَّد';
+
+  @override
+  String get settingsAdhanRingInSilent => 'الأذان يرنّ والهاتف صامت';
+
+  @override
+  String get settingsPreAdhanRingInSilent =>
+      'التذكير قبل الأذان يرنّ والهاتف صامت';
+
+  @override
+  String get ringInSilentSome =>
+      'مفعّل لبعض الصلوات. ويمكن تغييره من صفحة كل صلاة.';
+
+  @override
+  String get alertPreAdhanRingInSilent => 'التذكير يرنّ والهاتف صامت';
+
+  @override
+  String get onbRingInSilent => 'التنبيه حتى لو كان هاتفي صامتًا';
+
+  @override
+  String get onbRingInSilentHint =>
+      'للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات.';
 }

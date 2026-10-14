@@ -305,6 +305,20 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _preAdhanRingInSilentMeta =
+      const VerificationMeta('preAdhanRingInSilent');
+  @override
+  late final GeneratedColumn<bool> preAdhanRingInSilent = GeneratedColumn<bool>(
+    'pre_adhan_ring_in_silent',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pre_adhan_ring_in_silent" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     prayer,
@@ -313,6 +327,7 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
     vibrate,
     preAdhanMinutes,
     ringInSilent,
+    preAdhanRingInSilent,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -373,6 +388,15 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
         ),
       );
     }
+    if (data.containsKey('pre_adhan_ring_in_silent')) {
+      context.handle(
+        _preAdhanRingInSilentMeta,
+        preAdhanRingInSilent.isAcceptableOrUnknown(
+          data['pre_adhan_ring_in_silent']!,
+          _preAdhanRingInSilentMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -406,6 +430,10 @@ class $AdhanAlertRowsTable extends AdhanAlertRows
         DriftSqlType.bool,
         data['${effectivePrefix}ring_in_silent'],
       )!,
+      preAdhanRingInSilent: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pre_adhan_ring_in_silent'],
+      )!,
     );
   }
 
@@ -430,6 +458,9 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
 
   /// Schema v2. Play the Adhan through the alarm volume even on silent.
   final bool ringInSilent;
+
+  /// Schema v5 (2026-10-14). The reminder before the Adhan rings on silent too.
+  final bool preAdhanRingInSilent;
   const AdhanAlertRow({
     required this.prayer,
     required this.enabled,
@@ -437,6 +468,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
     required this.vibrate,
     this.preAdhanMinutes,
     required this.ringInSilent,
+    required this.preAdhanRingInSilent,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -451,6 +483,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       map['pre_adhan_minutes'] = Variable<int>(preAdhanMinutes);
     }
     map['ring_in_silent'] = Variable<bool>(ringInSilent);
+    map['pre_adhan_ring_in_silent'] = Variable<bool>(preAdhanRingInSilent);
     return map;
   }
 
@@ -466,6 +499,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
           ? const Value.absent()
           : Value(preAdhanMinutes),
       ringInSilent: Value(ringInSilent),
+      preAdhanRingInSilent: Value(preAdhanRingInSilent),
     );
   }
 
@@ -481,6 +515,9 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       vibrate: serializer.fromJson<bool>(json['vibrate']),
       preAdhanMinutes: serializer.fromJson<int?>(json['preAdhanMinutes']),
       ringInSilent: serializer.fromJson<bool>(json['ringInSilent']),
+      preAdhanRingInSilent: serializer.fromJson<bool>(
+        json['preAdhanRingInSilent'],
+      ),
     );
   }
   @override
@@ -493,6 +530,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       'vibrate': serializer.toJson<bool>(vibrate),
       'preAdhanMinutes': serializer.toJson<int?>(preAdhanMinutes),
       'ringInSilent': serializer.toJson<bool>(ringInSilent),
+      'preAdhanRingInSilent': serializer.toJson<bool>(preAdhanRingInSilent),
     };
   }
 
@@ -503,6 +541,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
     bool? vibrate,
     Value<int?> preAdhanMinutes = const Value.absent(),
     bool? ringInSilent,
+    bool? preAdhanRingInSilent,
   }) => AdhanAlertRow(
     prayer: prayer ?? this.prayer,
     enabled: enabled ?? this.enabled,
@@ -514,6 +553,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
         ? preAdhanMinutes.value
         : this.preAdhanMinutes,
     ringInSilent: ringInSilent ?? this.ringInSilent,
+    preAdhanRingInSilent: preAdhanRingInSilent ?? this.preAdhanRingInSilent,
   );
   AdhanAlertRow copyWithCompanion(AdhanAlertRowsCompanion data) {
     return AdhanAlertRow(
@@ -529,6 +569,9 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
       ringInSilent: data.ringInSilent.present
           ? data.ringInSilent.value
           : this.ringInSilent,
+      preAdhanRingInSilent: data.preAdhanRingInSilent.present
+          ? data.preAdhanRingInSilent.value
+          : this.preAdhanRingInSilent,
     );
   }
 
@@ -540,7 +583,8 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
           ..write('soundOverride: $soundOverride, ')
           ..write('vibrate: $vibrate, ')
           ..write('preAdhanMinutes: $preAdhanMinutes, ')
-          ..write('ringInSilent: $ringInSilent')
+          ..write('ringInSilent: $ringInSilent, ')
+          ..write('preAdhanRingInSilent: $preAdhanRingInSilent')
           ..write(')'))
         .toString();
   }
@@ -553,6 +597,7 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
     vibrate,
     preAdhanMinutes,
     ringInSilent,
+    preAdhanRingInSilent,
   );
   @override
   bool operator ==(Object other) =>
@@ -563,7 +608,8 @@ class AdhanAlertRow extends DataClass implements Insertable<AdhanAlertRow> {
           other.soundOverride == this.soundOverride &&
           other.vibrate == this.vibrate &&
           other.preAdhanMinutes == this.preAdhanMinutes &&
-          other.ringInSilent == this.ringInSilent);
+          other.ringInSilent == this.ringInSilent &&
+          other.preAdhanRingInSilent == this.preAdhanRingInSilent);
 }
 
 class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
@@ -573,6 +619,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
   final Value<bool> vibrate;
   final Value<int?> preAdhanMinutes;
   final Value<bool> ringInSilent;
+  final Value<bool> preAdhanRingInSilent;
   final Value<int> rowid;
   const AdhanAlertRowsCompanion({
     this.prayer = const Value.absent(),
@@ -581,6 +628,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     this.vibrate = const Value.absent(),
     this.preAdhanMinutes = const Value.absent(),
     this.ringInSilent = const Value.absent(),
+    this.preAdhanRingInSilent = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AdhanAlertRowsCompanion.insert({
@@ -590,6 +638,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     this.vibrate = const Value.absent(),
     this.preAdhanMinutes = const Value.absent(),
     this.ringInSilent = const Value.absent(),
+    this.preAdhanRingInSilent = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : prayer = Value(prayer);
   static Insertable<AdhanAlertRow> custom({
@@ -599,6 +648,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     Expression<bool>? vibrate,
     Expression<int>? preAdhanMinutes,
     Expression<bool>? ringInSilent,
+    Expression<bool>? preAdhanRingInSilent,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -608,6 +658,8 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
       if (vibrate != null) 'vibrate': vibrate,
       if (preAdhanMinutes != null) 'pre_adhan_minutes': preAdhanMinutes,
       if (ringInSilent != null) 'ring_in_silent': ringInSilent,
+      if (preAdhanRingInSilent != null)
+        'pre_adhan_ring_in_silent': preAdhanRingInSilent,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -619,6 +671,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     Value<bool>? vibrate,
     Value<int?>? preAdhanMinutes,
     Value<bool>? ringInSilent,
+    Value<bool>? preAdhanRingInSilent,
     Value<int>? rowid,
   }) {
     return AdhanAlertRowsCompanion(
@@ -628,6 +681,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
       vibrate: vibrate ?? this.vibrate,
       preAdhanMinutes: preAdhanMinutes ?? this.preAdhanMinutes,
       ringInSilent: ringInSilent ?? this.ringInSilent,
+      preAdhanRingInSilent: preAdhanRingInSilent ?? this.preAdhanRingInSilent,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -653,6 +707,11 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
     if (ringInSilent.present) {
       map['ring_in_silent'] = Variable<bool>(ringInSilent.value);
     }
+    if (preAdhanRingInSilent.present) {
+      map['pre_adhan_ring_in_silent'] = Variable<bool>(
+        preAdhanRingInSilent.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -668,6 +727,7 @@ class AdhanAlertRowsCompanion extends UpdateCompanion<AdhanAlertRow> {
           ..write('vibrate: $vibrate, ')
           ..write('preAdhanMinutes: $preAdhanMinutes, ')
           ..write('ringInSilent: $ringInSilent, ')
+          ..write('preAdhanRingInSilent: $preAdhanRingInSilent, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2576,6 +2636,7 @@ typedef $$AdhanAlertRowsTableCreateCompanionBuilder =
       Value<bool> vibrate,
       Value<int?> preAdhanMinutes,
       Value<bool> ringInSilent,
+      Value<bool> preAdhanRingInSilent,
       Value<int> rowid,
     });
 typedef $$AdhanAlertRowsTableUpdateCompanionBuilder =
@@ -2586,6 +2647,7 @@ typedef $$AdhanAlertRowsTableUpdateCompanionBuilder =
       Value<bool> vibrate,
       Value<int?> preAdhanMinutes,
       Value<bool> ringInSilent,
+      Value<bool> preAdhanRingInSilent,
       Value<int> rowid,
     });
 
@@ -2625,6 +2687,11 @@ class $$AdhanAlertRowsTableFilterComposer
 
   ColumnFilters<bool> get ringInSilent => $composableBuilder(
     column: $table.ringInSilent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get preAdhanRingInSilent => $composableBuilder(
+    column: $table.preAdhanRingInSilent,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2667,6 +2734,11 @@ class $$AdhanAlertRowsTableOrderingComposer
     column: $table.ringInSilent,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get preAdhanRingInSilent => $composableBuilder(
+    column: $table.preAdhanRingInSilent,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AdhanAlertRowsTableAnnotationComposer
@@ -2699,6 +2771,11 @@ class $$AdhanAlertRowsTableAnnotationComposer
 
   GeneratedColumn<bool> get ringInSilent => $composableBuilder(
     column: $table.ringInSilent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get preAdhanRingInSilent => $composableBuilder(
+    column: $table.preAdhanRingInSilent,
     builder: (column) => column,
   );
 }
@@ -2742,6 +2819,7 @@ class $$AdhanAlertRowsTableTableManager
                 Value<bool> vibrate = const Value.absent(),
                 Value<int?> preAdhanMinutes = const Value.absent(),
                 Value<bool> ringInSilent = const Value.absent(),
+                Value<bool> preAdhanRingInSilent = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AdhanAlertRowsCompanion(
                 prayer: prayer,
@@ -2750,6 +2828,7 @@ class $$AdhanAlertRowsTableTableManager
                 vibrate: vibrate,
                 preAdhanMinutes: preAdhanMinutes,
                 ringInSilent: ringInSilent,
+                preAdhanRingInSilent: preAdhanRingInSilent,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2760,6 +2839,7 @@ class $$AdhanAlertRowsTableTableManager
                 Value<bool> vibrate = const Value.absent(),
                 Value<int?> preAdhanMinutes = const Value.absent(),
                 Value<bool> ringInSilent = const Value.absent(),
+                Value<bool> preAdhanRingInSilent = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AdhanAlertRowsCompanion.insert(
                 prayer: prayer,
@@ -2768,6 +2848,7 @@ class $$AdhanAlertRowsTableTableManager
                 vibrate: vibrate,
                 preAdhanMinutes: preAdhanMinutes,
                 ringInSilent: ringInSilent,
+                preAdhanRingInSilent: preAdhanRingInSilent,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
