@@ -1281,6 +1281,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inFlightTitle => 'In flight';
 
   @override
+  String get inFlightHelp => 'How it works';
+
+  @override
+  String get inFlightHelpTitle => 'In-flight mode';
+
+  @override
+  String get inFlightHelpIntro =>
+      'Prayer times and the Qibla on a plane, with no internet and without changing your phone\'s clock.';
+
+  @override
+  String get inFlightHelpStartTitle => 'Starting it';
+
+  @override
+  String get inFlightHelpStartBody =>
+      'Turn on travel mode with the airplane at the top of the app. On Today, tap “On a flight?”, then “Start GPS” and allow precise location. Sit by a window if you can: the phone\'s GPS works in airplane mode, but needs a view of the sky and can take a minute or two to find you.';
+
+  @override
+  String get inFlightHelpTimesTitle => 'The prayer times';
+
+  @override
+  String get inFlightHelpTimesBody =>
+      '“Now” and “Next” are for where the aircraft is at this moment, shown on your phone\'s clock. Up high, the sun sets later and rises earlier than on the ground below, so Maghrib and sunrise follow the sun as you see it from the aircraft. Fajr and Isha follow your calculation method.';
+
+  @override
+  String get inFlightHelpRouteTitle => 'Along the route';
+
+  @override
+  String get inFlightHelpRouteBody =>
+      'While the aircraft is moving, Jama’ah estimates when you will meet the next prayers if it keeps the same course and speed. The estimate updates with each GPS reading, so it gets better as the flight goes on. Flying east, prayers come sooner; flying west, the aircraft almost keeps pace with the sun, so sunset can stay hours away.';
+
+  @override
+  String get inFlightHelpQiblaTitle => 'The Qibla aboard';
+
+  @override
+  String get inFlightHelpQiblaBody =>
+      'The phone\'s compass is not reliable inside an aircraft, so the arrow uses the direction the aircraft is flying, from GPS. It shows how far to the right or left of the nose the Qibla is. On the ground, or if you prefer, enter the heading shown on the seat-back map.';
+
+  @override
+  String get inFlightHelpAlertsTitle => 'Alerts in flight';
+
+  @override
+  String get inFlightHelpAlertsBody =>
+      'While the aircraft is moving, your usual alerts for the place you left are paused, Jama’ah reminders too, and the next prayer along the route is alerted instead, marked as estimated. It uses that prayer\'s own Adhan settings. The pause ends by itself 90 minutes after the last GPS reading, or when you tap “End in-flight mode”. At home or at the gate nothing is paused.';
+
+  @override
+  String get inFlightHelpTipsTitle => 'Good to know';
+
+  @override
+  String get inFlightHelpTipsBody =>
+      'Keep the in-flight screen open for the best updates; with the screen off for long, the phone may pause GPS. Nothing about where you are is sent anywhere. Questions about how to pray aboard, such as shortening or combining prayers, are for your scholar: Jama’ah gives the times and the direction only.';
+
+  @override
   String notifInFlightBody(String prayer) {
     return 'It\'s time for $prayer, estimated for the aircraft\'s route.';
   }

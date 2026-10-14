@@ -295,6 +295,9 @@ regions read from the parameters the calculator uses), the **Asr method**
   place are held, and the next projected prayer is alerted as that prayer's Adhan alert
   is set up, saying it is estimated. The hold ends on its own 90 minutes after the last
   GPS fix, or with "End in-flight mode" (on the screen or on Today).
+- **User guide:** the ? on the in-flight screen opens "How it works" (English and
+  Arabic, works offline). The same text is in `docs/user-guide/in-flight-mode.md`,
+  generated from the strings by `tool/user_guide.py`.
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 

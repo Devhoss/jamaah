@@ -2208,6 +2208,96 @@ abstract class AppLocalizations {
   /// **'In flight'**
   String get inFlightTitle;
 
+  /// No description provided for @inFlightHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get inFlightHelp;
+
+  /// No description provided for @inFlightHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'In-flight mode'**
+  String get inFlightHelpTitle;
+
+  /// No description provided for @inFlightHelpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times and the Qibla on a plane, with no internet and without changing your phone\'s clock.'**
+  String get inFlightHelpIntro;
+
+  /// No description provided for @inFlightHelpStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting it'**
+  String get inFlightHelpStartTitle;
+
+  /// No description provided for @inFlightHelpStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on travel mode with the airplane at the top of the app. On Today, tap “On a flight?”, then “Start GPS” and allow precise location. Sit by a window if you can: the phone\'s GPS works in airplane mode, but needs a view of the sky and can take a minute or two to find you.'**
+  String get inFlightHelpStartBody;
+
+  /// No description provided for @inFlightHelpTimesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The prayer times'**
+  String get inFlightHelpTimesTitle;
+
+  /// No description provided for @inFlightHelpTimesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“Now” and “Next” are for where the aircraft is at this moment, shown on your phone\'s clock. Up high, the sun sets later and rises earlier than on the ground below, so Maghrib and sunrise follow the sun as you see it from the aircraft. Fajr and Isha follow your calculation method.'**
+  String get inFlightHelpTimesBody;
+
+  /// No description provided for @inFlightHelpRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Along the route'**
+  String get inFlightHelpRouteTitle;
+
+  /// No description provided for @inFlightHelpRouteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'While the aircraft is moving, Jama’ah estimates when you will meet the next prayers if it keeps the same course and speed. The estimate updates with each GPS reading, so it gets better as the flight goes on. Flying east, prayers come sooner; flying west, the aircraft almost keeps pace with the sun, so sunset can stay hours away.'**
+  String get inFlightHelpRouteBody;
+
+  /// No description provided for @inFlightHelpQiblaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Qibla aboard'**
+  String get inFlightHelpQiblaTitle;
+
+  /// No description provided for @inFlightHelpQiblaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone\'s compass is not reliable inside an aircraft, so the arrow uses the direction the aircraft is flying, from GPS. It shows how far to the right or left of the nose the Qibla is. On the ground, or if you prefer, enter the heading shown on the seat-back map.'**
+  String get inFlightHelpQiblaBody;
+
+  /// No description provided for @inFlightHelpAlertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts in flight'**
+  String get inFlightHelpAlertsTitle;
+
+  /// No description provided for @inFlightHelpAlertsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'While the aircraft is moving, your usual alerts for the place you left are paused, Jama’ah reminders too, and the next prayer along the route is alerted instead, marked as estimated. It uses that prayer\'s own Adhan settings. The pause ends by itself 90 minutes after the last GPS reading, or when you tap “End in-flight mode”. At home or at the gate nothing is paused.'**
+  String get inFlightHelpAlertsBody;
+
+  /// No description provided for @inFlightHelpTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Good to know'**
+  String get inFlightHelpTipsTitle;
+
+  /// No description provided for @inFlightHelpTipsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the in-flight screen open for the best updates; with the screen off for long, the phone may pause GPS. Nothing about where you are is sent anywhere. Questions about how to pray aboard, such as shortening or combining prayers, are for your scholar: Jama’ah gives the times and the direction only.'**
+  String get inFlightHelpTipsBody;
+
   /// No description provided for @notifInFlightBody.
   ///
   /// In en, this message translates to:

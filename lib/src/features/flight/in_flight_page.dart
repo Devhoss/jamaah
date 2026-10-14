@@ -24,6 +24,7 @@ import '../../domain/zone_lookup.dart';
 import '../../domain/zone_offsets.dart';
 import '../location/place_copy.dart';
 import '../components/app_widgets.dart';
+import 'in_flight_help_page.dart';
 
 Future<void> openInFlight(BuildContext context) =>
     Navigator.of(context)
@@ -303,7 +304,16 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.inFlightTitle)),
+      appBar: AppBar(
+        title: Text(l10n.inFlightTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: l10n.inFlightHelp,
+            onPressed: () => openInFlightHelp(context),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpace.xxl,

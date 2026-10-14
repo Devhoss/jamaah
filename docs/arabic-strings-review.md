@@ -362,104 +362,119 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 349 | `settingsHijri` | Hijri date | التاريخ الهجري |
 | 350 | `zoneNotePlace` | Times are local time in {place} ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي في {place} ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
 | 351 | `inFlightTitle` | In flight | على متن الطائرة |
-| 352 | `notifInFlightBody` | It's time for {prayer}, estimated for the aircraft's route. | حان موعد {prayer}، بتقدير مسار الطائرة. |
-| 353 | `inFlightAlongRoute` | Along this route: {prayer}, {countdown} | على هذا المسار: {prayer}، {countdown} |
-| 354 | `inFlightAlongRouteThen` | Then {prayer}, about {time} on your phone | ثم {prayer}، نحو {time} على ساعة هاتفك |
-| 355 | `inFlightAboutOnPhone` | About {time} on your phone | نحو {time} على ساعة هاتفك |
-| 356 | `inFlightAssumesCourse` | Assumes the aircraft keeps its course and speed; updated with each GPS fix. | على افتراض أن الطائرة تحافظ على اتجاهها وسرعتها؛ ويتحدّث مع كل قراءة GPS. |
-| 357 | `inFlightAlertsHeld` | Alerts for {place} are paused until {time}. The next prayer along the route is alerted instead. | تنبيهات {place} موقوفة حتى {time}، ويُنبَّه بدلًا منها للصلاة التالية على مسار الرحلة. |
-| 358 | `inFlightEnd` | End in-flight mode | إنهاء وضع الطيران |
-| 359 | `inFlightHeldNote` | In-flight mode: regular alerts are paused until {time}. | وضع الطيران: التنبيهات المعتادة موقوفة حتى {time}. |
-| 360 | `inFlightCardTitle` | On a flight? | على متن رحلة؟ |
-| 361 | `inFlightCardBody` | Prayer times and the Qibla aboard, from GPS, with no network. | مواقيت الصلاة والقبلة على متن الطائرة، من GPS ودون اتصال. |
-| 362 | `inFlightExplainBody` | Jama’ah uses your phone's GPS, which works in airplane mode, to find where the aircraft is. It needs precise location, and works best by a window. Nothing is sent anywhere. | يستخدم التطبيق GPS في هاتفك، وهو يعمل في وضع الطيران، لمعرفة مكان الطائرة. يحتاج إلى الموقع الدقيق، ويعمل أفضل بجانب النافذة. لا يُرسل أي شيء. |
-| 363 | `inFlightStart` | Start GPS | تشغيل GPS |
-| 364 | `inFlightWaiting` | Waiting for GPS… A window seat helps. | بانتظار GPS… المقعد بجانب النافذة يساعد. |
-| 365 | `inFlightServiceOff` | Location is off on this phone. Turn it on to use GPS aboard. | الموقع متوقف في هذا الهاتف. شغّله لاستخدام GPS على متن الطائرة. |
-| 366 | `inFlightNeedsPrecise` | In-flight mode needs precise location. Try again and choose “Precise”. | يحتاج وضع الطيران إلى الموقع الدقيق. حاول مرة أخرى واختر «دقيق». |
-| 367 | `inFlightPermanentlyDenied` | Precise location is turned off for Jama’ah. You can allow it in the app's settings. | الموقع الدقيق متوقف لهذا التطبيق. يمكنك السماح به من إعدادات التطبيق. |
-| 368 | `inFlightOpenSettings` | Open app settings | فتح إعدادات التطبيق |
-| 369 | `inFlightTryAgain` | Try again | حاول مرة أخرى |
-| 370 | `inFlightAltitudeSpeed` | {altitude} m · {speed} km/h | {altitude} م · {speed} كم/س |
-| 371 | `inFlightFixAge` | GPS fix {ago} | قراءة GPS {ago} |
-| 372 | `inFlightFixLost` | GPS lost. Showing the last fix, from {ago}. | انقطع GPS. تُعرض آخر قراءة، {ago}. |
-| 373 | `inFlightNow` | Now: {prayer} | الآن: {prayer} |
-| 374 | `inFlightNoneNow` | No prayer is due now | لا صلاة حان وقتها الآن |
-| 375 | `inFlightNext` | Next: {prayer}, {countdown} | التالية: {prayer}، {countdown} |
-| 376 | `inFlightOnPhone` | {time} on your phone | {time} على ساعة هاتفك |
-| 377 | `inFlightSunsetLater` | {minutes, plural, =1{From up here the sun sets 1 min later than on the ground below.} other{From up here the sun sets {minutes} min later than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقة.} =2{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقتين.} few{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.}} |
-| 378 | `inFlightSunriseEarlier` | {minutes, plural, =1{From up here the sun rises 1 min earlier than on the ground below.} other{From up here the sun rises {minutes} min earlier than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقة.} =2{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقتين.} few{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.}} |
-| 379 | `inFlightMovingNote` | For where the aircraft is now. As it flies on, these times change; this screen keeps them up to date while it is open. | المواقيت لمكان الطائرة الآن، وتتغير مع تقدّمها؛ وتبقى هذه الشاشة محدّثة ما دامت مفتوحة. |
-| 380 | `inFlightTimesHeader` | Today aboard, on your phone's clock | مواقيت اليوم على متن الطائرة، بساعة هاتفك |
-| 381 | `inFlightQiblaHeader` | Qibla aboard | القبلة على متن الطائرة |
-| 382 | `inFlightQiblaRight` | {degrees}° to the right of the nose | {degrees}° إلى يمين مقدّمة الطائرة |
-| 383 | `inFlightQiblaLeft` | {degrees}° to the left of the nose | {degrees}° إلى يسار مقدّمة الطائرة |
-| 384 | `inFlightQiblaAhead` | Straight ahead | أمامك مباشرة |
-| 385 | `inFlightQiblaBehind` | Behind you, towards the tail | خلفك، باتجاه ذيل الطائرة |
-| 386 | `inFlightHeadingGps` | Using the aircraft's GPS course, {degrees}° | باتجاه سير الطائرة من GPS، {degrees}° |
-| 387 | `inFlightHeadingManual` | Using your heading, {degrees}° | بالاتجاه الذي أدخلته، {degrees}° |
-| 388 | `inFlightNoCourse` | The aircraft isn't moving yet, so there is no course. You can enter the heading from the seat-back map. | الطائرة لا تتحرك بعد، فلا يوجد اتجاه سير. يمكنك إدخال الاتجاه من خريطة الشاشة أمامك. |
-| 389 | `inFlightEnterHeading` | Enter heading | إدخال الاتجاه |
-| 390 | `inFlightUseGps` | Use GPS course | استخدام اتجاه GPS |
-| 391 | `inFlightHeadingLabel` | Heading from the seat-back map (0–359°) | الاتجاه من خريطة الشاشة أمامك (0–359°) |
-| 392 | `inFlightHeadingError` | Between 0 and 359 | بين 0 و359 |
-| 393 | `inFlightQiblaBearing` | Qibla bearing {degrees}° from true north | اتجاه القبلة {degrees}° من الشمال الحقيقي |
-| 394 | `inFlightCompassNote` | The phone's compass isn't reliable inside an aircraft, so this uses the aircraft's direction instead. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يُستخدم اتجاه الطائرة بدلًا منها. |
-| 395 | `inFlightDiagramLabel` | Aircraft seen from above, nose up. The arrow points to the Qibla. | الطائرة من الأعلى ومقدّمتها للأعلى. يشير السهم إلى القبلة. |
-| 396 | `zoneNoteHere` | Times are local time where you are ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي حيث أنت ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
-| 397 | `hijriAsCalculated` | As calculated (Umm al-Qura) | كما هو محسوب (أم القرى) |
-| 398 | `hijriLater` | {days, plural, =1{1 day later} other{{days} days later}} | {days, plural, =1{متأخر يومًا} =2{متأخر يومين} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يومًا}} |
-| 399 | `hijriEarlier` | {days, plural, =1{1 day earlier} other{{days} days earlier}} | {days, plural, =1{متقدم يومًا} =2{متقدم يومين} few{متقدم {days} أيام} many{متقدم {days} يومًا} other{متقدم {days} يومًا}} |
-| 400 | `hijriAdjustNote` | Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date. | طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ. |
-| 401 | `methodAngles` | Fajr {fajr}° · Isha {isha}° | الفجر {fajr}° · العشاء {isha}° |
-| 402 | `methodAnglesInterval` | Fajr {fajr}° · Isha {minutes} min after Maghrib | {minutes, plural, =1{الفجر {fajr}° · العشاء بعد المغرب بـدقيقة} =2{الفجر {fajr}° · العشاء بعد المغرب بـدقيقتين} few{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقائق} many{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة} other{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة}} |
-| 403 | `methodUmmAlQuraRamadan` | Isha 120 min after Maghrib during Ramadan | العشاء بعد المغرب بـ120 دقيقة في رمضان |
-| 404 | `methodMoonsightingNote` | Also adjusts Fajr and Isha by season | يعدّل الفجر والعشاء أيضًا حسب الموسم |
-| 405 | `methodAutoResolved` | Uses {method} for {place} | يستخدم {method} في {place} |
-| 406 | `methodAutoNoPlace` | Chooses by your place once one is set | يختار حسب مكانك بعد تحديده |
-| 407 | `customTitle` | Custom angles | زوايا مخصصة |
-| 408 | `customFajr` | Fajr angle (°) | زاوية الفجر (°) |
-| 409 | `customIsha` | Isha angle (°) | زاوية العشاء (°) |
-| 410 | `customIshaByMinutes` | Isha by minutes after Maghrib | العشاء بدقائق بعد المغرب |
-| 411 | `customIshaMinutes` | Minutes after Maghrib | الدقائق بعد المغرب |
-| 412 | `customAngleError` | Between 10° and 22° | بين 10° و22° |
-| 413 | `customMinutesError` | Between 1 and 180 minutes | بين 1 و180 دقيقة |
-| 414 | `asrStandard` | Standard | الجمهور |
-| 415 | `asrStandardHint` | Shafi'i, Maliki, Hanbali: the earlier Asr time | الشافعي والمالكي والحنبلي: وقت العصر الأبكر |
-| 416 | `asrHanafi` | Hanafi | الحنفي |
-| 417 | `asrHanafiHint` | The later Asr time | وقت العصر المتأخر |
-| 418 | `ruleMiddleOfTheNightTitle` | Middle of the night | منتصف الليل |
-| 419 | `ruleSeventhOfTheNightTitle` | One seventh of the night | سُبع الليل |
-| 420 | `ruleTwilightAngleTitle` | Twilight angle | زاوية الشفق |
-| 421 | `ruleMiddleOfTheNightHint` | Fajr and Isha no later than the middle of the night (default) | الفجر والعشاء لا يتجاوزان منتصف الليل (الافتراضي) |
-| 422 | `ruleSeventhOfTheNightHint` | Fajr and Isha within the first and last seventh of the night | الفجر والعشاء ضمن السُّبع الأول والأخير من الليل |
-| 423 | `ruleTwilightAngleHint` | A share of the night proportional to the method's angles | جزء من الليل يتناسب مع زوايا الطريقة |
-| 424 | `highLatitudeSettingsNote` | Only used where the sun stays close to the horizon at night; elsewhere it changes nothing. | تُستخدم فقط حيث تبقى الشمس قريبة من الأفق ليلًا؛ وفي غير ذلك لا تغيّر شيئًا. |
-| 425 | `adjustmentsHint` | Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable. | دقائق تُضاف إلى الوقت المحسوب أو تُطرح منه، مثلًا لمطابقة التقويم المطبوع في مسجدك. |
-| 426 | `adjustmentsMinus` | {prayer}: one minute earlier | {prayer}: تقديم دقيقة |
-| 427 | `adjustmentsPlus` | {prayer}: one minute later | {prayer}: تأخير دقيقة |
-| 428 | `adjustmentsValue` | {minutes} min | {minutes} د |
-| 429 | `adjustmentsNone` | None | لا يوجد |
-| 430 | `adjustmentsReset` | Reset all to 0 | إعادة الكل إلى 0 |
-| 431 | `reminderSoundChime` | Chime | نغمة |
-| 432 | `soundHayya` | حيّ على الصلاة | حيّ على الصلاة |
-| 433 | `reminderSoundHayyaHint` | The call to prayer from the Adhan, about 10 seconds. | نداء الصلاة من الأذان، نحو 10 ثوانٍ. |
-| 434 | `settingsShortAdhan` | Short Adhan | الأذان القصير |
-| 435 | `shortAdhanNaghshbandi` | Naghshbandi, opening | النقشبندي، المطلع |
-| 436 | `shortAdhanNaghshbandiHint` | The first 8 seconds of Naghshbandi's Adhan. | أول 8 ثوانٍ من أذان النقشبندي. |
-| 437 | `shortAdhanHayyaHint` | «حيّ على الصلاة» from the Adhan, 10 seconds. | «حيّ على الصلاة» من الأذان، 10 ثوانٍ. |
-| 438 | `settingsReminderSound` | Reminder sound | صوت التذكير |
-| 439 | `reminderSoundChimeHint` | A soft two-note chime, different from the Adhan and from other apps. | نغمة هادئة من نوتتين، مختلفة عن الأذان وعن التطبيقات الأخرى. |
-| 440 | `reminderSoundStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
-| 441 | `reminderSoundSilentHint` | Shown in your notifications without any sound. | يظهر في إشعاراتك دون صوت. |
-| 442 | `settingsReminderVibrate` | Vibrate | اهتزاز |
-| 443 | `settingsReminderTest` | Send a test reminder | إرسال تذكير تجريبي |
-| 444 | `settingsReminderTestSent` | Test reminder sent. | أُرسل التذكير التجريبي. |
-| 445 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
-| 446 | `settingsPauseAllIqamaHint` | No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected. | لا تذكيرات جماعة من أي مسجد حتى توقف هذا الخيار. تبقى أوقات الإقامة محفوظة، ولا تتأثر تنبيهات الأذان. |
-| 447 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
-| 448 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
-| 449 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
-| 450 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
-| 451 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
-| 452 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |
+| 352 | `inFlightHelp` | How it works | طريقة العمل |
+| 353 | `inFlightHelpTitle` | In-flight mode | وضع الطيران |
+| 354 | `inFlightHelpIntro` | Prayer times and the Qibla on a plane, with no internet and without changing your phone's clock. | مواقيت الصلاة والقبلة على متن الطائرة، دون إنترنت ودون تغيير ساعة هاتفك. |
+| 355 | `inFlightHelpStartTitle` | Starting it | طريقة التشغيل |
+| 356 | `inFlightHelpStartBody` | Turn on travel mode with the airplane at the top of the app. On Today, tap “On a flight?”, then “Start GPS” and allow precise location. Sit by a window if you can: the phone's GPS works in airplane mode, but needs a view of the sky and can take a minute or two to find you. | شغّل وضع السفر من الطائرة أعلى التطبيق. ثم في شاشة اليوم اضغط «على متن رحلة؟» ثم «تشغيل GPS» واسمح بالموقع الدقيق. اجلس بجانب النافذة إن أمكن: فـGPS في هاتفك يعمل في وضع الطيران، لكنه يحتاج إلى رؤية السماء وقد يستغرق دقيقة أو دقيقتين لتحديد مكانك. |
+| 357 | `inFlightHelpTimesTitle` | The prayer times | مواقيت الصلاة |
+| 358 | `inFlightHelpTimesBody` | “Now” and “Next” are for where the aircraft is at this moment, shown on your phone's clock. Up high, the sun sets later and rises earlier than on the ground below, so Maghrib and sunrise follow the sun as you see it from the aircraft. Fajr and Isha follow your calculation method. | «الآن» و«التالية» لمكان الطائرة في هذه اللحظة، معروضة بساعة هاتفك. في الارتفاع تغرب الشمس متأخرة وتشرق مبكرة مقارنة بالأرض تحتك، لذا يتبع المغرب والشروق الشمس كما تراها من الطائرة. أما الفجر والعشاء فيتبعان طريقة الحساب التي اخترتها. |
+| 359 | `inFlightHelpRouteTitle` | Along the route | على مسار الرحلة |
+| 360 | `inFlightHelpRouteBody` | While the aircraft is moving, Jama’ah estimates when you will meet the next prayers if it keeps the same course and speed. The estimate updates with each GPS reading, so it gets better as the flight goes on. Flying east, prayers come sooner; flying west, the aircraft almost keeps pace with the sun, so sunset can stay hours away. | أثناء تحرك الطائرة، يقدّر التطبيق متى تدرك الصلوات التالية إن حافظت الطائرة على اتجاهها وسرعتها. ويتحدّث التقدير مع كل قراءة GPS، فيزداد دقة مع تقدّم الرحلة. باتجاه الشرق تأتي الصلوات أبكر؛ وباتجاه الغرب تكاد الطائرة تجاري الشمس، فقد يبقى الغروب بعيدًا ساعات. |
+| 361 | `inFlightHelpQiblaTitle` | The Qibla aboard | القبلة على متن الطائرة |
+| 362 | `inFlightHelpQiblaBody` | The phone's compass is not reliable inside an aircraft, so the arrow uses the direction the aircraft is flying, from GPS. It shows how far to the right or left of the nose the Qibla is. On the ground, or if you prefer, enter the heading shown on the seat-back map. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يعتمد السهم على اتجاه سير الطائرة من GPS، ويبيّن كم تبعد القبلة يمينًا أو يسارًا عن مقدّمة الطائرة. وعلى الأرض، أو إن شئت، أدخل الاتجاه الظاهر على خريطة الشاشة أمامك. |
+| 363 | `inFlightHelpAlertsTitle` | Alerts in flight | التنبيهات أثناء الرحلة |
+| 364 | `inFlightHelpAlertsBody` | While the aircraft is moving, your usual alerts for the place you left are paused, Jama’ah reminders too, and the next prayer along the route is alerted instead, marked as estimated. It uses that prayer's own Adhan settings. The pause ends by itself 90 minutes after the last GPS reading, or when you tap “End in-flight mode”. At home or at the gate nothing is paused. | أثناء تحرك الطائرة تتوقف تنبيهاتك المعتادة للمكان الذي غادرته، ومعها تذكيرات الجماعة، ويُنبَّه بدلًا منها للصلاة التالية على المسار مع الإشارة إلى أنها تقديرية، بإعدادات أذان تلك الصلاة نفسها. ينتهي الإيقاف تلقائيًا بعد ٩٠ دقيقة من آخر قراءة GPS، أو عند الضغط على «إنهاء وضع الطيران». وفي المنزل أو عند البوابة لا يتوقف شيء. |
+| 365 | `inFlightHelpTipsTitle` | Good to know | معلومات مفيدة |
+| 366 | `inFlightHelpTipsBody` | Keep the in-flight screen open for the best updates; with the screen off for long, the phone may pause GPS. Nothing about where you are is sent anywhere. Questions about how to pray aboard, such as shortening or combining prayers, are for your scholar: Jama’ah gives the times and the direction only. | أبقِ شاشة وضع الطيران مفتوحة لأفضل تحديث؛ فإذا أُطفئت الشاشة طويلًا قد يوقف الهاتف GPS. لا يُرسل أي شيء عن مكانك. أما أحكام الصلاة على متن الطائرة، كالقصر والجمع، فارجع فيها إلى أهل العلم: يكتفي التطبيق بالمواقيت والاتجاه. |
+| 367 | `notifInFlightBody` | It's time for {prayer}, estimated for the aircraft's route. | حان موعد {prayer}، بتقدير مسار الطائرة. |
+| 368 | `inFlightAlongRoute` | Along this route: {prayer}, {countdown} | على هذا المسار: {prayer}، {countdown} |
+| 369 | `inFlightAlongRouteThen` | Then {prayer}, about {time} on your phone | ثم {prayer}، نحو {time} على ساعة هاتفك |
+| 370 | `inFlightAboutOnPhone` | About {time} on your phone | نحو {time} على ساعة هاتفك |
+| 371 | `inFlightAssumesCourse` | Assumes the aircraft keeps its course and speed; updated with each GPS fix. | على افتراض أن الطائرة تحافظ على اتجاهها وسرعتها؛ ويتحدّث مع كل قراءة GPS. |
+| 372 | `inFlightAlertsHeld` | Alerts for {place} are paused until {time}. The next prayer along the route is alerted instead. | تنبيهات {place} موقوفة حتى {time}، ويُنبَّه بدلًا منها للصلاة التالية على مسار الرحلة. |
+| 373 | `inFlightEnd` | End in-flight mode | إنهاء وضع الطيران |
+| 374 | `inFlightHeldNote` | In-flight mode: regular alerts are paused until {time}. | وضع الطيران: التنبيهات المعتادة موقوفة حتى {time}. |
+| 375 | `inFlightCardTitle` | On a flight? | على متن رحلة؟ |
+| 376 | `inFlightCardBody` | Prayer times and the Qibla aboard, from GPS, with no network. | مواقيت الصلاة والقبلة على متن الطائرة، من GPS ودون اتصال. |
+| 377 | `inFlightExplainBody` | Jama’ah uses your phone's GPS, which works in airplane mode, to find where the aircraft is. It needs precise location, and works best by a window. Nothing is sent anywhere. | يستخدم التطبيق GPS في هاتفك، وهو يعمل في وضع الطيران، لمعرفة مكان الطائرة. يحتاج إلى الموقع الدقيق، ويعمل أفضل بجانب النافذة. لا يُرسل أي شيء. |
+| 378 | `inFlightStart` | Start GPS | تشغيل GPS |
+| 379 | `inFlightWaiting` | Waiting for GPS… A window seat helps. | بانتظار GPS… المقعد بجانب النافذة يساعد. |
+| 380 | `inFlightServiceOff` | Location is off on this phone. Turn it on to use GPS aboard. | الموقع متوقف في هذا الهاتف. شغّله لاستخدام GPS على متن الطائرة. |
+| 381 | `inFlightNeedsPrecise` | In-flight mode needs precise location. Try again and choose “Precise”. | يحتاج وضع الطيران إلى الموقع الدقيق. حاول مرة أخرى واختر «دقيق». |
+| 382 | `inFlightPermanentlyDenied` | Precise location is turned off for Jama’ah. You can allow it in the app's settings. | الموقع الدقيق متوقف لهذا التطبيق. يمكنك السماح به من إعدادات التطبيق. |
+| 383 | `inFlightOpenSettings` | Open app settings | فتح إعدادات التطبيق |
+| 384 | `inFlightTryAgain` | Try again | حاول مرة أخرى |
+| 385 | `inFlightAltitudeSpeed` | {altitude} m · {speed} km/h | {altitude} م · {speed} كم/س |
+| 386 | `inFlightFixAge` | GPS fix {ago} | قراءة GPS {ago} |
+| 387 | `inFlightFixLost` | GPS lost. Showing the last fix, from {ago}. | انقطع GPS. تُعرض آخر قراءة، {ago}. |
+| 388 | `inFlightNow` | Now: {prayer} | الآن: {prayer} |
+| 389 | `inFlightNoneNow` | No prayer is due now | لا صلاة حان وقتها الآن |
+| 390 | `inFlightNext` | Next: {prayer}, {countdown} | التالية: {prayer}، {countdown} |
+| 391 | `inFlightOnPhone` | {time} on your phone | {time} على ساعة هاتفك |
+| 392 | `inFlightSunsetLater` | {minutes, plural, =1{From up here the sun sets 1 min later than on the ground below.} other{From up here the sun sets {minutes} min later than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقة.} =2{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقتين.} few{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.}} |
+| 393 | `inFlightSunriseEarlier` | {minutes, plural, =1{From up here the sun rises 1 min earlier than on the ground below.} other{From up here the sun rises {minutes} min earlier than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقة.} =2{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقتين.} few{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.}} |
+| 394 | `inFlightMovingNote` | For where the aircraft is now. As it flies on, these times change; this screen keeps them up to date while it is open. | المواقيت لمكان الطائرة الآن، وتتغير مع تقدّمها؛ وتبقى هذه الشاشة محدّثة ما دامت مفتوحة. |
+| 395 | `inFlightTimesHeader` | Today aboard, on your phone's clock | مواقيت اليوم على متن الطائرة، بساعة هاتفك |
+| 396 | `inFlightQiblaHeader` | Qibla aboard | القبلة على متن الطائرة |
+| 397 | `inFlightQiblaRight` | {degrees}° to the right of the nose | {degrees}° إلى يمين مقدّمة الطائرة |
+| 398 | `inFlightQiblaLeft` | {degrees}° to the left of the nose | {degrees}° إلى يسار مقدّمة الطائرة |
+| 399 | `inFlightQiblaAhead` | Straight ahead | أمامك مباشرة |
+| 400 | `inFlightQiblaBehind` | Behind you, towards the tail | خلفك، باتجاه ذيل الطائرة |
+| 401 | `inFlightHeadingGps` | Using the aircraft's GPS course, {degrees}° | باتجاه سير الطائرة من GPS، {degrees}° |
+| 402 | `inFlightHeadingManual` | Using your heading, {degrees}° | بالاتجاه الذي أدخلته، {degrees}° |
+| 403 | `inFlightNoCourse` | The aircraft isn't moving yet, so there is no course. You can enter the heading from the seat-back map. | الطائرة لا تتحرك بعد، فلا يوجد اتجاه سير. يمكنك إدخال الاتجاه من خريطة الشاشة أمامك. |
+| 404 | `inFlightEnterHeading` | Enter heading | إدخال الاتجاه |
+| 405 | `inFlightUseGps` | Use GPS course | استخدام اتجاه GPS |
+| 406 | `inFlightHeadingLabel` | Heading from the seat-back map (0–359°) | الاتجاه من خريطة الشاشة أمامك (0–359°) |
+| 407 | `inFlightHeadingError` | Between 0 and 359 | بين 0 و359 |
+| 408 | `inFlightQiblaBearing` | Qibla bearing {degrees}° from true north | اتجاه القبلة {degrees}° من الشمال الحقيقي |
+| 409 | `inFlightCompassNote` | The phone's compass isn't reliable inside an aircraft, so this uses the aircraft's direction instead. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يُستخدم اتجاه الطائرة بدلًا منها. |
+| 410 | `inFlightDiagramLabel` | Aircraft seen from above, nose up. The arrow points to the Qibla. | الطائرة من الأعلى ومقدّمتها للأعلى. يشير السهم إلى القبلة. |
+| 411 | `zoneNoteHere` | Times are local time where you are ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي حيث أنت ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
+| 412 | `hijriAsCalculated` | As calculated (Umm al-Qura) | كما هو محسوب (أم القرى) |
+| 413 | `hijriLater` | {days, plural, =1{1 day later} other{{days} days later}} | {days, plural, =1{متأخر يومًا} =2{متأخر يومين} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يومًا}} |
+| 414 | `hijriEarlier` | {days, plural, =1{1 day earlier} other{{days} days earlier}} | {days, plural, =1{متقدم يومًا} =2{متقدم يومين} few{متقدم {days} أيام} many{متقدم {days} يومًا} other{متقدم {days} يومًا}} |
+| 415 | `hijriAdjustNote` | Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date. | طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ. |
+| 416 | `methodAngles` | Fajr {fajr}° · Isha {isha}° | الفجر {fajr}° · العشاء {isha}° |
+| 417 | `methodAnglesInterval` | Fajr {fajr}° · Isha {minutes} min after Maghrib | {minutes, plural, =1{الفجر {fajr}° · العشاء بعد المغرب بـدقيقة} =2{الفجر {fajr}° · العشاء بعد المغرب بـدقيقتين} few{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقائق} many{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة} other{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة}} |
+| 418 | `methodUmmAlQuraRamadan` | Isha 120 min after Maghrib during Ramadan | العشاء بعد المغرب بـ120 دقيقة في رمضان |
+| 419 | `methodMoonsightingNote` | Also adjusts Fajr and Isha by season | يعدّل الفجر والعشاء أيضًا حسب الموسم |
+| 420 | `methodAutoResolved` | Uses {method} for {place} | يستخدم {method} في {place} |
+| 421 | `methodAutoNoPlace` | Chooses by your place once one is set | يختار حسب مكانك بعد تحديده |
+| 422 | `customTitle` | Custom angles | زوايا مخصصة |
+| 423 | `customFajr` | Fajr angle (°) | زاوية الفجر (°) |
+| 424 | `customIsha` | Isha angle (°) | زاوية العشاء (°) |
+| 425 | `customIshaByMinutes` | Isha by minutes after Maghrib | العشاء بدقائق بعد المغرب |
+| 426 | `customIshaMinutes` | Minutes after Maghrib | الدقائق بعد المغرب |
+| 427 | `customAngleError` | Between 10° and 22° | بين 10° و22° |
+| 428 | `customMinutesError` | Between 1 and 180 minutes | بين 1 و180 دقيقة |
+| 429 | `asrStandard` | Standard | الجمهور |
+| 430 | `asrStandardHint` | Shafi'i, Maliki, Hanbali: the earlier Asr time | الشافعي والمالكي والحنبلي: وقت العصر الأبكر |
+| 431 | `asrHanafi` | Hanafi | الحنفي |
+| 432 | `asrHanafiHint` | The later Asr time | وقت العصر المتأخر |
+| 433 | `ruleMiddleOfTheNightTitle` | Middle of the night | منتصف الليل |
+| 434 | `ruleSeventhOfTheNightTitle` | One seventh of the night | سُبع الليل |
+| 435 | `ruleTwilightAngleTitle` | Twilight angle | زاوية الشفق |
+| 436 | `ruleMiddleOfTheNightHint` | Fajr and Isha no later than the middle of the night (default) | الفجر والعشاء لا يتجاوزان منتصف الليل (الافتراضي) |
+| 437 | `ruleSeventhOfTheNightHint` | Fajr and Isha within the first and last seventh of the night | الفجر والعشاء ضمن السُّبع الأول والأخير من الليل |
+| 438 | `ruleTwilightAngleHint` | A share of the night proportional to the method's angles | جزء من الليل يتناسب مع زوايا الطريقة |
+| 439 | `highLatitudeSettingsNote` | Only used where the sun stays close to the horizon at night; elsewhere it changes nothing. | تُستخدم فقط حيث تبقى الشمس قريبة من الأفق ليلًا؛ وفي غير ذلك لا تغيّر شيئًا. |
+| 440 | `adjustmentsHint` | Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable. | دقائق تُضاف إلى الوقت المحسوب أو تُطرح منه، مثلًا لمطابقة التقويم المطبوع في مسجدك. |
+| 441 | `adjustmentsMinus` | {prayer}: one minute earlier | {prayer}: تقديم دقيقة |
+| 442 | `adjustmentsPlus` | {prayer}: one minute later | {prayer}: تأخير دقيقة |
+| 443 | `adjustmentsValue` | {minutes} min | {minutes} د |
+| 444 | `adjustmentsNone` | None | لا يوجد |
+| 445 | `adjustmentsReset` | Reset all to 0 | إعادة الكل إلى 0 |
+| 446 | `reminderSoundChime` | Chime | نغمة |
+| 447 | `soundHayya` | حيّ على الصلاة | حيّ على الصلاة |
+| 448 | `reminderSoundHayyaHint` | The call to prayer from the Adhan, about 10 seconds. | نداء الصلاة من الأذان، نحو 10 ثوانٍ. |
+| 449 | `settingsShortAdhan` | Short Adhan | الأذان القصير |
+| 450 | `shortAdhanNaghshbandi` | Naghshbandi, opening | النقشبندي، المطلع |
+| 451 | `shortAdhanNaghshbandiHint` | The first 8 seconds of Naghshbandi's Adhan. | أول 8 ثوانٍ من أذان النقشبندي. |
+| 452 | `shortAdhanHayyaHint` | «حيّ على الصلاة» from the Adhan, 10 seconds. | «حيّ على الصلاة» من الأذان، 10 ثوانٍ. |
+| 453 | `settingsReminderSound` | Reminder sound | صوت التذكير |
+| 454 | `reminderSoundChimeHint` | A soft two-note chime, different from the Adhan and from other apps. | نغمة هادئة من نوتتين، مختلفة عن الأذان وعن التطبيقات الأخرى. |
+| 455 | `reminderSoundStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
+| 456 | `reminderSoundSilentHint` | Shown in your notifications without any sound. | يظهر في إشعاراتك دون صوت. |
+| 457 | `settingsReminderVibrate` | Vibrate | اهتزاز |
+| 458 | `settingsReminderTest` | Send a test reminder | إرسال تذكير تجريبي |
+| 459 | `settingsReminderTestSent` | Test reminder sent. | أُرسل التذكير التجريبي. |
+| 460 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
+| 461 | `settingsPauseAllIqamaHint` | No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected. | لا تذكيرات جماعة من أي مسجد حتى توقف هذا الخيار. تبقى أوقات الإقامة محفوظة، ولا تتأثر تنبيهات الأذان. |
+| 462 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
+| 463 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
+| 464 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
+| 465 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
+| 466 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
+| 467 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |

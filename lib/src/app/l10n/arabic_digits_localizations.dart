@@ -867,6 +867,57 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get inFlightTitle => arabicDigits(super.inFlightTitle);
 
   @override
+  String get inFlightHelp => arabicDigits(super.inFlightHelp);
+
+  @override
+  String get inFlightHelpTitle => arabicDigits(super.inFlightHelpTitle);
+
+  @override
+  String get inFlightHelpIntro => arabicDigits(super.inFlightHelpIntro);
+
+  @override
+  String get inFlightHelpStartTitle =>
+      arabicDigits(super.inFlightHelpStartTitle);
+
+  @override
+  String get inFlightHelpStartBody => arabicDigits(super.inFlightHelpStartBody);
+
+  @override
+  String get inFlightHelpTimesTitle =>
+      arabicDigits(super.inFlightHelpTimesTitle);
+
+  @override
+  String get inFlightHelpTimesBody => arabicDigits(super.inFlightHelpTimesBody);
+
+  @override
+  String get inFlightHelpRouteTitle =>
+      arabicDigits(super.inFlightHelpRouteTitle);
+
+  @override
+  String get inFlightHelpRouteBody => arabicDigits(super.inFlightHelpRouteBody);
+
+  @override
+  String get inFlightHelpQiblaTitle =>
+      arabicDigits(super.inFlightHelpQiblaTitle);
+
+  @override
+  String get inFlightHelpQiblaBody => arabicDigits(super.inFlightHelpQiblaBody);
+
+  @override
+  String get inFlightHelpAlertsTitle =>
+      arabicDigits(super.inFlightHelpAlertsTitle);
+
+  @override
+  String get inFlightHelpAlertsBody =>
+      arabicDigits(super.inFlightHelpAlertsBody);
+
+  @override
+  String get inFlightHelpTipsTitle => arabicDigits(super.inFlightHelpTipsTitle);
+
+  @override
+  String get inFlightHelpTipsBody => arabicDigits(super.inFlightHelpTipsBody);
+
+  @override
   String get inFlightAssumesCourse => arabicDigits(super.inFlightAssumesCourse);
 
   @override

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/in_flight.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/features/flight/in_flight_help_page.dart';
 import 'package:jamaah/src/features/flight/in_flight_page.dart';
 
 import '../helpers/fake_clock.dart';
@@ -314,6 +316,42 @@ void main() {
     await tester.tap(find.text(t.inFlightTryAgain));
     await settleWhileWaiting(tester);
     expect(find.text(t.inFlightWaiting), findsOneWidget);
+  });
+
+  testApp('“How it works” explains every part, in Arabic too', (tester) async {
+    await open(tester, language: AppLanguage.ar, textScale: 2.0);
+    final ar = AppLocalizationsArDigits();
+    await openCard(tester, ar.inFlightCardTitle);
+    await tester.tap(find.byTooltip(ar.inFlightHelp));
+    await tester.pumpAndSettle();
+    expect(find.byType(InFlightHelpPage), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    for (final body in [
+      ar.inFlightHelpStartBody,
+      ar.inFlightHelpTimesBody,
+      ar.inFlightHelpRouteBody,
+      ar.inFlightHelpQiblaBody,
+      ar.inFlightHelpAlertsBody,
+      ar.inFlightHelpTipsBody,
+    ]) {
+      await tester.scrollUntilVisible(
+        find.text(body),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(find.text(body), findsOneWidget);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  test('the user guide matches the app’s strings (run tool/user_guide.py)', () {
+    final guide = File('docs/user-guide/in-flight-mode.md').readAsStringSync();
+    for (final text in [
+      t.inFlightHelpAlertsBody,
+      AppLocalizationsArDigits().inFlightHelpAlertsBody,
+    ]) {
+      expect(guide.contains(text), isTrue);
+    }
   });
 
   testApp('in Arabic at a large text size nothing overflows', (tester) async {

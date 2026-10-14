@@ -1383,6 +1383,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inFlightTitle => 'على متن الطائرة';
 
   @override
+  String get inFlightHelp => 'طريقة العمل';
+
+  @override
+  String get inFlightHelpTitle => 'وضع الطيران';
+
+  @override
+  String get inFlightHelpIntro =>
+      'مواقيت الصلاة والقبلة على متن الطائرة، دون إنترنت ودون تغيير ساعة هاتفك.';
+
+  @override
+  String get inFlightHelpStartTitle => 'طريقة التشغيل';
+
+  @override
+  String get inFlightHelpStartBody =>
+      'شغّل وضع السفر من الطائرة أعلى التطبيق. ثم في شاشة اليوم اضغط «على متن رحلة؟» ثم «تشغيل GPS» واسمح بالموقع الدقيق. اجلس بجانب النافذة إن أمكن: فـGPS في هاتفك يعمل في وضع الطيران، لكنه يحتاج إلى رؤية السماء وقد يستغرق دقيقة أو دقيقتين لتحديد مكانك.';
+
+  @override
+  String get inFlightHelpTimesTitle => 'مواقيت الصلاة';
+
+  @override
+  String get inFlightHelpTimesBody =>
+      '«الآن» و«التالية» لمكان الطائرة في هذه اللحظة، معروضة بساعة هاتفك. في الارتفاع تغرب الشمس متأخرة وتشرق مبكرة مقارنة بالأرض تحتك، لذا يتبع المغرب والشروق الشمس كما تراها من الطائرة. أما الفجر والعشاء فيتبعان طريقة الحساب التي اخترتها.';
+
+  @override
+  String get inFlightHelpRouteTitle => 'على مسار الرحلة';
+
+  @override
+  String get inFlightHelpRouteBody =>
+      'أثناء تحرك الطائرة، يقدّر التطبيق متى تدرك الصلوات التالية إن حافظت الطائرة على اتجاهها وسرعتها. ويتحدّث التقدير مع كل قراءة GPS، فيزداد دقة مع تقدّم الرحلة. باتجاه الشرق تأتي الصلوات أبكر؛ وباتجاه الغرب تكاد الطائرة تجاري الشمس، فقد يبقى الغروب بعيدًا ساعات.';
+
+  @override
+  String get inFlightHelpQiblaTitle => 'القبلة على متن الطائرة';
+
+  @override
+  String get inFlightHelpQiblaBody =>
+      'بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يعتمد السهم على اتجاه سير الطائرة من GPS، ويبيّن كم تبعد القبلة يمينًا أو يسارًا عن مقدّمة الطائرة. وعلى الأرض، أو إن شئت، أدخل الاتجاه الظاهر على خريطة الشاشة أمامك.';
+
+  @override
+  String get inFlightHelpAlertsTitle => 'التنبيهات أثناء الرحلة';
+
+  @override
+  String get inFlightHelpAlertsBody =>
+      'أثناء تحرك الطائرة تتوقف تنبيهاتك المعتادة للمكان الذي غادرته، ومعها تذكيرات الجماعة، ويُنبَّه بدلًا منها للصلاة التالية على المسار مع الإشارة إلى أنها تقديرية، بإعدادات أذان تلك الصلاة نفسها. ينتهي الإيقاف تلقائيًا بعد ٩٠ دقيقة من آخر قراءة GPS، أو عند الضغط على «إنهاء وضع الطيران». وفي المنزل أو عند البوابة لا يتوقف شيء.';
+
+  @override
+  String get inFlightHelpTipsTitle => 'معلومات مفيدة';
+
+  @override
+  String get inFlightHelpTipsBody =>
+      'أبقِ شاشة وضع الطيران مفتوحة لأفضل تحديث؛ فإذا أُطفئت الشاشة طويلًا قد يوقف الهاتف GPS. لا يُرسل أي شيء عن مكانك. أما أحكام الصلاة على متن الطائرة، كالقصر والجمع، فارجع فيها إلى أهل العلم: يكتفي التطبيق بالمواقيت والاتجاه.';
+
+  @override
   String notifInFlightBody(String prayer) {
     return 'حان موعد $prayer، بتقدير مسار الطائرة.';
   }
