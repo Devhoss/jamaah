@@ -769,7 +769,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String scheduledCount(int count) {
-    return '$count scheduled for the next 7 days';
+    return '$count scheduled for the next 14 days';
   }
 
   @override

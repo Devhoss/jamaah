@@ -524,7 +524,7 @@
     }
   },
   "scheduledTitle": "Scheduled notifications",
-  "scheduledCount": "{count} scheduled for the next 7 days",
+  "scheduledCount": "{count} scheduled for the next 14 days",
   "@scheduledCount": {
     "placeholders": {
       "count": { "type": "int" }

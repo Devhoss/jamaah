@@ -25,7 +25,14 @@ import 'l10n/generated/app_localizations.dart';
 import 'l10n/prayer_labels.dart';
 import 'providers.dart';
 
-/// The 7-day plan for the saved place, from the stored settings and the active
+/// How far ahead notifications are planned (2026-10-14: two weeks). The plan
+/// is renewed whenever the app opens and by a daily background job; two weeks
+/// keeps alerts coming for someone who does not open the app, even if the
+/// phone skips that job for a while. About 20 a day stays well inside
+/// Android's limit of 500 scheduled alarms per app.
+const kPlanWindowDays = 14;
+
+/// The plan for the saved place, from the stored settings and the active
 /// mosque. Pure: everything it needs is passed in.
 List<PlannedNotification> buildNotificationPlan({
   required PrayerTimesCalculator calculator,
@@ -37,7 +44,7 @@ List<PlannedNotification> buildNotificationPlan({
   JamaahReminderSettings reminders = const JamaahReminderSettings(),
   InFlightHold? inFlight,
   ExtraTimesSettings extraTimes = const ExtraTimesSettings(),
-  int windowDays = 7,
+  int windowDays = kPlanWindowDays,
 }) {
   final today = LocalMoment.inZone(zone: zone, utcInstant: nowUtc).day;
   // One day past the window, so an Iqama after midnight on the last day has the

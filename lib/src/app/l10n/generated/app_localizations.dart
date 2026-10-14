@@ -1323,7 +1323,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduledCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} scheduled for the next 7 days'**
+  /// **'{count} scheduled for the next 14 days'**
   String scheduledCount(int count);
 
   /// No description provided for @scheduledNothing.

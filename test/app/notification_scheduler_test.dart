@@ -67,7 +67,7 @@ void main() {
           activeMosque: null,
         );
 
-        expect(plan, hasLength(7));
+        expect(plan, hasLength(kPlanWindowDays));
         for (final n in plan) {
           final day = LocalMoment.inZone(zone: zone, utcInstant: n.at).day;
           final expected = zone.utcInstantOf(
@@ -127,6 +127,29 @@ void main() {
       );
     });
 
+    test('the plan reaches two weeks ahead', () {
+      final zone = zoneOffsetsFor('Africa/Cairo');
+      final plan = buildNotificationPlan(
+        calculator: calculatorFor(30.0444, 31.2357, zone),
+        zone: zone,
+        nowUtc: DateTime.utc(2026, 10, 13, 0, 0),
+        alerts: AdhanAlertSettings.defaults().withAlert(
+          Prayer.dhuhr,
+          const AdhanAlert(enabled: true),
+        ),
+        travel: const TravelSettings(),
+        activeMosque: null,
+      );
+      expect(kPlanWindowDays, 14);
+      expect(plan, hasLength(14));
+      // Thirteen days apart, give or take Dhuhr's drift of a minute or two.
+      expect(
+        plan.last.at.difference(plan.first.at).inHours,
+        greaterThanOrEqualTo(13 * 24 - 1),
+        reason: 'so a phone left alone for two weeks keeps its alerts',
+      );
+    });
+
     group('extra-time alerts (2026-10-14)', () {
       final zone = zoneOffsetsFor('Africa/Cairo');
       final now = DateTime.utc(2026, 10, 14, 10, 0);
@@ -148,7 +171,7 @@ void main() {
         final plan = planWith(
           const ExtraTimesSettings(alerts: {ExtraTime.qiyam}),
         );
-        expect(plan, hasLength(7));
+        expect(plan, hasLength(kPlanWindowDays));
         expect(plan.every((n) => n.extraTime == ExtraTime.qiyam), isTrue);
         expect(plan.map((n) => n.text(t).title).toSet(), {t.extraQiyam});
       });
@@ -335,7 +358,7 @@ void main() {
           vibrate: false,
         ),
       );
-      expect(quiet, hasLength(7));
+      expect(quiet, hasLength(kPlanWindowDays));
       expect(quiet.map((n) => (n.reminderSound, n.vibrate)).toSet(), {
         (ReminderSound.silent, false),
       });
@@ -346,12 +369,12 @@ void main() {
         const TravelSettings(),
         active: mosque.copyWith(remindersPaused: true),
       );
-      expect(home.where((n) => n.kind == NotificationKind.iqama), hasLength(7));
+      expect(home.where((n) => n.kind == NotificationKind.iqama), hasLength(kPlanWindowDays));
       for (final paused in [all, thisMosque]) {
         expect(paused.where((n) => n.kind == NotificationKind.iqama), isEmpty);
         expect(
           paused.where((n) => n.kind == NotificationKind.adhan),
-          hasLength(7),
+          hasLength(kPlanWindowDays),
         );
       }
     });
@@ -479,7 +502,7 @@ void main() {
 
       expect(
         kinds().where((k) => k.kind == NotificationKind.iqama),
-        hasLength(7),
+        hasLength(kPlanWindowDays),
       );
       expect(
         gateway.scheduled.values.first.body,
@@ -552,7 +575,7 @@ void main() {
           reminderEnabled: true,
         );
         await settle();
-        expect(gateway.scheduled, hasLength(7));
+        expect(gateway.scheduled, hasLength(kPlanWindowDays));
 
         await settings.saveTravel(
           const TravelSettings(pauseAllIqamaReminders: true),
@@ -562,7 +585,7 @@ void main() {
 
         await settings.saveTravel(const TravelSettings());
         await settle();
-        expect(gateway.scheduled, hasLength(7));
+        expect(gateway.scheduled, hasLength(kPlanWindowDays));
       },
     );
 
@@ -587,7 +610,7 @@ void main() {
       }
       await settings.setActiveMosqueId(home.id);
       await settle();
-      expect(gateway.scheduled, hasLength(7));
+      expect(gateway.scheduled, hasLength(kPlanWindowDays));
 
       await mosques.setRemindersPaused(home.id, paused: true);
       await settle();
@@ -596,7 +619,7 @@ void main() {
       // Another mosque, not paused, brings its own reminders back.
       await settings.setActiveMosqueId(away.id);
       await settle();
-      expect(gateway.scheduled, hasLength(7));
+      expect(gateway.scheduled, hasLength(kPlanWindowDays));
       expect(gateway.scheduled.values.map((s) => s.planned.mosqueId).toSet(), {
         away.id,
       });
@@ -613,7 +636,7 @@ void main() {
 
       await mosques.setRemindersPaused(home.id, paused: false);
       await settle();
-      expect(gateway.scheduled, hasLength(7));
+      expect(gateway.scheduled, hasLength(kPlanWindowDays));
     });
 
     test('forgetting the place clears every notification', () async {
