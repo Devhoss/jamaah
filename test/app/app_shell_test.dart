@@ -31,9 +31,11 @@ void main() {
 
   setUpAll(loadTimeZoneDatabase);
 
-  setUp(() {
+  setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
     settings = SettingsRepository(db);
+    // These test the app after the first-run introduction.
+    await settings.setOnboardingDone(true);
     source = FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable));
     // 10:00 in Cairo, so Today has a full day to show.
     clock = FixedClock(DateTime.utc(2026, 10, 12, 7, 0));

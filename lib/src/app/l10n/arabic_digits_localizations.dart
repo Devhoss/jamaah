@@ -867,6 +867,63 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get inFlightTitle => arabicDigits(super.inFlightTitle);
 
   @override
+  String get onbContinue => arabicDigits(super.onbContinue);
+
+  @override
+  String get onbBack => arabicDigits(super.onbBack);
+
+  @override
+  String get onbNotNow => arabicDigits(super.onbNotNow);
+
+  @override
+  String get onbStart => arabicDigits(super.onbStart);
+
+  @override
+  String get onbWelcomeTagline => arabicDigits(super.onbWelcomeTagline);
+
+  @override
+  String get onbWelcomeBody => arabicDigits(super.onbWelcomeBody);
+
+  @override
+  String get onbLanguage => arabicDigits(super.onbLanguage);
+
+  @override
+  String get onbMosqueTitle => arabicDigits(super.onbMosqueTitle);
+
+  @override
+  String get onbMosqueBody => arabicDigits(super.onbMosqueBody);
+
+  @override
+  String get onbAlertsTitle => arabicDigits(super.onbAlertsTitle);
+
+  @override
+  String get onbAlertsBody => arabicDigits(super.onbAlertsBody);
+
+  @override
+  String get onbAlertsSwitch => arabicDigits(super.onbAlertsSwitch);
+
+  @override
+  String get onbAlertsSwitchHint => arabicDigits(super.onbAlertsSwitchHint);
+
+  @override
+  String get onbAlertsBattery => arabicDigits(super.onbAlertsBattery);
+
+  @override
+  String get onbTravelTitle => arabicDigits(super.onbTravelTitle);
+
+  @override
+  String get onbTravelBody => arabicDigits(super.onbTravelBody);
+
+  @override
+  String get onbTravelSwitch => arabicDigits(super.onbTravelSwitch);
+
+  @override
+  String get onbTravelHint => arabicDigits(super.onbTravelHint);
+
+  @override
+  String get settingsShowIntro => arabicDigits(super.settingsShowIntro);
+
+  @override
   String get inFlightHelp => arabicDigits(super.inFlightHelp);
 
   @override
@@ -1436,6 +1493,17 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String zoneNotePlace(String place, String placeOffset, String phoneOffset) =>
       arabicDigits(super.zoneNotePlace(place, placeOffset, phoneOffset));
+
+  @override
+  String onbStep(int current, int total) =>
+      arabicDigits(super.onbStep(current, total));
+
+  @override
+  String onbPlaceDone(String place) => arabicDigits(super.onbPlaceDone(place));
+
+  @override
+  String onbMosqueDone(String mosque) =>
+      arabicDigits(super.onbMosqueDone(mosque));
 
   @override
   String notifInFlightBody(String prayer) =>

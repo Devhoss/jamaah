@@ -301,6 +301,16 @@ regions read from the parameters the calculator uses), the **Asr method**
 - **Preview another city** (location sheet): any city's times for today, without
   moving the saved place or touching notifications.
 
+## First run
+
+- A fresh install opens a five-step introduction (`features/onboarding/`): welcome and
+  language; where you are (approximate location or a city, "Not now" allowed); your
+  mosque (find nearby, add by hand, or later); Adhan alerts for the five prayers (on by
+  default; the notification permission is asked here, with battery advice); and travel
+  mode. Each permission is asked at the step that needs it. An install that already has
+  a place goes straight in. Settings → "Show the introduction again" replays it; replayed,
+  it starts from the current settings and never turns anything off.
+
 ## Hijri date
 
 - Settings → Prayer times → **Hijri date**: move the Hijri date by up to two days either

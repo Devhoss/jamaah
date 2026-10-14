@@ -1383,6 +1383,84 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inFlightTitle => 'على متن الطائرة';
 
   @override
+  String onbStep(int current, int total) {
+    return 'الخطوة $current من $total';
+  }
+
+  @override
+  String get onbContinue => 'متابعة';
+
+  @override
+  String get onbBack => 'رجوع';
+
+  @override
+  String get onbNotNow => 'ليس الآن';
+
+  @override
+  String get onbStart => 'ابدأ';
+
+  @override
+  String get onbWelcomeTagline =>
+      'اعرف متى تصلي. اعرف متى تُقام الصلاة في مسجدك. ونبّهك في الوقت.';
+
+  @override
+  String get onbWelcomeBody =>
+      'تُحسب مواقيت الصلاة على هذا الهاتف. بلا حساب، ولا يُرفع أي شيء عنك.';
+
+  @override
+  String get onbLanguage => 'اللغة';
+
+  @override
+  String onbPlaceDone(String place) {
+    return 'مواقيت الصلاة في $place';
+  }
+
+  @override
+  String get onbMosqueTitle => 'مسجدك';
+
+  @override
+  String get onbMosqueBody =>
+      'أضف المسجد الذي تصلي فيه عادة، ثم أدخل أوقات الإقامة فيه بنفسك: فالتطبيق لا يخمّنها أبدًا. ويمكنك إضافة مساجد أخرى لاحقًا.';
+
+  @override
+  String onbMosqueDone(String mosque) {
+    return 'أُضيف: $mosque. أدخل أوقات الإقامة فيه من تبويب المساجد.';
+  }
+
+  @override
+  String get onbAlertsTitle => 'تنبيهات الصلاة';
+
+  @override
+  String get onbAlertsBody =>
+      'تنبيه أذان عند كل صلاة، وتذكير الجماعة قبل الإقامة في مسجدك. ويمكنك تغيير كل تنبيه وصوته وتوقيته لاحقًا من الإعدادات.';
+
+  @override
+  String get onbAlertsSwitch => 'تنبيه الأذان للصلوات الخمس';
+
+  @override
+  String get onbAlertsSwitchHint => 'سيطلب هاتفك السماح بالإشعارات.';
+
+  @override
+  String get onbAlertsBattery =>
+      'توقف بعض الهواتف التنبيهات لتوفير البطارية. إن لم يصل أحدها، فاجعل استخدام البطارية لهذا التطبيق «غير مقيّد» من إعدادات الهاتف.';
+
+  @override
+  String get onbTravelTitle => 'هل تسافر كثيرًا؟';
+
+  @override
+  String get onbTravelBody =>
+      'يجعل وضع السفر مواقيتك تتبعك بين المدن والمناطق الزمنية دون تغيير ساعة هاتفك. وعلى متن الطائرة يضيف وضع الطيران: مواقيت الصلاة والقبلة من GPS ودون إنترنت.';
+
+  @override
+  String get onbTravelSwitch => 'تشغيل وضع السفر';
+
+  @override
+  String get onbTravelHint => 'يمكنك تبديله في أي وقت من الطائرة أعلى التطبيق.';
+
+  @override
+  String get settingsShowIntro => 'عرض المقدمة مرة أخرى';
+
+  @override
   String get inFlightHelp => 'طريقة العمل';
 
   @override

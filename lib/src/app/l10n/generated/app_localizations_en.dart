@@ -1281,6 +1281,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inFlightTitle => 'In flight';
 
   @override
+  String onbStep(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get onbContinue => 'Continue';
+
+  @override
+  String get onbBack => 'Back';
+
+  @override
+  String get onbNotNow => 'Not now';
+
+  @override
+  String get onbStart => 'Start';
+
+  @override
+  String get onbWelcomeTagline =>
+      'Know when to pray. Know when your mosque starts. Get reminded on time.';
+
+  @override
+  String get onbWelcomeBody =>
+      'Prayer times are worked out on this phone. No account, and nothing about you is uploaded.';
+
+  @override
+  String get onbLanguage => 'Language';
+
+  @override
+  String onbPlaceDone(String place) {
+    return 'Prayer times for $place';
+  }
+
+  @override
+  String get onbMosqueTitle => 'Your mosque';
+
+  @override
+  String get onbMosqueBody =>
+      'Add the mosque you usually pray at. You then enter its Iqama times yourself: Jama’ah never guesses them. You can add more mosques later.';
+
+  @override
+  String onbMosqueDone(String mosque) {
+    return 'Added: $mosque. Enter its Iqama times from the Mosques tab.';
+  }
+
+  @override
+  String get onbAlertsTitle => 'Prayer alerts';
+
+  @override
+  String get onbAlertsBody =>
+      'An Adhan alert at each prayer time, and a Jama’ah reminder before your mosque\'s Iqama. You can change every alert, its sound and its timing later in Settings.';
+
+  @override
+  String get onbAlertsSwitch => 'Adhan alert for the five prayers';
+
+  @override
+  String get onbAlertsSwitchHint =>
+      'Your phone will ask to allow notifications.';
+
+  @override
+  String get onbAlertsBattery =>
+      'Some phones stop alerts to save battery. If one doesn\'t arrive, set Jama’ah\'s battery use to Unrestricted in the phone\'s settings.';
+
+  @override
+  String get onbTravelTitle => 'Do you travel often?';
+
+  @override
+  String get onbTravelBody =>
+      'Travel mode lets your prayer times follow you between cities and time zones, without changing your phone\'s clock. On a plane, it adds in-flight mode: prayer times and the Qibla aboard, from GPS, with no internet.';
+
+  @override
+  String get onbTravelSwitch => 'Turn on travel mode';
+
+  @override
+  String get onbTravelHint =>
+      'You can switch it any time with the airplane at the top of the app.';
+
+  @override
+  String get settingsShowIntro => 'Show the introduction again';
+
+  @override
   String get inFlightHelp => 'How it works';
 
   @override

@@ -42,9 +42,11 @@ void main() {
 
   setUpAll(loadTimeZoneDatabase);
 
-  setUp(() {
+  setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
     settings = SettingsRepository(db);
+    // These test the app after the first-run introduction.
+    await settings.setOnboardingDone(true);
     // 10:00 in Cairo: Dhuhr is still ahead.
     clock = FixedClock(DateTime.utc(2026, 10, 12, 7, 0));
     mosques = MosqueRepository(db, clock: clock);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/onboarding/onboarding_page.dart';
 import 'app_shell.dart';
 import 'foreground_clock.dart';
 import 'location_follower.dart';
@@ -60,6 +61,33 @@ final appLocaleProvider = NotifierProvider<AppLocaleController, Locale?>(
   AppLocaleController.new,
 );
 
+/// The introduction on a first run, the app otherwise.
+///
+/// Decided once, when the settings first arrive: a phone with no finished
+/// introduction and no saved place gets it (an install from before the
+/// introduction existed already has a place, and goes straight in). Once
+/// shown it stays until finished, even after a place is saved during it.
+class _Home extends ConsumerStatefulWidget {
+  const _Home();
+
+  @override
+  ConsumerState<_Home> createState() => _HomeState();
+}
+
+class _HomeState extends ConsumerState<_Home> {
+  bool? _onboarding;
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = ref.watch(appSettingsProvider).value;
+    if (settings != null) {
+      _onboarding ??= !settings.onboardingDone && settings.location == null;
+      if (_onboarding! && settings.onboardingDone) _onboarding = false;
+    }
+    return _onboarding ?? false ? const OnboardingPage() : const AppShell();
+  }
+}
+
 class JamaahApp extends ConsumerWidget {
   const JamaahApp({super.key});
 
@@ -88,7 +116,7 @@ class JamaahApp extends ConsumerWidget {
             // language, English.
             localeResolutionCallback: (requested, _) =>
                 resolveAppLocale(requested),
-            home: const AppShell(),
+            home: const _Home(),
           ),
         ),
       ),

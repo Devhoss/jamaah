@@ -30,6 +30,7 @@ abstract final class SettingKeys {
   static const highLatitudeRule = 'high_latitude_rule';
   static const themeMode = 'theme_mode';
   static const appLanguage = 'app_language';
+  static const onboardingDone = 'onboarding_done';
   static const hijriAdjustDays = 'hijri_adjust_days';
   static const inFlightPausedUntil = 'in_flight_paused_until';
   static const inFlightPrayer = 'in_flight_prayer';

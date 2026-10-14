@@ -24,10 +24,12 @@ void main() {
   late FakePlaceSource source;
   late SettingsRepository settings;
 
-  setUp(() {
+  setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
     source = FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable));
     settings = SettingsRepository(db);
+    // These test the app after the first-run introduction.
+    await settings.setOnboardingDone(true);
   });
 
   tearDown(() => db.close());

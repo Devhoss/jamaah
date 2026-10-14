@@ -2208,6 +2208,138 @@ abstract class AppLocalizations {
   /// **'In flight'**
   String get inFlightTitle;
 
+  /// No description provided for @onbStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String onbStep(int current, int total);
+
+  /// No description provided for @onbContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onbContinue;
+
+  /// No description provided for @onbBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get onbBack;
+
+  /// No description provided for @onbNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get onbNotNow;
+
+  /// No description provided for @onbStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get onbStart;
+
+  /// No description provided for @onbWelcomeTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Know when to pray. Know when your mosque starts. Get reminded on time.'**
+  String get onbWelcomeTagline;
+
+  /// No description provided for @onbWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times are worked out on this phone. No account, and nothing about you is uploaded.'**
+  String get onbWelcomeBody;
+
+  /// No description provided for @onbLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get onbLanguage;
+
+  /// No description provided for @onbPlaceDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times for {place}'**
+  String onbPlaceDone(String place);
+
+  /// No description provided for @onbMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mosque'**
+  String get onbMosqueTitle;
+
+  /// No description provided for @onbMosqueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the mosque you usually pray at. You then enter its Iqama times yourself: Jama’ah never guesses them. You can add more mosques later.'**
+  String get onbMosqueBody;
+
+  /// No description provided for @onbMosqueDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Added: {mosque}. Enter its Iqama times from the Mosques tab.'**
+  String onbMosqueDone(String mosque);
+
+  /// No description provided for @onbAlertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer alerts'**
+  String get onbAlertsTitle;
+
+  /// No description provided for @onbAlertsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An Adhan alert at each prayer time, and a Jama’ah reminder before your mosque\'s Iqama. You can change every alert, its sound and its timing later in Settings.'**
+  String get onbAlertsBody;
+
+  /// No description provided for @onbAlertsSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan alert for the five prayers'**
+  String get onbAlertsSwitch;
+
+  /// No description provided for @onbAlertsSwitchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone will ask to allow notifications.'**
+  String get onbAlertsSwitchHint;
+
+  /// No description provided for @onbAlertsBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Some phones stop alerts to save battery. If one doesn\'t arrive, set Jama’ah\'s battery use to Unrestricted in the phone\'s settings.'**
+  String get onbAlertsBattery;
+
+  /// No description provided for @onbTravelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you travel often?'**
+  String get onbTravelTitle;
+
+  /// No description provided for @onbTravelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel mode lets your prayer times follow you between cities and time zones, without changing your phone\'s clock. On a plane, it adds in-flight mode: prayer times and the Qibla aboard, from GPS, with no internet.'**
+  String get onbTravelBody;
+
+  /// No description provided for @onbTravelSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on travel mode'**
+  String get onbTravelSwitch;
+
+  /// No description provided for @onbTravelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can switch it any time with the airplane at the top of the app.'**
+  String get onbTravelHint;
+
+  /// No description provided for @settingsShowIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the introduction again'**
+  String get settingsShowIntro;
+
   /// No description provided for @inFlightHelp.
   ///
   /// In en, this message translates to:

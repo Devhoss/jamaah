@@ -85,6 +85,7 @@ class AppSettingsSnapshot {
     this.language = AppLanguage.system,
     this.hijriAdjustDays = 0,
     this.inFlight,
+    this.onboardingDone = false,
     required this.adhanAlerts,
     this.travel = const TravelSettings(),
     this.jamaahReminders = const JamaahReminderSettings(),
@@ -112,6 +113,9 @@ class AppSettingsSnapshot {
 
   /// In-flight mode's hold on notifications, while one has been set.
   final InFlightHold? inFlight;
+
+  /// The first-run introduction has been finished.
+  final bool onboardingDone;
   final AdhanAlertSettings adhanAlerts;
 
   /// Travel mode and its manual Iqama pause.
@@ -192,6 +196,7 @@ class SettingsRepository {
         int.tryParse(values[SettingKeys.hijriAdjustDays] ?? '') ?? 0,
       ),
       inFlight: _inFlight(values),
+      onboardingDone: values[SettingKeys.onboardingDone] == 'true',
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
       travel: TravelSettings(
@@ -287,6 +292,9 @@ class SettingsRepository {
 
   Future<void> setThemeMode(AppThemeMode mode) =>
       _put(SettingKeys.themeMode, mode.name);
+
+  Future<void> setOnboardingDone(bool done) =>
+      _put(SettingKeys.onboardingDone, '$done');
 
   Future<void> setLanguage(AppLanguage language) =>
       _put(SettingKeys.appLanguage, language.name);

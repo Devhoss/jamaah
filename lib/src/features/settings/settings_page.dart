@@ -19,6 +19,7 @@ import '../../domain/place.dart';
 import '../../domain/prayer.dart';
 import '../components/app_widgets.dart';
 import '../mosques/mosque_detail_page.dart';
+import '../onboarding/onboarding_page.dart';
 import 'adhan_recordings_page.dart';
 import 'jamaah_reminder_settings.dart';
 import 'prayer_alert_page.dart';
@@ -254,6 +255,13 @@ class SettingsPage extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpace.lg),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              onPressed: () => replayOnboarding(context),
+              child: Text(l10n.settingsShowIntro),
+            ),
+          ),
           Text(
             l10n.aboutBody,
             style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
