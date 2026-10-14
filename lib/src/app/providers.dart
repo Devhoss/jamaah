@@ -9,6 +9,7 @@ import '../data/discovery/google_places_provider.dart';
 import '../data/discovery/osm_provider.dart';
 import '../data/mosque_repository.dart';
 import '../data/settings_repository.dart';
+import '../domain/extra_times.dart';
 import '../domain/discovery.dart';
 import '../domain/mosque.dart';
 import '../domain/place.dart';
@@ -124,6 +125,21 @@ final todayProvider = Provider<TodayReading?>((ref) {
 });
 
 /// The mosque whose Iqama times the app shows. Null when none is active.
+/// The extra times Today lists (2026-10-14), from the place's reading.
+final todayExtraTimesProvider = Provider<List<ExtraTimeAt>>((ref) {
+  final calculator = ref.watch(prayerTimesCalculatorProvider);
+  final today = ref.watch(todayProvider);
+  if (calculator == null || today == null) return const [];
+  final settings =
+      ref.watch(appSettingsProvider.select((s) => s.value?.extraTimes)) ??
+      const ExtraTimesSettings();
+  return extraTimesForToday(
+    calculator: calculator,
+    moment: today.moment,
+    settings: settings,
+  );
+});
+
 final activeMosqueProvider = Provider<Mosque?>((ref) {
   final id = ref.watch(appSettingsProvider).value?.activeMosqueId;
   if (id == null) return null;

@@ -10,6 +10,7 @@ import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
+import '../../domain/extra_times.dart';
 import '../../domain/place.dart';
 import '../../domain/zone_lookup.dart';
 import '../../domain/mosque.dart';
@@ -172,7 +173,12 @@ class TodayScreen extends ConsumerWidget {
             else if (active.remindersPaused)
               _PausedNote(text: l10n.pausedMosqueNote(active.name)),
           AppSectionHeader(l10n.todaySectionTimes),
-          _PrayerRows(today: today, schedule: schedule, clock: clock),
+          _PrayerRows(
+            today: today,
+            schedule: schedule,
+            clock: clock,
+            extras: ref.watch(todayExtraTimesProvider),
+          ),
           _TodayNotes(
             today: today,
             rule: settings.requireValue.highLatitudeRule,
@@ -450,11 +456,16 @@ class _PrayerRows extends StatelessWidget {
     required this.today,
     required this.schedule,
     required this.clock,
+    this.extras = const [],
   });
 
   final TodayReading today;
   final Schedule? schedule;
   final ClockFormat clock;
+
+  /// Imsak, Duha and the last third of the night, as the user chose to show
+  /// them: quiet rows beside the prayers they lead to or follow.
+  final List<ExtraTimeAt> extras;
 
   @override
   Widget build(BuildContext context) {
@@ -463,9 +474,20 @@ class _PrayerRows extends StatelessWidget {
     final inForce = today.inForce?.prayer;
     final next = today.next?.prayer;
 
+    List<Widget> extra(ExtraTime time) => [
+      for (final e in extras)
+        if (e.time == time)
+          _ExtraRow(
+            name: extraTimeName(l10n, e.time),
+            time: clock.time(e.at),
+            ink: ink,
+          ),
+    ];
+
     return AppRows(
       children: [
-        for (final prayer in Prayer.adhanPrayers)
+        for (final prayer in Prayer.adhanPrayers) ...[
+          if (prayer == Prayer.fajr) ...extra(ExtraTime.imsak),
           _PrayerRow(
             name: prayerName(l10n, prayer),
             adhan: _time(prayer),
@@ -478,6 +500,9 @@ class _PrayerRows extends StatelessWidget {
             isNext: prayer == next,
             ink: ink,
           ),
+          if (prayer == Prayer.sunrise) ...extra(ExtraTime.duha),
+          if (prayer == Prayer.isha) ...extra(ExtraTime.qiyam),
+        ],
       ],
     );
   }
@@ -494,6 +519,28 @@ class _PrayerRows extends StatelessWidget {
     if (!prayer.canHaveIqama) return null;
     final at = schedule?.iqamaFor(prayer).iqama;
     return at == null ? null : clock.time(at);
+  }
+}
+
+/// One extra time: quieter than Sunrise, with no Iqama, no bell and never the
+/// next prayer.
+class _ExtraRow extends StatelessWidget {
+  const _ExtraRow({required this.name, required this.time, required this.ink});
+
+  final String name;
+  final String time;
+  final AppInk ink;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(fontSize: AppType.rowSize - 2, color: ink.muted);
+    return AppRow(
+      muted: true,
+      // The same empty slot as the prayers' dot, so the names line up.
+      leading: const Icon(Icons.circle, size: 8, color: Colors.transparent),
+      title: Text(name, style: style),
+      trailing: Text(time, style: style),
+    );
   }
 }
 
