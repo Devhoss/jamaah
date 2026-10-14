@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app.dart';
 import '../../app/audio_preview.dart';
+import '../../app/build_info.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/location_follower.dart';
@@ -302,6 +303,14 @@ class SettingsPage extends ConsumerWidget {
           ),
           Text(
             l10n.aboutBody,
+            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          // Which build this is, for testers' reports; left to right in
+          // either language.
+          Text(
+            buildLabel(),
+            textDirection: TextDirection.ltr,
             style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
           ),
         ],

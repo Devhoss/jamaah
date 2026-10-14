@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jamaah/src/features/settings/adhan_recordings_page.dart';
 import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/app/app.dart';
+import 'package:jamaah/src/app/build_info.dart';
 import 'package:jamaah/src/app/audio_preview.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
@@ -324,6 +325,14 @@ void main() {
         (await stored()).ringInSilentFor(RingTarget.adhan),
         RingCoverage.all,
       );
+    });
+
+    testApp('the build is named at the bottom, for testers', (tester) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await reveal(tester, find.text(buildLabel()));
+      expect(find.text(buildLabel()), findsOneWidget);
+      expect(buildLabel(), contains(kGitCommit));
     });
 
     testApp('Jama’ah reminders can ring on silent', (tester) async {
