@@ -16,6 +16,9 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.media.VolumeProvider
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -34,8 +37,9 @@ import org.json.JSONObject
  * - Plays through the alarm volume only when the user chose "ring when the phone
  *   is on silent"; otherwise through the notification volume, which a phone on
  *   silent mutes. Nothing surprises anyone in a quiet room by default.
- * - Stops on the notification's Stop action, the full-screen page's Stop button
- *   or volume keys, turning the phone face down, or the end of the recording.
+ * - Stops on the notification's Stop action, the full-screen page's Stop button,
+ *   the volume keys (anywhere, see [startVolumeKeyWatch]), turning the phone
+ *   face down, or the end of the recording.
  */
 class AdhanService : Service(), SensorEventListener {
     private var player: MediaPlayer? = null
@@ -43,6 +47,7 @@ class AdhanService : Service(), SensorEventListener {
     private var sensors: SensorManager? = null
     private var faceDownSince = 0L
     private var current: AdhanAlarm? = null
+    private var session: MediaSession? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -131,7 +136,51 @@ class AdhanService : Service(), SensorEventListener {
             return
         }
 
+        startVolumeKeyWatch()
         startFlipWatch()
+    }
+
+    /**
+     * The volume keys stop it, whether the app is open, in the background or
+     * the screen is locked (2026-10-14). While the Adhan plays, a media session
+     * with its own volume control claims the volume keys: Android sends them
+     * to it instead of changing a stream's volume, and any press ends the
+     * Adhan. Headphone and Bluetooth stop or pause buttons end it too. The
+     * session goes when the Adhan stops, and the keys work as usual again.
+     */
+    private fun startVolumeKeyWatch() {
+        val stop = { handler.post { finish() } }
+        session = MediaSession(this, "JamaahAdhan").apply {
+            setPlaybackToRemote(
+                object : VolumeProvider(VOLUME_CONTROL_RELATIVE, 1, 1) {
+                    override fun onAdjustVolume(direction: Int) {
+                        if (direction != AudioManager.ADJUST_SAME) stop()
+                    }
+                },
+            )
+            setCallback(
+                object : MediaSession.Callback() {
+                    override fun onStop() {
+                        stop()
+                    }
+
+                    override fun onPause() {
+                        stop()
+                    }
+                },
+            )
+            setPlaybackState(
+                PlaybackState.Builder()
+                    .setActions(
+                        PlaybackState.ACTION_STOP or
+                            PlaybackState.ACTION_PAUSE or
+                            PlaybackState.ACTION_PLAY_PAUSE,
+                    )
+                    .setState(PlaybackState.STATE_PLAYING, 0L, 1f)
+                    .build(),
+            )
+            isActive = true
+        }
     }
 
     /**
@@ -226,6 +275,11 @@ class AdhanService : Service(), SensorEventListener {
             release()
         }
         player = null
+        session?.run {
+            isActive = false
+            release()
+        }
+        session = null
         sensors?.unregisterListener(this)
         sensors = null
         handler.removeCallbacks(minimumEnd)

@@ -1040,7 +1040,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsFullScreenAllow => 'السماح بالتنبيهات بملء الشاشة';
 
   @override
-  String get alertStopHint => 'أوقفه من الإشعار، أو اقلب الهاتف على وجهه.';
+  String get alertStopHint =>
+      'أوقفه بأي من زرّي الصوت، أو من الإشعار، أو بقلب الهاتف على وجهه.';
 
   @override
   String get settingsFollowLocation => 'تتبّع موقعي';

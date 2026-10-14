@@ -238,7 +238,9 @@ regions read from the parameters the calculator uses), the **Asr method**
   not as a notification sound: native `AdhanAlarms` (stored exact alarms, restored
   after a reboot), `AdhanService` (foreground media playback on the notification
   volume, or the alarm volume when "ring in silent" is on; vibrates; stops on the
-  notification's Stop, the volume keys, or the phone turned face down) and
+  notification's Stop, either volume key (through a media session that claims the keys
+  while it plays, so it works with the app open, in the background or locked), headphone
+  stop/pause, or the phone turned face down) and
   `AdhanActivity` (a plain native page over the lock screen with a large Stop).
   When it ends, a normal notification stays. Android 14+ can withhold full-screen
   alerts; Settings then says so and links to the permission.

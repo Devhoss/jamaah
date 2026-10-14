@@ -619,7 +619,7 @@
   "settingsFullScreenHint": "When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too.",
   "settingsFullScreenDenied": "Your phone doesn't allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification.",
   "settingsFullScreenAllow": "Allow full-screen alerts",
-  "alertStopHint": "Stop it from the notification, or turn the phone face down.",
+  "alertStopHint": "Stop it with either volume key, from the notification, or by turning the phone face down.",
   "settingsFollowLocation": "Follow my location",
   "settingsFollowLocationHint": "While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones.",
   "settingsTravelMode": "Travel mode",

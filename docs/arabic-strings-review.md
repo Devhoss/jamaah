@@ -268,7 +268,7 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 255 | `settingsFullScreenHint` | When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too. | عندما يكون الهاتف غير مستخدم، يملأ الأذان الشاشة مع زر إيقاف كبير. ويوقفه أيضًا زرا الصوت أو قلب الهاتف على وجهه. |
 | 256 | `settingsFullScreenDenied` | Your phone doesn't allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification. | هاتفك لا يسمح بالتنبيهات بملء الشاشة لهذا التطبيق، فيظهر الأذان كإشعار عادي. |
 | 257 | `settingsFullScreenAllow` | Allow full-screen alerts | السماح بالتنبيهات بملء الشاشة |
-| 258 | `alertStopHint` | Stop it from the notification, or turn the phone face down. | أوقفه من الإشعار، أو اقلب الهاتف على وجهه. |
+| 258 | `alertStopHint` | Stop it with either volume key, from the notification, or by turning the phone face down. | أوقفه بأي من زرّي الصوت، أو من الإشعار، أو بقلب الهاتف على وجهه. |
 | 259 | `settingsFollowLocation` | Follow my location | تتبّع موقعي |
 | 260 | `settingsFollowLocationHint` | While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones. | أثناء وضع السفر، يتحدّث مكانك إلى حيث أنت عند فتح التطبيق، فتتبعك المواقيت بين المدن والمناطق الزمنية. |
 | 261 | `settingsTravelMode` | Travel mode | وضع السفر |

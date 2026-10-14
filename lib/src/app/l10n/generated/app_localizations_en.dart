@@ -961,7 +961,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertStopHint =>
-      'Stop it from the notification, or turn the phone face down.';
+      'Stop it with either volume key, from the notification, or by turning the phone face down.';
 
   @override
   String get settingsFollowLocation => 'Follow my location';
