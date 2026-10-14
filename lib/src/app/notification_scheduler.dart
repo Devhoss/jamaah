@@ -277,12 +277,15 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
     });
   }
 
+  /// Syncs now. While a sync is already running this asks for one more pass
+  /// and waits for both, so a caller always returns after its change is in.
   Future<void> syncNow() async {
     if (_running) {
       _again = true;
-      return;
+      return _done?.future;
     }
     _running = true;
+    final done = _done = Completer<void>();
     try {
       do {
         _again = false;
@@ -290,8 +293,11 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
       } while (_again);
     } finally {
       _running = false;
+      done.complete();
     }
   }
+
+  Completer<void>? _done;
 
   Future<void> _syncOnce() async {
     if (!ref.mounted) return;
@@ -357,6 +363,29 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
       debugPrint('Notifications: sync failed: $error');
       if (!ref.mounted) return;
       state = NotificationSyncState(report: state.report, error: error);
+    }
+  }
+}
+
+/// One full sync from what is stored, with no screen open: the daily
+/// background refresh (2026-10-14, see DailyRefreshJob on Android). Waits for
+/// the stored settings and mosques first, so the plan is never built from
+/// guesses.
+Future<void> refreshNotifications(ProviderContainer container) async {
+  // Listened to while this runs: a provider nobody listens to is paused, and
+  // the stored settings would never arrive.
+  final keep = [
+    container.listen(appSettingsProvider, (_, _) {}),
+    container.listen(savedMosquesProvider, (_, _) {}),
+    container.listen(notificationSchedulerProvider, (_, _) {}),
+  ];
+  try {
+    await container.read(appSettingsProvider.future);
+    await container.read(savedMosquesProvider.future);
+    await container.read(notificationSchedulerProvider.notifier).syncNow();
+  } finally {
+    for (final k in keep) {
+      k.close();
     }
   }
 }

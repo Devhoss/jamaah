@@ -72,6 +72,11 @@
             android:name=".AdhanService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+        <!-- Renews the notification plan once a day (DailyRefreshJob). -->
+        <service
+            android:name=".DailyRefreshJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <receiver
             android:name=".AdhanAlarmReceiver"
             android:exported="false" />

@@ -654,6 +654,39 @@ void main() {
       expect(gateway.scheduled, isEmpty);
     });
   });
+
+  group('the daily background refresh (2026-10-14)', () {
+    test('renews the plan from what is stored, with no screen open', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final settings = SettingsRepository(db);
+      await settings.setLocation(cairo.toStored());
+      await settings.saveAdhanAlerts(
+        AdhanAlertSettings.defaults().withAlert(
+          Prayer.dhuhr,
+          const AdhanAlert(enabled: true),
+        ),
+      );
+      final gateway = FakeNotificationGateway();
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          appClockProvider.overrideWithValue(
+            FixedClock(DateTime.utc(2026, 10, 13, 6, 0)),
+          ),
+          placeSourceProvider.overrideWithValue(
+            FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable)),
+          ),
+          notificationGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await refreshNotifications(container);
+
+      expect(gateway.scheduled, hasLength(kPlanWindowDays));
+    });
+  });
 }
 
 typedef ScheduledKind = ({NotificationKind kind, Prayer prayer});
