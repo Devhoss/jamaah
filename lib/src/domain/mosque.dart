@@ -152,6 +152,7 @@ class Schedule {
     this.effectiveFrom,
     required this.prayers,
     required this.updatedAt,
+    this.jumuah = const PrayerIqama(prayer: Prayer.dhuhr),
   });
 
   /// A fresh schedule where all five prayers are unconfigured.
@@ -182,6 +183,11 @@ class Schedule {
 
   final DateTime updatedAt;
 
+  /// Jumu'ah's Iqama (2026-10-14), kept apart from Dhuhr's: it replaces it on
+  /// Fridays. Stored with prayer dhuhr; the UI names it Jumu'ah. Starts "Not
+  /// configured" like every Iqama.
+  final PrayerIqama jumuah;
+
   PrayerIqama iqamaFor(Prayer prayer) =>
       prayers[prayer] ?? PrayerIqama(prayer: prayer);
 
@@ -196,6 +202,7 @@ class Schedule {
     bool clearEffectiveFrom = false,
     Map<Prayer, PrayerIqama>? prayers,
     DateTime? updatedAt,
+    PrayerIqama? jumuah,
   }) => Schedule(
     id: id,
     mosqueId: mosqueId,
@@ -204,7 +211,22 @@ class Schedule {
         : (effectiveFrom ?? this.effectiveFrom),
     prayers: prayers ?? this.prayers,
     updatedAt: updatedAt ?? DateTime.now(),
+    jumuah: jumuah ?? this.jumuah,
   );
+
+  /// The Iqama for [prayer] on [day]: on a Friday, Dhuhr's is Jumu'ah's, or
+  /// Dhuhr's own (flagged) while Jumu'ah has no time.
+  DayIqama iqamaOn(LocalDay day, Prayer prayer) {
+    if (prayer != Prayer.dhuhr || !day.isFriday) {
+      return DayIqama(entry: iqamaFor(prayer));
+    }
+    if (jumuah.isConfigured) return DayIqama(entry: jumuah, isJumuah: true);
+    return DayIqama(
+      entry: iqamaFor(Prayer.dhuhr),
+      isJumuah: true,
+      jumuahNotSet: true,
+    );
+  }
 
   /// Replaces one prayer's entry, stamping [updatedAt].
   Schedule withPrayer(PrayerIqama updated, {DateTime? updatedAt}) => copyWith(
@@ -219,6 +241,7 @@ class Schedule {
       other.mosqueId == mosqueId &&
       other.effectiveFrom == effectiveFrom &&
       other.updatedAt == updatedAt &&
+      other.jumuah == jumuah &&
       _sameIqamas(other.prayers, prayers);
 
   @override
@@ -231,6 +254,24 @@ bool _sameIqamas(Map<Prayer, PrayerIqama> a, Map<Prayer, PrayerIqama> b) {
     if (b[entry.key] != entry.value) return false;
   }
   return true;
+}
+
+/// One prayer's Iqama as it applies on a given day.
+class DayIqama {
+  const DayIqama({
+    required this.entry,
+    this.isJumuah = false,
+    this.jumuahNotSet = false,
+  });
+
+  final PrayerIqama entry;
+
+  /// Friday's Dhuhr: named Jumu'ah wherever it is shown.
+  final bool isJumuah;
+
+  /// Friday, but the mosque has no Jumu'ah time: [entry] is Dhuhr's own, and
+  /// the UI says so rather than present it as the Jumu'ah time.
+  final bool jumuahNotSet;
 }
 
 /// The user-entered Iqama for one prayer of one schedule.

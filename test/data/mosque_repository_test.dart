@@ -850,4 +850,51 @@ void main() {
       );
     });
   });
+
+  group("Jumu'ah (2026-10-14)", () {
+    Future<Mosque> add() => mosques.add(
+      name: 'Masjid al-Nasr',
+      address: '1 Example Road',
+      source: MosqueSource.manual,
+    );
+    Schedule current(Mosque m) =>
+        m.scheduleFor(LocalDay.fromDateTime(DateTime.now()))!;
+
+    test('a new mosque has no Jumu’ah time', () async {
+      final m = await mosques.byId((await add()).id);
+      expect(current(m!).jumuah.isConfigured, isFalse);
+    });
+
+    test('is stored and read back, apart from Dhuhr', () async {
+      final m = await add();
+      await mosques.setIqama(m.id, Prayer.dhuhr, const LocalTime(735));
+      await mosques.setJumuah(
+        m.id,
+        const LocalTime(705),
+        reminderEnabled: true,
+        reminderMinutesBefore: 20,
+      );
+      final s = current((await mosques.byId(m.id))!);
+      expect(s.jumuah.iqama, const LocalTime(705));
+      expect(s.jumuah.reminderEnabled, isTrue);
+      expect(s.jumuah.reminderMinutesBefore, 20);
+      expect(s.iqamaFor(Prayer.dhuhr).iqama, const LocalTime(735));
+
+      await mosques.setJumuah(m.id, null);
+      final cleared = current((await mosques.byId(m.id))!);
+      expect(cleared.jumuah.isConfigured, isFalse);
+      expect(cleared.iqamaFor(Prayer.dhuhr).iqama, const LocalTime(735));
+    });
+
+    test('its reminder switches, but never without a time', () async {
+      final m = await add();
+      expect(
+        () => mosques.setJumuahReminderEnabled(m.id, enabled: true),
+        throwsA(isA<ReminderWithoutIqamaException>()),
+      );
+      await mosques.setJumuah(m.id, const LocalTime(705));
+      await mosques.setJumuahReminderEnabled(m.id, enabled: true);
+      expect(current((await mosques.byId(m.id))!).jumuah.hasReminder, isTrue);
+    });
+  });
 }

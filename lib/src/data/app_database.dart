@@ -186,6 +186,15 @@ class Schedules extends Table {
 
   IntColumn get updatedAt => integer()();
 
+  /// Jumu'ah's Iqama (schema v4, 2026-10-14). Null is "Not configured".
+  IntColumn get jumuahMinutes => integer().nullable()();
+
+  BoolColumn get jumuahReminderEnabled =>
+      boolean().withDefault(const Constant(false))();
+
+  IntColumn get jumuahReminderMinutesBefore =>
+      integer().withDefault(const Constant(10))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -220,7 +229,8 @@ class SchedulePrayers extends Table {
 /// On-device storage: settings, mosques, Iqama schedules and Adhan alerts.
 ///
 /// `schemaVersion` 2 added the per-prayer notification columns to
-/// [AdhanAlertRows]; 3 added [Mosques.remindersPaused]. v1 was already on a device, so v2 is a real migration and
+/// [AdhanAlertRows]; 3 added [Mosques.remindersPaused]; 4 added Jumu'ah to
+/// [Schedules]. v1 was already on a device, so v2 is a real migration and
 /// keeps every existing row (see test/data/migration_test.dart).
 @DriftDatabase(
   tables: [
@@ -239,7 +249,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : this(driftDatabase(name: 'jamaah'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -264,6 +274,17 @@ class AppDatabase extends _$AppDatabase {
       },
       from2To3: (m, schema) async {
         await m.addColumn(schema.mosques, schema.mosques.remindersPaused);
+      },
+      from3To4: (m, schema) async {
+        await m.addColumn(schema.schedules, schema.schedules.jumuahMinutes);
+        await m.addColumn(
+          schema.schedules,
+          schema.schedules.jumuahReminderEnabled,
+        );
+        await m.addColumn(
+          schema.schedules,
+          schema.schedules.jumuahReminderMinutesBefore,
+        );
       },
     ),
     beforeOpen: (details) async {

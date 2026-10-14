@@ -735,5 +735,64 @@ void main() {
       expect(cairo.zoneName, 'Africa/Cairo');
     });
   });
+
+  group("Jumu'ah (2026-10-14)", () {
+    const friday = LocalDay(2026, 10, 16);
+    const thursday = LocalDay(2026, 10, 15);
+
+    test('LocalDay knows a Friday', () {
+      expect(friday.isFriday, isTrue);
+      expect(thursday.isFriday, isFalse);
+    });
+
+    test("a new schedule has Jumu'ah not configured", () {
+      expect(Schedule.empty().jumuah.isConfigured, isFalse);
+    });
+
+    test("on a Friday Dhuhr resolves to Jumu'ah when it is set", () {
+      final s = Schedule.empty()
+          .withPrayer(
+            const PrayerIqama(prayer: Prayer.dhuhr, iqama: LocalTime(735)),
+          )
+          .copyWith(
+            jumuah: const PrayerIqama(
+              prayer: Prayer.dhuhr,
+              iqama: LocalTime(705),
+              reminderEnabled: true,
+            ),
+          );
+      final r = s.iqamaOn(friday, Prayer.dhuhr);
+      expect(r.isJumuah, isTrue);
+      expect(r.jumuahNotSet, isFalse);
+      expect(r.entry.iqama, const LocalTime(705));
+      expect(s.iqamaOn(thursday, Prayer.dhuhr).entry.iqama, const LocalTime(735));
+      expect(s.iqamaOn(thursday, Prayer.dhuhr).isJumuah, isFalse);
+      expect(s.iqamaOn(friday, Prayer.asr).isJumuah, isFalse);
+    });
+
+    test("Friday without Jumu'ah falls back to the Dhuhr Iqama, flagged", () {
+      final s = Schedule.empty().withPrayer(
+        const PrayerIqama(
+          prayer: Prayer.dhuhr,
+          iqama: LocalTime(750),
+          reminderEnabled: true,
+        ),
+      );
+      final r = s.iqamaOn(friday, Prayer.dhuhr);
+      expect(r.isJumuah, isTrue);
+      expect(r.jumuahNotSet, isTrue);
+      expect(r.entry.iqama, const LocalTime(750));
+      expect(r.entry.reminderEnabled, isTrue);
+    });
+
+    test("Jumu'ah is part of a schedule's equality", () {
+      final a = Schedule.empty();
+      final b = a.copyWith(
+        jumuah: const PrayerIqama(prayer: Prayer.dhuhr, iqama: LocalTime(705)),
+        updatedAt: a.updatedAt,
+      );
+      expect(a == b, isFalse);
+    });
+  });
 }
 

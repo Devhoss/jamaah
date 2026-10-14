@@ -1515,12 +1515,53 @@ class $SchedulesTable extends Schedules
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _jumuahMinutesMeta = const VerificationMeta(
+    'jumuahMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> jumuahMinutes = GeneratedColumn<int>(
+    'jumuah_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _jumuahReminderEnabledMeta =
+      const VerificationMeta('jumuahReminderEnabled');
+  @override
+  late final GeneratedColumn<bool> jumuahReminderEnabled =
+      GeneratedColumn<bool>(
+        'jumuah_reminder_enabled',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("jumuah_reminder_enabled" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _jumuahReminderMinutesBeforeMeta =
+      const VerificationMeta('jumuahReminderMinutesBefore');
+  @override
+  late final GeneratedColumn<int> jumuahReminderMinutesBefore =
+      GeneratedColumn<int>(
+        'jumuah_reminder_minutes_before',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(10),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     mosqueId,
     effectiveFrom,
     updatedAt,
+    jumuahMinutes,
+    jumuahReminderEnabled,
+    jumuahReminderMinutesBefore,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1564,6 +1605,33 @@ class $SchedulesTable extends Schedules
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('jumuah_minutes')) {
+      context.handle(
+        _jumuahMinutesMeta,
+        jumuahMinutes.isAcceptableOrUnknown(
+          data['jumuah_minutes']!,
+          _jumuahMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('jumuah_reminder_enabled')) {
+      context.handle(
+        _jumuahReminderEnabledMeta,
+        jumuahReminderEnabled.isAcceptableOrUnknown(
+          data['jumuah_reminder_enabled']!,
+          _jumuahReminderEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('jumuah_reminder_minutes_before')) {
+      context.handle(
+        _jumuahReminderMinutesBeforeMeta,
+        jumuahReminderMinutesBefore.isAcceptableOrUnknown(
+          data['jumuah_reminder_minutes_before']!,
+          _jumuahReminderMinutesBeforeMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1589,6 +1657,18 @@ class $SchedulesTable extends Schedules
         DriftSqlType.int,
         data['${effectivePrefix}updated_at'],
       )!,
+      jumuahMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jumuah_minutes'],
+      ),
+      jumuahReminderEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}jumuah_reminder_enabled'],
+      )!,
+      jumuahReminderMinutesBefore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jumuah_reminder_minutes_before'],
+      )!,
     );
   }
 
@@ -1606,11 +1686,19 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
   /// correctly. Null means "always", the fallback when no dated schedule applies.
   final int? effectiveFrom;
   final int updatedAt;
+
+  /// Jumu'ah's Iqama (schema v4, 2026-10-14). Null is "Not configured".
+  final int? jumuahMinutes;
+  final bool jumuahReminderEnabled;
+  final int jumuahReminderMinutesBefore;
   const ScheduleRow({
     required this.id,
     required this.mosqueId,
     this.effectiveFrom,
     required this.updatedAt,
+    this.jumuahMinutes,
+    required this.jumuahReminderEnabled,
+    required this.jumuahReminderMinutesBefore,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1621,6 +1709,13 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
       map['effective_from'] = Variable<int>(effectiveFrom);
     }
     map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || jumuahMinutes != null) {
+      map['jumuah_minutes'] = Variable<int>(jumuahMinutes);
+    }
+    map['jumuah_reminder_enabled'] = Variable<bool>(jumuahReminderEnabled);
+    map['jumuah_reminder_minutes_before'] = Variable<int>(
+      jumuahReminderMinutesBefore,
+    );
     return map;
   }
 
@@ -1632,6 +1727,11 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           ? const Value.absent()
           : Value(effectiveFrom),
       updatedAt: Value(updatedAt),
+      jumuahMinutes: jumuahMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(jumuahMinutes),
+      jumuahReminderEnabled: Value(jumuahReminderEnabled),
+      jumuahReminderMinutesBefore: Value(jumuahReminderMinutesBefore),
     );
   }
 
@@ -1645,6 +1745,13 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
       mosqueId: serializer.fromJson<String>(json['mosqueId']),
       effectiveFrom: serializer.fromJson<int?>(json['effectiveFrom']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      jumuahMinutes: serializer.fromJson<int?>(json['jumuahMinutes']),
+      jumuahReminderEnabled: serializer.fromJson<bool>(
+        json['jumuahReminderEnabled'],
+      ),
+      jumuahReminderMinutesBefore: serializer.fromJson<int>(
+        json['jumuahReminderMinutesBefore'],
+      ),
     );
   }
   @override
@@ -1655,6 +1762,11 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
       'mosqueId': serializer.toJson<String>(mosqueId),
       'effectiveFrom': serializer.toJson<int?>(effectiveFrom),
       'updatedAt': serializer.toJson<int>(updatedAt),
+      'jumuahMinutes': serializer.toJson<int?>(jumuahMinutes),
+      'jumuahReminderEnabled': serializer.toJson<bool>(jumuahReminderEnabled),
+      'jumuahReminderMinutesBefore': serializer.toJson<int>(
+        jumuahReminderMinutesBefore,
+      ),
     };
   }
 
@@ -1663,6 +1775,9 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
     String? mosqueId,
     Value<int?> effectiveFrom = const Value.absent(),
     int? updatedAt,
+    Value<int?> jumuahMinutes = const Value.absent(),
+    bool? jumuahReminderEnabled,
+    int? jumuahReminderMinutesBefore,
   }) => ScheduleRow(
     id: id ?? this.id,
     mosqueId: mosqueId ?? this.mosqueId,
@@ -1670,6 +1785,12 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
         ? effectiveFrom.value
         : this.effectiveFrom,
     updatedAt: updatedAt ?? this.updatedAt,
+    jumuahMinutes: jumuahMinutes.present
+        ? jumuahMinutes.value
+        : this.jumuahMinutes,
+    jumuahReminderEnabled: jumuahReminderEnabled ?? this.jumuahReminderEnabled,
+    jumuahReminderMinutesBefore:
+        jumuahReminderMinutesBefore ?? this.jumuahReminderMinutesBefore,
   );
   ScheduleRow copyWithCompanion(SchedulesCompanion data) {
     return ScheduleRow(
@@ -1679,6 +1800,15 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           ? data.effectiveFrom.value
           : this.effectiveFrom,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      jumuahMinutes: data.jumuahMinutes.present
+          ? data.jumuahMinutes.value
+          : this.jumuahMinutes,
+      jumuahReminderEnabled: data.jumuahReminderEnabled.present
+          ? data.jumuahReminderEnabled.value
+          : this.jumuahReminderEnabled,
+      jumuahReminderMinutesBefore: data.jumuahReminderMinutesBefore.present
+          ? data.jumuahReminderMinutesBefore.value
+          : this.jumuahReminderMinutesBefore,
     );
   }
 
@@ -1688,13 +1818,24 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           ..write('id: $id, ')
           ..write('mosqueId: $mosqueId, ')
           ..write('effectiveFrom: $effectiveFrom, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('jumuahMinutes: $jumuahMinutes, ')
+          ..write('jumuahReminderEnabled: $jumuahReminderEnabled, ')
+          ..write('jumuahReminderMinutesBefore: $jumuahReminderMinutesBefore')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, mosqueId, effectiveFrom, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    mosqueId,
+    effectiveFrom,
+    updatedAt,
+    jumuahMinutes,
+    jumuahReminderEnabled,
+    jumuahReminderMinutesBefore,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1702,7 +1843,11 @@ class ScheduleRow extends DataClass implements Insertable<ScheduleRow> {
           other.id == this.id &&
           other.mosqueId == this.mosqueId &&
           other.effectiveFrom == this.effectiveFrom &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.jumuahMinutes == this.jumuahMinutes &&
+          other.jumuahReminderEnabled == this.jumuahReminderEnabled &&
+          other.jumuahReminderMinutesBefore ==
+              this.jumuahReminderMinutesBefore);
 }
 
 class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
@@ -1710,12 +1855,18 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
   final Value<String> mosqueId;
   final Value<int?> effectiveFrom;
   final Value<int> updatedAt;
+  final Value<int?> jumuahMinutes;
+  final Value<bool> jumuahReminderEnabled;
+  final Value<int> jumuahReminderMinutesBefore;
   final Value<int> rowid;
   const SchedulesCompanion({
     this.id = const Value.absent(),
     this.mosqueId = const Value.absent(),
     this.effectiveFrom = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.jumuahMinutes = const Value.absent(),
+    this.jumuahReminderEnabled = const Value.absent(),
+    this.jumuahReminderMinutesBefore = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SchedulesCompanion.insert({
@@ -1723,6 +1874,9 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     required String mosqueId,
     this.effectiveFrom = const Value.absent(),
     required int updatedAt,
+    this.jumuahMinutes = const Value.absent(),
+    this.jumuahReminderEnabled = const Value.absent(),
+    this.jumuahReminderMinutesBefore = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        mosqueId = Value(mosqueId),
@@ -1732,6 +1886,9 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     Expression<String>? mosqueId,
     Expression<int>? effectiveFrom,
     Expression<int>? updatedAt,
+    Expression<int>? jumuahMinutes,
+    Expression<bool>? jumuahReminderEnabled,
+    Expression<int>? jumuahReminderMinutesBefore,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1739,6 +1896,11 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
       if (mosqueId != null) 'mosque_id': mosqueId,
       if (effectiveFrom != null) 'effective_from': effectiveFrom,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (jumuahMinutes != null) 'jumuah_minutes': jumuahMinutes,
+      if (jumuahReminderEnabled != null)
+        'jumuah_reminder_enabled': jumuahReminderEnabled,
+      if (jumuahReminderMinutesBefore != null)
+        'jumuah_reminder_minutes_before': jumuahReminderMinutesBefore,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1748,6 +1910,9 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     Value<String>? mosqueId,
     Value<int?>? effectiveFrom,
     Value<int>? updatedAt,
+    Value<int?>? jumuahMinutes,
+    Value<bool>? jumuahReminderEnabled,
+    Value<int>? jumuahReminderMinutesBefore,
     Value<int>? rowid,
   }) {
     return SchedulesCompanion(
@@ -1755,6 +1920,11 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
       mosqueId: mosqueId ?? this.mosqueId,
       effectiveFrom: effectiveFrom ?? this.effectiveFrom,
       updatedAt: updatedAt ?? this.updatedAt,
+      jumuahMinutes: jumuahMinutes ?? this.jumuahMinutes,
+      jumuahReminderEnabled:
+          jumuahReminderEnabled ?? this.jumuahReminderEnabled,
+      jumuahReminderMinutesBefore:
+          jumuahReminderMinutesBefore ?? this.jumuahReminderMinutesBefore,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1774,6 +1944,19 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<int>(updatedAt.value);
     }
+    if (jumuahMinutes.present) {
+      map['jumuah_minutes'] = Variable<int>(jumuahMinutes.value);
+    }
+    if (jumuahReminderEnabled.present) {
+      map['jumuah_reminder_enabled'] = Variable<bool>(
+        jumuahReminderEnabled.value,
+      );
+    }
+    if (jumuahReminderMinutesBefore.present) {
+      map['jumuah_reminder_minutes_before'] = Variable<int>(
+        jumuahReminderMinutesBefore.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1787,6 +1970,9 @@ class SchedulesCompanion extends UpdateCompanion<ScheduleRow> {
           ..write('mosqueId: $mosqueId, ')
           ..write('effectiveFrom: $effectiveFrom, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('jumuahMinutes: $jumuahMinutes, ')
+          ..write('jumuahReminderEnabled: $jumuahReminderEnabled, ')
+          ..write('jumuahReminderMinutesBefore: $jumuahReminderMinutesBefore, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3148,6 +3334,9 @@ typedef $$SchedulesTableCreateCompanionBuilder = SchedulesCompanion Function({
   required String mosqueId,
   Value<int?> effectiveFrom,
   required int updatedAt,
+  Value<int?> jumuahMinutes,
+  Value<bool> jumuahReminderEnabled,
+  Value<int> jumuahReminderMinutesBefore,
   Value<int> rowid,
 });
 typedef $$SchedulesTableUpdateCompanionBuilder = SchedulesCompanion Function({
@@ -3155,6 +3344,9 @@ typedef $$SchedulesTableUpdateCompanionBuilder = SchedulesCompanion Function({
   Value<String> mosqueId,
   Value<int?> effectiveFrom,
   Value<int> updatedAt,
+  Value<int?> jumuahMinutes,
+  Value<bool> jumuahReminderEnabled,
+  Value<int> jumuahReminderMinutesBefore,
   Value<int> rowid,
 });
 
@@ -3221,6 +3413,21 @@ class $$SchedulesTableFilterComposer
 
   ColumnFilters<int> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get jumuahMinutes => $composableBuilder(
+    column: $table.jumuahMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get jumuahReminderEnabled => $composableBuilder(
+    column: $table.jumuahReminderEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get jumuahReminderMinutesBefore => $composableBuilder(
+    column: $table.jumuahReminderMinutesBefore,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3297,6 +3504,21 @@ class $$SchedulesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get jumuahMinutes => $composableBuilder(
+    column: $table.jumuahMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get jumuahReminderEnabled => $composableBuilder(
+    column: $table.jumuahReminderEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get jumuahReminderMinutesBefore => $composableBuilder(
+    column: $table.jumuahReminderMinutesBefore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$MosquesTableOrderingComposer get mosqueId {
     final $$MosquesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3340,6 +3562,21 @@ class $$SchedulesTableAnnotationComposer
 
   GeneratedColumn<int> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get jumuahMinutes => $composableBuilder(
+    column: $table.jumuahMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get jumuahReminderEnabled => $composableBuilder(
+    column: $table.jumuahReminderEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get jumuahReminderMinutesBefore => $composableBuilder(
+    column: $table.jumuahReminderMinutesBefore,
+    builder: (column) => column,
+  );
 
   $$MosquesTableAnnotationComposer get mosqueId {
     final $$MosquesTableAnnotationComposer composer = $composerBuilder(
@@ -3422,12 +3659,18 @@ class $$SchedulesTableTableManager
                 Value<String> mosqueId = const Value.absent(),
                 Value<int?> effectiveFrom = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
+                Value<int?> jumuahMinutes = const Value.absent(),
+                Value<bool> jumuahReminderEnabled = const Value.absent(),
+                Value<int> jumuahReminderMinutesBefore = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SchedulesCompanion(
                 id: id,
                 mosqueId: mosqueId,
                 effectiveFrom: effectiveFrom,
                 updatedAt: updatedAt,
+                jumuahMinutes: jumuahMinutes,
+                jumuahReminderEnabled: jumuahReminderEnabled,
+                jumuahReminderMinutesBefore: jumuahReminderMinutesBefore,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3436,12 +3679,18 @@ class $$SchedulesTableTableManager
                 required String mosqueId,
                 Value<int?> effectiveFrom = const Value.absent(),
                 required int updatedAt,
+                Value<int?> jumuahMinutes = const Value.absent(),
+                Value<bool> jumuahReminderEnabled = const Value.absent(),
+                Value<int> jumuahReminderMinutesBefore = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SchedulesCompanion.insert(
                 id: id,
                 mosqueId: mosqueId,
                 effectiveFrom: effectiveFrom,
                 updatedAt: updatedAt,
+                jumuahMinutes: jumuahMinutes,
+                jumuahReminderEnabled: jumuahReminderEnabled,
+                jumuahReminderMinutesBefore: jumuahReminderMinutesBefore,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

@@ -243,6 +243,54 @@ class MosqueRepository {
     return updated;
   }
 
+  /// Writes the mosque's Jumu'ah Iqama, as [setIqama] does for the five.
+  Future<Schedule> setJumuah(
+    String mosqueId,
+    LocalTime? time, {
+    bool reminderEnabled = false,
+    int reminderMinutesBefore = 10,
+  }) async {
+    if (!ReminderInterval.isValid(reminderMinutesBefore)) {
+      throw ArgumentError.value(
+        reminderMinutesBefore,
+        'reminderMinutesBefore',
+        'must be ${ReminderInterval.minMinutes}..${ReminderInterval.maxMinutes}',
+      );
+    }
+    final now = _clock.nowUtc();
+    final schedule = await _scheduleInForce(mosqueId, now);
+    final updated = schedule.copyWith(
+      jumuah: PrayerIqama(
+        prayer: Prayer.dhuhr,
+        iqama: time,
+        reminderEnabled: time != null && reminderEnabled,
+        reminderMinutesBefore: reminderMinutesBefore,
+      ),
+      updatedAt: now,
+    );
+    await _db.transaction(() => _saveSchedule(mosqueId, updated));
+    return updated;
+  }
+
+  /// Switches the Jumu'ah reminder, keeping its time and interval. Refused
+  /// without a Jumu'ah time, as for every Iqama.
+  Future<Schedule> setJumuahReminderEnabled(
+    String mosqueId, {
+    required bool enabled,
+  }) async {
+    final now = _clock.nowUtc();
+    final schedule = await _scheduleInForce(mosqueId, now);
+    if (enabled && !schedule.jumuah.isConfigured) {
+      throw ReminderWithoutIqamaException(Prayer.dhuhr);
+    }
+    final updated = schedule.copyWith(
+      jumuah: schedule.jumuah.copyWith(reminderEnabled: enabled),
+      updatedAt: now,
+    );
+    await _db.transaction(() => _saveSchedule(mosqueId, updated));
+    return updated;
+  }
+
   /// The schedule an edit at [now] belongs to.
   ///
   /// Resolved on the device's own calendar day, since that is the day the user is
@@ -283,6 +331,9 @@ class MosqueRepository {
             mosqueId: mosqueId,
             effectiveFrom: _dayToInt(schedule.effectiveFrom),
             updatedAt: schedule.updatedAt.millisecondsSinceEpoch,
+            jumuahMinutes: schedule.jumuah.iqama?.minutes,
+            jumuahReminderEnabled: schedule.jumuah.reminderEnabled,
+            jumuahReminderMinutesBefore: schedule.jumuah.reminderMinutesBefore,
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -330,6 +381,15 @@ class MosqueRepository {
             mosqueId: schedule.mosqueId,
             effectiveFrom: _intToDay(schedule.effectiveFrom),
             updatedAt: DateTime.fromMillisecondsSinceEpoch(schedule.updatedAt),
+            jumuah: PrayerIqama(
+              prayer: Prayer.dhuhr,
+              iqama: switch (schedule.jumuahMinutes) {
+                final m? => LocalTime(m),
+                null => null,
+              },
+              reminderEnabled: schedule.jumuahReminderEnabled,
+              reminderMinutesBefore: schedule.jumuahReminderMinutesBefore,
+            ),
             prayers: {
               for (final prayer in Prayer.iqamaPrayers)
                 prayer: PrayerIqama(

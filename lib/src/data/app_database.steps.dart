@@ -520,9 +520,161 @@ i1.GeneratedColumn<int> _column_25(String aliasedName) =>
           'NOT NULL DEFAULT 0 CHECK (reminders_paused IN (0, 1))',
       defaultValue: const i1.CustomExpression('0'),
     );
+
+final class Schema4 extends i0.VersionedSchema {
+  Schema4({required super.database}) : super(version: 4);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    appSettings,
+    adhanAlertRows,
+    prayerOffsets,
+    mosques,
+    schedules,
+    schedulePrayers,
+  ];
+  late final Shape0 appSettings = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'app_settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_0, _column_1],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 adhanAlertRows = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'adhan_alert_rows',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(prayer)'],
+      columns: [
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 prayerOffsets = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'prayer_offsets',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(prayer)'],
+      columns: [_column_2, _column_8],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 mosques = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'mosques',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+        _column_25,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape7 schedules = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'schedules',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_26,
+        _column_27,
+        _column_28,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape5 schedulePrayers = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'schedule_prayers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(schedule_id, prayer)'],
+      columns: [_column_20, _column_21, _column_22, _column_23, _column_24],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape7 extends i0.VersionedTable {
+  Shape7({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get mosqueId =>
+      columnsByName['mosque_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get effectiveFrom =>
+      columnsByName['effective_from']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get jumuahMinutes =>
+      columnsByName['jumuah_minutes']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get jumuahReminderEnabled =>
+      columnsByName['jumuah_reminder_enabled']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get jumuahReminderMinutesBefore =>
+      columnsByName['jumuah_reminder_minutes_before']!
+          as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_26(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'jumuah_minutes',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_27(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'jumuah_reminder_enabled',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints:
+          'NOT NULL DEFAULT 0 CHECK (jumuah_reminder_enabled IN (0, 1))',
+      defaultValue: const i1.CustomExpression('0'),
+    );
+i1.GeneratedColumn<int> _column_28(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'jumuah_reminder_minutes_before',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL DEFAULT 10',
+      defaultValue: const i1.CustomExpression('10'),
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
+  required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -536,6 +688,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from2To3(migrator, schema);
         return 3;
+      case 3:
+        final schema = Schema4(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from3To4(migrator, schema);
+        return 4;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -545,6 +702,11 @@ i0.MigrationStepWithVersion migrationSteps({
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
+  required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from1To2: from1To2, from2To3: from2To3),
+  step: migrationSteps(
+    from1To2: from1To2,
+    from2To3: from2To3,
+    from3To4: from3To4,
+  ),
 );

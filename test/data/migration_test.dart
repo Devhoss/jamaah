@@ -29,7 +29,7 @@ void main() {
 
   test('a freshly created database matches drift\'s own expectations',
       () async {
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 4);
     await db.validateDatabaseSchema();
   });
 
@@ -113,7 +113,13 @@ void main() {
       ),
     );
     await db.into(db.schedules).insert(
-      ScheduleRow(id: 's1', mosqueId: 'm1', updatedAt: 1),
+      ScheduleRow(
+        id: 's1',
+        mosqueId: 'm1',
+        updatedAt: 1,
+        jumuahReminderEnabled: false,
+        jumuahReminderMinutesBefore: 10,
+      ),
     );
     await db.into(db.schedulePrayers).insert(
       SchedulePrayerRow(
@@ -143,7 +149,13 @@ void main() {
       ),
     );
     await db.into(db.schedules).insert(
-      ScheduleRow(id: 's1', mosqueId: 'm1', updatedAt: 1),
+      ScheduleRow(
+        id: 's1',
+        mosqueId: 'm1',
+        updatedAt: 1,
+        jumuahReminderEnabled: false,
+        jumuahReminderMinutesBefore: 10,
+      ),
     );
 
     // AGENTS.md: sunrise has no Iqama. The CHECK constraint makes that

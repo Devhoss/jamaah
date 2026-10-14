@@ -34,6 +34,10 @@ class LocalDay {
 
   DateTime midnightUtc() => DateTime.utc(year, month, day);
 
+  /// Jumu'ah's day. Read from the place's own date, never the phone's.
+  bool get isFriday =>
+      DateTime.utc(year, month, day).weekday == DateTime.friday;
+
   @override
   bool operator ==(Object other) =>
       other is LocalDay &&
