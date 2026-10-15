@@ -166,7 +166,9 @@ class LocalNotificationsGateway implements NotificationGateway {
     'body': item.body,
     'sound': inAppSound(item.planned).sound,
     'raw': inAppSound(item.planned).raw,
-    'recording': item.planned.recordingAsset ?? '',
+    'recording':
+        item.planned.recordingAsset ?? item.planned.customSoundPath ?? '',
+    'maxSeconds': maxSecondsFor(item.planned),
     'ringInSilent': item.planned.ringInSilent,
     'fullScreen': item.planned.fullScreen,
     'vibrate': item.planned.vibrate,

@@ -27,6 +27,8 @@ data class AdhanAlarm(
     val ringInSilent: Boolean,
     val fullScreen: Boolean,
     val vibrate: Boolean,
+    /** At most this long, in seconds; 0 plays to the end (2026-10-15). */
+    val maxSeconds: Int = 0,
     /** "Stop", in the app's language (the native side has no strings file). */
     val stopLabel: String,
     /** The Adhan time as the user's clock shows it, for the full-screen page. */
@@ -43,6 +45,7 @@ data class AdhanAlarm(
         .put("ringInSilent", ringInSilent)
         .put("fullScreen", fullScreen)
         .put("vibrate", vibrate)
+        .put("maxSeconds", maxSeconds)
         .put("stopLabel", stopLabel)
         .put("timeLabel", timeLabel)
 
@@ -58,6 +61,7 @@ data class AdhanAlarm(
             ringInSilent = o.optBoolean("ringInSilent"),
             fullScreen = o.optBoolean("fullScreen"),
             vibrate = o.optBoolean("vibrate", true),
+            maxSeconds = o.optInt("maxSeconds", 0),
             stopLabel = o.optString("stopLabel", "Stop"),
             timeLabel = o.optString("timeLabel", ""),
         )
@@ -73,6 +77,7 @@ data class AdhanAlarm(
             ringInSilent = m["ringInSilent"] == true,
             fullScreen = m["fullScreen"] == true,
             vibrate = m["vibrate"] != false,
+            maxSeconds = (m["maxSeconds"] as? Number)?.toInt() ?: 0,
             stopLabel = m["stopLabel"] as? String ?: "Stop",
             timeLabel = m["timeLabel"] as? String ?: "",
         )

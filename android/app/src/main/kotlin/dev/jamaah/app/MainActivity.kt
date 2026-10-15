@@ -12,6 +12,7 @@ import java.security.MessageDigest
 
 class MainActivity : FlutterActivity() {
     private var pendingLocation: MethodChannel.Result? = null
+    private val soundPicker = SoundPicker(this)
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -34,6 +35,15 @@ class MainActivity : FlutterActivity() {
 
         // The plan is renewed daily even when the app is not opened.
         DailyRefreshJob.schedule(this)
+
+        // The user's own sounds: pick a file and copy it in (SoundPicker).
+        MethodChannel(messenger, "dev.jamaah.app/sounds")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "pick" -> soundPicker.pick(result)
+                    else -> result.notImplemented()
+                }
+            }
 
         // Location is asked for at two levels: approximate for prayer times,
         // precise only when the user searches for mosques nearby. A plugin that
@@ -108,6 +118,13 @@ class MainActivity : FlutterActivity() {
         pendingLocation = result
         markAsked()
         requestPermissions(wanted, LOCATION_REQUEST)
+    }
+
+    @Deprecated("Activity result API")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!soundPicker.onActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     override fun onRequestPermissionsResult(

@@ -110,25 +110,38 @@ class AdhanService : Service(), SensorEventListener {
                 ?.let { Uri.parse("android.resource://$packageName/$it") }
             else -> null // silent: shown, not heard
         }
-        val fromAssets =
+        // The user's own file (2026-10-15): an absolute path, for a full Adhan
+        // or ("file") a reminder.
+        val fromFile = alarm.recording.startsWith("/") &&
+            (alarm.sound == "full" || alarm.sound == "file")
+        val fromAssets = !fromFile &&
             (alarm.sound == "full" || alarm.sound == "short") && alarm.recording.isNotEmpty()
-        if (source == null && !fromAssets) {
+        // What plays if the user's file cannot: the reminder's own bundled sound,
+        // or the short Adhan.
+        val fallback = alarm.raw.takeIf { it.isNotEmpty() }
+            ?.let { resources.getIdentifier(it, "raw", packageName) }
+            ?.takeIf { it != 0 }
+            ?.let { Uri.parse("android.resource://$packageName/$it") }
+            ?: shortAdhan
+        if (alarm.maxSeconds > 0) {
+            handler.postDelayed(capEnd, alarm.maxSeconds * 1000L)
+        }
+        if (source == null && !fromAssets && !fromFile) {
             if (!alarm.fullScreen) finish()
             startFlipWatch()
             return
         }
+        fun attributes() = AudioAttributes.Builder()
+            .setUsage(usage)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
         try {
             player = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(usage)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build(),
-                )
-                if (fromAssets) {
-                    setAssetSource(this, alarm.recording, shortAdhan)
-                } else {
-                    setDataSource(this@AdhanService, source!!)
+                setAudioAttributes(attributes())
+                when {
+                    fromFile -> setDataSource(alarm.recording)
+                    fromAssets -> setAssetSource(this, alarm.recording, shortAdhan)
+                    else -> setDataSource(this@AdhanService, source!!)
                 }
                 setOnCompletionListener { soundEnded() }
                 setOnErrorListener { _, _, _ -> finish(); true }
@@ -136,8 +149,27 @@ class AdhanService : Service(), SensorEventListener {
                 start()
             }
         } catch (e: Exception) {
-            finish()
-            return
+            player?.release()
+            player = null
+            if (!fromFile) {
+                finish()
+                return
+            }
+            // The user's file would not play (moved, damaged, an odd format):
+            // the bundled sound instead, so the alert is never silent.
+            try {
+                player = MediaPlayer().apply {
+                    setAudioAttributes(attributes())
+                    setDataSource(this@AdhanService, fallback)
+                    setOnCompletionListener { soundEnded() }
+                    setOnErrorListener { _, _, _ -> finish(); true }
+                    prepare()
+                    start()
+                }
+            } catch (e2: Exception) {
+                finish()
+                return
+            }
         }
 
         startVolumeKeyWatch()
@@ -212,6 +244,9 @@ class AdhanService : Service(), SensorEventListener {
     }
 
     private val handler = Handler(Looper.getMainLooper())
+
+    /** Ends a sound that has a time limit (a reminder: 30 seconds). */
+    private val capEnd = Runnable { finish() }
     private var minimumPassed = false
     private var soundDone = false
     private val minimumEnd = Runnable {
@@ -287,6 +322,7 @@ class AdhanService : Service(), SensorEventListener {
         sensors?.unregisterListener(this)
         sensors = null
         handler.removeCallbacks(minimumEnd)
+        handler.removeCallbacks(capEnd)
         minimumPassed = false
         soundDone = false
         faceDownSince = 0L
