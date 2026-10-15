@@ -33,6 +33,9 @@ data class AdhanAlarm(
     val stopLabel: String,
     /** The Adhan time as the user's clock shows it, for the full-screen page. */
     val timeLabel: String,
+    /** "adhan", or a reminder's kind: decides which one keeps the sound when
+     * two fire at once (2026-10-15). */
+    val kind: String = "adhan",
 ) {
     fun toJson(): JSONObject = JSONObject()
         .put("id", id)
@@ -48,6 +51,7 @@ data class AdhanAlarm(
         .put("maxSeconds", maxSeconds)
         .put("stopLabel", stopLabel)
         .put("timeLabel", timeLabel)
+        .put("kind", kind)
 
     companion object {
         fun fromJson(o: JSONObject) = AdhanAlarm(
@@ -64,6 +68,7 @@ data class AdhanAlarm(
             maxSeconds = o.optInt("maxSeconds", 0),
             stopLabel = o.optString("stopLabel", "Stop"),
             timeLabel = o.optString("timeLabel", ""),
+            kind = o.optString("kind", "adhan"),
         )
 
         fun fromMap(m: Map<*, *>) = AdhanAlarm(
@@ -80,6 +85,7 @@ data class AdhanAlarm(
             maxSeconds = (m["maxSeconds"] as? Number)?.toInt() ?: 0,
             stopLabel = m["stopLabel"] as? String ?: "Stop",
             timeLabel = m["timeLabel"] as? String ?: "",
+            kind = m["kind"] as? String ?: "adhan",
         )
     }
 }

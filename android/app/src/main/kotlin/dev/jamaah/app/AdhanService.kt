@@ -62,11 +62,30 @@ class AdhanService : Service(), SensorEventListener {
             stopSelf()
             return START_NOT_STICKY
         }
-        // A new Adhan replaces one still playing.
+        ensureChannel(this)
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val playing = current
+        // Two at once (a Jama’ah reminder due at the Adhan, 2026-10-15): neither
+        // is lost. An Adhan is never cut short by a reminder: the reminder is
+        // shown, silently. Anything else takes the sound, and the one it
+        // replaces stays in the notification shade.
+        if (playing != null && playing.kind == "adhan" && alarm.kind != "adhan") {
+            keepForeground(buildNotification(playing, playing = true))
+            manager.notify(alarm.id, buildNotification(alarm, playing = false))
+            return START_NOT_STICKY
+        }
+        if (playing != null) {
+            manager.notify(playing.id, buildNotification(playing, playing = false))
+        }
         release()
         current = alarm
-        ensureChannel(this)
-        val notification = buildNotification(alarm, playing = true)
+        keepForeground(buildNotification(alarm, playing = true))
+        play(alarm)
+        return START_NOT_STICKY
+    }
+
+    /** Every start must (re)enter the foreground, even one that plays nothing. */
+    private fun keepForeground(notification: Notification) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 PLAYING_ID,
@@ -76,8 +95,6 @@ class AdhanService : Service(), SensorEventListener {
         } else {
             startForeground(PLAYING_ID, notification)
         }
-        play(alarm)
-        return START_NOT_STICKY
     }
 
     private fun play(alarm: AdhanAlarm) {

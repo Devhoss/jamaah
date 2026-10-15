@@ -169,6 +169,8 @@ class LocalNotificationsGateway implements NotificationGateway {
     'recording':
         item.planned.recordingAsset ?? item.planned.customSoundPath ?? '',
     'maxSeconds': maxSecondsFor(item.planned),
+    // Which keeps the sound when two fire at once: an Adhan over a reminder.
+    'kind': item.planned.kind.name,
     'ringInSilent': item.planned.ringInSilent,
     'fullScreen': item.planned.fullScreen,
     'vibrate': item.planned.vibrate,
