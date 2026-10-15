@@ -2262,4 +2262,69 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notesTitle => 'ملاحظات';
+
+  @override
+  String ticketKicker(String mosque) {
+    return 'الإقامة · $mosque';
+  }
+
+  @override
+  String ticketWhen(String relative) {
+    return '· $relative';
+  }
+
+  @override
+  String ticketRuleAfter(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'الأذان + $minutes دقيقة · حدّدتها أنت',
+      many: 'الأذان + $minutes دقيقة · حدّدتها أنت',
+      few: 'الأذان + $minutes دقائق · حدّدتها أنت',
+      two: 'الأذان + دقيقتين · حدّدتها أنت',
+      one: 'الأذان + دقيقة · حدّدتها أنت',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketRuleFixed => 'وقت ثابت · حدّدته أنت';
+
+  @override
+  String ticketReminder(String time) {
+    return 'التذكير $time';
+  }
+
+  @override
+  String get ticketNoReminder => 'بلا تذكير';
+
+  @override
+  String get ticketSetTime => 'حدّد الوقت';
+
+  @override
+  String get ticketSunrise => 'بالشروق ينتهي وقت الفجر. لا إقامة له.';
+
+  @override
+  String get ticketNoMosque => 'أضف مسجدك لترى متى تبدأ صلاة الجماعة فيه.';
+
+  @override
+  String ticketJumuahNotSet(String time) {
+    return 'لم يُحدَّد وقت الجمعة · إقامة الظهر $time';
+  }
+
+  @override
+  String ticketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  ) {
+    return 'الإقامة في $mosque: $time، $relative. $rule. $reminder.';
+  }
+
+  @override
+  String ticketUnsetSemantics(String mosque) {
+    return 'الإقامة في $mosque: غير محدّدة. حدّد الوقت';
+  }
 }

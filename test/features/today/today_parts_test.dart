@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:jamaah/src/app/clock_format.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
@@ -53,6 +54,8 @@ Rect _tightBounds(Path path) {
 }
 
 void main() {
+  setUpAll(() => initializeDateFormatting());
+
   group('line icons', () {
     final all = [
       LineIcons.chevronRight,

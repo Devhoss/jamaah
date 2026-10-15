@@ -2100,4 +2100,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notesTitle => 'Notes';
+
+  @override
+  String ticketKicker(String mosque) {
+    return 'Iqama · $mosque';
+  }
+
+  @override
+  String ticketWhen(String relative) {
+    return '· $relative';
+  }
+
+  @override
+  String ticketRuleAfter(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Adhan + $minutes min · set by you',
+      one: 'Adhan + 1 min · set by you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketRuleFixed => 'Fixed time · set by you';
+
+  @override
+  String ticketReminder(String time) {
+    return 'Reminder $time';
+  }
+
+  @override
+  String get ticketNoReminder => 'No reminder';
+
+  @override
+  String get ticketSetTime => 'Set time';
+
+  @override
+  String get ticketSunrise =>
+      'Sunrise ends the time for Fajr. It has no Iqama.';
+
+  @override
+  String get ticketNoMosque =>
+      'Add your mosque to see when its congregation starts.';
+
+  @override
+  String ticketJumuahNotSet(String time) {
+    return 'Jumu’ah time not set · Dhuhr Iqama $time';
+  }
+
+  @override
+  String ticketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  ) {
+    return 'Iqama at $mosque: $time, $relative. $rule. $reminder.';
+  }
+
+  @override
+  String ticketUnsetSemantics(String mosque) {
+    return 'Iqama at $mosque: not configured. Set time';
+  }
 }

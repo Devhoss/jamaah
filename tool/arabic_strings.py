@@ -622,6 +622,18 @@ AR = {
     "placeButtonSemantics": 'المكان: {place}. تغيير المكان',
     "moreNotes": plural('count', one='ملاحظة أخرى', two='ملاحظتان أخريان', few='{n} ملاحظات أخرى', many='{n} ملاحظة أخرى'),
     "notesTitle": 'ملاحظات',
+    "ticketKicker": 'الإقامة · {mosque}',
+    "ticketWhen": '· {relative}',
+    "ticketRuleAfter": minutes('minutes', before='الأذان + ', after=' · حدّدتها أنت'),
+    "ticketRuleFixed": 'وقت ثابت · حدّدته أنت',
+    "ticketReminder": 'التذكير {time}',
+    "ticketNoReminder": 'بلا تذكير',
+    "ticketSetTime": 'حدّد الوقت',
+    "ticketSunrise": 'بالشروق ينتهي وقت الفجر. لا إقامة له.',
+    "ticketNoMosque": 'أضف مسجدك لترى متى تبدأ صلاة الجماعة فيه.',
+    "ticketJumuahNotSet": 'لم يُحدَّد وقت الجمعة · إقامة الظهر {time}',
+    "ticketSemantics": 'الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}.',
+    "ticketUnsetSemantics": 'الإقامة في {mosque}: غير محدّدة. حدّد الوقت',
 }
 
 

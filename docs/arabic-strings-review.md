@@ -571,3 +571,15 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 558 | `placeButtonSemantics` | Place: {place}. Change place | المكان: {place}. تغيير المكان |
 | 559 | `moreNotes` | {count, plural, =1{1 more note} other{{count} more notes}} | {count, plural, =1{ملاحظة أخرى} =2{ملاحظتان أخريان} few{{count} ملاحظات أخرى} many{{count} ملاحظة أخرى} other{{count} ملاحظة أخرى}} |
 | 560 | `notesTitle` | Notes | ملاحظات |
+| 561 | `ticketKicker` | Iqama · {mosque} | الإقامة · {mosque} |
+| 562 | `ticketWhen` | · {relative} | · {relative} |
+| 563 | `ticketRuleAfter` | {minutes, plural, =1{Adhan + 1 min · set by you} other{Adhan + {minutes} min · set by you}} | {minutes, plural, =1{الأذان + دقيقة · حدّدتها أنت} =2{الأذان + دقيقتين · حدّدتها أنت} few{الأذان + {minutes} دقائق · حدّدتها أنت} many{الأذان + {minutes} دقيقة · حدّدتها أنت} other{الأذان + {minutes} دقيقة · حدّدتها أنت}} |
+| 564 | `ticketRuleFixed` | Fixed time · set by you | وقت ثابت · حدّدته أنت |
+| 565 | `ticketReminder` | Reminder {time} | التذكير {time} |
+| 566 | `ticketNoReminder` | No reminder | بلا تذكير |
+| 567 | `ticketSetTime` | Set time | حدّد الوقت |
+| 568 | `ticketSunrise` | Sunrise ends the time for Fajr. It has no Iqama. | بالشروق ينتهي وقت الفجر. لا إقامة له. |
+| 569 | `ticketNoMosque` | Add your mosque to see when its congregation starts. | أضف مسجدك لترى متى تبدأ صلاة الجماعة فيه. |
+| 570 | `ticketJumuahNotSet` | Jumu’ah time not set · Dhuhr Iqama {time} | لم يُحدَّد وقت الجمعة · إقامة الظهر {time} |
+| 571 | `ticketSemantics` | Iqama at {mosque}: {time}, {relative}. {rule}. {reminder}. | الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}. |
+| 572 | `ticketUnsetSemantics` | Iqama at {mosque}: not configured. Set time | الإقامة في {mosque}: غير محدّدة. حدّد الوقت |

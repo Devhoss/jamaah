@@ -3465,6 +3465,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get notesTitle;
+
+  /// No description provided for @ticketKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama · {mosque}'**
+  String ticketKicker(String mosque);
+
+  /// No description provided for @ticketWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'· {relative}'**
+  String ticketWhen(String relative);
+
+  /// No description provided for @ticketRuleAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{Adhan + 1 min · set by you} other{Adhan + {minutes} min · set by you}}'**
+  String ticketRuleAfter(int minutes);
+
+  /// No description provided for @ticketRuleFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed time · set by you'**
+  String get ticketRuleFixed;
+
+  /// No description provided for @ticketReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder {time}'**
+  String ticketReminder(String time);
+
+  /// No description provided for @ticketNoReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminder'**
+  String get ticketNoReminder;
+
+  /// No description provided for @ticketSetTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Set time'**
+  String get ticketSetTime;
+
+  /// No description provided for @ticketSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise ends the time for Fajr. It has no Iqama.'**
+  String get ticketSunrise;
+
+  /// No description provided for @ticketNoMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your mosque to see when its congregation starts.'**
+  String get ticketNoMosque;
+
+  /// No description provided for @ticketJumuahNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu’ah time not set · Dhuhr Iqama {time}'**
+  String ticketJumuahNotSet(String time);
+
+  /// No description provided for @ticketSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama at {mosque}: {time}, {relative}. {rule}. {reminder}.'**
+  String ticketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  );
+
+  /// No description provided for @ticketUnsetSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama at {mosque}: not configured. Set time'**
+  String ticketUnsetSemantics(String mosque);
 }
 
 class _AppLocalizationsDelegate

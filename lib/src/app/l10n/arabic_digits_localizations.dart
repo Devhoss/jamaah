@@ -1304,6 +1304,21 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get notesTitle => arabicDigits(super.notesTitle);
 
   @override
+  String get ticketRuleFixed => arabicDigits(super.ticketRuleFixed);
+
+  @override
+  String get ticketNoReminder => arabicDigits(super.ticketNoReminder);
+
+  @override
+  String get ticketSetTime => arabicDigits(super.ticketSetTime);
+
+  @override
+  String get ticketSunrise => arabicDigits(super.ticketSunrise);
+
+  @override
+  String get ticketNoMosque => arabicDigits(super.ticketNoMosque);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1822,4 +1837,38 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String moreNotes(int count) =>
       arabicDigits(super.moreNotes(count));
+
+  @override
+  String ticketKicker(String mosque) =>
+      arabicDigits(super.ticketKicker(mosque));
+
+  @override
+  String ticketWhen(String relative) =>
+      arabicDigits(super.ticketWhen(relative));
+
+  @override
+  String ticketRuleAfter(int minutes) =>
+      arabicDigits(super.ticketRuleAfter(minutes));
+
+  @override
+  String ticketReminder(String time) =>
+      arabicDigits(super.ticketReminder(time));
+
+  @override
+  String ticketJumuahNotSet(String time) =>
+      arabicDigits(super.ticketJumuahNotSet(time));
+
+  @override
+  String ticketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  ) =>
+      arabicDigits(super.ticketSemantics(mosque, time, relative, rule, reminder));
+
+  @override
+  String ticketUnsetSemantics(String mosque) =>
+      arabicDigits(super.ticketUnsetSemantics(mosque));
 }

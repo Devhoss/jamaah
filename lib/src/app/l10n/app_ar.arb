@@ -559,5 +559,17 @@
   "placeSubline": "{date} · {hijri}",
   "placeButtonSemantics": "المكان: {place}. تغيير المكان",
   "moreNotes": "{count, plural, =1{ملاحظة أخرى} =2{ملاحظتان أخريان} few{{count} ملاحظات أخرى} many{{count} ملاحظة أخرى} other{{count} ملاحظة أخرى}}",
-  "notesTitle": "ملاحظات"
+  "notesTitle": "ملاحظات",
+  "ticketKicker": "الإقامة · {mosque}",
+  "ticketWhen": "· {relative}",
+  "ticketRuleAfter": "{minutes, plural, =1{الأذان + دقيقة · حدّدتها أنت} =2{الأذان + دقيقتين · حدّدتها أنت} few{الأذان + {minutes} دقائق · حدّدتها أنت} many{الأذان + {minutes} دقيقة · حدّدتها أنت} other{الأذان + {minutes} دقيقة · حدّدتها أنت}}",
+  "ticketRuleFixed": "وقت ثابت · حدّدته أنت",
+  "ticketReminder": "التذكير {time}",
+  "ticketNoReminder": "بلا تذكير",
+  "ticketSetTime": "حدّد الوقت",
+  "ticketSunrise": "بالشروق ينتهي وقت الفجر. لا إقامة له.",
+  "ticketNoMosque": "أضف مسجدك لترى متى تبدأ صلاة الجماعة فيه.",
+  "ticketJumuahNotSet": "لم يُحدَّد وقت الجمعة · إقامة الظهر {time}",
+  "ticketSemantics": "الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}.",
+  "ticketUnsetSemantics": "الإقامة في {mosque}: غير محدّدة. حدّد الوقت"
 }
