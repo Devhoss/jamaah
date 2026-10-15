@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:jamaah/src/features/components/bottom_nav.dart';
+import 'package:jamaah/src/features/components/travel_switch.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
@@ -170,14 +171,8 @@ void main() {
   testApp('every destination and the airplane are big enough to press', (
     tester,
   ) async {
-    await open(tester);
-
-    final travel = tester.getSize(
-      find.ancestor(
-        of: find.byTooltip(t.travelModeTurnOn),
-        matching: find.byType(IconButton),
-      ),
-    );
+    await open(tester, withPlace: true);
+    final travel = tester.getSize(find.byType(TravelSwitch));
     for (var i = 0; i < 4; i++) {
       final tab = tester.getSize(find.byKey(BottomNav.tabKey(i)));
       expect(
@@ -222,6 +217,8 @@ void main() {
     await open(tester, withPlace: true);
 
     expect(find.text(t.addMosqueTitle), findsOneWidget);
+    await tester.ensureVisible(find.text(t.addMosqueTitle));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(t.addMosqueTitle));
     await tester.pumpAndSettle();
 
@@ -241,7 +238,7 @@ void main() {
     await goTo(tester, t.tabToday);
 
     expect(find.text(cairo.displayName), findsOneWidget);
-    expect(find.text(t.nextPrayerAdhan), findsOneWidget);
+    expect(find.text(t.nextPrayerAdhan.toUpperCase()), findsOneWidget);
   });
 }
 

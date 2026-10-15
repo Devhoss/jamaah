@@ -8,12 +8,11 @@ import '../features/qibla/qibla_screen.dart';
 import '../features/settings/settings_page.dart';
 import '../features/today/today_screen.dart';
 import 'l10n/generated/app_localizations.dart';
-import 'providers.dart';
-import 'theme/theme.dart';
 
 /// The chrome around the screens: four destinations along the bottom,
 /// Today · Mosques · Qibla · Settings (Horizon spec §2.5). There is no top bar:
-/// each screen draws its own header, and Today draws the sky.
+/// each screen draws its own header. Today draws the sky edge to edge, and the
+/// bar sits on it in the sky's own ink.
 ///
 /// Which tab is showing is nobody's business but the shell's, so it is local state
 /// rather than a provider; the screens themselves stay unaware of each other. Only
@@ -28,36 +27,28 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   int _tab = 0;
 
+  /// The sky ink at the bottom of Today, reported by Today itself.
+  BottomNavColors? _skyNav;
+
   void _goTo(int index) => setState(() => _tab = index);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final onSky = _tab == 0;
 
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: switch (_tab) {
-          0 => Column(
-            children: [
-              // Until Today's own travel switch arrives (Horizon phase 2d).
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: _TravelModeButton(),
-              ),
-              Expanded(
-                child: TodayScreen(
-                  onOpenMosques: () => _goTo(1),
-                  onOpenMosque: (id) => openMosqueDetail(context, id),
-                ),
-              ),
-            ],
-          ),
-          1 => const MosquesScreen(),
-          2 => const QiblaScreen(),
-          _ => const SettingsPage(asTab: true),
-        },
-      ),
+      extendBody: onSky,
+      body: switch (_tab) {
+        0 => TodayScreen(
+          onOpenMosques: () => _goTo(1),
+          onOpenMosque: (id) => openMosqueDetail(context, id),
+          onNavColors: (colors) => setState(() => _skyNav = colors),
+        ),
+        1 => const SafeArea(bottom: false, child: MosquesScreen()),
+        2 => const SafeArea(bottom: false, child: QiblaScreen()),
+        _ => const SafeArea(bottom: false, child: SettingsPage(asTab: true)),
+      },
       bottomNavigationBar: BottomNav(
         labels: [
           l10n.tabToday,
@@ -67,32 +58,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         ],
         current: _tab,
         onSelect: _goTo,
+        colors: onSky ? _skyNav : null,
       ),
-    );
-  }
-}
-
-/// Travel mode, one tap from Today (2026-10-13). Its options live in
-/// Settings → Travel.
-class _TravelModeButton extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final on =
-        ref.watch(appSettingsProvider).value?.travel.travelMode ?? false;
-    final scheme = Theme.of(context).colorScheme;
-    // The top bar's own icon colour would hide the selected state, so both
-    // states are spelled out: on is a sage disc with a green airplane, off a
-    // muted one with nothing behind it.
-    return IconButton(
-      isSelected: on,
-      icon: Icon(Icons.flight, color: AppInk.of(context).muted),
-      selectedIcon: Icon(Icons.flight, color: scheme.onSecondaryContainer),
-      style: IconButton.styleFrom(
-        backgroundColor: on ? scheme.secondaryContainer : null,
-      ),
-      tooltip: on ? l10n.travelModeTurnOff : l10n.travelModeTurnOn,
-      onPressed: () => setTravelMode(context, ref, !on),
     );
   }
 }

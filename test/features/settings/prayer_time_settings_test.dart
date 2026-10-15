@@ -195,7 +195,7 @@ void main() {
     expect((await settings.read()).hijriAdjustDays, -1);
     await tester.tap(find.byKey(BottomNav.tabKey(0)));
     await tester.pumpAndSettle();
-    expect(find.text(earlier), findsOneWidget);
+    expect(find.textContaining(earlier), findsOneWidget);
   });
 
   testApp('the higher-latitude rule is chosen with what it does', (

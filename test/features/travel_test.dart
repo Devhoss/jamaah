@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:jamaah/src/features/components/bottom_nav.dart';
+import 'package:jamaah/src/features/components/travel_switch.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
@@ -122,18 +123,20 @@ void main() {
     expect(travel.followLocation, isFalse);
   });
 
-  testApp('the airplane on the top bar switches travel mode', (tester) async {
+  testApp('the travel switch on the top bar switches travel mode', (
+    tester,
+  ) async {
     await settings.setLocation(cairo.toStored());
     source.reading = const PlaceFound(devicePlace);
     await open(tester);
 
-    await tester.tap(find.byTooltip(t.travelModeTurnOn));
+    await tester.tap(find.byType(TravelSwitch));
     await tester.pumpAndSettle();
     expect((await settings.read()).travel.travelMode, isTrue);
     expect(find.text(t.travelModeOnSnack), findsOneWidget);
     expect(find.textContaining('Following your location'), findsOneWidget);
 
-    await tester.tap(find.byTooltip(t.travelModeTurnOff));
+    await tester.tap(find.byType(TravelSwitch));
     await tester.pumpAndSettle();
     expect((await settings.read()).travel.travelMode, isFalse);
     expect(find.text(t.travelModeOffSnack), findsOneWidget);

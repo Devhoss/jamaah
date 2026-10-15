@@ -159,7 +159,7 @@ void main() {
     ) async {
       await open(tester);
       expect(
-        Directionality.of(tester.element(find.text(ar.todaySectionTimes))),
+        Directionality.of(tester.element(find.text(ar.prayerFajr).last)),
         TextDirection.rtl,
       );
       expect(find.text(ar.prayerFajr), findsWidgets);

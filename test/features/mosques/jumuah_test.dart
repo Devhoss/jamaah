@@ -137,8 +137,9 @@ void main() {
     ) async {
       await activeMosque();
       await open(tester);
-      expect(find.text(t.jumuahNotSetNote), findsOneWidget);
       final at = clockText(tester, const LocalTime(12 * 60 + 55));
+      // The ticket shows Dhuhr's own Iqama, and says it is not Jumu'ah's.
+      expect(find.text(t.ticketJumuahNotSet(at)), findsOneWidget);
       expect(
         find.text(t.rowIqama(at)),
         findsNothing,
@@ -151,7 +152,8 @@ void main() {
       clock = FixedClock(DateTime.utc(2026, 10, 15, 7, 0));
       await activeMosque(jumuah: const LocalTime(12 * 60 + 15));
       await open(tester);
-      expect(find.text(t.prayerDhuhr), findsOneWidget);
+      // On its row and under its marker on the sun's path.
+      expect(find.text(t.prayerDhuhr), findsWidgets);
       expect(find.text(t.prayerJumuah), findsNothing);
     });
 

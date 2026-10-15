@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -6,35 +7,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:jamaah/src/app/clock.dart';
+import 'package:jamaah/src/app/date_labels.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
 import 'package:jamaah/src/app/l10n/prayer_labels.dart';
+import 'package:jamaah/src/app/notification_scheduler.dart';
 import 'package:jamaah/src/app/providers.dart';
 import 'package:jamaah/src/app/theme/theme.dart';
-import 'package:jamaah/src/app/theme/tokens.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/mosque_repository.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/today.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
-import 'package:jamaah/src/features/components/app_widgets.dart';
+import 'package:jamaah/src/features/components/line_icon.dart';
+import 'package:jamaah/src/features/sky/sun_path.dart';
+import 'package:jamaah/src/features/today/iqama_ticket.dart';
+import 'package:jamaah/src/features/today/prayer_rows.dart';
+import 'package:jamaah/src/features/today/today_hero.dart';
 import 'package:jamaah/src/features/today/today_screen.dart';
+
 import '../../helpers/fake_clock.dart';
 import '../../helpers/fake_place_source.dart';
 import '../../helpers/test_app.dart';
 
-/// The Today screen: the day at the saved place, the countdown in front of it, and
-/// the six times around that — plus what it says when there is no place, no mosque
-/// or no Iqama yet.
+/// The Today screen (Horizon): the sky for the time being shown, the hero for
+/// the selected prayer, the mosque's Iqama as a separate ticket, and the six
+/// rows — plus what it says when there is no place, no mosque or no Iqama yet.
 void main() {
   final t = AppLocalizationsEn();
 
   const timePattern = r'^\d{2}:\d{2}$';
-  const clockReading = r'\d{2}:\d{2}';
   final countdownPattern = RegExp(r'^in (\d+ min|\d+h \d+m)$');
 
   late AppDatabase db;
@@ -42,6 +49,7 @@ void main() {
   late MosqueRepository mosques;
   late FakePlaceSource source;
   late FixedClock clock;
+  late int permissionRequests;
 
   setUpAll(loadTimeZoneDatabase);
 
@@ -53,6 +61,7 @@ void main() {
     // 10:00 in Cairo on the place's own clock: inside the sunrise-to-Dhuhr gap,
     // with Dhuhr ahead.
     clock = FixedClock(DateTime.utc(2026, 10, 12, 7, 0));
+    permissionRequests = 0;
     addTearDown(db.close);
   });
 
@@ -62,15 +71,13 @@ void main() {
     appDatabaseProvider.overrideWithValue(db),
     appClockProvider.overrideWithValue(clock),
     placeSourceProvider.overrideWithValue(source),
+    notificationPermissionRequestProvider.overrideWithValue(
+      () async => permissionRequests++,
+    ),
   ];
 
-  /// The device's 12/24-hour setting, stated the way a system states it.
-  ///
-  /// The reading reaches an app as MediaQuery data, which the test binding resolves
-  /// from its own dispatcher before the body runs — so setting that dispatcher from
-  /// inside a test is read one test late. The override goes directly above the
-  /// screen, where it is the nearest reading no matter what the app shell builds on
-  /// the way down. Everything else about the surface is inherited unchanged.
+  /// The device's 12/24-hour setting, stated the way a system states it, right
+  /// above the screen so it is the nearest reading.
   Widget withClock(Widget child, {required bool use24Hour}) => Builder(
     builder: (context) => MediaQuery(
       data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: use24Hour),
@@ -83,9 +90,7 @@ void main() {
     bool dark = false,
     bool use24Hour = true,
   }) => MaterialApp(
-    // Every string here is compared against the English one (`AppLocalizationsEn`),
-    // so the tree reads the same locale the test does rather than whatever the host
-    // machine resolves — including the space before a 12-hour meridiem marker.
+    // Every string here is compared against the English one.
     locale: const Locale('en'),
     theme: dark ? AppTheme.dark() : AppTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -96,13 +101,10 @@ void main() {
     ),
   );
 
-  /// Riverpod keeps its container when a `ProviderScope` is merely updated, so an
-  /// app opened a second time in one test would still read the clock from the first
-  /// opening. Each opening gets its own key: that is the app starting again, at the
+  /// Each opening gets its own key: that is the app starting again, at the
   /// instant the test has moved the fake clock to.
   int openings = 0;
 
-  /// The app on a device that reads 24-hour unless the test says otherwise.
   Widget harness({
     VoidCallback? onOpenMosques,
     bool dark = false,
@@ -117,32 +119,44 @@ void main() {
     ),
   );
 
-  /// A reading built by hand, for the days a test bench cannot reach through a real
-  /// place: a rule-bound day, a day estimated from another latitude, a day with no
-  /// sunrise at all.
+  /// A reading built by hand, for the days a test bench cannot reach through a
+  /// real place: a rule-bound day, an estimated day, a day with no sunrise.
   TodayReading readingAt({
     Map<Prayer, int> times = const {},
     Set<Prayer> unavailable = const {},
     Set<Prayer> movedByRule = const {},
     double? estimatedFrom,
     bool estimates = false,
-  }) => TodayReading(
-    day: PrayerDay(
+  }) {
+    final moment = LocalMoment.inZone(
+      zone: zoneOffsetsFor(cairo.ianaZone),
+      utcInstant: DateTime.utc(2026, 10, 12, 7, 0),
+    );
+    final day = PrayerDay(
       day: const LocalDay(2026, 10, 12),
       times: times,
       unavailable: unavailable,
       highLatitudeMovedPrayers: movedByRule,
       estimatedFromLatitude: estimatedFrom,
       timesAreEstimates: estimates,
-    ),
-    moment: LocalMoment.inZone(
-      zone: zoneOffsetsFor(cairo.ianaZone),
-      utcInstant: DateTime.utc(2026, 10, 12, 7, 0),
-    ),
-  );
+    );
+    NextPrayer? next;
+    for (final p in Prayer.iqamaPrayers) {
+      final m = times[p];
+      if (m != null && m > moment.minutesOfDay) {
+        next = NextPrayer(
+          prayer: p,
+          on: day.day,
+          at: LocalTime(m),
+          minutesUntil: m - moment.minutesOfDay,
+          isTomorrow: false,
+        );
+        break;
+      }
+    }
+    return TodayReading(day: day, moment: moment, next: next);
+  }
 
-  /// The Cairo day the real calculator answers at 10:00, reused by the hand-built
-  /// readings below so only the flag under test differs.
   const cairoTimes = <Prayer, int>{
     Prayer.fajr: 5 * 60 + 28,
     Prayer.sunrise: 6 * 60 + 55,
@@ -152,6 +166,13 @@ void main() {
     Prayer.isha: 19 * 60 + 45,
   };
 
+  /// A surface tall enough to lay out the whole day at once.
+  void showWholeDay(WidgetTester tester, {double width = 1170}) {
+    tester.view.physicalSize = Size(width, 9000);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+  }
+
   Future<void> openWithReading(
     WidgetTester tester,
     TodayReading reading, {
@@ -160,7 +181,10 @@ void main() {
     await settings.setLocation(cairo.toStored());
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [...baseOverrides(), todayProvider.overrideWithValue(reading)],
+        overrides: [
+          ...baseOverrides(),
+          todayProvider.overrideWithValue(reading),
+        ],
         child: appShell(use24Hour: use24Hour),
       ),
     );
@@ -172,917 +196,761 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// The place saved and the screen open, at [instant] in UTC.
   Future<void> openAt(
     WidgetTester tester,
     DateTime instant, {
     VoidCallback? onOpenMosques,
+    bool use24Hour = true,
   }) async {
     clock.instant = instant;
     await settings.setLocation(cairo.toStored());
-    await tester.pumpWidget(harness(onOpenMosques: onOpenMosques));
+    await tester.pumpWidget(
+      harness(onOpenMosques: onOpenMosques, use24Hour: use24Hour),
+    );
     await tester.pumpAndSettle();
   }
 
-  /// The texts inside one prayer row, so a test reads that row rather than the
-  /// whole screen.
-  List<String> rowTexts(WidgetTester tester, String name) => tester
+  Future<Mosque> addMosque({
+    Map<Prayer, LocalTime> iqamas = const {},
+    Map<Prayer, int> after = const {},
+    bool reminder = false,
+  }) async {
+    final mosque = await mosques.add(
+      name: 'Masjid al-Nour',
+      address: '12 Garden Road',
+      source: MosqueSource.manual,
+    );
+    for (final e in iqamas.entries) {
+      await mosques.setIqama(
+        mosque.id,
+        e.key,
+        e.value,
+        reminderEnabled: reminder,
+      );
+    }
+    for (final e in after.entries) {
+      await mosques.setIqama(
+        mosque.id,
+        e.key,
+        null,
+        afterAdhanMinutes: e.value,
+        reminderEnabled: reminder,
+      );
+    }
+    await settings.setActiveMosqueId(mosque.id);
+    return mosque;
+  }
+
+  Finder row(Prayer prayer) => find.byKey(PrayerRows.rowKey(prayer));
+
+  List<String> rowTexts(WidgetTester tester, Prayer prayer) => tester
       .widgetList<Text>(
-        find.descendant(
-          of: find.ancestor(
-            of: find.text(name),
-            matching: find.byType(AppRow),
-          ),
-          matching: find.byType(Text),
-        ),
+        find.descendant(of: row(prayer), matching: find.byType(Text)),
       )
       .map((text) => text.data!)
       .toList();
 
-  AppRow rowFor(WidgetTester tester, String name) => tester.widget<AppRow>(
-    find.ancestor(of: find.text(name), matching: find.byType(AppRow)),
-  );
+  /// The row's Adhan reading on a 24-hour device.
+  String rowTime(WidgetTester tester, Prayer prayer, [Pattern? pattern]) =>
+      rowTexts(tester, prayer).firstWhere(
+        (s) => RegExp(pattern?.toString() ?? timePattern).hasMatch(s),
+      );
 
-  /// The row itself, so a layout test can measure inside it.
-  Finder rowFinder(String name) => find.ancestor(
-    of: find.text(name),
-    matching: find.byType(AppRow),
-  );
-
-  double rowHeight(WidgetTester tester, String name) =>
-      tester.getRect(rowFinder(name)).height;
-
-  /// Everything a row says has to sit on the name's line, or the six rows stop
-  /// being six equal lines.
-  void expectSameLine(WidgetTester tester, String name, List<Finder> parts) {
-    final nameRect = tester.getRect(
-      find.descendant(of: rowFinder(name), matching: find.text(name)),
+  bool isSelected(WidgetTester tester, Prayer prayer) {
+    final node = tester.getSemantics(
+      find.descendant(of: row(prayer), matching: find.byType(InkWell)).first,
     );
-    for (final part in parts) {
-      final rect = tester.getRect(
-        find.descendant(of: rowFinder(name), matching: part),
-      );
-      expect(
-        rect.center.dy,
-        closeTo(nameRect.center.dy, 0.5),
-        reason: '$part should read beside "$name", not on a line of its own',
-      );
-    }
+    return node.getSemanticsData().flagsCollection.isSelected ==
+        Tristate.isTrue;
   }
 
-  /// The reading at the end of [name]'s row, in whatever clock format the test pins.
-  /// Used where the time itself comes from the real calculator and only its shape is
-  /// under test.
-  String rowTime(WidgetTester tester, String name, RegExp pattern) =>
-      rowTexts(tester, name).firstWhere((text) => pattern.hasMatch(text));
-
-  /// The Adhan time printed at the end of [name]'s row, on a 24-hour device.
-  String adhanTimeOf(WidgetTester tester, String name) =>
-      rowTime(tester, name, RegExp(timePattern));
-
-  String? rowMarkedNext(WidgetTester tester) {
-    for (final prayer in Prayer.adhanPrayers) {
-      final name = prayerName(t, prayer);
-      if (rowTexts(tester, name).contains(t.tagNext)) return name;
+  Prayer? rowMarkedNext(WidgetTester tester) {
+    for (final p in Prayer.adhanPrayers) {
+      if (rowTexts(tester, p).contains(t.tagNext.toUpperCase())) return p;
     }
     return null;
   }
 
-  /// This SDK's `CommonFinders` has no regex finder, so match on the [Text] data.
-  Finder textMatching(RegExp pattern) => find.byWidgetPredicate((widget) =>
-      widget is Text && widget.data != null && pattern.hasMatch(widget.data!));
+  TodayHero hero(WidgetTester tester) =>
+      tester.widget<TodayHero>(find.byType(TodayHero));
 
-  /// A device that reads 12-hour says the marker after a narrow no-break space,
-  /// which is what CLDR asks for and what intl prints.
+  TicketContent ticket(WidgetTester tester) =>
+      tester.widget<IqamaTicket>(find.byType(IqamaTicket)).content;
+
+  Finder textMatching(RegExp pattern) => find.byWidgetPredicate(
+    (widget) =>
+        widget is Text && widget.data != null && pattern.hasMatch(widget.data!),
+  );
+
   String twelve(int hour, int minute) =>
       '${hour % 12 == 0 ? 12 : hour % 12}:'
       '${minute.toString().padLeft(2, '0')}'
-      '\u202F${hour < 12 ? 'AM' : 'PM'}';
+      ' ${hour < 12 ? 'AM' : 'PM'}';
 
-  /// Minutes from midnight, read off a 24-hour row.
   int minutesOf(String hhmm) =>
       int.parse(hhmm.substring(0, 2)) * 60 + int.parse(hhmm.substring(3));
 
-  /// Minutes from midnight, written the way a 24-hour device shows it.
   String clockOf(int minutes) =>
-      '${(minutes ~/ 60).toString().padLeft(2, '0')}:'
+      '${(minutes ~/ 60 % 24).toString().padLeft(2, '0')}:'
       '${(minutes % 60).toString().padLeft(2, '0')}';
 
-  /// The whole day with the active mosque's Iqama times as given, read at [instant].
-  Future<void> openWithMosque(
-    WidgetTester tester,
-    Map<Prayer, LocalTime> iqamas, {
-    required DateTime instant,
-    bool use24Hour = true,
-  }) async {
-    clock.instant = instant;
-    await settings.setLocation(cairo.toStored());
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    for (final entry in iqamas.entries) {
-      await mosques.setIqama(mosque.id, entry.key, entry.value);
-    }
-    await settings.setActiveMosqueId(mosque.id);
-
-    await tester.pumpWidget(harness(use24Hour: use24Hour));
-    await tester.pumpAndSettle();
-  }
-
-  /// The whole day with one Dhuhr Iqama entered, at 10:00 in Cairo.
-  Future<void> openWithIqama(
-    WidgetTester tester, {
-    bool use24Hour = true,
-  }) async {
-    await settings.setLocation(cairo.toStored());
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    await mosques.setIqama(
-      mosque.id,
-      Prayer.dhuhr,
-      const LocalTime(12 * 60 + 15),
-      reminderEnabled: true,
-    );
-    await settings.setActiveMosqueId(mosque.id);
-
-    await tester.pumpWidget(harness(use24Hour: use24Hour));
-    await tester.pumpAndSettle();
-  }
-
-  /// The notes and the last rows live below the fold, and a ListView only builds
-  /// what it paints. A tall phone-width surface builds the whole day at once, so a
-  /// test can read all of it and still be strict about horizontal overflow.
-  void showWholeDay(WidgetTester tester) {
-    tester.view.physicalSize = const Size(1170, 24000);
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.reset);
-  }
-
-  /// The whole day on a wide surface, for the rows that also carry an Iqama.
-  ///
-  /// `flutter test` falls back to a square font whose glyphs are far wider than the
-  /// device's, so a phone-width row that fits on a phone wraps here. Claims about
-  /// what sits on the same line are checked where the content really does fit; the
-  /// phone-width tests above and the 3x test below cover the rest.
-  void showWideDay(WidgetTester tester) {
-    tester.view.physicalSize = const Size(1800, 24000);
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.reset);
-  }
-
-  /// Riverpod will not take a different number of overrides on a scope that is
-  /// still mounted, so a test with two readings has to close the first one.
   Future<void> closeToday(WidgetTester tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testApp('the first read is named, not blank', (tester) async {
-    // A first read that has not landed: this stream stays open and says nothing.
-    final silent = StreamController<AppSettingsSnapshot>();
-    addTearDown(silent.close);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          ...baseOverrides(),
-          appSettingsProvider.overrideWith((ref) => silent.stream),
-        ],
-        child: appShell(),
-      ),
-    );
-    await tester.pump();
-
-    expect(find.text(t.todayLoading), findsOneWidget);
-  });
-
-  testApp('a real database settles out of loading on its own', (tester) async {
-    await openToday(tester);
-
-    expect(find.text(t.todayLoading), findsNothing);
-  });
-
-  testApp('asks for a place before it shows any times', (tester) async {
-    await openToday(tester);
-
-    expect(find.text(t.todayNeedsPlaceTitle), findsOneWidget);
-    expect(find.text(t.todayNeedsPlaceBody), findsOneWidget);
-    expect(find.text(t.todayChoosePlace), findsOneWidget);
-    expect(
-      find.byType(AppRow),
-      findsNothing,
-      reason: 'there is nothing to calculate yet, so no rows and no invented time',
-    );
-  });
-
-  testApp('the place prompt opens the sheet, and asks the device for nothing', (
-    tester,
-  ) async {
-    await openToday(tester);
-
-    await tester.tap(find.text(t.todayChoosePlace));
-    await tester.pumpAndSettle();
-
-    expect(find.text(t.locationSheetTitle), findsOneWidget);
-    expect(source.requestCount, 0);
-  });
-
-  testApp('a denial is still on the screen once the sheet is closed', (
-    tester,
-  ) async {
-    source = FakePlaceSource(const PlaceRejected(PlaceFailure.denied));
-    await openToday(tester);
-
-    await tester.tap(find.text(t.todayChoosePlace));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(t.locationUseDevice));
-    await tester.pumpAndSettle();
-
-    // Close it the way the user does: tap away, not by choosing a place. The sheet
-    // has to be gone, or the message below would only be the sheet's own.
-    await tester.tapAt(const Offset(10, 10));
-    await tester.pumpAndSettle();
-
-    expect(find.text(t.locationSheetTitle), findsNothing);
-    expect(find.text(t.locationDenied), findsOneWidget);
-    expect(find.text(t.todayChoosePlace), findsOneWidget);
-  });
-
-  testApp('the chip names the saved place and reopens the sheet', (
-    tester,
-  ) async {
-    await settings.setLocation(cairo.toStored());
-    await openToday(tester);
-
-    expect(find.text(cairo.displayName), findsOneWidget);
-
-    await tester.tap(find.text(cairo.displayName));
-    await tester.pumpAndSettle();
-    expect(find.text(t.locationSheetTitle), findsOneWidget);
-  });
-
-  testApp('a device place is named as the device, not as a city', (
-    tester,
-  ) async {
-    await settings.setLocation(devicePlace.toStored());
-    await openToday(tester);
-
-    expect(find.text(t.locationCurrentPlace), findsWidgets);
-    expect(
-      find.text(devicePlace.displayName),
-      findsNothing,
-      reason: '"Africa/Cairo" is a zone name, and a zone is not a place label',
-    );
-  });
-
-  testApp('the day is named in both calendars', (tester) async {
-    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
-
-    expect(find.text('Monday, 12 October'), findsOneWidget);
-    expect(
-      textMatching(RegExp(r'\b14\d\d\b')),
-      findsOneWidget,
-      reason: 'one Hijri sub-line, and its year cannot be a Gregorian one',
-    );
-  });
-
-  testApp('six rows in order, sunrise muted, and nothing invented', (
-    tester,
-  ) async {
-    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
-
-    for (final prayer in Prayer.adhanPrayers) {
-      expect(
-        find.text(prayerName(t, prayer)),
-        findsOneWidget,
-        reason: '${prayer.name} belongs on the list',
-      );
-    }
-    expect(rowFor(tester, prayerName(t, Prayer.sunrise)).muted, isTrue);
-    expect(rowFor(tester, prayerName(t, Prayer.fajr)).muted, isFalse);
-
-    expect(
-      find.text(t.notConfigured),
-      findsNothing,
-      reason: 'a missing Iqama is silence on the row, not a status to read',
-    );
-    // An Iqama line is the label plus a reading; the "add your mosque" copy also
-    // says the word, so only a line that starts with it counts.
-    expect(
-      textMatching(RegExp('^${t.rowIqama('')}$clockReading')),
-      findsNothing,
-    );
-  });
-
-  testApp('the six rows are six equal lines, pill included', (tester) async {
-    showWholeDay(tester);
-    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
-
-    final heights = [
-      for (final prayer in Prayer.adhanPrayers)
-        rowHeight(tester, prayerName(t, prayer)),
-    ];
-    for (final height in heights) {
-      expect(
-        height,
-        closeTo(heights.first, 0.5),
-        reason: 'one row taller than the rest is the layout bug this pins',
-      );
-    }
-
-    // The dot is invisible on a row that is not next, but its slot and its gap are
-    // both real, so every name starts at the same distance from the edge.
-    for (final prayer in Prayer.adhanPrayers) {
-      final name = prayerName(t, prayer);
-      final dot = tester.getRect(
-        find.descendant(of: rowFinder(name), matching: find.byIcon(Icons.circle)),
-      );
-      final text = tester.getRect(find.descendant(of: rowFinder(name), matching: find.text(name)));
-      expect(
-        text.left - dot.right,
-        greaterThanOrEqualTo(AppSpace.md),
-        reason: 'a dot touching the name reads as a smudge, not a marker',
-      );
-    }
-
-    final next = prayerName(t, Prayer.dhuhr);
-    expectSameLine(tester, next, [
-      find.text(t.tagNext),
-      find.text(adhanTimeOf(tester, next)),
-    ]);
-  });
-
-  testApp('an Iqama stays on its row\'s line', (tester) async {
-    showWideDay(tester);
-    await settings.setLocation(cairo.toStored());
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    await mosques.setIqama(
-      mosque.id,
-      Prayer.dhuhr,
-      const LocalTime(12 * 60 + 15),
-      reminderEnabled: true,
-    );
-    await settings.setActiveMosqueId(mosque.id);
-
-    await tester.pumpWidget(harness());
-    await tester.pumpAndSettle();
-
-    final dhuhr = prayerName(t, Prayer.dhuhr);
-    expectSameLine(tester, dhuhr, [
-      find.text(t.rowIqama('12:15')),
-      find.byIcon(Icons.notifications_none),
-      find.text(t.tagNext),
-    ]);
-
-    final heights = [
-      for (final prayer in Prayer.adhanPrayers)
-        rowHeight(tester, prayerName(t, prayer)),
-    ];
-    for (final height in heights) {
-      expect(
-        height,
-        closeTo(heights.first, 0.5),
-        reason: 'a row that gained an Iqama must not grow taller than the rest',
-      );
-    }
-  });
-
-  testApp('between sunrise and Dhuhr no row is marked current', (
-    tester,
-  ) async {
-    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
-
-    expect(
-      Prayer.adhanPrayers.where((p) => rowFor(tester, prayerName(t, p)).selected),
-      isEmpty,
-      reason: "Fajr's window closed at sunrise (06:55) and Dhuhr has not "
-          'arrived, so highlighting either one would be a claim the day is not making',
-    );
-
-    final next = rowMarkedNext(tester);
-    expect(next, prayerName(t, Prayer.dhuhr));
-    expect(
-      find.text(t.prayerAtTime(next!, adhanTimeOf(tester, next))),
-      findsOneWidget,
-      reason: 'the card counts down to the row marked Next, at that row\'s time',
-    );
-    expect(find.text(t.nextPrayerAdhan), findsOneWidget);
-    expect(textMatching(countdownPattern), findsWidgets);
-  });
-
-  testApp('before sunrise the prayer in force is Fajr', (tester) async {
-    // 06:00 in Cairo: after Fajr (05:28), before sunrise (06:55).
-    await openAt(tester, DateTime.utc(2026, 10, 12, 3, 0));
-
-    expect(rowFor(tester, prayerName(t, Prayer.fajr)).selected, isTrue);
-    expect(
-      Prayer.adhanPrayers.where(
-        (p) => p != Prayer.fajr && rowFor(tester, prayerName(t, p)).selected,
-      ),
-      isEmpty,
-      reason: 'one row at a time, and sunrise is not a prayer',
-    );
-    expect(rowMarkedNext(tester), prayerName(t, Prayer.dhuhr));
-  });
-
-  testApp('after Isha the card counts down to tomorrow\'s Fajr', (
-    tester,
-  ) async {
-    await openAt(tester, DateTime.utc(2026, 10, 12, 20, 30));
-
-    // 23:30 in Cairo, so the day\'s five times are all behind the clock.
-    final ishaHour = int.parse(
-      adhanTimeOf(tester, prayerName(t, Prayer.isha)).substring(0, 2),
-    );
-    expect(ishaHour, lessThan(23));
-
-    expect(find.text(t.tomorrow), findsOneWidget);
-    expect(
-      textMatching(
-        RegExp('^${prayerName(t, Prayer.fajr)} $clockReading\$'),
-      ),
-      findsOneWidget,
-      reason: 'tomorrow\'s Fajr is named, never a time that has already passed',
-    );
-  });
-
-  testApp('no mosque yet: a quiet prompt, and nothing where a time would be', (
-    tester,
-  ) async {
-    var opened = 0;
-    await openAt(
-      tester,
-      DateTime.utc(2026, 10, 12, 7, 0),
-      onOpenMosques: () => opened++,
-    );
-
-    expect(find.text(t.addMosqueTitle), findsOneWidget);
-    expect(find.text(t.addMosqueBody), findsOneWidget);
-    expect(find.text(t.nextIqamaLabel('')), findsNothing);
-
-    await tester.tap(find.text(t.addMosqueTitle));
-    await tester.pump();
-    expect(opened, 1);
-  });
-
-  testApp('no mosque prompt while the saved mosques are still being read', (
-    tester,
-  ) async {
-    await settings.setLocation(cairo.toStored());
-    // A list that has not arrived yet: the stream never emits.
-    final pending = StreamController<List<Mosque>>();
-    addTearDown(pending.close);
-    await tester.pumpWidget(
-      ProviderScope(
-        key: ValueKey('app-${++openings}'),
-        overrides: [
-          ...baseOverrides(),
-          savedMosquesProvider.overrideWith((ref) => pending.stream),
-        ],
-        child: appShell(),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text(t.addMosqueTitle),
-      findsNothing,
-      reason: 'a user who has a mosque must not be told to add one while it loads',
-    );
-    expect(find.text(t.todaySectionTimes.toUpperCase()), findsOneWidget);
-  });
-
-  testApp('a mosque with no Iqama times asks to set them', (tester) async {
-    await settings.setLocation(cairo.toStored());
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    await settings.setActiveMosqueId(mosque.id);
-
-    var opened = 0;
-    await tester.pumpWidget(harness(onOpenMosques: () => opened++));
-    await tester.pumpAndSettle();
-
-    expect(find.text(t.mosqueHasNoIqama('Masjid al-Nour')), findsOneWidget);
-    expect(find.text(t.addMosqueTitle), findsNothing);
-    expect(find.text(t.nextIqamaLabel('Masjid al-Nour')), findsNothing);
-    expect(
-      find.text(t.noIqamaLeftToday),
-      findsNothing,
-      reason: 'a schedule that has never been entered is not a day that has run out',
-    );
-
-    await tester.tap(find.text(t.mosqueHasNoIqama('Masjid al-Nour')));
-    await tester.pump();
-    expect(opened, 1);
-  });
-
-  testApp('a configured Iqama appears on its row and on the card', (
-    tester,
-  ) async {
-    await openWithIqama(tester);
-
-    expect(find.text(t.rowIqama('12:15')), findsOneWidget);
-    expect(find.text(t.nextIqamaLabel('Masjid al-Nour')), findsOneWidget);
-    expect(
-      find.text(t.prayerAtTime(prayerName(t, Prayer.dhuhr), '12:15')),
-      findsOneWidget,
-    );
-    expect(find.text(t.reminderBeforeIqama(10)), findsOneWidget);
-    expect(
-      find.textContaining('later step'),
-      findsNothing,
-      reason: 'notifications exist now; nothing may still say they come later',
-    );
-    expect(
-      find.byIcon(Icons.notifications_none),
-      findsOneWidget,
-      reason: 'the one prayer with a reminder on is the one that gets the bell',
-    );
-
-    // Only the prayer whose Iqama the user entered carries one.
-    for (final prayer in [
-      Prayer.fajr,
-      Prayer.asr,
-      Prayer.maghrib,
-      Prayer.isha,
-      Prayer.sunrise,
-    ]) {
-      expect(
-        rowTexts(tester, prayerName(t, prayer)).where(
-          (text) => text.startsWith(t.rowIqama('')),
+  group('before there is a day to show', () {
+    testApp('the first read is named, not blank', (tester) async {
+      final silent = StreamController<AppSettingsSnapshot>();
+      addTearDown(silent.close);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            ...baseOverrides(),
+            appSettingsProvider.overrideWith((ref) => silent.stream),
+          ],
+          child: appShell(),
         ),
-        isEmpty,
-        reason: '${prayer.name} has no Iqama entered, so it shows nothing',
       );
-    }
-  });
+      await tester.pump();
+      expect(find.text(t.todayLoading), findsOneWidget);
+    });
 
-  testApp('the next Iqama is the earliest one left, not the Adhan\'s own', (
-    tester,
-  ) async {
-    // Read where the evening actually falls here, then sit two minutes after Maghrib.
-    await openAt(tester, DateTime.utc(2026, 10, 12, 14, 0));
-    final maghrib = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.maghrib)));
-    final isha = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.isha)));
-    final offset = zoneOffsetsFor(cairo.ianaZone)
-        .offsetMinutesAt(DateTime.utc(2026, 10, 12, 14, 0));
-
-    await openWithMosque(
+    testApp('a real database settles out of loading on its own', (
       tester,
-      {
-        Prayer.maghrib: LocalTime(maghrib + 10),
-        Prayer.isha: LocalTime(isha + 25),
+    ) async {
+      await openToday(tester);
+      expect(find.text(t.todayLoading), findsNothing);
+    });
+
+    testApp('asks for a place before it shows any times', (tester) async {
+      await openToday(tester);
+      expect(find.text(t.todayNeedsPlaceTitle), findsOneWidget);
+      expect(find.text(t.todayNeedsPlaceBody), findsOneWidget);
+      expect(find.text(t.todayChoosePlace), findsOneWidget);
+      expect(
+        find.byType(PrayerRows),
+        findsNothing,
+        reason: 'there is nothing to calculate yet, so no rows and no invented time',
+      );
+      expect(find.byType(TodayHero), findsNothing);
+    });
+
+    testApp(
+      'the place prompt opens the sheet, and asks the device for nothing',
+      (tester) async {
+        await openToday(tester);
+        await tester.tap(find.text(t.todayChoosePlace));
+        await tester.pumpAndSettle();
+        expect(find.text(t.locationSheetTitle), findsOneWidget);
+        expect(source.requestCount, 0);
       },
-      instant: DateTime.utc(
-        2026,
-        10,
-        12,
-      ).add(Duration(minutes: maghrib + 2 - offset)),
     );
 
-    expect(
-      rowMarkedNext(tester),
-      prayerName(t, Prayer.isha),
-      reason: 'the Adhan in front of the user is still Isha',
-    );
-    expect(
-      find.text(
-        t.prayerAtTime(prayerName(t, Prayer.maghrib), clockOf(maghrib + 10)),
-      ),
-      findsOneWidget,
-      reason: "the jama'ah that has not happened yet is the next Iqama, even "
-          "though its own Adhan is behind the clock",
-    );
-    expect(
-      find.text(t.prayerAtTime(prayerName(t, Prayer.isha), clockOf(isha + 25))),
-      findsNothing,
-    );
-  });
-
-  testApp('the day\'s last Iqama behind it says there are no more today', (
-    tester,
-  ) async {
-    await openAt(tester, DateTime.utc(2026, 10, 12, 14, 0));
-    final isha = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.isha)));
-    final offset = zoneOffsetsFor(cairo.ianaZone)
-        .offsetMinutesAt(DateTime.utc(2026, 10, 12, 14, 0));
-
-    await openWithMosque(
+    testApp('a denial is still on the screen once the sheet is closed', (
       tester,
-      {Prayer.isha: LocalTime(isha + 5)},
-      instant: DateTime.utc(
-        2026,
-        10,
-        12,
-      ).add(Duration(minutes: isha + 30 - offset)),
-    );
+    ) async {
+      source = FakePlaceSource(const PlaceRejected(PlaceFailure.denied));
+      await openToday(tester);
+      await tester.tap(find.text(t.todayChoosePlace));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.locationUseDevice));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(find.text(t.locationSheetTitle), findsNothing);
+      expect(find.text(t.locationDenied), findsOneWidget);
+      expect(find.text(t.todayChoosePlace), findsOneWidget);
+    });
 
-    expect(find.text(t.noIqamaLeftToday), findsOneWidget);
-    expect(
-      find.text('Masjid al-Nour'),
-      findsOneWidget,
-      reason: 'the sentence is about a named mosque, not the app in general',
-    );
-    expect(find.text(t.nextIqamaLabel('Masjid al-Nour')), findsNothing);
-    expect(
-      textMatching(RegExp('^${t.rowIqama('')}$clockReading')),
-      findsOneWidget,
-      reason: 'the row keeps the time the user entered',
-    );
-  });
-
-  testApp('after the day\'s Iqamas, tomorrow\'s Fajr is labelled tomorrow', (
-    tester,
-  ) async {
-    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
-    final fajr = minutesOf(adhanTimeOf(tester, prayerName(t, Prayer.fajr)));
-    final offset = zoneOffsetsFor(cairo.ianaZone)
-        .offsetMinutesAt(DateTime.utc(2026, 10, 12, 7, 0));
-
-    // Mid-morning with only a Fajr time entered: today\'s is gone, so the hand-over
-    // to tomorrow is the one honest thing the card can say.
-    await openWithMosque(
+    testApp('a day with no honest times says so instead of guessing', (
       tester,
-      {Prayer.fajr: LocalTime(fajr + 12)},
-      instant: DateTime.utc(
-        2026,
-        10,
-        12,
-      ).add(Duration(minutes: fajr + 40 - offset)),
-    );
-
-    expect(
-      rowMarkedNext(tester),
-      prayerName(t, Prayer.dhuhr),
-      reason: 'the Adhan ahead is Dhuhr, not tomorrow\'s Fajr',
-    );
-    expect(find.text(t.tomorrow), findsOneWidget);
-    expect(
-      find.text(t.prayerAtTime(prayerName(t, Prayer.fajr), clockOf(fajr + 12))),
-      findsOneWidget,
-    );
-  });
-
-  testApp('a 24-hour device shows four digits and no marker', (tester) async {
-    await openWithIqama(tester);
-
-    final dhuhr = prayerName(t, Prayer.dhuhr);
-    final adhan = rowTime(tester, dhuhr, RegExp(timePattern));
-    expect(
-      find.text(t.prayerAtTime(dhuhr, adhan)),
-      findsOneWidget,
-      reason: 'the hero repeats the row\'s reading rather than formatting it again',
-    );
-    // 12:15 is the user's own Iqama time, so it is exact rather than calculated.
-    expect(find.text(t.rowIqama('12:15')), findsOneWidget);
-    expect(find.text(t.prayerAtTime(dhuhr, '12:15')), findsOneWidget);
-
-    for (final prayer in Prayer.adhanPrayers) {
-      final name = prayerName(t, prayer);
+    ) async {
+      await openWithReading(tester, readingAt(estimates: true));
+      expect(find.text(t.timesUnavailableTitle), findsOneWidget);
+      expect(find.text(t.timesUnavailableBody), findsOneWidget);
       expect(
-        rowTexts(tester, name).where((text) => RegExp(timePattern).hasMatch(text)),
-        hasLength(1),
-        reason: '$name shows its Adhan as one 24-hour reading',
+        find.byType(PrayerRows),
+        findsNothing,
+        reason: 'a row of numbers nobody calculated is worse than no row',
       );
-    }
-
-    expect(
-      textMatching(RegExp(r'[AP]M')),
-      findsNothing,
-      reason: 'a meridiem marker would be a second clock on the same screen',
-    );
+    });
   });
 
-  testApp('a 12-hour device reads its own clock on the card and on the rows', (
-    tester,
-  ) async {
-    final meridiem = RegExp(r'^\d{1,2}:\d{2}\u202F[AP]M$');
-    await openWithIqama(tester, use24Hour: false);
+  group('the top bar', () {
+    testApp('names the saved place and reopens the sheet', (tester) async {
+      await settings.setLocation(cairo.toStored());
+      await openToday(tester);
+      expect(find.text(cairo.displayName), findsOneWidget);
+      await tester.tap(find.text(cairo.displayName));
+      await tester.pumpAndSettle();
+      expect(find.text(t.locationSheetTitle), findsOneWidget);
+    });
 
-    final dhuhr = prayerName(t, Prayer.dhuhr);
-    expect(
-      find.text(t.prayerAtTime(dhuhr, rowTime(tester, dhuhr, meridiem))),
-      findsOneWidget,
-      reason: 'the hero Adhan follows the device, and is the row\'s own reading',
-    );
-    expect(
-      find.text(t.prayerAtTime(dhuhr, twelve(12, 15))),
-      findsOneWidget,
-      reason: 'so does the hero Iqama under it',
-    );
-    expect(find.text(t.rowIqama(twelve(12, 15))), findsOneWidget);
+    testApp('a device place is named as the device, not as a city', (
+      tester,
+    ) async {
+      await settings.setLocation(devicePlace.toStored());
+      await openToday(tester);
+      expect(find.text(t.locationCurrentPlace), findsWidgets);
+      expect(find.text(devicePlace.displayName), findsNothing);
+    });
 
-    for (final prayer in Prayer.adhanPrayers) {
-      final name = prayerName(t, prayer);
+    testApp('the day is named in both calendars, on one line', (tester) async {
+      await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+      final date = DateLabels.weekdayDate(DateTime.utc(2026, 10, 12), 'en');
+      final line = textMatching(
+        RegExp('^${RegExp.escape(date)} · .*\\b14\\d\\d\\b'),
+      );
       expect(
-        rowTexts(tester, name).where((text) => meridiem.hasMatch(text)),
-        hasLength(1),
-        reason: '$name shows its Adhan as one 12-hour reading, marker included',
+        line,
+        findsOneWidget,
+        reason: 'the Hijri year cannot be a Gregorian one',
       );
-    }
-
-    expect(
-      textMatching(RegExp(r'^\d{2}:\d{2}$')),
-      findsNothing,
-      reason: 'no 24-hour reading is left anywhere on the screen',
-    );
-    expect(
-      textMatching(countdownPattern),
-      findsWidgets,
-      reason: 'the wait is a duration, so the clock format says nothing about it',
-    );
+    });
   });
 
-  testApp('a reminder left off says so instead of showing a bell', (
-    tester,
-  ) async {
-    await settings.setLocation(cairo.toStored());
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    await mosques.setIqama(mosque.id, Prayer.dhuhr, const LocalTime(12 * 60 + 15));
-    await settings.setActiveMosqueId(mosque.id);
-
-    await tester.pumpWidget(harness());
-    await tester.pumpAndSettle();
-
-    expect(find.text(t.reminderOffForPrayer), findsOneWidget);
-    expect(find.byIcon(Icons.notifications_none), findsNothing);
-    expect(
-      find.text(t.countdownMinutes(0)),
-      findsNothing,
-      reason: 'a countdown is a duration, never a time of day',
-    );
-  });
-
-  testApp('a day with no honest times says so instead of guessing', (tester) async {
-    await openWithReading(tester, readingAt(estimates: true));
-
-    expect(find.text(t.timesUnavailableTitle), findsOneWidget);
-    expect(find.text(t.timesUnavailableBody), findsOneWidget);
-    expect(
-      find.byType(AppRow),
-      findsNothing,
-      reason: 'a row of numbers nobody calculated is worse than no row',
-    );
-  });
-
-  testApp('the rule note appears only when the rule moved a time', (
-    tester,
-  ) async {
-    showWholeDay(tester);
-    await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
-    expect(
-      textMatching(RegExp(t.ruleMiddleOfTheNight)),
-      findsNothing,
-      reason: 'Cairo at midday needs no lecture about the night',
-    );
-
-    await closeToday(tester);
-    await openWithReading(
+  group('the hero and the rows', () {
+    testApp('six rows in order, Sunrise quieter, and nothing invented', (
       tester,
-      readingAt(times: cairoTimes, movedByRule: {Prayer.fajr, Prayer.isha}),
-    );
-    final note = tester.widget<Text>(
-      textMatching(RegExp(t.ruleMiddleOfTheNight)),
-    ).data!;
-    expect(note, contains(prayerName(t, Prayer.fajr)));
-    expect(note, contains(prayerName(t, Prayer.isha)));
-  });
+    ) async {
+      showWholeDay(tester);
+      await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+      double top(Prayer p) => tester.getTopLeft(row(p)).dy;
+      for (var i = 1; i < Prayer.adhanPrayers.length; i++) {
+        expect(
+          top(Prayer.adhanPrayers[i]),
+          greaterThan(top(Prayer.adhanPrayers[i - 1])),
+        );
+      }
+      expect(
+        find.textContaining('Iqama'),
+        findsNothing,
+        reason: 'with no mosque there is no Iqama to mention on any row',
+      );
+      expect(find.text(t.notConfigured), findsNothing);
+    });
 
-  testApp('a day estimated from a nearer latitude names that latitude', (
-    tester,
-  ) async {
-    showWholeDay(tester);
-    await openWithReading(
+    testApp('the six rows are six equal lines', (tester) async {
+      showWholeDay(tester, width: 1800);
+      await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+      final heights = [
+        for (final p in Prayer.adhanPrayers) tester.getSize(row(p)).height,
+      ];
+      for (final h in heights) {
+        expect(h, closeTo(heights.first, 0.5));
+        expect(h, greaterThanOrEqualTo(52));
+      }
+    });
+
+    testApp(
+      'at rest the hero is the next Adhan, and its row is the selected one',
+      (tester) async {
+        await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+        final h = hero(tester);
+        expect(h.kicker, t.nextPrayerAdhan.toUpperCase());
+        expect(h.name, prayerName(t, Prayer.dhuhr));
+        expect(rowMarkedNext(tester), Prayer.dhuhr);
+        expect(
+          h.time,
+          rowTime(tester, Prayer.dhuhr),
+          reason: 'the hero repeats the row\'s reading rather than formatting it again',
+        );
+        expect(countdownPattern.hasMatch(h.meta), isTrue, reason: h.meta);
+        expect(isSelected(tester, Prayer.dhuhr), isTrue);
+        expect(
+          Prayer.adhanPrayers.where(
+            (p) => p != Prayer.dhuhr && isSelected(tester, p),
+          ),
+          isEmpty,
+        );
+      },
+    );
+
+    testApp('before sunrise the next prayer is Dhuhr, never Sunrise', (
       tester,
-      readingAt(times: cairoTimes, estimatedFrom: 48.5),
-    );
+    ) async {
+      // 06:00 in Cairo: after Fajr, before sunrise.
+      await openAt(tester, DateTime.utc(2026, 10, 12, 3, 0));
+      expect(rowMarkedNext(tester), Prayer.dhuhr);
+      expect(hero(tester).name, prayerName(t, Prayer.dhuhr));
+    });
 
-    expect(
-      textMatching(RegExp('48\\.5')),
-      findsOneWidget,
-      reason: 'the estimate is honest about where it came from',
-    );
-  });
+    testApp('after Isha the hero is tomorrow\'s Fajr', (tester) async {
+      await openAt(tester, DateTime.utc(2026, 10, 12, 20, 30));
+      final h = hero(tester);
+      expect(h.kicker, t.heroKickerTomorrow.toUpperCase());
+      expect(h.name, prayerName(t, Prayer.fajr));
+    });
 
-  testApp('a row whose time is missing says so', (tester) async {
-    await openWithReading(
+    testApp('a row whose time is missing says so', (tester) async {
+      await openWithReading(
+        tester,
+        readingAt(
+          times: {
+            Prayer.fajr: cairoTimes[Prayer.fajr]!,
+            Prayer.dhuhr: cairoTimes[Prayer.dhuhr]!,
+          },
+          unavailable: {Prayer.maghrib},
+        ),
+      );
+      expect(rowTexts(tester, Prayer.maghrib), contains(t.noTimeToday));
+      expect(
+        rowTexts(
+          tester,
+          Prayer.maghrib,
+        ).where((s) => RegExp(timePattern).hasMatch(s)),
+        isEmpty,
+      );
+    });
+
+    testApp('a row tap pins its prayer; Back to now lets go', (tester) async {
+      await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+      await tester.ensureVisible(row(Prayer.asr));
+      await tester.tap(
+        find.descendant(
+          of: row(Prayer.asr),
+          matching: find.text(prayerName(t, Prayer.asr)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(hero(tester).kicker, t.heroKickerAdhan.toUpperCase());
+      expect(hero(tester).name, prayerName(t, Prayer.asr));
+      expect(
+        tester.widget<SunPath>(find.byType(SunPath)).minute,
+        minutesOf(rowTime(tester, Prayer.asr)),
+      );
+      await tester.ensureVisible(find.text(t.heroBackToNow));
+      await tester.tap(find.text(t.heroBackToNow));
+      await tester.pumpAndSettle();
+      expect(hero(tester).kicker, t.nextPrayerAdhan.toUpperCase());
+      expect(find.text(t.heroBackToNow), findsNothing);
+    });
+
+    testApp('looking through the day names what is in force there', (
       tester,
-      readingAt(
-        times: {
-          Prayer.fajr: cairoTimes[Prayer.fajr]!,
-          Prayer.dhuhr: cairoTimes[Prayer.dhuhr]!,
-        },
-        unavailable: {Prayer.maghrib},
-      ),
+    ) async {
+      final handle = tester.ensureSemantics();
+      await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+      final path = find.semantics.byLabel(t.sunPathLabel);
+      // 10:00 + 7 × 15 min, every step past Dhuhr at 12:42.
+      for (var i = 0; i < 12; i++) {
+        tester.semantics.performAction(path, SemanticsAction.increase);
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+      expect(hero(tester).kicker, startsWith('IN FORCE AT'));
+      expect(hero(tester).name, prayerName(t, Prayer.dhuhr));
+      handle.dispose();
+    });
+  });
+
+  group('the Iqama ticket', () {
+    testApp('no mosque yet: one quiet way to add one', (tester) async {
+      var opened = 0;
+      await openAt(
+        tester,
+        DateTime.utc(2026, 10, 12, 7, 0),
+        onOpenMosques: () => opened++,
+      );
+      expect(ticket(tester), isA<TicketNoMosque>());
+      await tester.ensureVisible(find.text(t.addMosqueTitle));
+      await tester.tap(find.text(t.addMosqueTitle));
+      await tester.pump();
+      expect(opened, 1);
+    });
+
+    testApp('nothing while the saved mosques are still being read', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      final pending = StreamController<List<Mosque>>();
+      addTearDown(pending.close);
+      await tester.pumpWidget(
+        ProviderScope(
+          key: ValueKey('app-${++openings}'),
+          overrides: [
+            ...baseOverrides(),
+            savedMosquesProvider.overrideWith((ref) => pending.stream),
+          ],
+          child: appShell(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text(t.addMosqueTitle),
+        findsNothing,
+        reason: 'a user who has a mosque must not be told to add one while it loads',
+      );
+      expect(find.byType(PrayerRows), findsOneWidget);
+    });
+
+    testApp('a mosque with no Iqama: Not configured, and Set time opens it', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque();
+      var opened = 0;
+      await tester.pumpWidget(harness(onOpenMosques: () => opened++));
+      await tester.pumpAndSettle();
+      expect(ticket(tester), isA<TicketNotConfigured>());
+      expect(find.text(t.addMosqueTitle), findsNothing);
+      expect(
+        rowTexts(tester, Prayer.dhuhr),
+        contains(t.rowIqamaNotSet),
+        reason: 'the app never fills one in',
+      );
+      expect(
+        rowTexts(tester, Prayer.sunrise).any((s) => s.contains('Iqama')),
+        isFalse,
+      );
+      await tester.ensureVisible(find.text(t.ticketSetTime));
+      await tester.tap(find.text(t.ticketSetTime));
+      await tester.pump();
+      expect(opened, 1);
+    });
+
+    testApp('a configured Iqama is on its row and on the ticket', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque(
+        iqamas: {Prayer.dhuhr: LocalTime.of(12, 15)},
+        reminder: true,
+      );
+      await openToday(tester);
+      expect(rowTexts(tester, Prayer.dhuhr), contains(t.rowIqama('12:15')));
+      final set = ticket(tester) as TicketSet;
+      expect(set.mosque, 'Masjid al-Nour');
+      expect(set.time, '12:15');
+      expect(set.rule, t.ticketRuleFixed);
+      expect(set.reminderOn, isTrue);
+      expect(set.reminder, t.ticketReminder('12:05'));
+      for (final p in [Prayer.fajr, Prayer.asr, Prayer.maghrib, Prayer.isha]) {
+        expect(rowTexts(tester, p), contains(t.rowIqamaNotSet), reason: p.name);
+      }
+    });
+
+    testApp('minutes after the Adhan: the user\'s minutes, added to the day', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque(after: {Prayer.dhuhr: 20});
+      await openToday(tester);
+      final set = ticket(tester) as TicketSet;
+      expect(set.time, clockOf(minutesOf(rowTime(tester, Prayer.dhuhr)) + 20));
+      expect(set.rule, t.ticketRuleAfter(20));
+      expect(set.reminder, t.ticketNoReminder);
+      expect(set.reminderOn, isFalse);
+    });
+
+    testApp(
+      'between Adhan and Iqama the prayer is held, with the Iqama counting',
+      (tester) async {
+        await settings.setLocation(cairo.toStored());
+        await addMosque(after: {Prayer.dhuhr: 20});
+        // Read the day's Dhuhr, then come back five minutes after it (UTC+3).
+        await openToday(tester);
+        final dhuhr = minutesOf(rowTime(tester, Prayer.dhuhr));
+        await closeToday(tester);
+        clock.instant = DateTime.utc(
+          2026,
+          10,
+          12,
+        ).add(Duration(minutes: dhuhr + 5 - 180));
+        await openToday(tester);
+        final h = hero(tester);
+        expect(
+          h.kicker,
+          t
+              .heroKickerHeld(
+                prayerName(t, Prayer.dhuhr),
+                t.countdownMinutes(15),
+              )
+              .toUpperCase(),
+        );
+        expect(h.name, prayerName(t, Prayer.dhuhr));
+        expect(h.meta, t.heroAdhanAgo(t.agoMinutes(5)));
+        expect(
+          rowMarkedNext(tester),
+          Prayer.asr,
+          reason: 'Next stays on the next Adhan',
+        );
+        expect((ticket(tester) as TicketSet).relative, t.countdownMinutes(15));
+      },
     );
 
-    expect(
-      rowTexts(tester, prayerName(t, Prayer.maghrib)),
-      contains(t.noTimeToday),
-      reason: 'the row stays, and admits it has no time',
-    );
-    expect(
-      rowTexts(tester, prayerName(t, Prayer.maghrib))
-          .where((text) => RegExp(timePattern).hasMatch(text)),
-      isEmpty,
+    testApp('no hold while Iqama reminders are paused for travel', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque(after: {Prayer.dhuhr: 20});
+      await settings.saveTravel(
+        const TravelSettings(
+          travelMode: true,
+          followLocation: false,
+          pauseAllIqamaReminders: true,
+        ),
+      );
+      // Read the day's Dhuhr, then come back five minutes after it (UTC+3).
+      await openToday(tester);
+      final dhuhr = minutesOf(rowTime(tester, Prayer.dhuhr));
+      await closeToday(tester);
+      clock.instant = DateTime.utc(
+        2026,
+        10,
+        12,
+      ).add(Duration(minutes: dhuhr + 5 - 180));
+      await openToday(tester);
+      expect(hero(tester).kicker, t.nextPrayerAdhan.toUpperCase());
+      expect(hero(tester).name, prayerName(t, Prayer.asr));
+      expect(find.text(t.pausedAllNote), findsOneWidget);
+    });
+
+    testApp('after the day\'s last Iqama: tomorrow\'s Fajr, honestly unset', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque(iqamas: {Prayer.isha: LocalTime.of(19, 50)});
+      clock.instant = DateTime.utc(2026, 10, 12, 20, 30);
+      await openToday(tester);
+      expect(hero(tester).kicker, t.heroKickerTomorrow.toUpperCase());
+      expect(ticket(tester), isA<TicketNotConfigured>());
+      expect(
+        rowTexts(tester, Prayer.isha),
+        contains(t.rowIqama('19:50')),
+        reason: 'the row keeps the time the user entered',
+      );
+    });
+  });
+
+  group('clock formats', () {
+    testApp('a 24-hour device shows four digits and no marker', (tester) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque(iqamas: {Prayer.dhuhr: LocalTime.of(12, 15)});
+      await openToday(tester);
+      for (final p in Prayer.adhanPrayers) {
+        expect(
+          rowTexts(tester, p).where((s) => RegExp(timePattern).hasMatch(s)),
+          hasLength(1),
+          reason: '${p.name} shows its Adhan as one 24-hour reading',
+        );
+      }
+      expect(textMatching(RegExp(r'\d[  ]?[AP]M')), findsNothing);
+      expect(countdownPattern.hasMatch(hero(tester).meta), isTrue);
+    });
+
+    testApp(
+      'a 12-hour device reads its own clock on the hero, ticket and rows',
+      (tester) async {
+        final meridiem = RegExp(r'^\d{1,2}:\d{2} [AP]M$');
+        await settings.setLocation(cairo.toStored());
+        await addMosque(iqamas: {Prayer.dhuhr: LocalTime.of(12, 15)});
+        await tester.pumpWidget(harness(use24Hour: false));
+        await tester.pumpAndSettle();
+        final h = hero(tester);
+        expect(
+          rowTime(tester, Prayer.dhuhr, meridiem.pattern),
+          '${h.time} PM',
+          reason: 'the big time is the row reading, without its marker',
+        );
+        expect(h.meta, startsWith('PM · '));
+        expect((ticket(tester) as TicketSet).time, twelve(12, 15));
+        expect(
+          rowTexts(tester, Prayer.dhuhr),
+          contains(t.rowIqama(twelve(12, 15))),
+        );
+        for (final p in Prayer.adhanPrayers) {
+          expect(
+            rowTexts(tester, p).where((s) => meridiem.hasMatch(s)),
+            hasLength(1),
+            reason: '${p.name} shows its Adhan as one 12-hour reading',
+          );
+        }
+        // The hero's big time has no marker by design; its PM is beside it.
+      },
     );
   });
 
-  testApp('a very large text size still fits', (tester) async {
-    tester.platformDispatcher.textScaleFactorTestValue = 3.0;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    // Phone width, tall enough that every row and note is laid out at 3x; a clip or
-    // an overflow in any of them fails this test on its own.
-    showWholeDay(tester);
-    await settings.setLocation(cairo.toStored());
+  group('notes', () {
+    testApp('the rule note appears only when the rule moved a time', (
+      tester,
+    ) async {
+      await openAt(tester, DateTime.utc(2026, 10, 12, 7, 0));
+      expect(textMatching(RegExp(t.ruleMiddleOfTheNight)), findsNothing);
+      await closeToday(tester);
+      await openWithReading(
+        tester,
+        readingAt(times: cairoTimes, movedByRule: {Prayer.fajr, Prayer.isha}),
+      );
+      final note = tester
+          .widget<Text>(textMatching(RegExp(t.ruleMiddleOfTheNight)))
+          .data!;
+      expect(note, contains(prayerName(t, Prayer.fajr)));
+      expect(note, contains(prayerName(t, Prayer.isha)));
+    });
 
-    await tester.pumpWidget(harness());
-    await tester.pumpAndSettle();
+    testApp('a day estimated from a nearer latitude names that latitude', (
+      tester,
+    ) async {
+      await openWithReading(
+        tester,
+        readingAt(times: cairoTimes, estimatedFrom: 48.5),
+      );
+      expect(textMatching(RegExp('48\\.5')), findsOneWidget);
+    });
 
-    expect(find.text(t.nextPrayerAdhan), findsOneWidget);
-    expect(find.text(prayerName(t, Prayer.asr)), findsOneWidget);
-    expect(
-      find.text(prayerName(t, Prayer.isha)),
-      findsOneWidget,
-      reason: 'the last row is the one a narrow line would have pushed off first',
-    );
+    testApp('travel mode adds the way to in-flight mode', (tester) async {
+      await settings.setLocation(cairo.toStored());
+      await openToday(tester);
+      expect(find.text(t.inFlightCardTitle), findsNothing);
+      await closeToday(tester);
+      await settings.saveTravel(
+        const TravelSettings(travelMode: true, followLocation: false),
+      );
+      await openToday(tester);
+      expect(find.text(t.inFlightCardTitle), findsOneWidget);
+    });
   });
 
-  testApp('a very large text size fits on a 12-hour device too', (tester) async {
-    tester.platformDispatcher.textScaleFactorTestValue = 3.0;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    // A 12-hour reading is wider than its 24-hour twin by a whole marker, and
-    // `flutter test` draws with a square fallback font far wider than the device's,
-    // so this is the same day at the same scale with the room a phone at the largest
-    // system font really has.
-    showWideDay(tester);
-    await settings.setLocation(cairo.toStored());
+  group('alerts from Today', () {
+    testApp('each row says its alert in a word, and its sheet changes it', (
+      tester,
+    ) async {
+      await settings.setLocation(cairo.toStored());
+      await openToday(tester);
+      final sunriseButton = find.descendant(
+        of: row(Prayer.sunrise),
+        matching: find.text(t.alertShortOff),
+      );
+      expect(
+        sunriseButton,
+        findsOneWidget,
+        reason: 'Sunrise\'s alert is off by default',
+      );
+      await tester.ensureVisible(sunriseButton);
+      await tester.tap(sunriseButton);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(t.alertSheetTitle(prayerName(t, Prayer.sunrise))),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(t.soundModeSilent));
+      await tester.pumpAndSettle();
+      final alerts = (await settings.read()).adhanAlerts;
+      expect(alerts.alertFor(Prayer.sunrise).enabled, isTrue);
+      expect(alerts.soundModeFor(Prayer.sunrise), AdhanSoundMode.silent);
+      expect(
+        permissionRequests,
+        1,
+        reason: 'turning an alert on asks for the permission',
+      );
+      await tester.tap(find.text(t.alertDone));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: row(Prayer.sunrise),
+          matching: find.text(t.alertShortSilent),
+        ),
+        findsOneWidget,
+      );
+    });
 
-    await tester.pumpWidget(harness(use24Hour: false));
-    await tester.pumpAndSettle();
-
-    expect(find.text(prayerName(t, Prayer.isha)), findsOneWidget);
-    expect(
-      textMatching(RegExp(r'^\d{1,2}:\d{2}\u202F[AP]M$')),
-      findsWidgets,
-      reason: 'the marker arrives with the size, not instead of the reading',
-    );
+    testApp('Off is not Silent: it turns the alert off', (tester) async {
+      await settings.setLocation(cairo.toStored());
+      await openToday(tester);
+      final fajr = find.descendant(
+        of: row(Prayer.fajr),
+        matching: find.byType(LineIcon),
+      );
+      await tester.ensureVisible(fajr.first);
+      await tester.tap(fajr.first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.alertShortOff).last);
+      await tester.pumpAndSettle();
+      expect(
+        (await settings.read()).adhanAlerts.alertFor(Prayer.fajr).enabled,
+        isFalse,
+      );
+      expect(permissionRequests, 0);
+    });
   });
 
-  testApp('the dark theme keeps the same reading', (tester) async {
-    await settings.setLocation(cairo.toStored());
-    await tester.pumpWidget(harness(dark: true));
-    await tester.pumpAndSettle();
+  group('every size and theme', () {
+    testApp('a very large text size still fits, and nothing truncates a time', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 3.0;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      showWholeDay(tester);
+      await settings.setLocation(cairo.toStored());
+      await tester.pumpWidget(harness());
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(hero(tester).kicker, t.nextPrayerAdhan.toUpperCase());
+      expect(row(Prayer.isha), findsOneWidget);
+    });
 
-    expect(find.text(t.nextPrayerAdhan), findsOneWidget);
-    expect(find.text(prayerName(t, Prayer.dhuhr)), findsOneWidget);
-  });
+    testApp('a very large text size fits on a 12-hour device too', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 3.0;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      showWholeDay(tester, width: 1800);
+      await settings.setLocation(cairo.toStored());
+      await tester.pumpWidget(harness(use24Hour: false));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(textMatching(RegExp(r'^\d{1,2}:\d{2} [AP]M$')), findsWidgets);
+    });
 
-  testApp('the bell tells a screen reader what it means', (tester) async {
-    await settings.setLocation(cairo.toStored());
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    await mosques.setIqama(
-      mosque.id,
-      Prayer.dhuhr,
-      const LocalTime(12 * 60 + 15),
-      reminderEnabled: true,
-    );
-    await settings.setActiveMosqueId(mosque.id);
+    testApp('a short phone at normal size scrolls instead of overflowing', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 1800);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await settings.setLocation(cairo.toStored());
+      await settings.saveTravel(
+        const TravelSettings(travelMode: true, followLocation: false),
+      );
+      await openToday(tester);
+      expect(tester.takeException(), isNull);
+      await tester.scrollUntilVisible(row(Prayer.isha), 200);
+      expect(row(Prayer.isha), findsOneWidget);
+    });
 
-    final handle = tester.ensureSemantics();
-    await tester.pumpWidget(harness());
-    await tester.pumpAndSettle();
+    testApp('the dark theme keeps the same reading', (tester) async {
+      await settings.setLocation(cairo.toStored());
+      await tester.pumpWidget(harness(dark: true));
+      await tester.pumpAndSettle();
+      expect(hero(tester).kicker, t.nextPrayerAdhan.toUpperCase());
+      expect(hero(tester).name, prayerName(t, Prayer.dhuhr));
+    });
 
-    // The bell is a picture; the row's own announcement is what carries its meaning.
-    expect(
-      tester.getSemantics(find.text(prayerName(t, Prayer.dhuhr))).label,
-      allOf(contains(t.rowIqama('12:15')), contains(t.reminderOnSemantics)),
-      reason: 'one row, read as one sentence, reminder state included',
-    );
-    expect(
-      tester.getSemantics(find.text(prayerName(t, Prayer.fajr))).label,
-      isNot(contains(t.reminderOnSemantics)),
-      reason: 'the bell belongs to the prayer that has a reminder, not to every row',
-    );
-    handle.dispose();
+    testApp('a row is read as one line, Iqama included', (tester) async {
+      await settings.setLocation(cairo.toStored());
+      await addMosque(iqamas: {Prayer.dhuhr: LocalTime.of(12, 15)});
+      final handle = tester.ensureSemantics();
+      await openToday(tester);
+      final label = tester
+          .getSemantics(
+            find
+                .descendant(
+                  of: row(Prayer.dhuhr),
+                  matching: find.byType(InkWell),
+                )
+                .first,
+          )
+          .label;
+      expect(
+        label,
+        allOf(
+          contains(prayerName(t, Prayer.dhuhr)),
+          contains(t.rowIqama('12:15')),
+        ),
+      );
+      handle.dispose();
+    });
   });
 }

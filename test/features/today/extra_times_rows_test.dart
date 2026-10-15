@@ -97,8 +97,10 @@ void main() {
         '${e.at.minute.toString().padLeft(2, '0')}';
   }
 
+  /// The row's own label: the hero and the sun's path can name the same
+  /// prayer higher up, and the rows come last.
   double top(WidgetTester tester, String text) =>
-      tester.getTopLeft(find.text(text).first).dy;
+      tester.getTopLeft(find.text(text).last).dy;
 
   testApp('by default Imsak alone, just above Fajr', (tester) async {
     await open(tester, now: cairoAt(day, 12, 0));

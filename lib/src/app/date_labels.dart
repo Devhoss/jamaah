@@ -29,4 +29,8 @@ abstract final class DateLabels {
   /// `12 Oct 2026`, used for "Set by you · last updated ..." on a schedule.
   static String shortDate(DateTime date, String locale) =>
       DateFormat('d MMM yyyy', locale).format(date);
+
+  /// `Thu 15 Oct`, for Today's place line (Horizon).
+  static String weekdayDate(DateTime date, String locale) =>
+      DateFormat('EEE d MMM', locale).format(date);
 }

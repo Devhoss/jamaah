@@ -79,6 +79,9 @@ class PrayerRows extends StatelessWidget {
 
   static const alertWidth = 58.0;
 
+  /// Each prayer's row, for tests and for scrolling to it.
+  static Key rowKey(Prayer prayer) => ValueKey('prayer-row-${prayer.name}');
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -138,6 +141,7 @@ class _PrayerRow extends StatelessWidget {
     );
 
     return AnimatedContainer(
+      key: PrayerRows.rowKey(data.prayer),
       duration: still ? Duration.zero : const Duration(milliseconds: 400),
       decoration: BoxDecoration(
         color: data.selected ? palette.halo : Colors.transparent,
@@ -148,72 +152,75 @@ class _PrayerRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: Semantics(
-                button: true,
-                selected: data.selected,
-                child: InkWell(
-                  onTap: onPick,
-                  borderRadius: BorderRadius.circular(12),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: HorizonShape.prayerRowMin,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        10,
-                        6,
-                        4,
-                        6,
+              // Read as one line: "Dhuhr, Next, Iqama 12:15, 12:42".
+              child: MergeSemantics(
+                child: Semantics(
+                  button: true,
+                  selected: data.selected,
+                  child: InkWell(
+                    onTap: onPick,
+                    borderRadius: BorderRadius.circular(12),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: HorizonShape.prayerRowMin,
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 3,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              color: data.selected
-                                  ? palette.ink
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(2),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          10,
+                          6,
+                          4,
+                          6,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 3,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: data.selected
+                                    ? palette.ink
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 9),
-                          Expanded(
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(data.name, style: nameStyle),
-                                if (data.isNext)
-                                  _NextTag(
-                                    label: l10n.tagNext,
-                                    palette: palette,
-                                    style: type.kicker,
-                                  ),
-                                if (data.iqama != null)
-                                  Text(
-                                    data.iqama!,
-                                    style: type.meta.copyWith(
-                                      fontSize: 12,
-                                      color: palette.mute,
+                            const SizedBox(width: 9),
+                            Expanded(
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Text(data.name, style: nameStyle),
+                                  if (data.isNext)
+                                    _NextTag(
+                                      label: l10n.tagNext,
+                                      palette: palette,
+                                      style: type.kicker,
                                     ),
-                                  ),
-                              ],
+                                  if (data.iqama != null)
+                                    Text(
+                                      data.iqama!,
+                                      style: type.meta.copyWith(
+                                        fontSize: 12,
+                                        color: palette.mute,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 70),
-                            child: Text(
-                              data.time ?? l10n.noTimeToday,
-                              textAlign: TextAlign.end,
-                              style: data.time == null
-                                  ? type.meta.copyWith(color: palette.mute)
-                                  : timeStyle,
+                            const SizedBox(width: 8),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 70),
+                              child: Text(
+                                data.time ?? l10n.noTimeToday,
+                                textAlign: TextAlign.end,
+                                style: data.time == null
+                                    ? type.meta.copyWith(color: palette.mute)
+                                    : timeStyle,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

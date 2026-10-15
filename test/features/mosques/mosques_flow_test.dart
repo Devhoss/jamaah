@@ -742,7 +742,7 @@ void main() {
 
       await reveal(tester, find.text(t.rowIqama(at(LocalTime.of(12, 15)))));
       expect(find.text(t.rowIqama(at(LocalTime.of(12, 15)))), findsOneWidget);
-      expect(find.text(t.nextIqamaLabel('Masjid al-Nour')), findsOneWidget);
+      expect(find.text(t.ticketKicker('Masjid al-Nour').toUpperCase()), findsOneWidget);
 
       // Change it without leaving Today: the stream carries the edit.
       final mosque = await savedMosque('Masjid al-Nour');
@@ -772,7 +772,7 @@ void main() {
       await tester.pumpAndSettle();
       final at = clockOn(tester).time;
 
-      expect(find.text(t.nextIqamaLabel('First')), findsOneWidget);
+      expect(find.text(t.ticketKicker('First').toUpperCase()), findsOneWidget);
       await reveal(tester, find.text(t.rowIqama(at(LocalTime.of(12, 15)))));
       expect(find.text(t.rowIqama(at(LocalTime.of(12, 15)))), findsOneWidget);
 
@@ -783,7 +783,7 @@ void main() {
       await tester.pumpAndSettle();
       await tapText(tester, t.tabToday);
 
-      expect(find.text(t.nextIqamaLabel('Second')), findsOneWidget);
+      expect(find.text(t.ticketKicker('Second').toUpperCase()), findsOneWidget);
       await reveal(tester, find.text(t.rowIqama(at(LocalTime.of(12, 45)))));
       expect(find.text(t.rowIqama(at(LocalTime.of(12, 45)))), findsOneWidget);
     });
@@ -797,7 +797,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tapText(tester, t.mosqueHasNoIqama('Masjid al-Nour'));
+      await tapText(tester, t.ticketSetTime);
 
       expect(find.byType(MosqueDetailPage), findsOneWidget);
       expect(find.text(t.notConfigured), findsNWidgets(6));
