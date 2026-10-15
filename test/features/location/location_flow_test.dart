@@ -14,6 +14,7 @@ import 'package:jamaah/src/domain/placeholder_places.dart';
 import 'package:jamaah/src/features/components/app_widgets.dart';
 import 'package:jamaah/src/features/location/city_list_page.dart';
 import 'package:jamaah/src/features/today/today_screen.dart';
+import 'package:jamaah/src/features/location/place_copy.dart';
 import '../../helpers/fake_place_source.dart';
 import '../../helpers/test_app.dart';
 
@@ -103,7 +104,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(TodayScreen),
-          matching: find.text(t.locationCurrentPlace),
+          matching: find.text(placeShortLabel(t, devicePlace)),
         ),
         findsOneWidget,
         reason: 'Today names the place whose times it is showing',
@@ -134,9 +135,9 @@ void main() {
       await tester.tap(find.text(t.locationUseDevice));
       await tester.pumpAndSettle();
 
-      // Today now calls it "Current location"; the chip is the way back to the sheet.
-      expect(find.text(t.locationCurrentPlace), findsOneWidget);
-      await tester.tap(find.text(t.locationCurrentPlace));
+      // Today names it by the nearest city; the place is the way back to the sheet.
+      expect(find.text(placeShortLabel(t, devicePlace)), findsOneWidget);
+      await tester.tap(find.text(placeShortLabel(t, devicePlace)));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text(t.placeRenameAction));
@@ -148,7 +149,7 @@ void main() {
       expect((await stored())?.userName, 'Home');
       expect(find.text('Home'), findsOneWidget);
       expect(
-        find.text(t.locationCurrentPlace),
+        find.text(placeShortLabel(t, devicePlace)),
         findsNothing,
         reason: 'their own name replaces ours everywhere at once',
       );
@@ -159,7 +160,7 @@ void main() {
       await openSheet(tester);
       await tester.tap(find.text(t.locationUseDevice));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(t.locationCurrentPlace));
+      await tester.tap(find.text(placeShortLabel(t, devicePlace)));
       await tester.pumpAndSettle();
       await tester.tap(find.text(t.placeRenameAction));
       await tester.pumpAndSettle();
@@ -176,7 +177,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect((await stored())?.userName, isNull);
-      expect(find.text(t.locationCurrentPlace), findsOneWidget);
+      expect(find.text(placeShortLabel(t, devicePlace)), findsOneWidget);
       expect(
         (await stored())?.usesGps,
         isTrue,
@@ -305,7 +306,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(TodayScreen),
-        matching: find.text(t.locationCurrentPlace),
+        matching: find.text(placeShortLabel(t, devicePlace)),
       ),
       findsOneWidget,
       reason: 'the chip is built from what the database holds, not from memory',

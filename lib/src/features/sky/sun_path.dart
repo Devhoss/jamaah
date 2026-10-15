@@ -9,6 +9,7 @@ import '../../domain/prayer.dart';
 import '../../domain/sky/moon_phase.dart';
 import '../../domain/sky/sun_path_geometry.dart';
 import '../sky/sky_motion.dart';
+import 'sun_path_labels.dart';
 
 /// One prayer's dot on the arc.
 @immutable
@@ -79,6 +80,7 @@ class SunPath extends StatelessWidget {
     this.selectedLabel,
     this.labelStyle,
     this.selectedLabelStyle,
+    this.combinedLabel,
     this.onScrub,
     this.onScrubEnd,
     this.semanticLabel,
@@ -103,6 +105,10 @@ class SunPath extends StatelessWidget {
   final TextStyle? labelStyle;
   final TextStyle? selectedLabelStyle;
 
+  /// Said instead of both labels when the sun is close to the selected
+  /// marker: "Dhuhr · 12:42 PM" (see [SunPathLabels.shouldMerge]).
+  final String? combinedLabel;
+
   /// Null makes the path a picture only (onboarding, full-screen Adhan).
   final ValueChanged<double>? onScrub;
   final VoidCallback? onScrubEnd;
@@ -113,6 +119,83 @@ class SunPath extends StatelessWidget {
 
   /// The value text one step later and earlier, for TalkBack.
   final ({String up, String down})? semanticStep;
+
+  /// The label under the sun and the selected prayer's name, placed clear of
+  /// the markers, the arcs and each other, or merged into one when the sun
+  /// is near the selected marker.
+  List<_PlacedLabel> _placeLabels(
+    BuildContext context, {
+    required double scale,
+    required Offset sun,
+    required Offset? selected,
+  }) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    final sunStyle = (labelStyle ?? const TextStyle(fontSize: 11)).copyWith(
+      color: ink.mute,
+    );
+    final nameStyle = (selectedLabelStyle ?? const TextStyle()).copyWith(
+      color: ink.ink,
+    );
+    Size measure(String text, TextStyle style) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final size = painter.size / scale;
+      painter.dispose();
+      return size;
+    }
+
+    final points = [
+      for (final m in markers)
+        Offset(
+          geometry.positionAt(m.minute.toDouble()).point.x,
+          geometry.positionAt(m.minute.toDouble()).point.y,
+        ),
+    ];
+    final arc = [
+      for (var t = 0; t < 1440; t += 12)
+        Offset(
+          geometry.positionAt(t.toDouble()).point.x,
+          geometry.positionAt(t.toDouble()).point.y,
+        ),
+    ];
+
+    final placed = <_PlacedLabel>[];
+    final merge =
+        combinedLabel != null &&
+        sunLabel != null &&
+        SunPathLabels.shouldMerge(sun, selected, scale);
+    final sunText = merge ? combinedLabel! : sunLabel;
+    if (sunText != null) {
+      final size = measure(sunText, sunStyle);
+      final at = SunPathLabels.place(
+        anchor: sun,
+        size: size,
+        markers: points,
+        arc: arc,
+        // High up, the room is under the sun; low down, above it.
+        preferAbove: sun.dy >= 70,
+      );
+      placed.add(_PlacedLabel(sunText, sunStyle, at, size));
+    }
+    final name = selectedLabel;
+    if (!merge && name != null && selected != null) {
+      final size = measure(name, nameStyle);
+      final at = SunPathLabels.place(
+        anchor: selected,
+        size: size,
+        markers: [...points.where((p) => p != selected), sun],
+        arc: arc,
+        taken: [for (final l in placed) l.topLeft & l.size],
+      );
+      placed.add(_PlacedLabel(name, nameStyle, at, size));
+    }
+    return placed;
+  }
 
   static const keyStep = 5.0;
   static const keyBigStep = 30.0;
@@ -133,6 +216,14 @@ class SunPath extends StatelessWidget {
           final selectedPoint = selected == null
               ? null
               : geometry.positionAt(selected.minute.toDouble()).point;
+          final labels = _placeLabels(
+            context,
+            scale: scale,
+            sun: Offset(sun.x, sun.y),
+            selected: selectedPoint == null
+                ? null
+                : Offset(selectedPoint.x, selectedPoint.y),
+          );
 
           Widget path = SizedBox(
             width: width,
@@ -140,47 +231,36 @@ class SunPath extends StatelessWidget {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _SunPathPainter(
-                      geometry: geometry,
-                      minute: minute,
-                      markers: markers,
-                      ink: ink,
-                      moon: moon,
-                      motion: SkyMotion.maybeOf(context),
-                      scale: scale,
-                    ),
-                  ),
-                ),
-                if (sunLabel != null)
-                  Positioned(
-                    left: (sun.x - 50) * scale,
-                    top: (sun.y < 70 ? sun.y + 22 : sun.y - 44) * scale,
-                    width: 100 * scale,
-                    child: ExcludeSemantics(
-                      child: Text(
-                        sunLabel!,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.visible,
-                        style: (labelStyle ?? const TextStyle(fontSize: 11))
-                            .copyWith(color: ink.mute),
+                // Three layers: only the middle one (the sun's breathing
+                // halo and the selected marker's pulse) repaints with the
+                // motion clock; the arcs, moon, disc and markers are cached.
+                for (final layer in _Layer.values)
+                  Positioned.fill(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        painter: _SunPathPainter(
+                          layer: layer,
+                          geometry: geometry,
+                          minute: minute,
+                          markers: markers,
+                          ink: ink,
+                          moon: moon,
+                          motion: SkyMotion.maybeOf(context),
+                          scale: scale,
+                        ),
                       ),
                     ),
                   ),
-                if (selectedLabel != null && selectedPoint != null)
+                for (final label in labels)
                   Positioned(
-                    left: (selectedPoint.x - 60) * scale,
-                    top: (selectedPoint.y + 16) * scale,
-                    width: 120 * scale,
+                    left: label.topLeft.dx * scale,
+                    top: label.topLeft.dy * scale,
                     child: ExcludeSemantics(
                       child: Text(
-                        selectedLabel!,
-                        textAlign: TextAlign.center,
+                        label.text,
                         maxLines: 1,
-                        style: (selectedLabelStyle ?? const TextStyle())
-                            .copyWith(color: ink.ink),
+                        softWrap: false,
+                        style: label.style,
                       ),
                     ),
                   ),
@@ -250,8 +330,13 @@ class SunPath extends StatelessWidget {
   }
 }
 
+/// back: lines, arcs, trail, moon · motion: halo and pulse · front: sun disc
+/// and markers.
+enum _Layer { back, motion, front }
+
 class _SunPathPainter extends CustomPainter {
   _SunPathPainter({
+    required this.layer,
     required this.geometry,
     required this.minute,
     required this.markers,
@@ -259,8 +344,9 @@ class _SunPathPainter extends CustomPainter {
     required this.moon,
     required this.motion,
     required this.scale,
-  }) : super(repaint: motion?.animation);
+  }) : super(repaint: layer == _Layer.motion ? motion?.clock : null);
 
+  final _Layer layer;
   final SunPathGeometry geometry;
   final double minute;
   final List<SunPathMarker> markers;
@@ -318,8 +404,18 @@ class _SunPathPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.save();
     canvas.scale(scale);
-    final seconds = motion?.seconds;
+    switch (layer) {
+      case _Layer.back:
+        _paintBack(canvas);
+      case _Layer.motion:
+        _paintMotion(canvas, motion?.seconds);
+      case _Layer.front:
+        _paintFront(canvas);
+    }
+    canvas.restore();
+  }
 
+  void _paintBack(Canvas canvas) {
     final line = Paint()
       ..color = ink.line
       ..style = PaintingStyle.stroke
@@ -355,8 +451,10 @@ class _SunPathPainter extends CustomPainter {
       final place = m.placeAt(geometry, minute);
       if (place.visible) _paintMoon(canvas, m, place);
     }
+  }
 
-    // Sun.
+  /// The sun's halo breathes (4.8 s) and the selected marker pulses (2.4 s).
+  void _paintMotion(Canvas canvas, double? seconds) {
     final sun = geometry.positionAt(minute);
     final colours = SunPathGeometry.sunColours(sun.altitude);
     final core = Color(colours.core.argb);
@@ -380,6 +478,27 @@ class _SunPathPainter extends CustomPainter {
           const [0, 0.45, 1],
         ),
     );
+    if (seconds == null) return;
+    for (final marker in markers) {
+      if (!marker.selected) continue;
+      final p = geometry.positionAt(marker.minute.toDouble()).point;
+      final f = (seconds % 2.4) / 2.4;
+      canvas.drawCircle(
+        Offset(p.x, p.y),
+        8 * (1 + 1.8 * f),
+        Paint()
+          ..color = ink.ink.withValues(alpha: 0.75 * (1 - f))
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5,
+      );
+    }
+  }
+
+  void _paintFront(Canvas canvas) {
+    final sun = geometry.positionAt(minute);
+    final colours = SunPathGeometry.sunColours(sun.altitude);
+    final opacity = SunPathGeometry.sunOpacity(sun.altitude);
+    final c = Offset(sun.point.x, sun.point.y);
     canvas.drawCircle(
       c,
       8,
@@ -394,11 +513,9 @@ class _SunPathPainter extends CustomPainter {
         ..strokeWidth = 1,
     );
 
-    // Markers.
     for (final marker in markers) {
-      _paintMarker(canvas, marker, seconds);
+      _paintMarker(canvas, marker);
     }
-    canvas.restore();
   }
 
   void _paintMoon(Canvas canvas, MoonPhase m, MoonPlacement place) {
@@ -434,25 +551,12 @@ class _SunPathPainter extends CustomPainter {
     canvas.restore();
   }
 
-  void _paintMarker(Canvas canvas, SunPathMarker marker, double? seconds) {
+  void _paintMarker(Canvas canvas, SunPathMarker marker) {
     final p = geometry.positionAt(marker.minute.toDouble()).point;
     final c = Offset(p.x, p.y);
     final glow = Paint()
       ..color = ink.ink.withValues(alpha: marker.selected ? 0.7 : 0.45)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, marker.selected ? 7 : 4);
-
-    if (marker.selected && seconds != null) {
-      // The pulse: a ring that grows from the dot and fades (2.4 s).
-      final f = (seconds % 2.4) / 2.4;
-      canvas.drawCircle(
-        c,
-        8 * (1 + 1.8 * f),
-        Paint()
-          ..color = ink.ink.withValues(alpha: 0.75 * (1 - f))
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5,
-      );
-    }
 
     if (marker.prayer == Prayer.sunrise) {
       final r = marker.selected ? 8.0 : 5.0;
@@ -484,6 +588,7 @@ class _SunPathPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SunPathPainter old) =>
+      old.layer != layer ||
       old.minute != minute ||
       old.ink.ink != ink.ink ||
       old.ink.labelInk != ink.labelInk ||
@@ -502,4 +607,15 @@ class _SunPathPainter extends CustomPainter {
     }
     return true;
   }
+}
+
+class _PlacedLabel {
+  const _PlacedLabel(this.text, this.style, this.topLeft, this.size);
+
+  final String text;
+  final TextStyle style;
+
+  /// In the design box.
+  final Offset topLeft;
+  final Size size;
 }

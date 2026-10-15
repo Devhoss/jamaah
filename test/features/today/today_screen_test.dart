@@ -25,6 +25,7 @@ import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/today.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/components/line_icon.dart';
+import 'package:jamaah/src/features/location/place_copy.dart';
 import 'package:jamaah/src/features/sky/sun_path.dart';
 import 'package:jamaah/src/features/today/iqama_ticket.dart';
 import 'package:jamaah/src/features/today/prayer_rows.dart';
@@ -387,13 +388,18 @@ void main() {
       expect(find.text(t.locationSheetTitle), findsOneWidget);
     });
 
-    testApp('a device place is named as the device, not as a city', (
+    testApp('a device place is named near the closest city, never by its zone', (
       tester,
     ) async {
       await settings.setLocation(devicePlace.toStored());
       await openToday(tester);
-      expect(find.text(t.locationCurrentPlace), findsWidgets);
-      expect(find.text(devicePlace.displayName), findsNothing);
+      expect(find.text(placeShortLabel(t, devicePlace)), findsOneWidget);
+      expect(placeShortLabel(t, devicePlace), startsWith('Near '));
+      expect(
+        find.text(devicePlace.displayName),
+        findsNothing,
+        reason: '"Africa/Cairo" is a zone name, and a zone is not a place label',
+      );
     });
 
     testApp('the day is named in both calendars, on one line', (tester) async {

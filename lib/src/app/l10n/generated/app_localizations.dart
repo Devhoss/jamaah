@@ -3639,6 +3639,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Iqama not set'**
   String get rowIqamaNotSet;
+
+  /// No description provided for @sunLabelCombined.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · {time}'**
+  String sunLabelCombined(String prayer, String time);
+
+  /// No description provided for @placeNearCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Near {city}'**
+  String placeNearCity(String city);
 }
 
 class _AppLocalizationsDelegate

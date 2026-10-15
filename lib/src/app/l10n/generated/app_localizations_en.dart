@@ -2222,4 +2222,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rowIqamaNotSet => 'Iqama not set';
+
+  @override
+  String sunLabelCombined(String prayer, String time) {
+    return '$prayer · $time';
+  }
+
+  @override
+  String placeNearCity(String city) {
+    return 'Near $city';
+  }
 }

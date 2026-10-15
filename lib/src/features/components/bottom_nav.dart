@@ -10,6 +10,7 @@ class BottomNavColors {
     required this.muted,
     required this.line,
     required this.background,
+    this.fade,
   });
 
   /// The surface version, for pages whose controls sit on a solid surface.
@@ -24,6 +25,11 @@ class BottomNavColors {
   final Color muted;
   final Color line;
   final Color background;
+
+  /// On the sky: the sky's colour at the bottom of the screen. The bar then
+  /// fades the sky in behind itself, so rows scrolling under it soften out
+  /// instead of running into its line (owner, 2026-10-16).
+  final Color? fade;
 }
 
 /// Four text tabs with a small dot under the one you are on (spec §2.5):
@@ -55,9 +61,10 @@ class BottomNav extends StatelessWidget {
     final c =
         colors ?? BottomNavColors.surface(HorizonTheme.of(context).surfaces);
     final type = HorizonTheme.typeOf(context);
+    final fade = c.fade;
 
-    return Material(
-      color: c.background,
+    final bar = Material(
+      color: fade == null ? c.background : fade.withValues(alpha: 0.94),
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: c.line)),
@@ -86,7 +93,34 @@ class BottomNav extends StatelessWidget {
         ),
       ),
     );
+    if (fade == null) return bar;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The fade above the bar lets taps through to the rows under it.
+        IgnorePointer(
+          child: Container(
+            height: fadeHeight,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  fade.withValues(alpha: 0),
+                  fade.withValues(alpha: 0.94),
+                ],
+              ),
+            ),
+          ),
+        ),
+        bar,
+      ],
+    );
   }
+
+  /// How far above its line the bar fades the sky in.
+  static const fadeHeight = 24.0;
 }
 
 class _Tab extends StatelessWidget {

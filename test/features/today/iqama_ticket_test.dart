@@ -214,7 +214,8 @@ void main() {
     testWidgets('set: a solid ink box, read as one sentence', (tester) async {
       final handle = tester.ensureSemantics();
       await pump(tester, set);
-      expect(find.text('IQAMA · TEST MOSQUE'), findsOneWidget);
+      // The label in capitals, the mosque's name as the user typed it.
+      expect(find.text('IQAMA · Test Mosque', findRichText: true), findsOneWidget);
       expect(find.text('Adhan + 20 min · set by you'), findsOneWidget);
       final box = tester.widget<Container>(
         find

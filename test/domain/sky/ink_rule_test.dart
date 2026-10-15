@@ -177,11 +177,12 @@ void main() {
         for (var m = 0; m < 1440; m += 5) {
           final frame = model.frameAt(m.toDouble(), dark: dark);
           final ink = SkyInk.forRegion(frame, mutedBlocks[2]);
-          // deep at 80% over the ink-coloured box, raised where needed.
+          // deep at 80% over the ticket's fill, raised where needed.
           expect(ink.deepSoftAlpha, inInclusiveRange(0.8, 1.0));
-          final soft = ink.ink.mix(ink.deep, ink.deepSoftAlpha);
+          final soft = ink.fill.mix(ink.deep, ink.deepSoftAlpha);
+          expect(ink.deep.contrastWith(ink.fill), greaterThanOrEqualTo(4.5));
           expect(
-            soft.contrastWith(ink.ink),
+            soft.contrastWith(ink.fill),
             greaterThanOrEqualTo(4.5),
             reason: '${sample.name} dark=$dark minute $m',
           );
@@ -203,6 +204,24 @@ void main() {
         }
       }
     }
+  });
+
+  test('at night in the dark theme the ticket is softer, but solid', () {
+    final light = SkyInk.forRegion(
+      SkyModel.reference.frameAt(60),
+      SkyRegion.content,
+    );
+    final dark = SkyInk.forRegion(
+      SkyModel.reference.frameAt(60, dark: true),
+      SkyRegion.content,
+    );
+    // The light theme keeps the plain ink box.
+    expect(light.fill, light.ink);
+    // The dark theme draws ink at about 88% over the sky: dimmer than the
+    // ink, much brighter than the sky.
+    expect(dark.fill.luminance, lessThan(dark.ink.luminance));
+    expect(dark.fill.luminance, greaterThan(0.5));
+    expect(dark.deep.contrastWith(dark.fill), greaterThanOrEqualTo(4.5));
   });
 
   test('a dark sky gets light ink and a pale one gets dark ink', () {

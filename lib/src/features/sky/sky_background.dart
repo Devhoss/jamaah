@@ -68,17 +68,80 @@ class _SkyBackgroundState extends State<SkyBackground> {
   @override
   Widget build(BuildContext context) {
     final motion = SkyMotion.maybeOf(context);
-    return CustomPaint(
-      painter: SkyPainter(
-        frame: widget.frame,
-        dark: widget.dark,
-        shades: widget.shades,
-        grain: _grain,
-        motion: motion,
-      ),
-      child: widget.child,
+    final stars = widget.frame.stars;
+    // The gradient, glow, shades and grain change only with the minute or
+    // the theme, so they sit in their own cached layer; only the small star
+    // layer repaints with the motion clock (owner, 2026-10-16).
+    return Stack(
+      // The sky is a picture: it never mirrors.
+      alignment: Alignment.topLeft,
+      fit: StackFit.passthrough,
+      children: [
+        Positioned.fill(
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: SkyPainter(
+                frame: widget.frame,
+                dark: widget.dark,
+                shades: widget.shades,
+                grain: _grain,
+              ),
+            ),
+          ),
+        ),
+        if (stars > 0.01)
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: StarField.height + 8,
+            child: IgnorePointer(
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: StarsPainter(opacity: stars, motion: motion),
+                ),
+              ),
+            ),
+          ),
+        ?widget.child,
+      ],
     );
   }
+}
+
+/// The twinkling stars: 46 small dots in the top 300 px, the only part of
+/// the sky that moves on its own.
+class StarsPainter extends CustomPainter {
+  StarsPainter({required this.opacity, required this.motion})
+    : super(repaint: motion?.clock);
+
+  /// The keyframe's star opacity.
+  final double opacity;
+  final SkyMotion? motion;
+
+  static final _halo = Paint()
+    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+  static final _dot = Paint();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final seconds = motion?.seconds;
+    final scale = size.width / StarField.frameWidth;
+    for (final star in StarField.stars) {
+      final o = star.opacityAt(seconds) * opacity;
+      if (o <= 0.01) continue;
+      final c = Offset(star.x * scale, star.y);
+      final r = star.size / 2;
+      _halo.color = Colors.white.withValues(alpha: 0.6 * star.brightness * o);
+      canvas.drawCircle(c, r * 2.2, _halo);
+      _dot.color = Colors.white.withValues(alpha: o);
+      canvas.drawCircle(c, r, _dot);
+    }
+  }
+
+  @override
+  bool shouldRepaint(StarsPainter old) =>
+      old.opacity != opacity || old.motion?.still != motion?.still;
 }
 
 class SkyPainter extends CustomPainter {
@@ -87,14 +150,12 @@ class SkyPainter extends CustomPainter {
     required this.dark,
     required this.shades,
     required this.grain,
-    required this.motion,
-  }) : super(repaint: frame.stars > 0 ? motion?.animation : null);
+  });
 
   final SkyFrame frame;
   final bool dark;
   final List<SkyShade> shades;
   final ui.Image? grain;
-  final SkyMotion? motion;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -129,25 +190,6 @@ class SkyPainter extends CustomPainter {
           ),
       );
       canvas.restore();
-    }
-
-    // Stars.
-    if (frame.stars > 0.01) {
-      final seconds = motion?.seconds;
-      final scale = size.width / StarField.frameWidth;
-      final halo = Paint()
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
-      final dot = Paint();
-      for (final star in StarField.stars) {
-        final o = star.opacityAt(seconds) * frame.stars;
-        if (o <= 0.01) continue;
-        final c = Offset(star.x * scale, star.y);
-        final r = star.size / 2;
-        halo.color = Colors.white.withValues(alpha: 0.6 * star.brightness * o);
-        canvas.drawCircle(c, r * 2.2, halo);
-        dot.color = Colors.white.withValues(alpha: o);
-        canvas.drawCircle(c, r, dot);
-      }
     }
 
     // Shade bands under text, when the ink needs them.
@@ -198,11 +240,19 @@ class SkyPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(SkyPainter old) =>
-      old.frame != frame ||
+      !_sameFrame(old.frame, frame) ||
       old.dark != dark ||
       old.grain != grain ||
-      old.motion?.still != motion?.still ||
       !_sameShades(old.shades, shades);
+
+  static bool _sameFrame(SkyFrame a, SkyFrame b) {
+    if (identical(a, b)) return true;
+    if (a.glow.alpha != b.glow.alpha || a.glow.rgb != b.glow.rgb) return false;
+    for (var i = 0; i < a.stops.length; i++) {
+      if (a.stops[i] != b.stops[i]) return false;
+    }
+    return true;
+  }
 
   static bool _sameShades(List<SkyShade> a, List<SkyShade> b) {
     if (a.length != b.length) return false;

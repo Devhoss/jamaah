@@ -599,3 +599,5 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 586 | `alertDone` | Done | تم |
 | 587 | `alertButtonSemantics` | {prayer} Adhan alert: {mode}. Change | تنبيه أذان {prayer}: {mode}. تغيير |
 | 588 | `rowIqamaNotSet` | Iqama not set | الإقامة غير محدّدة |
+| 589 | `sunLabelCombined` | {prayer} · {time} | {prayer} · {time} |
+| 590 | `placeNearCity` | Near {city} | قرب {city} |

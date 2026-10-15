@@ -650,6 +650,8 @@ AR = {
     "alertDone": 'تم',
     "alertButtonSemantics": 'تنبيه أذان {prayer}: {mode}. تغيير',
     "rowIqamaNotSet": 'الإقامة غير محدّدة',
+    "sunLabelCombined": '{prayer} · {time}',
+    "placeNearCity": 'قرب {city}',
 }
 
 

@@ -1924,4 +1924,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String alertButtonSemantics(String prayer, String mode) =>
       arabicDigits(super.alertButtonSemantics(prayer, mode));
+
+  @override
+  String sunLabelCombined(String prayer, String time) =>
+      arabicDigits(super.sunLabelCombined(prayer, time));
+
+  @override
+  String placeNearCity(String city) =>
+      arabicDigits(super.placeNearCity(city));
 }

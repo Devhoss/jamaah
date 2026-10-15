@@ -1090,5 +1090,9 @@
   "alertDone": "Done",
   "alertButtonSemantics": "{prayer} Adhan alert: {mode}. Change",
   "@alertButtonSemantics": {"placeholders": {"prayer": {"type": "String"}, "mode": {"type": "String"}}},
-  "rowIqamaNotSet": "Iqama not set"
+  "rowIqamaNotSet": "Iqama not set",
+  "sunLabelCombined": "{prayer} · {time}",
+  "@sunLabelCombined": {"placeholders": {"prayer": {"type": "String"}, "time": {"type": "String"}}},
+  "placeNearCity": "Near {city}",
+  "@placeNearCity": {"placeholders": {"city": {"type": "String"}}}
 }

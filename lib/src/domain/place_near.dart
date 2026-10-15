@@ -27,6 +27,11 @@ String? nearName({
   }
   if (best != null) return best;
   final parts = ianaZone.split('/');
-  if (parts.length < 2 || ianaZone.startsWith('device/')) return null;
+  // "Etc/GMT+8" names an offset, not a place.
+  if (parts.length < 2 ||
+      ianaZone.startsWith('device/') ||
+      ianaZone.startsWith('Etc/')) {
+    return null;
+  }
   return parts.last.replaceAll('_', ' ');
 }

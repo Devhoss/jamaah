@@ -160,6 +160,13 @@ Interpolation: find the two keyframes around `t`, `f = (t − a)/(b − a)`, smo
 **Dark theme:** after mixing, blend every stop toward #04050B by that keyframe’s “dark dim”
 amount (interpolated), and multiply the glow alpha by 0.6.
 
+*As built (owner, 2026-10-16):* the sRGB blend made a dark noon flat grey and sunrise/sunset
+brown, so dimming is perceptual (OKLCH): each stop’s lightness moves by the dim amount toward
+#04050B’s, and its hue and chroma turn by the same amount toward the top stop’s (the sky’s own
+colour), never passing through green; chroma is pulled in only where a colour would leave sRGB.
+A dark noon is deep blue, a dark sunrise or golden hour dusky rose. The Iqama ticket on a night
+sky in the dark theme is ink at 88% over the sky behind it (still solid, text still ≥ 4.5:1).
+
 ### 3.2 Ink that flips automatically
 
 ```
@@ -214,6 +221,10 @@ sky (2.6:1 for rows before sunrise, 2.3:1 for the hero at golden hour), so:
   Below the horizon the sun sits on the night arc at 28% opacity.
 - Prayer markers: 10 px ink dots with a soft glow; the selected one 16 px with a pulsing ring
   (2.4 s); the next prayer gets a quiet 4 px halo ring; Sunrise is a hollow ring.
+- Labels (owner, 2026-10-16): when the sun is within 48 px of the selected marker, one label
+  says both (“Dhuhr · 12:42 PM”). Otherwise each label takes the first spot around its point
+  (below/above, sides, corners, then a step further out) that touches no marker, no arc and
+  no other label.
 
 ### 3.5 Moon
 
@@ -230,8 +241,12 @@ hangs low in the west after Maghrib.
 
 ### 3.6 Performance and motion
 
-- One `AnimationController` drives twinkle/breathe/pulse. Pause it when the screen is not
+- One clock drives twinkle/breathe/pulse. Pause it when the screen is not
   visible (`TickerMode`) and when the app is in the background.
+  *As built (2026-10-16):* it ticks at 24 fps, and only the small layers that move (stars, the
+  sun’s halo, the selected marker’s pulse) repaint, each behind a `RepaintBoundary`; the
+  gradient, glow, shade and grain are a cached layer redrawn only when the minute or theme
+  changes.
 - `MediaQuery.disableAnimations` (reduce motion): no twinkle, pulse, breathe, figure-eight or
   spinner rotation; glides become instant.
 - Glides along the arc: ease-in-out cubic, duration `min(1200, 380 + 0.9 ms × minutes)`, the
@@ -252,6 +267,9 @@ Layout top to bottom:
 
 1. **Top bar on sky.** Place button (“Kuwait City ▾”, subline “Thu 15 Oct · 4 Jumada al-Awwal
    1448”) → location sheet. Right: `TravelSwitch`. (The settings gear moved to the nav.)
+   A place the phone found, with no name of its own, is “Near Kuwait City” (the nearest city
+   in the bundled list, offline); the Iqama ticket’s kicker keeps “IQAMA” in capitals and the
+   mosque’s name as typed.
 2. **SunPath**, interactive: drag anywhere on it (or arrow keys, Shift = 30 min) to look through
    the day; the sky, sun, moon, stars, hero and ticket follow. Label under the sun: “Now 1:59”,
    or the viewed time. Semantics: slider “Look through the day”, value text “4:12 PM, Asr”.
@@ -276,7 +294,9 @@ Layout top to bottom:
    quieter, never selectable as Next). Tapping a row glides the sun to that prayer. Each row has
    its own alert button → `AlertSheet`. “Next” tag on the next prayer. Iqama as “Iqama 3:09” or
    “Iqama not set”. List scrolls with no visible scroll bar when needed.
-7. **BottomNav.**
+7. **BottomNav.** On the sky the bar fades the sky’s bottom colour in behind itself (24 px
+   above its line), and Today’s scroll ends the bar’s height above the bottom, so rows never sit
+   on the bar.
 
 **Notes** (high-latitude rule moved a time, polar estimate, no times today, clock mismatch,
 reminders paused, in-flight hold): not drawn on the canvas. Rule: show at most two as single

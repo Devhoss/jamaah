@@ -55,7 +55,8 @@ class SkyInk {
     required this.contrast,
     this.muteAlpha = SkyInk.muteBaseAlpha,
     this.muteLargeAlpha = SkyInk.muteBaseAlpha,
-  });
+    SkyRgb? fill,
+  }) : fill = fill ?? ink;
 
   /// Light ink, on a dark sky.
   static final lightInk = SkyRgb.hex('#F5F3FA');
@@ -102,6 +103,13 @@ class SkyInk {
   /// The same for muted text of 24 px or more, which needs 3:1.
   final double muteLargeAlpha;
 
+  /// A solid box in [ink] (the Iqama ticket). In the dark theme, on a night
+  /// sky, it is ink at [darkFillAlpha] over the sky behind it, so it is not the
+  /// brightest thing on the screen (owner, 2026-10-16). Still solid.
+  final SkyRgb fill;
+
+  static const darkFillAlpha = 0.88;
+
   SkyRgba get mute => SkyRgba(ink, muteAlpha);
   SkyRgba get muteLarge => SkyRgba(ink, muteLargeAlpha);
   SkyRgba get line => SkyRgba(ink, lineAlpha);
@@ -129,9 +137,22 @@ class SkyInk {
     }
 
     final shaded = [for (final c in under) c.mix(shadeTone, alpha)];
+    final deep = useLight ? _deepOnLight(frame.stops[4], ink) : deepOnDarkInk;
+    var fill = ink;
+    if (frame.dark && useLight) {
+      final behind = _average(shaded);
+      var a = darkFillAlpha;
+      fill = behind.mix(ink, a);
+      // Softer, but text on it still keeps 4.5:1.
+      while (deep.contrastWith(fill) < 4.5 && a < 1) {
+        a = (a + 0.02).clamp(darkFillAlpha, 1.0);
+        fill = behind.mix(ink, a);
+      }
+    }
     return SkyInk(
       ink: ink,
-      deep: useLight ? _deepOnLight(frame.stops[4], ink) : deepOnDarkInk,
+      fill: fill,
+      deep: deep,
       isLight: useLight,
       shade: SkyRgba(shadeTone, alpha),
       contrast: worst,
@@ -160,7 +181,18 @@ class SkyInk {
   static const deepSoftBaseAlpha = 0.8;
 
   double get deepSoftAlpha =>
-      muteAlphaFor(deep, [ink], 4.5, base: deepSoftBaseAlpha);
+      muteAlphaFor(deep, [fill], 4.5, base: deepSoftBaseAlpha);
+
+  static SkyRgb _average(List<SkyRgb> colours) {
+    var r = 0.0, g = 0.0, b = 0.0;
+    for (final c in colours) {
+      r += c.r;
+      g += c.g;
+      b += c.b;
+    }
+    final n = colours.length;
+    return SkyRgb(r / n, g / n, b / n);
+  }
 
   /// The worst contrast of [ink] drawn at [alpha] over [under].
   static double worstMuted(SkyRgb ink, List<SkyRgb> under, double alpha) =>

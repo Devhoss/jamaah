@@ -50,9 +50,14 @@ void main() {
     ) async {
       final motion = await pumpScope(tester);
       expect(motion.still, isFalse);
-      expect(motion.animation.status, AnimationStatus.forward);
+      expect(motion.running, isTrue);
       await tester.pump(const Duration(seconds: 2));
       expect(motion.seconds, closeTo(2, 0.05));
+      // About 24 ticks a second, not one per display frame.
+      var ticks = 0;
+      motion.clock.addListener(() => ticks++);
+      await tester.pump(const Duration(seconds: 1));
+      expect(ticks, inInclusiveRange(23, 25));
     });
 
     testWidgets('reduce motion stops it: nothing twinkles or pulses', (
@@ -61,20 +66,24 @@ void main() {
       final motion = await pumpScope(tester, reduce: true);
       expect(motion.still, isTrue);
       expect(motion.seconds, isNull);
-      expect(motion.animation.isAnimating, isFalse);
+      expect(motion.running, isFalse);
       expect(tester.hasRunningAnimations, isFalse);
     });
 
     testWidgets('it stops in the background and starts again on return', (
       tester,
     ) async {
-      final motion = await pumpScope(tester);
+      await pumpScope(tester);
+      SkyMotion current() => tester.widget<SkyMotion>(find.byType(SkyMotion));
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pump();
-      expect(motion.animation.isAnimating, isFalse);
+      // A paused app draws no frames, so read the clock itself: it stops.
+      final paused = current().clock.value;
+      await tester.pump(const Duration(seconds: 2));
+      expect(current().clock.value, paused, reason: 'no ticks while hidden');
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
-      expect(motion.animation.isAnimating, isTrue);
+      expect(current().running, isTrue);
     });
 
     testWidgets('a hidden tab holds no running ticker', (tester) async {
@@ -84,7 +93,7 @@ void main() {
           child: SkyMotionScope(child: SizedBox()),
         ),
       );
-      expect(tester.hasRunningAnimations, isFalse);
+      expect(tester.widget<SkyMotion>(find.byType(SkyMotion)).running, isFalse);
     });
   });
 

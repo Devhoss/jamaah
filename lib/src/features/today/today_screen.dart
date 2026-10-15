@@ -280,18 +280,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     return _sky!;
   }
 
-  void _reportNav(SkyPalette rows) {
+  void _reportNav(SkyPalette rows, [Color? fade]) {
     final colors = BottomNavColors(
       ink: rows.ink,
       muted: rows.mute,
       line: rows.line,
       background: Colors.transparent,
+      fade: fade,
     );
     final last = _lastNav;
     if (last != null &&
         last.ink == colors.ink &&
         last.muted == colors.muted &&
-        last.line == colors.line) {
+        last.line == colors.line &&
+        last.fade == colors.fade) {
       return;
     }
     _lastNav = colors;
@@ -391,6 +393,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       if (mounted) _measure();
     });
 
+    final sunLabel = _view.moved
+        ? clock.time(LocalTime(shown.round() % 1440))
+        : l10n.sunNow(clock.parts(LocalTime(now.round())).clock);
     final arabic = Localizations.localeOf(context).languageCode == 'ar';
     String upper(String s) => arabic ? s : s.toUpperCase();
     final hijri = hijriFor(
@@ -415,7 +420,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     return AnimatedSkyPalette(
       palette: SkyPalette.of(inks.rows),
       builder: (context, rowsPalette) {
-        _reportNav(rowsPalette);
+        // The bar fades in the sky at the bottom, shade included.
+        _reportNav(
+          rowsPalette,
+          Color(inks.rows.shade.over(frame.colorAt(1)).argb),
+        );
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: _overlayFor(inks.top.isLight),
           child: SkyMotionScope(
@@ -449,7 +458,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                             builder: (context, p) => KeyedSubtree(
                               key: _topKey,
                               child: TodayTopBar(
-                                place: placeLabel(l10n, place),
+                                place: placeShortLabel(l10n, place),
                                 subline: _subline(
                                   context,
                                   l10n,
@@ -489,14 +498,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                   labelMuteAlpha: inks.label.muteAlpha,
                                 ),
                                 moon: MoonPhase.fromHijriDay(hijri.hDay),
-                                sunLabel: _view.moved
-                                    ? clock.time(
-                                        LocalTime(shown.round() % 1440),
-                                      )
-                                    : l10n.sunNow(
-                                        clock
-                                            .parts(LocalTime(now.round()))
-                                            .clock,
+                                sunLabel: sunLabel,
+                                combinedLabel: selection == null
+                                    ? null
+                                    : l10n.sunLabelCombined(
+                                        prayerNameOn(
+                                          l10n,
+                                          selection.prayer,
+                                          day.day,
+                                        ),
+                                        sunLabel,
                                       ),
                                 labelStyle: HorizonTheme.typeOf(context).kicker
                                     .copyWith(

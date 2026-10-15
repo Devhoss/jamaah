@@ -2385,4 +2385,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rowIqamaNotSet => 'الإقامة غير محدّدة';
+
+  @override
+  String sunLabelCombined(String prayer, String time) {
+    return '$prayer · $time';
+  }
+
+  @override
+  String placeNearCity(String city) {
+    return 'قرب $city';
+  }
 }

@@ -65,13 +65,47 @@ void main() {
       );
     });
 
-    test('dark dims every stop toward the night tone and the glow to 60%', () {
+    test('dark dims every stop and the glow to 60%', () {
       final light = SkyModel.reference.frameAt(689);
       final dark = SkyModel.reference.frameAt(689, dark: true);
       for (var i = 0; i < 5; i++) {
-        expect(dark.stops[i], light.stops[i].mix(SkyModel.nightTone, 0.68));
+        expect(dark.stops[i].luminance, lessThan(light.stops[i].luminance));
       }
       expect(dark.glow.alpha, closeTo(light.glow.alpha * 0.6, 1e-9));
+    });
+
+    test('a dark noon is deep blue, not grey (dimmed in OKLCH)', () {
+      final dark = SkyModel.reference.frameAt(689, dark: true);
+      for (final c in dark.stops) {
+        expect(c.b, greaterThan(c.r + 30), reason: c.hex);
+        expect(c.b, greaterThan(c.g), reason: c.hex);
+      }
+    });
+
+    test('dark daytime is never grey, brown or green', () {
+      for (final m in [342.0, 430.0, 689.0, 889.0, 990.0, 1035.0]) {
+        final dark = SkyModel.reference.frameAt(m, dark: true);
+        for (final c in dark.stops) {
+          final hi = [c.r, c.g, c.b].reduce((a, b) => a > b ? a : b);
+          final lo = [c.r, c.g, c.b].reduce((a, b) => a < b ? a : b);
+          expect(hi - lo, greaterThan(18), reason: 'grey at $m: ${c.hex}');
+          expect(c.g, lessThan(hi), reason: 'green at $m: ${c.hex}');
+          // Brown is a dark orange: red over green over blue, and dull.
+          final brown = c.r > c.g && c.g > c.b && c.b < 0.6 * c.r;
+          expect(brown, isFalse, reason: 'brown at $m: ${c.hex}');
+        }
+      }
+    });
+
+    test('night is the same in both themes, give or take its dimming', () {
+      final light = SkyModel.reference.frameAt(0);
+      final dark = SkyModel.reference.frameAt(0, dark: true);
+      for (var i = 0; i < 5; i++) {
+        expect(
+          (dark.stops[i].luminance - light.stops[i].luminance).abs(),
+          lessThan(0.01),
+        );
+      }
     });
 
     test('the glow is strongest at the horizon and gone far from it', () {

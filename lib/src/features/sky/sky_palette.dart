@@ -11,7 +11,8 @@ class SkyPalette {
     this.muteAlpha = SkyInk.muteBaseAlpha,
     this.muteLargeAlpha = SkyInk.muteBaseAlpha,
     this.deepSoftAlpha = SkyInk.deepSoftBaseAlpha,
-  });
+    Color? fill,
+  }) : fill = fill ?? ink;
 
   factory SkyPalette.of(SkyInk ink) => SkyPalette(
     ink: Color(ink.ink.argb),
@@ -19,6 +20,7 @@ class SkyPalette {
     muteAlpha: ink.muteAlpha,
     muteLargeAlpha: ink.muteLargeAlpha,
     deepSoftAlpha: ink.deepSoftAlpha,
+    fill: Color(ink.fill.argb),
   );
 
   /// Text and marks on the sky.
@@ -38,6 +40,9 @@ class SkyPalette {
   /// where needed to keep 4.5:1.
   final double deepSoftAlpha;
 
+  /// A solid box in ink (the Iqama ticket); softened in the dark theme.
+  final Color fill;
+
   Color get deepSoft => deep.withValues(alpha: deepSoftAlpha);
 
   Color get mute => ink.withValues(alpha: muteAlpha);
@@ -53,6 +58,7 @@ class SkyPalette {
     muteLargeAlpha:
         a.muteLargeAlpha + (b.muteLargeAlpha - a.muteLargeAlpha) * t,
     deepSoftAlpha: a.deepSoftAlpha + (b.deepSoftAlpha - a.deepSoftAlpha) * t,
+    fill: Color.lerp(a.fill, b.fill, t)!,
   );
 
   @override
@@ -62,11 +68,12 @@ class SkyPalette {
       other.deep == deep &&
       other.muteAlpha == muteAlpha &&
       other.muteLargeAlpha == muteLargeAlpha &&
-      other.deepSoftAlpha == deepSoftAlpha;
+      other.deepSoftAlpha == deepSoftAlpha &&
+      other.fill == fill;
 
   @override
   int get hashCode =>
-      Object.hash(ink, deep, muteAlpha, muteLargeAlpha, deepSoftAlpha);
+      Object.hash(ink, deep, muteAlpha, muteLargeAlpha, deepSoftAlpha, fill);
 }
 
 class SkyPaletteTween extends Tween<SkyPalette> {

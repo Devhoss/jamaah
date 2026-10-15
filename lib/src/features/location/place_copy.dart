@@ -11,6 +11,21 @@ String placeLabel(AppLocalizations l10n, Place place) =>
     place.userName ??
     (place.fromDevice ? l10n.locationCurrentPlace : place.displayName);
 
+/// The place as Today's top bar names it (owner, 2026-10-16): the user's own
+/// name, a chosen city, or for a place the phone found "Near Kuwait City",
+/// from the bundled city list with no network (see place_near.dart); only
+/// when nothing nearby is known, "Current location".
+String placeShortLabel(AppLocalizations l10n, Place place) {
+  if (place.userName case final name?) return name;
+  if (!place.fromDevice) return place.displayName;
+  final near = nearName(
+    latitude: place.latitude,
+    longitude: place.longitude,
+    ianaZone: place.ianaZone,
+  );
+  return near == null ? l10n.locationCurrentPlace : l10n.placeNearCity(near);
+}
+
 String placeFailureMessage(AppLocalizations l10n, PlaceFailure failure) =>
     switch (failure) {
       PlaceFailure.denied => l10n.locationDenied,

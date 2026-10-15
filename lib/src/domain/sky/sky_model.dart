@@ -62,7 +62,11 @@ class SkyFrame {
     required this.stops,
     required this.glow,
     required this.stars,
+    this.dark = false,
   });
+
+  /// Drawn for the dark theme.
+  final bool dark;
 
   /// Five colours at [SkyModel.stopPositions] (fractions of screen height).
   final List<SkyRgb> stops;
@@ -235,11 +239,14 @@ class SkyModel {
     f = f.clamp(0.0, 1.0);
     f = f * f * (3 - 2 * f);
     final dim = a.look.darkDim + (b.look.darkDim - a.look.darkDim) * f;
+    // The sky's own colour, above the horizon, lends its hue to the pale
+    // lower stops when the dark theme dims them.
+    final top = a.look.stops[0].mix(b.look.stops[0], f);
     final stops = [
       for (var s = 0; s < a.look.stops.length; s++)
         () {
           final c = a.look.stops[s].mix(b.look.stops[s], f);
-          return dark ? c.mix(nightTone, dim) : c;
+          return dark ? c.dimToward(nightTone, dim, skyHue: top) : c;
         }(),
     ];
     final glow = a.look.glow.mix(b.look.glow, f);
@@ -247,6 +254,7 @@ class SkyModel {
       stops: List.unmodifiable(stops),
       glow: dark ? SkyRgba(glow.rgb, glow.alpha * darkGlowFactor) : glow,
       stars: a.look.stars + (b.look.stars - a.look.stars) * f,
+      dark: dark,
     );
   }
 

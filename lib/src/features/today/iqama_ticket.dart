@@ -95,7 +95,10 @@ class IqamaTicket extends StatelessWidget {
           child: Container(
             constraints: const BoxConstraints(minHeight: minHeight),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(color: palette.ink, borderRadius: radius),
+            decoration: BoxDecoration(
+              color: palette.fill,
+              borderRadius: radius,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -103,9 +106,11 @@ class IqamaTicket extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        _upper(context, l10n.ticketKicker(set.mosque)),
-                        style: type.kicker.copyWith(color: soft),
+                      _kicker(
+                        context,
+                        l10n,
+                        set.mosque,
+                        type.kicker.copyWith(color: soft),
                       ),
                       Text.rich(
                         TextSpan(
@@ -186,9 +191,11 @@ class IqamaTicket extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            _upper(context, l10n.ticketKicker(unset.mosque)),
-                            style: type.kicker.copyWith(color: palette.mute),
+                          _kicker(
+                            context,
+                            l10n,
+                            unset.mosque,
+                            type.kicker.copyWith(color: palette.mute),
                           ),
                           Text(
                             l10n.notConfigured,
@@ -283,11 +290,32 @@ class IqamaTicket extends StatelessWidget {
     }
   }
 
-  /// Latin kickers are set in capitals; Arabic has no case.
-  static String _upper(BuildContext context, String s) =>
-      Localizations.localeOf(context).languageCode == 'ar'
-      ? s
-      : s.toUpperCase();
+  /// "IQAMA · Masjid al-Nour": the label in capitals, the mosque's name as
+  /// the user typed it, with ordinary letter spacing so a long name neither
+  /// shouts nor wraps early (owner, 2026-10-16). Arabic has no case.
+  static Widget _kicker(
+    BuildContext context,
+    AppLocalizations l10n,
+    String mosque,
+    TextStyle style,
+  ) {
+    const mark = '\u0000';
+    final arabic = Localizations.localeOf(context).languageCode == 'ar';
+    final template = l10n.ticketKicker(mark);
+    final parts = (arabic ? template : template.toUpperCase()).split(mark);
+    return Text.rich(
+      TextSpan(
+        style: style,
+        children: [
+          TextSpan(text: parts.first),
+          TextSpan(text: mosque, style: style.copyWith(letterSpacing: 0.2)),
+          if (parts.length > 1) TextSpan(text: parts.sublist(1).join()),
+        ],
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
 }
 
 /// A 1.5 px dashed rounded outline: "not configured" is a shape plus words,
