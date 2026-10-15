@@ -2327,4 +2327,62 @@ class AppLocalizationsAr extends AppLocalizations {
   String ticketUnsetSemantics(String mosque) {
     return 'الإقامة في $mosque: غير محدّدة. حدّد الوقت';
   }
+
+  @override
+  String get alertShortFull => 'كامل';
+
+  @override
+  String get alertShortShort => 'قصير';
+
+  @override
+  String get alertShortStandard => 'عادي';
+
+  @override
+  String get alertShortSilent => 'صامت';
+
+  @override
+  String get alertShortOff => 'إيقاف';
+
+  @override
+  String alertSheetTitle(String prayer) {
+    return 'تنبيه $prayer';
+  }
+
+  @override
+  String alertSheetAdhan(String time) {
+    return 'الأذان $time';
+  }
+
+  @override
+  String get alertGroupSound => 'تنبيه بصوت';
+
+  @override
+  String get alertGroupQuiet => 'تنبيه بلا صوت';
+
+  @override
+  String get alertDescSilent => 'يظهر في الإشعارات بلا صوت';
+
+  @override
+  String get alertDescOff => 'لا إشعار على الإطلاق';
+
+  @override
+  String alertDefaultMark(String label) {
+    return '$label · الافتراضي';
+  }
+
+  @override
+  String alertDefaultSuffix(String label) {
+    return '$label · الافتراضي';
+  }
+
+  @override
+  String get alertDone => 'تم';
+
+  @override
+  String alertButtonSemantics(String prayer, String mode) {
+    return 'تنبيه أذان $prayer: $mode. تغيير';
+  }
+
+  @override
+  String get rowIqamaNotSet => 'الإقامة غير محدّدة';
 }

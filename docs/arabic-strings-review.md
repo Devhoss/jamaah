@@ -583,3 +583,19 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 570 | `ticketJumuahNotSet` | Jumu’ah time not set · Dhuhr Iqama {time} | لم يُحدَّد وقت الجمعة · إقامة الظهر {time} |
 | 571 | `ticketSemantics` | Iqama at {mosque}: {time}, {relative}. {rule}. {reminder}. | الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}. |
 | 572 | `ticketUnsetSemantics` | Iqama at {mosque}: not configured. Set time | الإقامة في {mosque}: غير محدّدة. حدّد الوقت |
+| 573 | `alertShortFull` | Full | كامل |
+| 574 | `alertShortShort` | Short | قصير |
+| 575 | `alertShortStandard` | Standard | عادي |
+| 576 | `alertShortSilent` | Silent | صامت |
+| 577 | `alertShortOff` | Off | إيقاف |
+| 578 | `alertSheetTitle` | {prayer} alert | تنبيه {prayer} |
+| 579 | `alertSheetAdhan` | Adhan {time} | الأذان {time} |
+| 580 | `alertGroupSound` | Notify with sound | تنبيه بصوت |
+| 581 | `alertGroupQuiet` | Notify without sound | تنبيه بلا صوت |
+| 582 | `alertDescSilent` | Shown in the notification shade, no sound | يظهر في الإشعارات بلا صوت |
+| 583 | `alertDescOff` | No notification at all | لا إشعار على الإطلاق |
+| 584 | `alertDefaultMark` | {label} · Default | {label} · الافتراضي |
+| 585 | `alertDefaultSuffix` | {label} · default | {label} · الافتراضي |
+| 586 | `alertDone` | Done | تم |
+| 587 | `alertButtonSemantics` | {prayer} Adhan alert: {mode}. Change | تنبيه أذان {prayer}: {mode}. تغيير |
+| 588 | `rowIqamaNotSet` | Iqama not set | الإقامة غير محدّدة |

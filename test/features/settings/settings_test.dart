@@ -202,7 +202,9 @@ void main() {
         await tester.pageBack();
         await tester.pumpAndSettle();
         expect(
-          find.text(t.settingsAlertOn(t.soundModeStandard)),
+          find.text(
+            t.settingsAlertOn(t.alertDefaultSuffix(t.soundModeStandard)),
+          ),
           findsOneWidget,
         );
       },

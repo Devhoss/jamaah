@@ -481,7 +481,11 @@ String alertSummary(
   Prayer prayer,
 ) {
   final alert = alerts.alertFor(prayer);
-  final sound = soundModeName(l10n, alerts.soundModeFor(prayer));
+  final name = soundModeName(l10n, alerts.soundModeFor(prayer));
+  // A prayer that follows the default says so (owner, 2026-10-15).
+  final sound = alert.soundModeOverride == null
+      ? l10n.alertDefaultSuffix(name)
+      : name;
   final before = alert.preAdhanMinutes;
   if (alert.enabled && before != null) {
     return l10n.settingsAlertOnWithReminder(sound, before);

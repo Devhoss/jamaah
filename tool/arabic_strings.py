@@ -634,6 +634,22 @@ AR = {
     "ticketJumuahNotSet": 'لم يُحدَّد وقت الجمعة · إقامة الظهر {time}',
     "ticketSemantics": 'الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}.',
     "ticketUnsetSemantics": 'الإقامة في {mosque}: غير محدّدة. حدّد الوقت',
+    "alertShortFull": 'كامل',
+    "alertShortShort": 'قصير',
+    "alertShortStandard": 'عادي',
+    "alertShortSilent": 'صامت',
+    "alertShortOff": 'إيقاف',
+    "alertSheetTitle": 'تنبيه {prayer}',
+    "alertSheetAdhan": 'الأذان {time}',
+    "alertGroupSound": 'تنبيه بصوت',
+    "alertGroupQuiet": 'تنبيه بلا صوت',
+    "alertDescSilent": 'يظهر في الإشعارات بلا صوت',
+    "alertDescOff": 'لا إشعار على الإطلاق',
+    "alertDefaultMark": '{label} · الافتراضي',
+    "alertDefaultSuffix": '{label} · الافتراضي',
+    "alertDone": 'تم',
+    "alertButtonSemantics": 'تنبيه أذان {prayer}: {mode}. تغيير',
+    "rowIqamaNotSet": 'الإقامة غير محدّدة',
 }
 
 

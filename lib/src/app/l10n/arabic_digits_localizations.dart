@@ -1319,6 +1319,39 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get ticketNoMosque => arabicDigits(super.ticketNoMosque);
 
   @override
+  String get alertShortFull => arabicDigits(super.alertShortFull);
+
+  @override
+  String get alertShortShort => arabicDigits(super.alertShortShort);
+
+  @override
+  String get alertShortStandard => arabicDigits(super.alertShortStandard);
+
+  @override
+  String get alertShortSilent => arabicDigits(super.alertShortSilent);
+
+  @override
+  String get alertShortOff => arabicDigits(super.alertShortOff);
+
+  @override
+  String get alertGroupSound => arabicDigits(super.alertGroupSound);
+
+  @override
+  String get alertGroupQuiet => arabicDigits(super.alertGroupQuiet);
+
+  @override
+  String get alertDescSilent => arabicDigits(super.alertDescSilent);
+
+  @override
+  String get alertDescOff => arabicDigits(super.alertDescOff);
+
+  @override
+  String get alertDone => arabicDigits(super.alertDone);
+
+  @override
+  String get rowIqamaNotSet => arabicDigits(super.rowIqamaNotSet);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1871,4 +1904,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String ticketUnsetSemantics(String mosque) =>
       arabicDigits(super.ticketUnsetSemantics(mosque));
+
+  @override
+  String alertSheetTitle(String prayer) =>
+      arabicDigits(super.alertSheetTitle(prayer));
+
+  @override
+  String alertSheetAdhan(String time) =>
+      arabicDigits(super.alertSheetAdhan(time));
+
+  @override
+  String alertDefaultMark(String label) =>
+      arabicDigits(super.alertDefaultMark(label));
+
+  @override
+  String alertDefaultSuffix(String label) =>
+      arabicDigits(super.alertDefaultSuffix(label));
+
+  @override
+  String alertButtonSemantics(String prayer, String mode) =>
+      arabicDigits(super.alertButtonSemantics(prayer, mode));
 }

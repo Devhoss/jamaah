@@ -3543,6 +3543,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Iqama at {mosque}: not configured. Set time'**
   String ticketUnsetSemantics(String mosque);
+
+  /// No description provided for @alertShortFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get alertShortFull;
+
+  /// No description provided for @alertShortShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get alertShortShort;
+
+  /// No description provided for @alertShortStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get alertShortStandard;
+
+  /// No description provided for @alertShortSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent'**
+  String get alertShortSilent;
+
+  /// No description provided for @alertShortOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get alertShortOff;
+
+  /// No description provided for @alertSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} alert'**
+  String alertSheetTitle(String prayer);
+
+  /// No description provided for @alertSheetAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan {time}'**
+  String alertSheetAdhan(String time);
+
+  /// No description provided for @alertGroupSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify with sound'**
+  String get alertGroupSound;
+
+  /// No description provided for @alertGroupQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify without sound'**
+  String get alertGroupQuiet;
+
+  /// No description provided for @alertDescSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown in the notification shade, no sound'**
+  String get alertDescSilent;
+
+  /// No description provided for @alertDescOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No notification at all'**
+  String get alertDescOff;
+
+  /// No description provided for @alertDefaultMark.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} · Default'**
+  String alertDefaultMark(String label);
+
+  /// No description provided for @alertDefaultSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} · default'**
+  String alertDefaultSuffix(String label);
+
+  /// No description provided for @alertDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get alertDone;
+
+  /// No description provided for @alertButtonSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Adhan alert: {mode}. Change'**
+  String alertButtonSemantics(String prayer, String mode);
+
+  /// No description provided for @rowIqamaNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama not set'**
+  String get rowIqamaNotSet;
 }
 
 class _AppLocalizationsDelegate
