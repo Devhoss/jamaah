@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'horizon_tokens.dart';
 import 'tokens.dart';
 
 /// Builds the light and dark themes from the tokens in [AppColors]/[AppType].
 ///
-/// The prototype uses a plain system sans-serif; we keep the platform default so
-/// no font assets are bundled.
+/// Text uses the bundled Horizon UI font (Instrument Sans, Arabic falling back
+/// to Noto Sans Arabic). The Horizon surface tokens and type scale ride along as
+/// [HorizonTheme]; the colours here are still the prototype's until each screen
+/// is rebuilt.
 abstract final class AppTheme {
   static ThemeData light() => _base(
     colorScheme: const ColorScheme.light(
@@ -34,6 +37,7 @@ abstract final class AppTheme {
     line: AppColors.lightLine,
     sage: AppColors.lightSage,
     brightness: Brightness.light,
+    horizon: HorizonTheme.light,
   );
 
   static ThemeData dark() => _base(
@@ -63,6 +67,7 @@ abstract final class AppTheme {
     line: AppColors.darkLine,
     sage: AppColors.darkSage,
     brightness: Brightness.dark,
+    horizon: HorizonTheme.dark,
   );
 
   static ThemeData _base({
@@ -74,9 +79,12 @@ abstract final class AppTheme {
     required Color line,
     required Color sage,
     required Brightness brightness,
+    required HorizonTheme horizon,
   }) {
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: HorizonFonts.uiFamily,
+      fontFamilyFallback: HorizonFonts.uiFallback,
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: bg,
@@ -92,14 +100,14 @@ abstract final class AppTheme {
       splashColor: sage.withValues(alpha: 0.4),
       highlightColor: sage.withValues(alpha: 0.3),
       textTheme: _textTheme(base.textTheme, ink, muted),
-      extensions: [AppInk(muted: muted, sage: sage)],
+      extensions: [AppInk(muted: muted, sage: sage), horizon],
       appBarTheme: AppBarTheme(
         backgroundColor: bg,
         foregroundColor: ink,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
+        titleTextStyle: _ui.copyWith(
           color: ink,
           fontSize: AppType.titleSize,
           fontWeight: FontWeight.w600,
@@ -120,7 +128,7 @@ abstract final class AppTheme {
         height: 56 + AppSpace.sm,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         labelTextStyle: WidgetStatePropertyAll(
-          TextStyle(fontSize: AppType.bodySize, color: muted),
+          _ui.copyWith(fontSize: AppType.bodySize, color: muted),
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
@@ -146,7 +154,7 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: _ui.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -158,7 +166,7 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: _ui.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -172,7 +180,7 @@ abstract final class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: ink,
-        contentTextStyle: TextStyle(color: bg),
+        contentTextStyle: _ui.copyWith(color: bg),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
@@ -180,6 +188,12 @@ abstract final class AppTheme {
       ),
     );
   }
+
+  /// Explicit text styles replace the theme's, so they name the UI font too.
+  static const _ui = TextStyle(
+    fontFamily: HorizonFonts.uiFamily,
+    fontFamilyFallback: HorizonFonts.uiFallback,
+  );
 
   static OutlineInputBorder _inputBorder(Color color, {double width = 1}) =>
       OutlineInputBorder(

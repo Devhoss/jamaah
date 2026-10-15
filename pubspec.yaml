@@ -85,6 +85,41 @@ flutter:
     - assets/audio/short/
     - assets/audio/chime/
 
+  # Horizon type (spec §2.1): static weights cut by tool/make_font_instances.py.
+  # Source and licence: docs/font-licence.md.
+  fonts:
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/Fraunces-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Fraunces-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Fraunces-Italic.ttf
+          weight: 400
+          style: italic
+    - family: InstrumentSans
+      fonts:
+        - asset: assets/fonts/InstrumentSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/InstrumentSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/InstrumentSans-SemiBold.ttf
+          weight: 600
+    - family: NotoNaskhArabic
+      fonts:
+        - asset: assets/fonts/NotoNaskhArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoNaskhArabic-SemiBold.ttf
+          weight: 600
+    - family: NotoSansArabic
+      fonts:
+        - asset: assets/fonts/NotoSansArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansArabic-SemiBold.ttf
+          weight: 600
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
