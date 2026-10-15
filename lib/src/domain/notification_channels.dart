@@ -116,7 +116,12 @@ ChannelSpec _reminderChannel(
   String prefix,
   ChannelGroup group,
 ) {
-  final reminder = n.reminderSound ?? ReminderSound.chime;
+  // The user's own sound is played by the app; on a channel it is the chime,
+  // the same channel as the chime itself.
+  final reminder = switch (n.reminderSound ?? ReminderSound.chime) {
+    ReminderSound.custom => ReminderSound.chime,
+    final other => other,
+  };
   final sound = switch (reminder) {
     ReminderSound.chime => ChannelSound.chime,
     ReminderSound.hayya => ChannelSound.hayya,

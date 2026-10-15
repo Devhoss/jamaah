@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../domain/adhan_alerts.dart';
 import '../domain/adhan_recordings.dart';
+import '../domain/custom_sounds.dart';
 import '../domain/extra_times.dart';
 import '../domain/hijri.dart';
 import '../domain/notification_plan.dart';
@@ -91,6 +94,7 @@ class AppSettingsSnapshot {
     this.travel = const TravelSettings(),
     this.jamaahReminders = const JamaahReminderSettings(),
     this.extraTimes = const ExtraTimesSettings(),
+    this.customSounds = const [],
     this.activeMosqueId,
     this.location,
     this.placeCheckedAt,
@@ -128,6 +132,9 @@ class AppSettingsSnapshot {
 
   /// Imsak, Duha and the last third of the night: how, and which are shown.
   final ExtraTimesSettings extraTimes;
+
+  /// The sounds the user added from their phone, in the order added.
+  final List<CustomSound> customSounds;
 
   /// Mosque whose Iqama schedule drives reminders. Null until the user picks one.
   final String? activeMosqueId;
@@ -169,6 +176,7 @@ class SettingsRepository {
     final offsets = await _db.select(_db.prayerOffsets).get();
     final alerts = await _db.select(_db.adhanAlertRows).get();
 
+    final customSounds = _customSounds(values);
     return AppSettingsSnapshot(
       calculationMethod: CalculationMethod.fromStorageKey(
         values[SettingKeys.calculationMethod],
@@ -230,7 +238,12 @@ class SettingsRepository {
         ),
         vibrate: values[SettingKeys.jamaahReminderVibrate] != 'false',
         ringInSilent: values[SettingKeys.jamaahReminderRingInSilent] == 'true',
+        customSound: _soundById(
+          customSounds,
+          values[SettingKeys.jamaahReminderCustomSound],
+        ),
       ),
+      customSounds: customSounds,
       extraTimes: ExtraTimesSettings(
         imsakMinutes: clampImsakMinutes(
           int.tryParse(values[SettingKeys.extraImsakMinutes] ?? '') ?? 10,
@@ -379,6 +392,10 @@ class SettingsRepository {
         await _put(SettingKeys.adhanShortClip, alerts.shortAdhan.name);
         for (final prayer in Prayer.adhanPrayers) {
           final alert = alerts.alertFor(prayer);
+          await _put(
+            '${SettingKeys.adhanRecordingPrefix}${prayer.name}',
+            alert.recording ?? '',
+          );
           final row = AdhanAlertRowsCompanion.insert(
             prayer: prayer.name,
             enabled: Value(alert.enabled),
@@ -419,7 +436,65 @@ class SettingsRepository {
           SettingKeys.jamaahReminderRingInSilent,
           '${reminders.ringInSilent}',
         );
+        await _put(
+          SettingKeys.jamaahReminderCustomSound,
+          reminders.customSound?.id ?? '',
+        );
       });
+
+  /// Adds a sound the user picked (its file already copied into the app).
+  Future<void> addCustomSound(CustomSound sound) => _db.transaction(() async {
+    final all = _customSounds(await _values());
+    await _putSounds([...all.where((s) => s.id != sound.id), sound]);
+  });
+
+  Future<void> renameCustomSound(String id, String name) =>
+      _db.transaction(() async {
+        final all = _customSounds(await _values());
+        await _putSounds([
+          for (final s in all) s.id == id ? s.copyWith(name: name.trim()) : s,
+        ]);
+      });
+
+  /// Removes a sound and takes it off everything that used it: the recording
+  /// for every prayer goes back to the bundled default, a prayer's own goes
+  /// back to "same as in Settings", and the reminder to the chime. Returns
+  /// the sound, so the caller can delete its file.
+  Future<CustomSound?> deleteCustomSound(String id) =>
+      _db.transaction(() async {
+        final values = await _values();
+        final all = _customSounds(values);
+        final gone = _soundById(all, id);
+        await _putSounds([...all.where((s) => s.id != id)]);
+        if (values[SettingKeys.adhanFullRecording] == id) {
+          await _put(SettingKeys.adhanFullRecording, kDefaultAdhanRecording);
+        }
+        for (final prayer in Prayer.adhanPrayers) {
+          final key = '${SettingKeys.adhanRecordingPrefix}${prayer.name}';
+          if (values[key] == id) await _put(key, '');
+        }
+        if (values[SettingKeys.jamaahReminderCustomSound] == id) {
+          await _put(SettingKeys.jamaahReminderCustomSound, '');
+          if (values[SettingKeys.jamaahReminderSound] ==
+              ReminderSound.custom.name) {
+            await _put(
+              SettingKeys.jamaahReminderSound,
+              ReminderSound.chime.name,
+            );
+          }
+        }
+        return gone;
+      });
+
+  Future<Map<String, String?>> _values() async => {
+    for (final row in await _db.select(_db.appSettings).get())
+      row.key: row.value,
+  };
+
+  Future<void> _putSounds(List<CustomSound> sounds) => _put(
+    SettingKeys.customSounds,
+    jsonEncode([for (final s in sounds) s.toJson()]),
+  );
 
   /// The extra times' minutes, and which are shown and alerted.
   Future<void> saveExtraTimes(ExtraTimesSettings extra) =>
@@ -525,9 +600,13 @@ class SettingsRepository {
         values[SettingKeys.adhanDefaultSoundMode],
       ),
       fullScreen: values[SettingKeys.adhanFullScreen] == 'true',
-      fullRecording: adhanRecordingById(
-        values[SettingKeys.adhanFullRecording],
-      ).id,
+      // A custom id is kept as it is: if its sound was deleted, the bundled
+      // default plays (resolveRecording).
+      fullRecording: switch (values[SettingKeys.adhanFullRecording]) {
+        final id? when isCustomSoundId(id) => id,
+        final id => adhanRecordingById(id).id,
+      },
+      customRecordings: _customSounds(values),
       shortAdhan: _enumOrDefault(
         ShortAdhan.values,
         values[SettingKeys.adhanShortClip],
@@ -549,6 +628,11 @@ class SettingsRepository {
                 _ => null,
               },
               ringInSilent: row.ringInSilent,
+              recording: switch (values[
+                  '${SettingKeys.adhanRecordingPrefix}${prayer.name}']) {
+                final id? when id.isNotEmpty => id,
+                _ => null,
+              },
               preAdhanRingInSilent: row.preAdhanRingInSilent,
             ),
       },
@@ -612,4 +696,25 @@ Set<ExtraTime> _extraSet(String? stored, Set<ExtraTime> fallback) {
   return {
     for (final name in stored.split(',')) ?ExtraTime.values.asNameMap()[name],
   };
+}
+
+/// The stored list of the user's own sounds; an unreadable one reads as none.
+List<CustomSound> _customSounds(Map<String, String?> values) {
+  final raw = values[SettingKeys.customSounds];
+  if (raw == null || raw.isEmpty) return const [];
+  try {
+    return [
+      for (final item in jsonDecode(raw) as List<Object?>)
+        CustomSound.fromJson((item! as Map).cast<String, Object?>()),
+    ];
+  } on Object {
+    return const [];
+  }
+}
+
+CustomSound? _soundById(List<CustomSound> sounds, String? id) {
+  for (final s in sounds) {
+    if (s.id == id) return s;
+  }
+  return null;
 }

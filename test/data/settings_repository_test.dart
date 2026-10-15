@@ -6,6 +6,7 @@ import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/custom_sounds.dart';
 import 'package:jamaah/src/domain/extra_times.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/prayer_times_parameters.dart';
@@ -616,5 +617,77 @@ void main() {
     final read = (await settings.read()).adhanAlerts.alertFor(Prayer.maghrib);
     expect(read.preAdhanRingInSilent, isTrue);
     expect(read.ringInSilent, isFalse);
+  });
+
+  group('your own sounds (2026-10-15)', () {
+    const fajrAdhan = CustomSound(
+      id: 'custom:a1',
+      name: 'Fajr Adhan',
+      path: '/files/sounds/a1.mp3',
+    );
+    const bell = CustomSound(
+      id: 'custom:b2',
+      name: 'Bell',
+      path: '/files/sounds/b2.ogg',
+    );
+
+    test('are kept, renamed, and offered to the alerts', () async {
+      await settings.addCustomSound(fajrAdhan);
+      await settings.addCustomSound(bell);
+      await settings.renameCustomSound(bell.id, 'Soft bell');
+      final s = await settings.read();
+      expect(s.customSounds.map((c) => c.name), ['Fajr Adhan', 'Soft bell']);
+      expect(s.adhanAlerts.customRecordings, s.customSounds);
+    });
+
+    test("a prayer's own recording and the reminder's sound are stored", () async {
+      await settings.addCustomSound(fajrAdhan);
+      await settings.addCustomSound(bell);
+      final alerts = (await settings.read()).adhanAlerts.withAlert(
+        Prayer.fajr,
+        AdhanAlert(enabled: true, recording: fajrAdhan.id),
+      );
+      await settings.saveAdhanAlerts(alerts);
+      await settings.saveJamaahReminders(
+        const JamaahReminderSettings(
+          sound: ReminderSound.custom,
+          customSound: bell,
+        ),
+      );
+      final s = await settings.read();
+      expect(s.adhanAlerts.alertFor(Prayer.fajr).recording, fajrAdhan.id);
+      expect(s.adhanAlerts.alertFor(Prayer.dhuhr).recording, isNull);
+      expect(s.jamaahReminders.customSound, bell);
+      expect(s.jamaahReminders.customSoundPath, bell.path);
+    });
+
+    test('deleting one takes it off everything that used it', () async {
+      await settings.addCustomSound(fajrAdhan);
+      await settings.addCustomSound(bell);
+      await settings.saveAdhanAlerts(
+        (await settings.read()).adhanAlerts
+            .copyWith(fullRecording: fajrAdhan.id)
+            .withAlert(
+              Prayer.fajr,
+              AdhanAlert(enabled: true, recording: fajrAdhan.id),
+            ),
+      );
+      await settings.saveJamaahReminders(
+        const JamaahReminderSettings(
+          sound: ReminderSound.custom,
+          customSound: bell,
+        ),
+      );
+
+      final removed = await settings.deleteCustomSound(fajrAdhan.id);
+      expect(removed, fajrAdhan);
+      await settings.deleteCustomSound(bell.id);
+      final s = await settings.read();
+      expect(s.customSounds, isEmpty);
+      expect(s.adhanAlerts.fullRecording, kDefaultAdhanRecording);
+      expect(s.adhanAlerts.alertFor(Prayer.fajr).recording, isNull);
+      expect(s.adhanAlerts.alertFor(Prayer.fajr).enabled, isTrue);
+      expect(s.jamaahReminders.sound, ReminderSound.chime);
+    });
   });
 }

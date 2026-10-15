@@ -70,6 +70,13 @@ abstract final class SettingKeys {
   static const jamaahReminderVibrate = 'jamaah_reminder_vibrate';
   static const jamaahReminderRingInSilent = 'jamaah_reminder_ring_in_silent';
 
+  /// The user's own sounds (2026-10-15): a JSON list of {id, name, path};
+  /// the reminder's chosen one; and each prayer's own Full Adhan recording
+  /// under [adhanRecordingPrefix] + the prayer's name.
+  static const customSounds = 'custom_sounds';
+  static const jamaahReminderCustomSound = 'jamaah_reminder_custom_sound';
+  static const adhanRecordingPrefix = 'adhan_recording_';
+
   /// Travel mode and its manual Iqama pause (decided 2026-10-13). Absent means off.
   static const travelMode = 'travel_mode';
   static const pauseIqamaReminders = 'pause_iqama_reminders';
