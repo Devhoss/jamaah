@@ -2134,4 +2134,60 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get reminderSoundCustom => 'صوتك الخاص';
+
+  @override
+  String get reminderSoundCustomHint => 'ملف من هاتفك. يُشغَّل حتى 30 ثانية.';
+
+  @override
+  String reminderSoundCustomNamed(String name) {
+    return 'صوتك: $name';
+  }
+
+  @override
+  String get recordingsYours => 'تسجيلاتك';
+
+  @override
+  String get soundAddFromPhone => 'إضافة من هاتفك';
+
+  @override
+  String get soundRename => 'إعادة التسمية';
+
+  @override
+  String get soundDelete => 'حذف';
+
+  @override
+  String get soundName => 'الاسم';
+
+  @override
+  String soundDeleteConfirm(String name) {
+    return 'حذف «$name»؟ ما يستخدمه يعود إلى الصوت المدمج.';
+  }
+
+  @override
+  String get soundCouldNotAdd => 'تعذّرت إضافة هذا الملف.';
+
+  @override
+  String soundOptions(String name) {
+    return 'خيارات $name';
+  }
+
+  @override
+  String get prayerRecording => 'التسجيل';
+
+  @override
+  String prayerRecordingSame(String name) {
+    return 'كما في الإعدادات ($name)';
+  }
+
+  @override
+  String get prayerRecordingHint =>
+      'يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل.';
+
+  @override
+  String recordingsForPrayer(String prayer) {
+    return 'تسجيل $prayer';
+  }
 }

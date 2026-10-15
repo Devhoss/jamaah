@@ -3285,6 +3285,96 @@ abstract class AppLocalizations {
     int minutes,
     String iqama,
   );
+
+  /// No description provided for @reminderSoundCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own sound'**
+  String get reminderSoundCustom;
+
+  /// No description provided for @reminderSoundCustomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A file from your phone. Plays for up to 30 seconds.'**
+  String get reminderSoundCustomHint;
+
+  /// No description provided for @reminderSoundCustomNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own: {name}'**
+  String reminderSoundCustomNamed(String name);
+
+  /// No description provided for @recordingsYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recordings'**
+  String get recordingsYours;
+
+  /// No description provided for @soundAddFromPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Add from your phone'**
+  String get soundAddFromPhone;
+
+  /// No description provided for @soundRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get soundRename;
+
+  /// No description provided for @soundDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get soundDelete;
+
+  /// No description provided for @soundName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get soundName;
+
+  /// No description provided for @soundDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”? Anything using it goes back to the built-in sound.'**
+  String soundDeleteConfirm(String name);
+
+  /// No description provided for @soundCouldNotAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'That file could not be added.'**
+  String get soundCouldNotAdd;
+
+  /// No description provided for @soundOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options for {name}'**
+  String soundOptions(String name);
+
+  /// No description provided for @prayerRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording'**
+  String get prayerRecording;
+
+  /// No description provided for @prayerRecordingSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as in Settings ({name})'**
+  String prayerRecordingSame(String name);
+
+  /// No description provided for @prayerRecordingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plays when this prayer’s sound is Full Adhan.'**
+  String get prayerRecordingHint;
+
+  /// No description provided for @recordingsForPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording for {prayer}'**
+  String recordingsForPrayer(String prayer);
 }
 
 class _AppLocalizationsDelegate

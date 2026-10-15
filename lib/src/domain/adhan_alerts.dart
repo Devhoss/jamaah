@@ -1,5 +1,6 @@
 import 'iqama_editing.dart';
 import 'adhan_recordings.dart';
+import 'custom_sounds.dart';
 import 'prayer.dart';
 
 /// How a reminder sounds, when it is enabled at all.
@@ -32,6 +33,7 @@ class AdhanAlertSettings {
     this.fullScreen = false,
     this.fullRecording = kDefaultAdhanRecording,
     this.shortAdhan = ShortAdhan.naghshbandi,
+    this.customRecordings = const [],
   });
 
   /// Starting point used for a fresh install: nothing enabled.
@@ -55,18 +57,34 @@ class AdhanAlertSettings {
   /// sound of a full Adhan's notification.
   final ShortAdhan shortAdhan;
 
+  /// The user's own sounds (2026-10-15), filled in when the settings are read
+  /// so a recording id can be resolved anywhere. Not saved with the alerts.
+  final List<CustomSound> customRecordings;
+
+  /// The recording [prayer]'s Full Adhan plays: its own, or the one for all.
+  String recordingFor(Prayer prayer) =>
+      alertFor(prayer).recording ?? fullRecording;
+
+  /// What that recording plays, falling back to the bundled default when the
+  /// user's sound was deleted.
+  ({String name, String source, bool fallback}) recordingSourceFor(
+    Prayer prayer,
+  ) => resolveRecording(recordingFor(prayer), customRecordings);
+
   AdhanAlertSettings copyWith({
     AdhanSoundMode? defaultSoundMode,
     Map<Prayer, AdhanAlert>? alerts,
     bool? fullScreen,
     String? fullRecording,
     ShortAdhan? shortAdhan,
+    List<CustomSound>? customRecordings,
   }) => AdhanAlertSettings(
     defaultSoundMode: defaultSoundMode ?? this.defaultSoundMode,
     alerts: alerts ?? this.alerts,
     fullScreen: fullScreen ?? this.fullScreen,
     fullRecording: fullRecording ?? this.fullRecording,
     shortAdhan: shortAdhan ?? this.shortAdhan,
+    customRecordings: customRecordings ?? this.customRecordings,
   );
 
   /// The alert for [prayer]. Sunrise stays disabled unless explicitly turned on.
@@ -132,7 +150,8 @@ class AdhanAlertSettings {
       other.fullScreen == fullScreen &&
       other.fullRecording == fullRecording &&
       other.shortAdhan == shortAdhan &&
-      _sameAlerts(other.alerts, alerts);
+      _sameAlerts(other.alerts, alerts) &&
+      _sameSounds(other.customRecordings, customRecordings);
 
   @override
   int get hashCode =>
@@ -150,6 +169,14 @@ enum RingTarget { adhan, preAdhan }
 
 /// How many of the six prayers ring on silent.
 enum RingCoverage { none, some, all }
+
+bool _sameSounds(List<CustomSound> a, List<CustomSound> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
 
 bool _sameAlerts(Map<Prayer, AdhanAlert> a, Map<Prayer, AdhanAlert> b) {
   if (a.length != b.length) return false;
@@ -172,6 +199,7 @@ class AdhanAlert {
     this.preAdhanMinutes,
     this.ringInSilent = false,
     this.preAdhanRingInSilent = false,
+    this.recording,
   }) : assert(
          preAdhanMinutes == null ||
              (preAdhanMinutes >= ReminderInterval.minMinutes &&
@@ -197,6 +225,10 @@ class AdhanAlert {
   /// The same for the reminder before the Adhan, on its own (2026-10-14).
   final bool preAdhanRingInSilent;
 
+  /// This prayer's own Full Adhan recording (2026-10-15); null plays the one
+  /// chosen for every prayer.
+  final String? recording;
+
   bool get hasPreAdhanReminder => preAdhanMinutes != null;
 
   AdhanAlert copyWith({
@@ -208,6 +240,8 @@ class AdhanAlert {
     bool clearPreAdhan = false,
     bool? ringInSilent,
     bool? preAdhanRingInSilent,
+    String? recording,
+    bool clearRecording = false,
   }) => AdhanAlert(
     enabled: enabled ?? this.enabled,
     soundModeOverride: clearOverride
@@ -219,6 +253,7 @@ class AdhanAlert {
         : (preAdhanMinutes ?? this.preAdhanMinutes),
     ringInSilent: ringInSilent ?? this.ringInSilent,
     preAdhanRingInSilent: preAdhanRingInSilent ?? this.preAdhanRingInSilent,
+    recording: clearRecording ? null : (recording ?? this.recording),
   );
 
   @override
@@ -229,7 +264,8 @@ class AdhanAlert {
       other.vibrate == vibrate &&
       other.preAdhanMinutes == preAdhanMinutes &&
       other.ringInSilent == ringInSilent &&
-      other.preAdhanRingInSilent == preAdhanRingInSilent;
+      other.preAdhanRingInSilent == preAdhanRingInSilent &&
+      other.recording == recording;
 
   @override
   int get hashCode => Object.hash(
@@ -239,6 +275,7 @@ class AdhanAlert {
     preAdhanMinutes,
     ringInSilent,
     preAdhanRingInSilent,
+    recording,
   );
 }
 
@@ -296,7 +333,7 @@ class TravelSettings {
 /// What a Jama’ah (Iqama) reminder plays (2026-10-13). [chime] is the app's
 /// own two-note chime; [hayya] the «حيّ على الصلاة» clip; [standard] the
 /// phone's notification sound; [silent] shows the reminder without a sound.
-enum ReminderSound { chime, hayya, standard, silent }
+enum ReminderSound { chime, hayya, standard, silent, custom }
 
 /// How every Jama’ah reminder sounds. One global setting: the reminders
 /// themselves (which prayers, how early) stay on each mosque.
@@ -305,10 +342,19 @@ class JamaahReminderSettings {
     this.sound = ReminderSound.chime,
     this.vibrate = true,
     this.ringInSilent = false,
+    this.customSound,
   });
 
   final ReminderSound sound;
   final bool vibrate;
+
+  /// The user's own sound for [ReminderSound.custom] (2026-10-15).
+  final CustomSound? customSound;
+
+  /// The file to play: only for [ReminderSound.custom] with its sound still
+  /// there. Without it the reminder is the chime.
+  String? get customSoundPath =>
+      sound == ReminderSound.custom ? customSound?.path : null;
 
   /// Play through the alarm volume, so it is heard with the phone on silent
   /// (2026-10-14). The extra-time alerts, which share this sound, follow it.
@@ -318,10 +364,12 @@ class JamaahReminderSettings {
     ReminderSound? sound,
     bool? vibrate,
     bool? ringInSilent,
+    CustomSound? customSound,
   }) => JamaahReminderSettings(
     sound: sound ?? this.sound,
     vibrate: vibrate ?? this.vibrate,
     ringInSilent: ringInSilent ?? this.ringInSilent,
+    customSound: customSound ?? this.customSound,
   );
 
   @override
@@ -329,8 +377,9 @@ class JamaahReminderSettings {
       other is JamaahReminderSettings &&
       other.sound == sound &&
       other.vibrate == vibrate &&
-      other.ringInSilent == ringInSilent;
+      other.ringInSilent == ringInSilent &&
+      other.customSound == customSound;
 
   @override
-  int get hashCode => Object.hash(sound, vibrate, ringInSilent);
+  int get hashCode => Object.hash(sound, vibrate, ringInSilent, customSound);
 }

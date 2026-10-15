@@ -541,3 +541,18 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 528 | `enterAllFiveTitle` | Iqama: minutes after the Adhan | الإقامة: الدقائق بعد الأذان |
 | 529 | `enterAllFiveHint` | As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are. | كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها. |
 | 530 | `iqamaAfterAdhanPreviewTomorrow` | Adhan {adhan} + {minutes} min = Iqama {iqama} tomorrow | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} غدًا} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} غدًا} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} غدًا} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا}} |
+| 531 | `reminderSoundCustom` | Your own sound | صوتك الخاص |
+| 532 | `reminderSoundCustomHint` | A file from your phone. Plays for up to 30 seconds. | ملف من هاتفك. يُشغَّل حتى 30 ثانية. |
+| 533 | `reminderSoundCustomNamed` | Your own: {name} | صوتك: {name} |
+| 534 | `recordingsYours` | Your recordings | تسجيلاتك |
+| 535 | `soundAddFromPhone` | Add from your phone | إضافة من هاتفك |
+| 536 | `soundRename` | Rename | إعادة التسمية |
+| 537 | `soundDelete` | Delete | حذف |
+| 538 | `soundName` | Name | الاسم |
+| 539 | `soundDeleteConfirm` | Delete “{name}”? Anything using it goes back to the built-in sound. | حذف «{name}»؟ ما يستخدمه يعود إلى الصوت المدمج. |
+| 540 | `soundCouldNotAdd` | That file could not be added. | تعذّرت إضافة هذا الملف. |
+| 541 | `soundOptions` | Options for {name} | خيارات {name} |
+| 542 | `prayerRecording` | Recording | التسجيل |
+| 543 | `prayerRecordingSame` | Same as in Settings ({name}) | كما في الإعدادات ({name}) |
+| 544 | `prayerRecordingHint` | Plays when this prayer’s sound is Full Adhan. | يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل. |
+| 545 | `recordingsForPrayer` | Recording for {prayer} | تسجيل {prayer} |

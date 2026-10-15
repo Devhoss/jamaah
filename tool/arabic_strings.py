@@ -592,6 +592,21 @@ AR = {
     'enterAllFiveTitle': 'الإقامة: الدقائق بعد الأذان',
     'enterAllFiveHint': 'كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها.',
     'iqamaAfterAdhanPreviewTomorrow': minutes('minutes', before='الأذان {adhan} + ', after=' = الإقامة {iqama} غدًا'),
+    'reminderSoundCustom': 'صوتك الخاص',
+    'reminderSoundCustomHint': 'ملف من هاتفك. يُشغَّل حتى 30 ثانية.',
+    'reminderSoundCustomNamed': 'صوتك: {name}',
+    'recordingsYours': 'تسجيلاتك',
+    'soundAddFromPhone': 'إضافة من هاتفك',
+    'soundRename': 'إعادة التسمية',
+    'soundDelete': 'حذف',
+    'soundName': 'الاسم',
+    'soundDeleteConfirm': 'حذف «{name}»؟ ما يستخدمه يعود إلى الصوت المدمج.',
+    'soundCouldNotAdd': 'تعذّرت إضافة هذا الملف.',
+    'soundOptions': 'خيارات {name}',
+    'prayerRecording': 'التسجيل',
+    'prayerRecordingSame': 'كما في الإعدادات ({name})',
+    'prayerRecordingHint': 'يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل.',
+    'recordingsForPrayer': 'تسجيل {prayer}',
 }
 
 

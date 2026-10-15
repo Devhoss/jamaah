@@ -190,6 +190,7 @@ String reminderSoundName(AppLocalizations l10n, ReminderSound sound) =>
       ReminderSound.hayya => l10n.soundHayya,
       ReminderSound.standard => l10n.soundModeStandard,
       ReminderSound.silent => l10n.soundModeSilent,
+      ReminderSound.custom => l10n.reminderSoundCustom,
     };
 
 String soundModeName(AppLocalizations l10n, AdhanSoundMode mode) =>

@@ -1974,4 +1974,61 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return 'Adhan $adhan + $minutes min = Iqama $iqama tomorrow';
   }
+
+  @override
+  String get reminderSoundCustom => 'Your own sound';
+
+  @override
+  String get reminderSoundCustomHint =>
+      'A file from your phone. Plays for up to 30 seconds.';
+
+  @override
+  String reminderSoundCustomNamed(String name) {
+    return 'Your own: $name';
+  }
+
+  @override
+  String get recordingsYours => 'Your recordings';
+
+  @override
+  String get soundAddFromPhone => 'Add from your phone';
+
+  @override
+  String get soundRename => 'Rename';
+
+  @override
+  String get soundDelete => 'Delete';
+
+  @override
+  String get soundName => 'Name';
+
+  @override
+  String soundDeleteConfirm(String name) {
+    return 'Delete “$name”? Anything using it goes back to the built-in sound.';
+  }
+
+  @override
+  String get soundCouldNotAdd => 'That file could not be added.';
+
+  @override
+  String soundOptions(String name) {
+    return 'Options for $name';
+  }
+
+  @override
+  String get prayerRecording => 'Recording';
+
+  @override
+  String prayerRecordingSame(String name) {
+    return 'Same as in Settings ($name)';
+  }
+
+  @override
+  String get prayerRecordingHint =>
+      'Plays when this prayer’s sound is Full Adhan.';
+
+  @override
+  String recordingsForPrayer(String prayer) {
+    return 'Recording for $prayer';
+  }
 }

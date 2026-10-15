@@ -122,6 +122,8 @@ ChannelSpec _reminderChannel(
     ReminderSound.hayya => ChannelSound.hayya,
     ReminderSound.standard => ChannelSound.platformDefault,
     ReminderSound.silent => ChannelSound.none,
+    // The user's own file is played by the app; the chime stands behind it.
+    ReminderSound.custom => ChannelSound.chime,
   };
   // A silent reminder has nothing to play through the alarm volume.
   final alarm = n.ringInSilent && sound != ChannelSound.none;
@@ -185,7 +187,16 @@ ChannelSpec _adhanChannel(PlannedNotification n) {
 bool playsInApp(PlannedNotification n) =>
     (n.kind == NotificationKind.adhan &&
         (n.soundMode == AdhanSoundMode.full || n.fullScreen)) ||
+    n.customSoundPath != null ||
     (n.ringInSilent && channelFor(n).sound != ChannelSound.none);
+
+/// How long a sound the app plays may last: a reminder at most
+/// [kReminderMaxSeconds], so a long file of the user's cannot keep ringing; an
+/// Adhan to its end (0).
+int maxSecondsFor(PlannedNotification n) =>
+    n.kind == NotificationKind.adhan ? 0 : kReminderMaxSeconds;
+
+const kReminderMaxSeconds = 30;
 
 /// What the app's own player plays for [n]: an Adhan by its sound mode (and
 /// recording), anything else by its channel's sound: a bundled raw sound by
@@ -193,6 +204,10 @@ bool playsInApp(PlannedNotification n) =>
 ({String sound, String raw}) inAppSound(PlannedNotification n) {
   if (n.kind == NotificationKind.adhan) {
     return (sound: (n.soundMode ?? AdhanSoundMode.standard).name, raw: '');
+  }
+  // The user's own file, with the chime to fall back on if it cannot play.
+  if (n.customSoundPath != null) {
+    return (sound: 'file', raw: rawSoundFor(ChannelSound.chime)!);
   }
   final sound = channelFor(n).sound;
   return switch (rawSoundFor(sound)) {

@@ -1256,6 +1256,36 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get enterAllFiveHint => arabicDigits(super.enterAllFiveHint);
 
   @override
+  String get reminderSoundCustom => arabicDigits(super.reminderSoundCustom);
+
+  @override
+  String get reminderSoundCustomHint => arabicDigits(super.reminderSoundCustomHint);
+
+  @override
+  String get recordingsYours => arabicDigits(super.recordingsYours);
+
+  @override
+  String get soundAddFromPhone => arabicDigits(super.soundAddFromPhone);
+
+  @override
+  String get soundRename => arabicDigits(super.soundRename);
+
+  @override
+  String get soundDelete => arabicDigits(super.soundDelete);
+
+  @override
+  String get soundName => arabicDigits(super.soundName);
+
+  @override
+  String get soundCouldNotAdd => arabicDigits(super.soundCouldNotAdd);
+
+  @override
+  String get prayerRecording => arabicDigits(super.prayerRecording);
+
+  @override
+  String get prayerRecordingHint => arabicDigits(super.prayerRecordingHint);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1718,4 +1748,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
     String iqama,
   ) =>
       arabicDigits(super.iqamaAfterAdhanPreviewTomorrow(adhan, minutes, iqama));
+
+  @override
+  String reminderSoundCustomNamed(String name) =>
+      arabicDigits(super.reminderSoundCustomNamed(name));
+
+  @override
+  String soundDeleteConfirm(String name) =>
+      arabicDigits(super.soundDeleteConfirm(name));
+
+  @override
+  String soundOptions(String name) =>
+      arabicDigits(super.soundOptions(name));
+
+  @override
+  String prayerRecordingSame(String name) =>
+      arabicDigits(super.prayerRecordingSame(name));
+
+  @override
+  String recordingsForPrayer(String prayer) =>
+      arabicDigits(super.recordingsForPrayer(prayer));
 }

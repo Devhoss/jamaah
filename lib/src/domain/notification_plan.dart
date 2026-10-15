@@ -25,6 +25,7 @@ class PlannedNotification {
     this.estimated = false,
     this.extraTime,
     this.jumuah = false,
+    this.customSoundPath,
   });
 
   /// Stable id: same notification re-planned replaces itself instead of
@@ -72,6 +73,10 @@ class PlannedNotification {
   /// Extra-time alerts only: which time (2026-10-14).
   final ExtraTime? extraTime;
 
+  /// Jama’ah and extra-time reminders with the user's own sound (2026-10-15):
+  /// its file, played by the app's own player.
+  final String? customSoundPath;
+
   /// Friday's Dhuhr (its Adhan, the reminder before it, or its Jama’ah
   /// reminder): titled Jumu'ah.
   final bool jumuah;
@@ -107,7 +112,7 @@ PlannedNotification adhanAlert(
     ringInSilent: plays && alert.ringInSilent,
     fullScreen: alerts.fullScreen,
     recordingAsset: switch (mode) {
-      AdhanSoundMode.full => adhanRecordingById(alerts.fullRecording).asset,
+      AdhanSoundMode.full => alerts.recordingSourceFor(prayer).source,
       AdhanSoundMode.short => alerts.shortAdhan.asset,
       _ => null,
     },
@@ -242,6 +247,7 @@ class NotificationPlanner {
           vibrate: input.jamaahReminders.vibrate,
           ringInSilent: input.jamaahReminders.ringInSilent,
           reminderSound: input.jamaahReminders.sound,
+          customSoundPath: input.jamaahReminders.customSoundPath,
           extraTime: e.time,
         ),
       );
@@ -355,6 +361,7 @@ class NotificationPlanner {
           vibrate: input.jamaahReminders.vibrate,
           ringInSilent: input.jamaahReminders.ringInSilent,
           reminderSound: input.jamaahReminders.sound,
+          customSoundPath: input.jamaahReminders.customSoundPath,
           // Dhuhr's own Iqama, while Jumu'ah has no time, is called Dhuhr's.
           jumuah: resolved.isJumuah && !resolved.jumuahNotSet,
         ),
