@@ -130,6 +130,9 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    // Partly visible is not enough once the bar is tall (2x text).
+    await tester.ensureVisible(find.text(title));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(title));
     await tester.pumpAndSettle();
   }

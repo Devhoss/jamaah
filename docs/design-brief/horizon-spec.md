@@ -242,6 +242,17 @@ Layout top to bottom:
 3. **Hero.** Kicker “NEXT PRAYER · ADHAN” (or “ADHAN”, “IN FORCE AT 4:12 PM”, “SUNRISE · NOT A
    PRAYER”, “NEXT PRAYER · TOMORROW”), big time, italic name, “PM · in 50 min”. A “Back to now”
    pill appears whenever the view is moved; it glides back.
+
+   **Hold until the Iqama** (owner, 2026-10-15). At rest, between a prayer’s Adhan and its
+   Iqama, Today keeps that prayer selected instead of jumping to the next Adhan:
+   - Kicker “ASR · IQAMA IN 15 MIN”; the hero keeps the Asr Adhan time with “Adhan 5 min ago”;
+     the Iqama ticket carries the main countdown (“Iqama 3:20 PM · in 15 min”). The “Next” tag
+     stays on the next Adhan’s row (Maghrib).
+   - Only when the active mosque has an Iqama for that prayer that is still ahead (Fridays: the
+     Jumu’ah Iqama, falling back to Dhuhr’s own while Jumu’ah is unset). No hold while Iqama
+     reminders are paused for travel or while travel mode follows the location; without a
+     mosque or an Iqama, behave as above.
+   - At the Iqama minute, glide on to the next prayer (instant under reduced motion).
 4. **IqamaTicket** for the selected prayer and the active mosque.
 5. **Travel mode on:** a ruled row “On a flight?” → in-flight screen. The place subline becomes
    “Following your location · checked 2 min ago”.

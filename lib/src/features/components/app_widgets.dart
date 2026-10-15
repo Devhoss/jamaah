@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/horizon_tokens.dart';
+
 import '../../app/theme/theme.dart';
 import '../../app/theme/tokens.dart';
 
@@ -240,3 +242,22 @@ class AppTag extends StatelessWidget {
 }
 
 enum AppTagTone { neutral, warning }
+
+/// A tab's page title in the Horizon display face (spec §2.2), drawn on the
+/// current palette until the page itself is redesigned.
+class PageTitle extends StatelessWidget {
+  const PageTitle(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    header: true,
+    child: Text(
+      text,
+      style: HorizonTheme.typeOf(
+        context,
+      ).display.copyWith(color: Theme.of(context).colorScheme.onSurface),
+    ),
+  );
+}

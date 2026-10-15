@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/app_shell.dart';
 import 'package:jamaah/src/app/clock.dart';
@@ -231,7 +232,7 @@ void main() {
       ),
     );
     await open(tester);
-    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
       find.text(t.settingsShowIntro),

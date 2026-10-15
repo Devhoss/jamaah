@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/app/date_labels.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
@@ -68,7 +69,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
   }
 
@@ -192,7 +193,7 @@ void main() {
     await tapText(tester, t.hijriEarlier(1));
 
     expect((await settings.read()).hijriAdjustDays, -1);
-    await tester.pageBack();
+    await tester.tap(find.byKey(BottomNav.tabKey(0)));
     await tester.pumpAndSettle();
     expect(find.text(earlier), findsOneWidget);
   });

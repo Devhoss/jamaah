@@ -1,10 +1,12 @@
+import 'dart:ui' show Tristate;
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/app/app.dart';
-import 'package:jamaah/src/app/branding.g.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
 import 'package:jamaah/src/app/providers.dart';
@@ -18,9 +20,9 @@ import '../helpers/fake_clock.dart';
 import '../helpers/fake_place_source.dart';
 import '../helpers/test_app.dart';
 
-/// The shell around the screens: three destinations, the settings gear the
-/// prototype puts on every tab, and an honest answer where there is nothing to
-/// show yet.
+/// The shell around the screens: four destinations along the bottom
+/// (Horizon: Today · Mosques · Qibla · Settings), and an honest answer where
+/// there is nothing to show yet.
 void main() {
   final t = AppLocalizationsEn();
 
@@ -63,34 +65,36 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testApp('the top bar names the app, straight from the branding file', (
-    tester,
-  ) async {
-    await open(tester);
+  /// Which tab the bar marks as current, read the way TalkBack reads it.
+  int selectedTab(WidgetTester tester) {
+    for (var i = 0; i < 4; i++) {
+      final node = tester.getSemantics(find.byKey(BottomNav.tabKey(i)));
+      if (node.flagsCollection.isSelected == Tristate.isTrue) return i;
+    }
+    return -1;
+  }
 
-    expect(find.text(kWordmark), findsOneWidget);
-    expect(
-      find.text('Prayer companion'),
-      findsNothing,
-      reason: 'the name lives in branding.yaml. A second copy in the strings file '
-          'is a second thing to forget to change.',
-    );
-  });
-
-  testApp('Today is where the app opens, and the bar names three places', (
+  testApp('Today is where the app opens, and the bar names four places', (
     tester,
   ) async {
     await open(tester);
 
     expect(
       find.descendant(
-        of: find.byType(NavigationBar),
+        of: find.byType(BottomNav),
         matching: find.text(t.tabToday),
       ),
       findsOneWidget,
     );
     expect(find.text(t.tabMosques), findsOneWidget);
     expect(find.text(t.tabQibla), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(BottomNav),
+        matching: find.text(t.settingsTitle),
+      ),
+      findsOneWidget,
+    );
     expect(
       find.text(t.todayNeedsPlaceTitle),
       findsOneWidget,
@@ -101,20 +105,13 @@ void main() {
   testApp('the bar marks only the screen you are on', (tester) async {
     await open(tester);
 
-    final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    expect(bar.selectedIndex, 0);
+    expect(selectedTab(tester), 0);
 
     await goTo(tester, t.tabQibla);
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      2,
-    );
+    expect(selectedTab(tester), 2);
 
     await goTo(tester, t.tabToday);
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      0,
-    );
+    expect(selectedTab(tester), 0);
   });
 
   testApp('Mosques starts honestly empty, with the two ways to add one', (
@@ -152,12 +149,12 @@ void main() {
     );
   });
 
-  testApp('the gear opens Settings, prayer times first', (
+  testApp('the Settings tab opens Settings, prayer times first, with no back arrow', (
     tester,
   ) async {
     await open(tester);
 
-    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsPage), findsOneWidget);
@@ -166,43 +163,30 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(t.settingsMethod), findsOneWidget);
+    expect(find.byType(BackButton), findsNothing);
+    expect(selectedTab(tester), BottomNav.settingsIndex);
   });
 
-  testApp('every destination, the gear and the airplane are big enough to press', (
+  testApp('every destination and the airplane are big enough to press', (
     tester,
   ) async {
     await open(tester);
 
-    // IconButton draws a 40x40 ink circle and wraps it in its own hit padding, so
-    // the button's box is what a finger lands on — not the ink. The M3 bar answers a
-    // tap with a private InkResponse subclass over the whole destination, so the
-    // search is by type-or-subclass rather than by exact runtime type.
-    Size button(String tooltip) => tester.getSize(
+    final travel = tester.getSize(
       find.ancestor(
-        of: find.byTooltip(tooltip),
+        of: find.byTooltip(t.travelModeTurnOn),
         matching: find.byType(IconButton),
       ),
     );
-    final gear = button(t.settings);
-    final travel = button(t.travelModeTurnOn);
-    final destination = tester.getSize(
-      find.ancestor(
-        of: find.text(t.tabMosques),
-        matching: find.byWidgetPredicate((widget) => widget is InkResponse),
-      ).first,
-    );
-
-    for (final (label, size) in [
-      ('gear', gear),
-      ('travel mode', travel),
-      ('Mosques tab', destination),
-    ]) {
+    for (var i = 0; i < 4; i++) {
+      final tab = tester.getSize(find.byKey(BottomNav.tabKey(i)));
       expect(
-        size.width >= 48 && size.height >= 48,
+        tab.width >= 48 && tab.height >= 48,
         isTrue,
-        reason: '$label is a touch target, not a decoration ($size)',
+        reason: 'tab $i is a touch target, not a decoration ($tab)',
       );
     }
+    expect(travel.width >= 48 && travel.height >= 48, isTrue);
   });
 
   testApp('a dark device gets the dark theme', (tester) async {
@@ -212,7 +196,7 @@ void main() {
     await open(tester);
 
     expect(
-      Theme.of(tester.element(find.byType(NavigationBar))).brightness,
+      Theme.of(tester.element(find.byType(BottomNav))).brightness,
       Brightness.dark,
       reason: 'the device already made this choice; a light answer to a dark phone '
           'is exactly the hard-coded convention AGENTS.md rules out',
@@ -226,7 +210,7 @@ void main() {
     await open(tester);
 
     expect(
-      Theme.of(tester.element(find.byType(NavigationBar))).brightness,
+      Theme.of(tester.element(find.byType(BottomNav))).brightness,
       Brightness.light,
       reason: 'following the system is not the same as defaulting to dark',
     );
@@ -242,10 +226,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(t.noSavedMosques), findsOneWidget);
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      1,
-    );
+    expect(selectedTab(tester), 1);
     expect(
       find.text(t.addMosqueTitle),
       findsNothing,

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
 import 'package:jamaah/src/app/compass.dart';
@@ -176,7 +177,7 @@ void main() {
 
     testApp('Settings switches the language at once, and back', (tester) async {
       await open(tester, language: AppLanguage.en);
-      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
       await tester.pumpAndSettle();
 
       final row = find.text(en.settingsLanguage);
@@ -235,7 +236,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: tab);
       }
-      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });

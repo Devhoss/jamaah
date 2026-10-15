@@ -36,7 +36,7 @@ class MosquesScreen extends ConsumerWidget {
         AppSpace.xxl,
       ),
       children: [
-        Text(l10n.mosquesTitle, style: theme.textTheme.headlineLarge),
+        PageTitle(l10n.mosquesTitle),
         const SizedBox(height: AppSpace.xs),
         Text(
           l10n.mosquesSubtitle,

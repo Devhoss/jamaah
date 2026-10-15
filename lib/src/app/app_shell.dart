@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/components/bottom_nav.dart';
 import '../features/mosques/mosque_detail_page.dart';
 import '../features/mosques/mosques_screen.dart';
 import '../features/qibla/qibla_screen.dart';
 import '../features/settings/settings_page.dart';
 import '../features/today/today_screen.dart';
-import 'branding.g.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'providers.dart';
 import 'theme/theme.dart';
-import 'theme/tokens.dart';
 
-/// The chrome around the screens: the wordmark and gear on top, three destinations
-/// underneath.
+/// The chrome around the screens: four destinations along the bottom,
+/// Today · Mosques · Qibla · Settings (Horizon spec §2.5). There is no top bar:
+/// each screen draws its own header, and Today draws the sky.
 ///
 /// Which tab is showing is nobody's business but the shell's, so it is local state
 /// rather than a provider; the screens themselves stay unaware of each other. Only
@@ -33,63 +33,46 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        // The name comes from branding.yaml, not from the strings file: it is a
-        // brand, not a phrase to translate, and it must not be possible for the
-        // store listing and the top bar to disagree.
-        title: Text(
-          kWordmark,
-          style: theme.appBarTheme.titleTextStyle?.copyWith(
-            fontSize: AppType.wordmarkSize,
-            letterSpacing: AppType.wordmarkSpacing,
+      body: SafeArea(
+        bottom: false,
+        child: switch (_tab) {
+          0 => Column(
+            children: [
+              // Until Today's own travel switch arrives (Horizon phase 2d).
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: _TravelModeButton(),
+              ),
+              Expanded(
+                child: TodayScreen(
+                  onOpenMosques: () => _goTo(1),
+                  onOpenMosque: (id) => openMosqueDetail(context, id),
+                ),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          _TravelModeButton(),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: l10n.settings,
-            onPressed: () => openSettings(context),
-          ),
-        ],
+          1 => const MosquesScreen(),
+          2 => const QiblaScreen(),
+          _ => const SettingsPage(asTab: true),
+        },
       ),
-      body: switch (_tab) {
-        0 => TodayScreen(
-          onOpenMosques: () => _goTo(1),
-          onOpenMosque: (id) => openMosqueDetail(context, id),
-        ),
-        1 => const MosquesScreen(),
-        _ => const QiblaScreen(),
-      },
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: _goTo,
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.today_outlined),
-            selectedIcon: const Icon(Icons.today),
-            label: l10n.tabToday,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.mosque_outlined),
-            selectedIcon: const Icon(Icons.mosque),
-            label: l10n.tabMosques,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.explore_outlined),
-            selectedIcon: const Icon(Icons.explore),
-            label: l10n.tabQibla,
-          ),
+      bottomNavigationBar: BottomNav(
+        labels: [
+          l10n.tabToday,
+          l10n.tabMosques,
+          l10n.tabQibla,
+          l10n.settingsTitle,
         ],
+        current: _tab,
+        onSelect: _goTo,
       ),
     );
   }
 }
 
-/// Travel mode, one tap from every screen (2026-10-13). Its options live in
+/// Travel mode, one tap from Today (2026-10-13). Its options live in
 /// Settings → Travel.
 class _TravelModeButton extends ConsumerWidget {
   @override

@@ -149,7 +149,7 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
         AppSpace.xxl,
       ),
       children: [
-        Text(l10n.tabQibla, style: theme.textTheme.headlineLarge),
+        PageTitle(l10n.tabQibla),
         Text(
           l10n.qiblaFrom(placeName),
           style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/features/settings/adhan_recordings_page.dart';
 import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/app/app.dart';
@@ -118,7 +119,7 @@ void main() {
       tap(tester, find.text(text));
 
   Future<void> openSettingsPage(WidgetTester tester) =>
-      tap(tester, find.byIcon(Icons.settings_outlined));
+      tap(tester, find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
 
   Future<void> openPrayer(WidgetTester tester, Prayer prayer) async {
     await openSettingsPage(tester);
@@ -762,7 +763,7 @@ void main() {
       await tap(tester, pause);
       expect((await settings.read()).travel.pauseAllIqamaReminders, isTrue);
 
-      await tester.pageBack();
+      await tester.tap(find.byKey(BottomNav.tabKey(0)));
       await tester.pumpAndSettle();
       expect(find.text(t.pausedAllNote), findsOneWidget);
     });

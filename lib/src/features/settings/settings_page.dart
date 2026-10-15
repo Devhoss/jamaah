@@ -99,7 +99,11 @@ Future<void> updateAdhanAlerts(
 /// Settings for what reaches the user and when (AGENTS.md). Iqama reminders are
 /// not configured here: they belong to each mosque, so this only points there.
 class SettingsPage extends ConsumerWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({this.asTab = false, super.key});
+
+  /// Shown as the fourth tab (Horizon, 2026-10-15): no back arrow, and the
+  /// title sits on the page like the other tabs' titles.
+  final bool asTab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -113,15 +117,16 @@ class SettingsPage extends ConsumerWidget {
     final active = ref.watch(activeMosqueProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+      appBar: asTab ? null : AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(
+        padding: EdgeInsets.fromLTRB(
           AppSpace.xxl,
-          0,
+          asTab ? AppSpace.lg : 0,
           AppSpace.xxl,
           AppSpace.xxl,
         ),
         children: [
+          if (asTab) PageTitle(l10n.settingsTitle),
           AppSectionHeader(l10n.settingsPrayerTimesSection),
           const PrayerTimesSettingsSection(),
           const SizedBox(height: AppSpace.md),
