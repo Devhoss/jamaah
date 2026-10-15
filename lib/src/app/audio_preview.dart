@@ -11,14 +11,16 @@ abstract interface class AudioPreview {
   Future<void> stop();
 }
 
-/// The bundled sound each Adhan mode plays, or null when the mode has none of
-/// its own (the platform's sound, or silence). Full plays [fullRecording].
+/// The sound each Adhan mode plays, or null when the mode has none of its own
+/// (the platform's sound, or silence). Full plays [fullSource]: a bundled
+/// asset or the user's own file.
 String? previewAssetFor(
   AdhanSoundMode mode, {
-  String fullRecording = kDefaultAdhanRecording,
+  String? fullSource,
   ShortAdhan shortAdhan = ShortAdhan.naghshbandi,
 }) => switch (mode) {
-  AdhanSoundMode.full => adhanRecordingById(fullRecording).asset,
+  AdhanSoundMode.full =>
+    fullSource ?? adhanRecordingById(kDefaultAdhanRecording).asset,
   AdhanSoundMode.short => shortAdhan.asset,
   AdhanSoundMode.standard || AdhanSoundMode.silent => null,
 };
@@ -35,7 +37,12 @@ class JustAudioPreview implements AudioPreview {
   Future<void> play(String asset) async {
     await (_cacheCleared ??= AudioPlayer.clearAssetCache().catchError((_) {}));
     await _player.stop();
-    await _player.setAsset(asset);
+    // The user's own sounds are files (2026-10-15); the rest are assets.
+    if (asset.startsWith('/')) {
+      await _player.setFilePath(asset);
+    } else {
+      await _player.setAsset(asset);
+    }
     await _player.play();
   }
 

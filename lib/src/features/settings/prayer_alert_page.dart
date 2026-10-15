@@ -19,6 +19,7 @@ import '../../domain/notification_channels.dart';
 import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
 import '../components/app_widgets.dart';
+import 'adhan_recordings_page.dart';
 import 'settings_page.dart';
 
 Future<void> openPrayerAlert(BuildContext context, Prayer prayer) =>
@@ -84,7 +85,7 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
     final alerts = ref.read(appSettingsProvider).value?.adhanAlerts;
     final asset = previewAssetFor(
       mode,
-      fullRecording: alerts?.fullRecording ?? kDefaultAdhanRecording,
+      fullSource: alerts?.recordingSourceFor(_prayer).source,
       shortAdhan: alerts?.shortAdhan ?? ShortAdhan.naghshbandi,
     );
     if (asset == null) return;
@@ -188,6 +189,30 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
             ],
           ),
           AppSectionHeader(l10n.alertSoundHeader),
+          // This prayer's own Full Adhan recording (2026-10-15).
+          AppRows(
+            children: [
+              AppRow(
+                leading: null,
+                onTap: () => openAdhanRecordings(context, prayer: _prayer),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(l10n.prayerRecording),
+                    Text(
+                      alert.recording == null
+                          ? l10n.prayerRecordingSame(recordingName(alerts))
+                          : alerts.recordingSourceFor(_prayer).name,
+                      style: small,
+                    ),
+                  ],
+                ),
+                trailing: Icon(Icons.chevron_right, color: ink.muted),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.md),
           AppRows(
             children: [
               RadioGroup<AdhanSoundMode?>(

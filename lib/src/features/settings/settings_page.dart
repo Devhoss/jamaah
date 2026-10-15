@@ -166,7 +166,7 @@ class SettingsPage extends ConsumerWidget {
                 onTap: () => openAdhanRecordings(context),
                 title: _TwoLines(
                   first: l10n.settingsFullRecording,
-                  second: adhanRecordingById(alerts.fullRecording).name,
+                  second: recordingName(alerts),
                 ),
                 trailing: Icon(Icons.chevron_right, color: ink.muted),
               ),

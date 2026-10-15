@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/audio_preview.dart';
+import '../../app/custom_sound_actions.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
@@ -80,10 +81,28 @@ class _JamaahReminderSoundRowsState
           title: l10n.soundModeSilent,
           hint: l10n.reminderSoundSilentHint,
         ),
+        SoundChoice(
+          value: ReminderSound.custom,
+          title: l10n.reminderSoundCustom,
+          hint: l10n.reminderSoundCustomHint,
+          asset: _current.customSoundPath,
+        ),
       ],
     );
     unawaited(_preview.stop());
-    if (chosen == null || chosen == current) return;
+    if (chosen == null) return;
+    // Your own sound: a file from the phone, picked now (2026-10-15); picking
+    // again replaces it. Nothing picked changes nothing.
+    if (chosen == ReminderSound.custom) {
+      if (!context.mounted) return;
+      final sound = await addSoundFromPhone(context, ref);
+      if (sound == null) return;
+      await _save(
+        _current.copyWith(sound: ReminderSound.custom, customSound: sound),
+      );
+      return;
+    }
+    if (chosen == current) return;
     await _save(_current.copyWith(sound: chosen));
   }
 
@@ -103,6 +122,7 @@ class _JamaahReminderSoundRowsState
       vibrate: settings.vibrate,
       ringInSilent: settings.ringInSilent,
       reminderSound: settings.sound,
+      customSoundPath: settings.customSoundPath,
     );
     await ref.read(notificationPermissionRequestProvider)();
     final text = notificationText(
@@ -151,7 +171,11 @@ class _JamaahReminderSoundRowsState
                 children: [
                   Text(l10n.settingsReminderSound),
                   Text(
-                    reminderSoundName(l10n, reminders.sound),
+                    switch (reminders.customSound) {
+                      final mine? when reminders.sound == ReminderSound.custom =>
+                        l10n.reminderSoundCustomNamed(mine.name),
+                      _ => reminderSoundName(l10n, reminders.sound),
+                    },
                     style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: ink.muted),
                   ),

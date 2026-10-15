@@ -10,7 +10,9 @@ import 'package:jamaah/src/domain/adhan_recordings.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/build_info.dart';
 import 'package:jamaah/src/app/audio_preview.dart';
+import 'package:jamaah/src/app/custom_sound_actions.dart';
 import 'package:jamaah/src/app/clock.dart';
+import 'package:jamaah/src/app/l10n/arabic_digits_localizations.dart';
 import 'package:jamaah/src/app/l10n/generated/app_localizations_en.dart';
 import 'package:jamaah/src/app/notification_scheduler.dart';
 import 'package:jamaah/src/app/providers.dart';
@@ -18,6 +20,7 @@ import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/mosque_repository.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
+import 'package:jamaah/src/domain/custom_sounds.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/notification_channels.dart';
 import 'package:jamaah/src/domain/place.dart';
@@ -43,6 +46,7 @@ void main() {
   late FakeNotificationGateway gateway;
   late _FakePreview preview;
   late int permissionRequests;
+  ({String path, String name})? picked;
 
   setUpAll(loadTimeZoneDatabase);
 
@@ -53,6 +57,7 @@ void main() {
     gateway = FakeNotificationGateway();
     preview = _FakePreview();
     permissionRequests = 0;
+    picked = null;
     addTearDown(db.close);
   });
 
@@ -76,6 +81,7 @@ void main() {
             () async => permissionRequests++,
           ),
           audioPreviewProvider.overrideWithValue(preview),
+          soundPickerProvider.overrideWithValue(() async => picked),
         ],
         child: Builder(
           builder: (context) => MediaQuery(
@@ -467,6 +473,99 @@ void main() {
 
       expect(gateway.adhanAlarmsById, isNotEmpty);
       expect(gateway.scheduled, isEmpty);
+    });
+  });
+
+  group('your own sounds (2026-10-15)', () {
+    const mine = CustomSound(
+      id: 'custom:x1',
+      name: 'My Fajr',
+      path: '/sounds/x1.mp3',
+    );
+
+    testApp('a recording from the phone can be added, chosen and played', (
+      tester,
+    ) async {
+      picked = (path: '/sounds/new.mp3', name: 'My Fajr');
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsFullRecording);
+      await tapText(tester, t.soundAddFromPhone);
+      final added = (await settings.read()).customSounds.single;
+      expect(added.name, 'My Fajr');
+      expect(added.path, '/sounds/new.mp3');
+
+      await tapText(tester, 'My Fajr');
+      expect((await stored()).fullRecording, added.id);
+      await tap(tester, find.byTooltip(t.recordingPlayLabel('My Fajr')));
+      expect(preview.played.last, '/sounds/new.mp3');
+    });
+
+    testApp('deleting one puts the built-in recording back', (tester) async {
+      await settings.addCustomSound(mine);
+      await settings.saveAdhanAlerts(
+        (await stored()).copyWith(fullRecording: mine.id),
+      );
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsFullRecording);
+      await tap(tester, find.byTooltip(t.soundOptions('My Fajr')));
+      await tapText(tester, t.soundDelete);
+      await tapText(tester, t.soundDelete); // the confirmation
+      expect((await settings.read()).customSounds, isEmpty);
+      expect((await stored()).fullRecording, kDefaultAdhanRecording);
+    });
+
+    testApp('a prayer can have its own recording, or the one for all', (
+      tester,
+    ) async {
+      await settings.addCustomSound(mine);
+      await open(tester);
+      await openPrayer(tester, Prayer.fajr);
+      await tapText(tester, t.prayerRecording);
+      expect(find.text(t.recordingsForPrayer(t.prayerFajr)), findsOneWidget);
+      await tapText(tester, 'My Fajr');
+      expect((await stored()).alertFor(Prayer.fajr).recording, mine.id);
+      expect((await stored()).alertFor(Prayer.dhuhr).recording, isNull);
+
+      await tapText(tester, t.prayerRecordingSame('Naghshbandi'));
+      expect((await stored()).alertFor(Prayer.fajr).recording, isNull);
+    });
+
+    testApp('the Jama’ah reminder can use your own sound', (tester) async {
+      picked = (path: '/sounds/bell.ogg', name: 'Bell');
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsReminderSound);
+      await tapText(tester, t.reminderSoundCustom);
+      final r = (await settings.read()).jamaahReminders;
+      expect(r.sound, ReminderSound.custom);
+      expect(r.customSound?.name, 'Bell');
+      expect(r.customSoundPath, '/sounds/bell.ogg');
+      expect(find.text(t.reminderSoundCustomNamed('Bell')), findsOneWidget);
+    });
+
+    testApp('Arabic at a large text size', (tester) async {
+      final ar = AppLocalizationsArDigits();
+      await settings.addCustomSound(mine);
+      await settings.setLanguage(AppLanguage.ar);
+      await open(tester, textScale: 2.0);
+      await openSettingsPage(tester);
+      await tapText(tester, ar.settingsFullRecording);
+      expect(tester.takeException(), isNull);
+      expect(find.text(ar.recordingsYours), findsOneWidget);
+      expect(find.text('My Fajr'), findsOneWidget);
+    });
+
+    testApp('nothing picked changes nothing', (tester) async {
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsReminderSound);
+      await tapText(tester, t.reminderSoundCustom);
+      expect(
+        (await settings.read()).jamaahReminders.sound,
+        ReminderSound.chime,
+      );
     });
   });
 
