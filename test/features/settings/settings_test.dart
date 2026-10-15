@@ -545,6 +545,30 @@ void main() {
       expect(find.text(t.reminderSoundCustomNamed('Bell')), findsOneWidget);
     });
 
+    testApp('rename: cancel leaves it, save renames it', (tester) async {
+      await settings.addCustomSound(mine);
+      await open(tester);
+      await openSettingsPage(tester);
+      await tapText(tester, t.settingsFullRecording);
+
+      await tap(tester, find.byTooltip(t.soundOptions('My Fajr')));
+      await tapText(tester, t.soundRename);
+      await tester.enterText(find.byType(TextField), 'Changed');
+      await tapText(tester, t.cancel);
+      expect(tester.takeException(), isNull);
+      expect((await settings.read()).customSounds.single.name, 'My Fajr');
+
+      await tap(tester, find.byTooltip(t.soundOptions('My Fajr')));
+      await tapText(tester, t.soundRename);
+      await tester.enterText(find.byType(TextField), 'Fajr – Makkah');
+      await tapText(tester, t.save);
+      expect(tester.takeException(), isNull);
+      expect(
+        (await settings.read()).customSounds.single.name,
+        'Fajr – Makkah',
+      );
+    });
+
     testApp('Arabic at a large text size', (tester) async {
       final ar = AppLocalizationsArDigits();
       await settings.addCustomSound(mine);

@@ -52,33 +52,58 @@ Future<void> renameSound(
   WidgetRef ref,
   CustomSound sound,
 ) async {
-  final l10n = AppLocalizations.of(context);
-  final controller = TextEditingController(text: sound.name);
   final name = await showDialog<String>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
+    builder: (_) => _RenameDialog(initial: sound.name),
+  );
+  if (name == null || name.trim().isEmpty) return;
+  await ref.read(settingsRepositoryProvider).renameCustomSound(sound.id, name);
+}
+
+/// Owns its text controller, so it is disposed only when the dialog is gone:
+/// disposing it as soon as the dialog closed broke the closing animation,
+/// which still shows the field (2026-10-15).
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final _controller = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
       title: Text(l10n.soundRename),
       content: TextField(
-        controller: controller,
+        controller: _controller,
         autofocus: true,
         decoration: InputDecoration(labelText: l10n.soundName),
-        onSubmitted: (v) => Navigator.of(dialogContext).pop(v),
+        onSubmitted: (v) => Navigator.of(context).pop(v),
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
+          onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.cancel),
         ),
         TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+          onPressed: () => Navigator.of(context).pop(_controller.text),
           child: Text(l10n.save),
         ),
       ],
-    ),
-  );
-  controller.dispose();
-  if (name == null || name.trim().isEmpty) return;
-  await ref.read(settingsRepositoryProvider).renameCustomSound(sound.id, name);
+    );
+  }
 }
 
 /// Confirms, removes the sound from everything that used it, and deletes the
