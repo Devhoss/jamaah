@@ -1,0 +1,1717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Jama’ah · Horizon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&amp;family=Instrument+Sans:wght@400;500;600&amp;family=Noto+Naskh+Arabic:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer;color:inherit}
+.ns{scrollbar-width:none;-ms-overflow-style:none}
+.ns::-webkit-scrollbar{display:none}
+@keyframes hzTwinkle{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes hzPulse{0%{transform:scale(1);opacity:.75}100%{transform:scale(2.8);opacity:0}}
+@keyframes hzRing{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.6);opacity:0}}
+@keyframes hzBreathe{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.18);opacity:1}}
+.hz-tw{animation:hzTwinkle 3.6s ease-in-out infinite}
+.hz-pulse{animation:hzPulse 2.4s ease-out infinite}
+.hz-ring{animation:hzRing 2.6s ease-out infinite}
+.hz-breathe{animation:hzBreathe 4.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes hzDraw8{0%{stroke-dasharray:0.18 1;stroke-dashoffset:0}100%{stroke-dasharray:0.18 1;stroke-dashoffset:-1}}
+.hz-draw8{animation:hzDraw8 2.8s linear infinite}
+@keyframes hzSpin{to{transform:rotate(360deg)}}
+.hz-spin{animation:hzSpin 900ms linear infinite}
+.hz-arc:focus-visible{outline:2px solid currentColor;outline-offset:-6px;border-radius:16px}
+@media (prefers-reduced-motion: reduce){.hz-tw,.hz-pulse,.hz-ring,.hz-breathe,.hz-draw8,.hz-spin{animation:none}}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+
+  <!-- Sky: computed from the time being viewed -->
+  <div aria-hidden="true" style="{{ skyStyle }}"></div>
+  <div aria-hidden="true" style="{{ starLayer }}">
+    <sc-for list="{{ stars }}" as="s" hint-placeholder-count="40">
+      <span class="hz-tw" style="{{ s.style }}"></span>
+    </sc-for>
+  </div>
+  <!-- Grain: stops gradient banding on phone screens -->
+  <svg aria-hidden="true" width="390" height="844" style="{{ grainStyle }}">
+    <filter id="hzGrain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix type="saturate" values="0"></feColorMatrix></filter>
+    <rect width="390" height="844" filter="url(#hzGrain)"></rect>
+  </svg>
+
+  <div style="position: relative; z-index: 3; display: flex; flex-direction: column; height: 100%">
+
+    <!-- Top bar (Today) -->
+    <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 0 20px">
+        <button aria-label="Place: Kuwait City. Change place" style="border: 0; background: transparent; padding: 0; min-height: 48px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left">
+          <span style="display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600">Kuwait City
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </span>
+          <span style="font-size: 12px; color: {{ C.mute }}">{{ subLine }}</span>
+        </button>
+        <button role="switch" aria-checked="{{ travelStr }}" aria-label="Travel mode" onClick="{{ toggleTravel }}" style="{{ tv.track }}">
+          <span style="{{ tv.knob }}">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ tv.home }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ tv.plane }}"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>
+          </span>
+        </button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isAdhan }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 28px 24px 0; text-align: center; font-size: 13px; color: {{ C.mute }}">Thursday 15 October · 4 Jumada al-Awwal 1448</div>
+    </sc-if>
+
+    <!-- Sun path: drag along it to look through the day -->
+    <sc-if value="{{ showArc }}" hint-placeholder-val="{{ true }}">
+    <div style="position: relative; width: 390px; height: 168px; margin-top: 4px; flex: none">
+      <svg width="390" height="168" viewBox="0 0 390 168" aria-hidden="true" style="position: absolute; inset: 0; overflow: visible">
+        <defs>
+          <radialGradient id="hzSun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="{{ sun.core }}" stop-opacity="0.95"></stop>
+            <stop offset="45%" stop-color="{{ sun.core }}" stop-opacity="0.4"></stop>
+            <stop offset="100%" stop-color="{{ sun.core }}" stop-opacity="0"></stop>
+          </radialGradient>
+        </defs>
+        <line x1="12" y1="118" x2="378" y2="118" stroke="{{ C.line }}" stroke-width="1"></line>
+        <path d="M45 118 A150 96 0 0 1 345 118" fill="none" stroke="{{ C.line }}" stroke-width="1.5"></path>
+        <path d="M345 118 A150 36 0 0 1 45 118" fill="none" stroke="{{ C.line }}" stroke-width="1.5" stroke-dasharray="1 6" stroke-linecap="round"></path>
+        <path d="{{ sun.dayTrail }}" fill="none" stroke="{{ C.trail }}" stroke-width="2.5" stroke-linecap="round"></path>
+        <path d="{{ sun.nightTrail }}" fill="none" stroke="{{ C.trail }}" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"></path>
+        <g transform="{{ moon.tf }}" opacity="{{ moon.op }}">
+          <circle r="9" fill="rgba(244,241,230,0.12)"></circle>
+          <path d="{{ moon.path }}" fill="#F4F1E6"></path>
+        </g>
+        <g opacity="{{ sun.op }}">
+          <circle class="hz-breathe" cx="{{ sun.x }}" cy="{{ sun.y }}" r="30" fill="url(#hzSun)"></circle>
+          <circle cx="{{ sun.x }}" cy="{{ sun.y }}" r="8" fill="{{ sun.disc }}" stroke="rgba(255,255,255,0.85)" stroke-width="1"></circle>
+        </g>
+      </svg>
+      <span style="{{ sun.labelStyle }}">{{ sun.label }}</span>
+      <sc-for list="{{ dots }}" as="d" hint-placeholder-count="6">
+        <span aria-hidden="true" style="{{ d.hit }}">
+          <sc-if value="{{ d.on }}" hint-placeholder-val="{{ false }}">
+            <span class="hz-pulse" style="{{ d.pulse }}"></span>
+          </sc-if>
+          <span style="{{ d.dot }}"></span>
+        </span>
+      </sc-for>
+      <span style="{{ selLabelStyle }}">{{ sel.name }}</span>
+      <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+        <div class="hz-arc" role="slider" tabIndex="0" aria-label="Look through the day" aria-valuemin="0" aria-valuemax="1439" aria-valuenow="{{ viewRound }}" aria-valuetext="{{ viewText }}"
+          onPointerDown="{{ onDown }}" onPointerMove="{{ onMove }}" onPointerUp="{{ onUp }}" onPointerCancel="{{ onUp }}" onKeyDown="{{ onKey }}"
+          style="position: absolute; inset: 0; touch-action: none; cursor: grab"></div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- ================= TODAY ================= -->
+    <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+        <div style="padding: 0 24px; flex: none">
+          <div style="display: flex; align-items: center; justify-content: space-between; min-height: 32px">
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{ C.mute }}">{{ sel.kicker }}</span>
+            <sc-if value="{{ moved }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ backToNow }}" style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid {{ C.line }}; background: transparent; font-size: 13px; font-weight: 500">Back to now</button>
+            </sc-if>
+          </div>
+          <div style="display: flex; align-items: baseline; gap: 10px; margin-top: 2px">
+            <span style="font-family: 'Fraunces', serif; font-size: 108px; font-weight: 300; letter-spacing: -0.04em; line-height: 0.92; font-variant-numeric: lining-nums tabular-nums">{{ sel.hm }}</span>
+            <span style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 400; font-style: italic">{{ sel.name }}</span>
+              <span style="font-size: 14px; font-weight: 500; color: {{ C.mute }}">{{ sel.ampm }} · {{ sel.rel }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div style="margin: 14px 24px 0; flex: none">
+          <sc-if value="{{ iq.set }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; align-items: center; gap: 14px; min-height: 62px; padding: 10px 16px; border-radius: 14px; background: {{ C.ink }}; color: {{ C.deep }}">
+              <span style="display: flex; flex-direction: column; flex: 1; min-width: 0">
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8">Iqama · Test Mosque</span>
+                <span style="font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums">{{ iq.time }} <span style="font-size: 14px; font-weight: 500; opacity: 0.8">{{ iq.rel }}</span></span>
+                <span style="font-size: 12px; opacity: 0.8">{{ iq.rule }}</span>
+              </span>
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; white-space: nowrap">
+                <sc-if value="{{ iq.bell }}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></sc-if>
+                {{ iq.remText }}
+              </span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ iq.unset }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 14px; min-height: 62px; padding: 10px 16px; border-radius: 14px; border: 1.5px dashed {{ C.mute }}">
+              <span style="display: flex; flex-direction: column; flex: 1">
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{ C.mute }}">Iqama · Test Mosque</span>
+                <span style="font-size: 16px; font-weight: 500">Not configured</span>
+              </span>
+              <a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 600; text-underline-offset: 4px">Set time</a>
+            </div>
+          </sc-if>
+          <sc-if value="{{ iq.none }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; min-height: 62px; padding: 10px 16px; border-radius: 14px; border: 1px solid {{ C.line }}; font-size: 14px; color: {{ C.mute }}">Sunrise ends the time for Fajr. It has no Iqama.</div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ travel }}" hint-placeholder-val="{{ false }}">
+          <a href="#" style="margin: 10px 24px 0; flex: none; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 4px; border-top: 1px solid {{ C.line }}; border-bottom: 1px solid {{ C.line }}; text-decoration: none">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M2 22h20"></path><path d="M6.36 17.4 4 17l-2-4 1.1-.55a2 2 0 0 1 1.8 0l.17.1a2 2 0 0 0 1.8 0L8 12 5 6l.9-.45a2 2 0 0 1 2.09.2l4.02 3a2 2 0 0 0 2.1.2l4.19-2.06a2.41 2.41 0 0 1 1.73-.17L21 7a1.4 1.4 0 0 1 .87 1.99l-.38.76c-.23.46-.6.84-1.07 1.08L7.58 17.2a2 2 0 0 1-1.22.18Z"></path></svg>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+              <span style="font-family: 'Fraunces', serif; font-style: italic; font-size: 17px">On a flight?</span>
+              <span style="font-size: 12px; color: {{ C.mute }}">Prayer times and the Qibla aboard, from GPS, with no network.</span>
+            </span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="m9 18 6-6-6-6"></path></svg>
+          </a>
+        </sc-if>
+
+        <div class="ns" style="margin: 10px 12px 0; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: auto">
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+            <div style="{{ r.wrap }}">
+              <button onClick="{{ r.pick }}" aria-pressed="{{ r.current }}" style="flex: 1; min-width: 0; min-height: 52px; border: 0; background: transparent; display: flex; align-items: center; gap: 9px; padding: 0 4px 0 10px; text-align: left">
+                <span style="{{ r.mark }}"></span>
+                <span style="{{ r.nameStyle }}">{{ r.name }}</span>
+                <sc-if value="{{ r.isNext }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 6px; border-radius: 4px; background: {{ C.ink }}; color: {{ C.deep }}">Next</span>
+                </sc-if>
+                <span style="flex: 1"></span>
+                <span style="font-size: 12px; color: {{ C.mute }}; white-space: nowrap">{{ r.iqText }}</span>
+                <span style="{{ r.timeStyle }}">{{ r.time }}</span>
+              </button>
+              <button onClick="{{ r.openAlert }}" aria-label="{{ r.alertAria }}" style="flex: none; width: 58px; min-height: 52px; border: 0; border-left: 1px solid {{ C.line }}; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0">
+                <sc-if value="{{ r.iFull }}" hint-placeholder-val="{{ true }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"></path></svg></sc-if>
+                <sc-if value="{{ r.iShort }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg></sc-if>
+                <sc-if value="{{ r.iStd }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></sc-if>
+                <sc-if value="{{ r.iSilent }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M7 10h10M7 14h6"></path></svg></sc-if>
+                <sc-if value="{{ r.iOff }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" opacity="0.7"><path d="M6 8a6 6 0 0 1 9.3-5M18 8c0 7 3 9 3 9H9M3 17s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0M2 2l20 20"></path></svg></sc-if>
+                <span style="{{ r.modeStyle }}">{{ r.modeLabel }}</span>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+
+        <nav aria-label="Main" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 8px 8px; border-top: 1px solid {{ C.line }}">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+            <a href="#" aria-current="{{ t.current }}" style="{{ t.style }}">{{ t.label }}<span style="{{ t.dot }}"></span></a>
+          </sc-for>
+        </nav>
+      </div>
+    </sc-if>
+
+    <!-- ================= MOSQUE PAGE ================= -->
+    <sc-if value="{{ isMosque }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 0 8px">
+          <button aria-label="Back to Mosques" style="width: 48px; height: 48px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+          </button>
+          <button style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid {{ C.line }}; background: transparent; font-size: 14px; font-weight: 500">Edit details</button>
+        </div>
+        <div style="padding: 4px 24px 22px">
+          <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{ C.mute }}">Your mosque</div>
+          <div style="margin-top: 2px; font-family: 'Fraunces', serif; font-size: 40px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.1">Test Mosque</div>
+          <div style="margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+            <span style="height: 26px; padding: 0 11px; border-radius: 13px; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center">Active</span>
+            <span style="height: 26px; padding: 0 11px; border-radius: 13px; border: 1px solid {{ C.line }}; font-size: 12px; display: inline-flex; align-items: center">Added by you</span>
+            <span style="font-size: 12px; color: {{ C.mute }}">{{ mqCount }}</span>
+          </div>
+          <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px; font-size: 14px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+            <span><span style="color: {{ C.mute }}">Next Jama’ah · </span><span style="font-weight: 600">{{ mqNext }}</span></span>
+          </div>
+        </div>
+
+        <div class="ns" style="flex: 1; min-height: 0; overflow: auto; background: {{ S.bg }}; color: {{ S.ink }}; border-radius: 28px 28px 0 0; padding: 6px 20px 0">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid {{ S.line }}">
+            <span style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 16px; font-weight: 600">Pause Jama’ah reminders</span>
+              <span style="font-size: 13px; color: {{ S.mute }}">Your Iqama times and settings are kept.</span>
+            </span>
+            <button role="switch" aria-checked="{{ mqPausedStr }}" aria-label="Pause this mosque’s Jama’ah reminders" onClick="{{ toggleMqPause }}" style="{{ mqPauseTrack }}"><span style="{{ mqPauseThumb }}"></span></button>
+          </div>
+
+          <div style="padding: 20px 0 4px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+            <span style="font-family: 'Fraunces', serif; font-style: italic; font-size: 22px">Iqama schedule</span>
+            <span style="font-size: 12px; color: {{ S.mute }}">Tap a prayer to set it</span>
+          </div>
+          <sc-for list="{{ mrows }}" as="m" hint-placeholder-count="6">
+            <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid {{ S.line }}">
+              <button onClick="{{ m.edit }}" aria-label="{{ m.aria }}" style="flex: 1; min-width: 0; min-height: 76px; border: 0; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 12px; padding: 10px 0; text-align: left">
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                  <span style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap"><span style="font-size: 16px; font-weight: 600">{{ m.name }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ m.sub }}</span></span>
+                  <span style="font-size: 13px; color: {{ S.mute }}">{{ m.remLine }}</span>
+                </span>
+                <sc-if value="{{ m.set }}" hint-placeholder-val="{{ true }}">
+                  <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px">
+                    <span style="font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap">{{ m.iqama }}</span>
+                    <span style="font-size: 11px; color: {{ S.mute }}; white-space: nowrap">{{ m.rule }}</span>
+                  </span>
+                </sc-if>
+                <sc-if value="{{ m.unset }}" hint-placeholder-val="{{ false }}">
+                  <span style="height: 30px; padding: 0 12px; border-radius: 15px; border: 1.5px dashed {{ S.mute }}; color: {{ S.ink }}; font-size: 13px; display: inline-flex; align-items: center; white-space: nowrap">Not configured</span>
+                </sc-if>
+              </button>
+              <button role="switch" aria-checked="{{ m.onStr }}" aria-label="{{ m.swAria }}" onClick="{{ m.toggle }}" style="{{ m.track }}"><span style="{{ m.thumb }}"></span></button>
+            </div>
+          </sc-for>
+          <div style="padding: 16px 0 4px; font-size: 13px; color: {{ S.mute }}">Set by you · last updated 12 Oct 2026. The app never fills in an Iqama.</div>
+          <button style="margin: 4px 0 20px; min-height: 48px; border: 0; padding: 0; background: transparent; color: {{ S2.danger }}; font-size: 15px; font-weight: 500">Remove this mosque</button>
+        </div>
+
+        <nav aria-label="Main" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 8px 8px; background: {{ S.bg }}; border-top: 1px solid {{ S.line }}">
+          <sc-for list="{{ tabsS }}" as="t" hint-placeholder-count="4">
+            <a href="#" aria-current="{{ t.current }}" style="{{ t.style }}">{{ t.label }}<span style="{{ t.dot }}"></span></a>
+          </sc-for>
+        </nav>
+      </div>
+    </sc-if>
+
+    <!-- ================= MOSQUES TAB ================= -->
+    <sc-if value="{{ isMosques }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+        <div style="padding: 28px 24px 22px">
+          <div style="font-family: 'Fraunces', serif; font-size: 40px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.1">Mosques</div>
+          <div style="margin-top: 6px; font-size: 14px; line-height: 1.45; color: {{ C.mute }}; max-width: 320px">{{ mosquesLead }}</div>
+          <sc-if value="{{ hasMosques }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap">
+              <button style="height: 48px; padding: 0 18px; border-radius: 24px; border: 0; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Find nearby
+              </button>
+              <button style="height: 48px; padding: 0 18px; border-radius: 24px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 15px; font-weight: 500">Add manually</button>
+            </div>
+          </sc-if>
+        </div>
+
+        <div class="ns" style="flex: 1; min-height: 0; overflow: auto; background: {{ S.bg }}; color: {{ S.ink }}; border-radius: 28px 28px 0 0; padding: 12px 14px 0">
+          <sc-if value="{{ hasMosques }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ mlist }}" as="m" hint-placeholder-count="3">
+              <div style="{{ m.wrap }}">
+                <button onClick="{{ m.open }}" aria-label="{{ m.aria }}" style="width: 100%; border: 0; background: transparent; color: {{ S.ink }}; padding: 0; display: flex; align-items: center; gap: 12px; text-align: left; min-height: 48px">
+                  <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+                    <span style="font-size: 17px; font-weight: 600">{{ m.name }}</span>
+                    <span style="font-size: 12px; color: {{ S.mute }}">{{ m.src }}</span>
+                    <span style="margin-top: 4px; display: flex; align-items: center; gap: 8px">
+                      <span aria-hidden="true" style="display: flex; gap: 4px">
+                        <sc-for list="{{ m.pips }}" as="p" hint-placeholder-count="6"><span style="{{ p.style }}"></span></sc-for>
+                      </span>
+                      <span style="font-size: 12px; color: {{ S.mute }}">{{ m.setText }}</span>
+                    </span>
+                  </span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; opacity: 0.6"><path d="m9 18 6-6-6-6"></path></svg>
+                </button>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                  <sc-if value="{{ m.isActive }}" hint-placeholder-val="{{ false }}">
+                    <span style="height: 28px; padding: 0 12px; border-radius: 14px; background: {{ S2.accentBg }}; color: {{ S2.accentInk }}; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                      Active · Today uses this mosque
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ m.paused }}" hint-placeholder-val="{{ false }}">
+                    <span style="height: 28px; padding: 0 12px; border-radius: 14px; border: 1px solid {{ S.mute }}; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+                      Reminders paused
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ m.notActive }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ m.makeActive }}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 13px; font-weight: 500">Make active</button>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+            <div style="padding: 14px 4px 22px; font-size: 13px; line-height: 1.45; color: {{ S.mute }}">Mosques found online show where they came from and are not verified. Your Iqama times stay on this phone.</div>
+          </sc-if>
+
+          <sc-if value="{{ noMosques }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 36px 14px 24px; display: flex; flex-direction: column; align-items: center; text-align: center">
+              <svg width="168" height="72" viewBox="0 0 168 72" role="img" aria-label="A row of worshippers with one place still open">
+                <line x1="8" y1="66" x2="160" y2="66" stroke="{{ S.line }}" stroke-width="2" stroke-linecap="round"></line>
+                <circle cx="28" cy="20" r="7" fill="{{ S.ink }}"></circle><rect x="19" y="31" width="18" height="31" rx="9" fill="{{ S.ink }}"></rect>
+                <circle cx="56" cy="20" r="7" fill="{{ S.ink }}"></circle><rect x="47" y="31" width="18" height="31" rx="9" fill="{{ S.ink }}"></rect>
+                <circle cx="84" cy="20" r="7" fill="{{ S.ink }}"></circle><rect x="75" y="31" width="18" height="31" rx="9" fill="{{ S.ink }}"></rect>
+                <circle cx="112" cy="20" r="7" fill="{{ S.ink }}"></circle><rect x="103" y="31" width="18" height="31" rx="9" fill="{{ S.ink }}"></rect>
+                <circle cx="140" cy="20" r="7" fill="none" stroke="{{ S.mute }}" stroke-width="1.5" stroke-dasharray="3 3"></circle><rect x="131" y="31" width="18" height="31" rx="9" fill="none" stroke="{{ S.mute }}" stroke-width="1.5" stroke-dasharray="3 3"></rect>
+              </svg>
+              <div style="margin-top: 22px; font-family: 'Fraunces', serif; font-style: italic; font-size: 26px">There’s a place for you</div>
+              <div style="margin-top: 8px; font-size: 15px; line-height: 1.5; color: {{ S.mute }}; max-width: 300px">Add the mosque you pray at. Jama’ah will show when its congregation starts and remind you before it.</div>
+              <button style="margin-top: 22px; width: 100%; max-width: 300px; height: 52px; border-radius: 26px; border: 0; background: {{ S2.accentBg }}; color: {{ S2.accentInk }}; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Find mosques nearby
+              </button>
+              <button style="margin-top: 10px; width: 100%; max-width: 300px; height: 52px; border-radius: 26px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 16px; font-weight: 500">Add one yourself</button>
+              <div style="margin-top: 16px; font-size: 13px; color: {{ S.mute }}; max-width: 300px">You enter its Iqama times. Nothing is guessed, and nothing leaves your phone.</div>
+            </div>
+          </sc-if>
+        </div>
+
+        <nav aria-label="Main" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 8px 8px; background: {{ S.bg }}; border-top: 1px solid {{ S.line }}">
+          <sc-for list="{{ tabsS }}" as="t" hint-placeholder-count="4">
+            <a href="#" aria-current="{{ t.current }}" style="{{ t.style }}">{{ t.label }}<span style="{{ t.dot }}"></span></a>
+          </sc-for>
+        </nav>
+      </div>
+    </sc-if>
+
+    <!-- ================= ONBOARDING ================= -->
+    <sc-if value="{{ isOb }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 0 24px 20px">
+        <div class="ns" style="flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column">
+          <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{ C.mute }}">{{ ob.kicker }}</span>
+
+          <!-- 1 · Welcome -->
+          <sc-if value="{{ ob.s0 }}" hint-placeholder-val="{{ true }}">
+            <div dir="{{ ob.dir }}" lang="{{ ob.lang }}" style="{{ ob.welcomeStyle }}">
+              <h1 style="{{ ob.h1 }}">{{ ob.welcomeTitle }}</h1>
+              <p style="margin: 12px 0 0; font-size: 17px; line-height: 1.5; color: {{ C.mute }}">{{ ob.welcomeBody }}</p>
+            </div>
+            <div style="margin-top: 26px; font-size: 13px; font-weight: 600; color: {{ C.mute }}">Language · اللغة</div>
+            <div role="radiogroup" aria-label="Language" style="margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; border: 1px solid {{ C.line }}">
+              <sc-for list="{{ ob.langs }}" as="l" hint-placeholder-count="2">
+                <button role="radio" aria-checked="{{ l.checked }}" lang="{{ l.lang }}" onClick="{{ l.pick }}" style="{{ l.style }}">{{ l.label }}</button>
+              </sc-for>
+            </div>
+            <span style="margin-top: 8px; font-size: 13px; color: {{ C.mute }}">You can change it later in Settings.</span>
+          </sc-if>
+
+          <!-- 2 · Place -->
+          <sc-if value="{{ ob.s1 }}" hint-placeholder-val="{{ false }}">
+            <h1 style="{{ ob.h1 }}">Where are you?</h1>
+            <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: {{ C.mute }}">Prayer times are worked out on your phone from your place. An approximate location is enough, and it never leaves your phone.</p>
+            <sc-if value="{{ ob.placeNone }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ ob.locate }}" style="margin-top: 24px; height: 52px; border-radius: 26px; border: 0; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Use my location
+              </button>
+              <button style="margin-top: 10px; height: 52px; border-radius: 26px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 16px; font-weight: 500">Choose a city</button>
+            </sc-if>
+            <sc-if value="{{ ob.placeLocating }}" hint-placeholder-val="{{ false }}">
+              <div role="status" style="margin-top: 24px; min-height: 52px; display: flex; align-items: center; gap: 12px; font-size: 16px">
+                <span class="hz-spin" aria-hidden="true" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid {{ C.line }}; border-top-color: {{ C.ink }}"></span>
+                Finding you…
+              </div>
+            </sc-if>
+            <sc-if value="{{ ob.placeFound }}" hint-placeholder-val="{{ false }}">
+              <div role="status" style="margin-top: 24px; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid {{ C.line }}">
+                <span style="width: 32px; height: 32px; border-radius: 16px; background: {{ C.ink }}; color: {{ C.deep }}; display: flex; align-items: center; justify-content: center; flex: none">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                </span>
+                <span style="display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 600">Found you near Kuwait City</span><span style="font-size: 13px; color: {{ C.mute }}">Method: Kuwait · next Adhan Asr 2:49 PM</span></span>
+              </div>
+              <button style="margin-top: 6px; align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 0; font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 4px">Not right? Choose a city</button>
+            </sc-if>
+          </sc-if>
+
+          <!-- 3 · Your mosque -->
+          <sc-if value="{{ ob.s2 }}" hint-placeholder-val="{{ false }}">
+            <h1 style="{{ ob.h1 }}">Your mosque</h1>
+            <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: {{ C.mute }}">Jama’ah means praying together. Add the mosque you pray at to see when its congregation starts, and get a nudge before it.</p>
+            <svg width="196" height="78" viewBox="0 0 168 72" role="img" aria-label="{{ ob.rowAria }}" style="margin-top: 22px">
+              <line x1="8" y1="66" x2="160" y2="66" stroke="{{ C.line }}" stroke-width="2" stroke-linecap="round"></line>
+              <circle cx="28" cy="20" r="7" fill="{{ C.ink }}"></circle><rect x="19" y="31" width="18" height="31" rx="9" fill="{{ C.ink }}"></rect>
+              <circle cx="56" cy="20" r="7" fill="{{ C.ink }}"></circle><rect x="47" y="31" width="18" height="31" rx="9" fill="{{ C.ink }}"></rect>
+              <circle cx="84" cy="20" r="7" fill="{{ C.ink }}"></circle><rect x="75" y="31" width="18" height="31" rx="9" fill="{{ C.ink }}"></rect>
+              <circle cx="112" cy="20" r="7" fill="{{ C.ink }}"></circle><rect x="103" y="31" width="18" height="31" rx="9" fill="{{ C.ink }}"></rect>
+              <circle cx="140" cy="20" r="7" fill="{{ ob.youFill }}" stroke="{{ ob.youStroke }}" stroke-width="1.5" stroke-dasharray="{{ ob.youDash }}"></circle><rect x="131" y="31" width="18" height="31" rx="9" fill="{{ ob.youFill }}" stroke="{{ ob.youStroke }}" stroke-width="1.5" stroke-dasharray="{{ ob.youDash }}"></rect>
+            </svg>
+            <sc-if value="{{ ob.noMosque }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ ob.addMosque }}" style="margin-top: 22px; height: 52px; border-radius: 26px; border: 0; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 16px; font-weight: 600">Find mosques nearby</button>
+              <button onClick="{{ ob.addMosque }}" style="margin-top: 10px; height: 52px; border-radius: 26px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 16px; font-weight: 500">Add one yourself</button>
+            </sc-if>
+            <sc-if value="{{ ob.hasMosque }}" hint-placeholder-val="{{ false }}">
+              <div role="status" style="margin-top: 22px; padding: 14px 16px; border-radius: 16px; border: 1px solid {{ C.line }}; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 16px; font-weight: 600">Test Mosque added</span>
+                <span style="font-size: 13px; color: {{ C.mute }}">Its Iqama times are not configured yet. Set them from the Mosques tab whenever you are ready.</span>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <!-- 4 · Prayer alerts -->
+          <sc-if value="{{ ob.s3 }}" hint-placeholder-val="{{ false }}">
+            <h1 style="{{ ob.h1 }}">Prayer alerts</h1>
+            <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: {{ C.mute }}">An alert at each Adhan. You can choose the sound for each prayer later, from Today.</p>
+            <div style="margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid {{ C.line }}">
+              <span style="display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 600">Alerts for the five prayers</span><span style="font-size: 13px; color: {{ C.mute }}">Fajr, Dhuhr, Asr, Maghrib and Isha</span></span>
+              <button role="switch" aria-checked="{{ ob.alertsStr }}" aria-label="Alerts for the five prayers" onClick="{{ ob.toggleAlerts }}" style="{{ ob.alertsTrack }}"><span style="{{ ob.alertsThumb }}"></span></button>
+            </div>
+            <sc-if value="{{ ob.needNotif }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top: 12px; padding: 14px 16px; border-radius: 16px; background: {{ C.halo }}; display: flex; flex-direction: column; gap: 10px">
+                <span style="font-size: 14px; line-height: 1.45">Android will ask if Jama’ah may send notifications. Without it, alerts can’t appear.</span>
+                <button onClick="{{ ob.allow }}" style="align-self: flex-start; height: 44px; padding: 0 18px; border-radius: 22px; border: 0; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 14px; font-weight: 600">Allow notifications</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ ob.notifOk }}" hint-placeholder-val="{{ false }}">
+              <div role="status" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                Notifications allowed
+              </div>
+            </sc-if>
+            <div style="margin-top: 14px; font-size: 13px; line-height: 1.5; color: {{ C.mute }}">Some phones stop apps in the background to save battery. If an alert ever comes late, let Jama’ah run unrestricted. <a href="#" style="font-weight: 600; text-underline-offset: 3px">Battery settings</a></div>
+          </sc-if>
+
+          <!-- 5 · Travel -->
+          <sc-if value="{{ ob.s4 }}" hint-placeholder-val="{{ false }}">
+            <h1 style="{{ ob.h1 }}">Do you travel often?</h1>
+            <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: {{ C.mute }}">Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route.</p>
+            <div style="margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid {{ C.line }}">
+              <span style="display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 600">Travel mode</span><span style="font-size: 13px; color: {{ C.mute }}">{{ ob.travelSub }}</span></span>
+              <button role="switch" aria-checked="{{ travelStr }}" aria-label="Travel mode" onClick="{{ toggleTravel }}" style="{{ tv.track }}">
+                <span style="{{ tv.knob }}">
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ tv.home }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ tv.plane }}"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>
+                </span>
+              </button>
+            </div>
+            <span style="margin-top: 10px; font-size: 13px; color: {{ C.mute }}">The same switch sits at the top of Today.</span>
+          </sc-if>
+        </div>
+
+        <!-- Progress + buttons -->
+        <div style="flex: none; padding-top: 14px">
+          <div role="img" aria-label="{{ ob.progressAria }}" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ ob.segs }}" as="g" hint-placeholder-count="5"><span style="{{ g.style }}"></span></sc-for>
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 10px">
+            <sc-if value="{{ ob.canBack }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ ob.back }}" style="flex: none; height: 52px; padding: 0 20px; border-radius: 26px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 16px; font-weight: 500">Back</button>
+            </sc-if>
+            <sc-if value="{{ ob.notLast }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ ob.next }}" aria-disabled="{{ ob.nextDisabled }}" style="{{ ob.nextStyle }}">{{ ob.nextLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ ob.isLast }}" hint-placeholder-val="{{ false }}">
+              <a href="Horizon.dc.html" style="flex: 1; height: 52px; border-radius: 26px; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 16px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">Start</a>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= QIBLA ================= -->
+    <sc-if value="{{ isQibla }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+        <div style="padding: 28px 24px 0">
+          <div style="font-family: 'Fraunces', serif; font-size: 40px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.1">Qibla</div>
+          <div style="margin-top: 4px; font-size: 14px; color: {{ C.mute }}">From Kuwait City · 1,204 km to the Kaaba</div>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px">
+          <sc-if value="{{ q.live }}" hint-placeholder-val="{{ true }}">
+            <div style="position: relative; width: 300px; height: 314px">
+              <svg aria-hidden="true" width="20" height="14" viewBox="0 0 20 14" style="position: absolute; left: 140px; top: 0"><path d="M10 14 0 0h20z" fill="{{ C.ink }}"></path></svg>
+              <div aria-hidden="true" style="{{ q.halo }}"></div>
+              <div class="hz-arc" role="slider" tabIndex="0" aria-label="Turn to face the Qibla" aria-valuemin="0" aria-valuemax="359" aria-valuenow="{{ q.headRound }}" aria-valuetext="{{ q.status }}"
+                onPointerDown="{{ q.onDown }}" onPointerMove="{{ q.onMove }}" onPointerUp="{{ q.onUp }}" onPointerCancel="{{ q.onUp }}" onKeyDown="{{ q.onKey }}"
+                style="position: absolute; left: 10px; top: 24px; width: 280px; height: 280px; border-radius: 50%; touch-action: none; cursor: grab">
+                <div style="{{ q.dial }}">
+                  <div style="{{ q.ring }}"></div>
+                  <sc-for list="{{ q.ticks }}" as="t" hint-placeholder-count="36"><span style="{{ t.style }}"></span></sc-for>
+                  <div style="position: absolute; inset: 0; transform: rotate(225deg)">
+                    <svg width="280" height="280" viewBox="0 0 280 280" style="position: absolute; inset: 0; overflow: visible">
+                      <line x1="140" y1="140" x2="140" y2="44" stroke="{{ C.ink }}" stroke-width="2.5" stroke-linecap="round"></line>
+                      <rect x="131" y="20" width="18" height="18" rx="2" fill="{{ C.ink }}"></rect>
+                    </svg>
+                  </div>
+                </div>
+                <sc-for list="{{ q.labels }}" as="l" hint-placeholder-count="4"><span style="{{ l.style }}">{{ l.text }}</span></sc-for>
+                <span style="position: absolute; left: 134px; top: 134px; width: 12px; height: 12px; border-radius: 6px; background: {{ C.ink }}"></span>
+              </div>
+            </div>
+            <div style="margin-top: 10px; font-family: 'Fraunces', serif; font-size: 54px; font-weight: 300; line-height: 1">225°</div>
+            <div aria-live="polite" style="{{ q.statusStyle }}">{{ q.status }}</div>
+            <div style="margin-top: 6px; font-size: 13px; color: {{ C.mute }}">Hold the phone flat, away from metal and magnets.</div>
+          </sc-if>
+
+          <sc-if value="{{ q.calibrate }}" hint-placeholder-val="{{ false }}">
+            <svg width="200" height="110" viewBox="0 0 200 110" role="img" aria-label="Move the phone in a figure eight">
+              <path d="M100 55 C 70 10, 20 10, 20 55 S 70 100, 100 55 S 180 10, 180 55 S 130 100, 100 55" fill="none" stroke="{{ C.line }}" stroke-width="3" stroke-linecap="round"></path>
+              <path class="hz-draw8" pathLength="1" d="M100 55 C 70 10, 20 10, 20 55 S 70 100, 100 55 S 180 10, 180 55 S 130 100, 100 55" fill="none" stroke="{{ C.ink }}" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+            <div style="margin-top: 22px; font-family: 'Fraunces', serif; font-style: italic; font-size: 26px; text-align: center">The compass needs a moment</div>
+            <div style="margin-top: 8px; font-size: 15px; line-height: 1.5; text-align: center; color: {{ C.mute }}; max-width: 300px">Move your phone in a slow figure eight a few times, away from metal. The direction will settle.</div>
+            <button onClick="{{ q.doneCal }}" style="margin-top: 22px; height: 48px; padding: 0 22px; border-radius: 24px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 15px; font-weight: 500">It’s steady now</button>
+          </sc-if>
+
+          <sc-if value="{{ q.none }}" hint-placeholder-val="{{ false }}">
+            <svg width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="The Qibla is 225 degrees from north, south-west">
+              <circle cx="100" cy="100" r="88" fill="none" stroke="{{ C.line }}" stroke-width="1.5"></circle>
+              <text x="100" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="{{ C.ink }}">N</text>
+              <text x="180" y="105" text-anchor="middle" font-size="12" fill="{{ C.mute }}">E</text>
+              <text x="100" y="186" text-anchor="middle" font-size="12" fill="{{ C.mute }}">S</text>
+              <text x="20" y="105" text-anchor="middle" font-size="12" fill="{{ C.mute }}">W</text>
+              <g transform="rotate(225 100 100)"><line x1="100" y1="100" x2="100" y2="30" stroke="{{ C.ink }}" stroke-width="2.5" stroke-linecap="round"></line><rect x="93" y="18" width="14" height="14" rx="2" fill="{{ C.ink }}"></rect></g>
+              <circle cx="100" cy="100" r="5" fill="{{ C.ink }}"></circle>
+            </svg>
+            <div style="margin-top: 14px; font-family: 'Fraunces', serif; font-size: 54px; font-weight: 300; line-height: 1">225°</div>
+            <div style="margin-top: 6px; font-size: 16px; font-weight: 600">South-west, a little more west than south</div>
+            <div style="margin-top: 8px; font-size: 14px; line-height: 1.5; text-align: center; color: {{ C.mute }}; max-width: 300px">This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets.</div>
+          </sc-if>
+        </div>
+
+        <nav aria-label="Main" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 8px 8px; border-top: 1px solid {{ C.line }}">
+          <sc-for list="{{ tabsQ }}" as="t" hint-placeholder-count="4">
+            <a href="#" aria-current="{{ t.current }}" style="{{ t.style }}">{{ t.label }}<span style="{{ t.dot }}"></span></a>
+          </sc-for>
+        </nav>
+      </div>
+    </sc-if>
+
+    <!-- ================= IN-FLIGHT ================= -->
+    <sc-if value="{{ isFlight }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 0 8px">
+          <button aria-label="Back to Today" style="width: 48px; height: 48px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+          </button>
+          <button onClick="{{ f.openHelp }}" style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid {{ C.line }}; background: transparent; font-size: 14px; font-weight: 500">How it works</button>
+        </div>
+
+        <sc-if value="{{ f.start }}" hint-placeholder-val="{{ true }}">
+          <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 24px 28px">
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{ C.mute }}">In flight</span>
+            <h1 style="margin: 8px 0 0; font-family: 'Fraunces', serif; font-weight: 400; font-size: 40px; line-height: 1.08; letter-spacing: -0.02em">Prayer times at 11,000 metres</h1>
+            <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: {{ C.mute }}">Times and the Qibla for where the aircraft is, from your phone’s GPS. It works in airplane mode, with no network.</p>
+            <span style="flex: 1"></span>
+            <svg width="342" height="120" viewBox="0 0 342 120" aria-hidden="true">
+              <path d="M10 110 C 110 10, 232 10, 332 110" fill="none" stroke="{{ C.line }}" stroke-width="1.5" stroke-dasharray="2 6" stroke-linecap="round"></path>
+              <g transform="translate(171 36) rotate(45)"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" transform="translate(-12 -12) scale(1.4)" fill="none" stroke="{{ C.ink }}" stroke-width="1.6" stroke-linejoin="round"></path></g>
+            </svg>
+            <span style="flex: 1"></span>
+            <button onClick="{{ f.startGps }}" style="height: 54px; border-radius: 27px; border: 0; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 16px; font-weight: 600">Start GPS</button>
+            <span style="margin-top: 10px; font-size: 13px; text-align: center; color: {{ C.mute }}">Sit by a window if you can. The first fix can take a few minutes.</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ f.waiting }}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 32px 40px; text-align: center">
+            <div style="position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center">
+              <span class="hz-ring" aria-hidden="true" style="position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid {{ C.ink }}"></span>
+              <span class="hz-ring" aria-hidden="true" style="position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid {{ C.ink }}; animation-delay: 1.3s"></span>
+              <span style="width: 14px; height: 14px; border-radius: 7px; background: {{ C.ink }}"></span>
+            </div>
+            <div style="margin-top: 18px; font-family: 'Fraunces', serif; font-style: italic; font-size: 26px">Looking for satellites</div>
+            <div style="margin-top: 6px; font-size: 15px; color: {{ C.mute }}">{{ f.sats }}</div>
+            <div style="margin-top: 14px; font-size: 14px; line-height: 1.5; color: {{ C.mute }}">Keep the phone near a window, screen up. It keeps looking while the screen is off.</div>
+            <button onClick="{{ f.cancel }}" style="margin-top: 24px; height: 48px; padding: 0 22px; border-radius: 24px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 15px; font-weight: 500">Cancel</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ f.live }}" hint-placeholder-val="{{ false }}">
+          <div class="ns" style="flex: 1; min-height: 0; overflow: auto; padding: 4px 24px 24px">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: {{ C.mute }}">
+              <span style="width: 8px; height: 8px; border-radius: 4px; background: {{ C.ink }}; box-shadow: 0 0 0 3px {{ C.halo }}"></span>
+              21.5° N · 62.0° E · GPS fix 20 s ago
+            </div>
+            <div style="margin-top: 2px; font-size: 12px; color: {{ C.mute }}">Aircraft time 9:40 PM (UTC+4), from your position</div>
+
+            <div style="margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+              <div>
+                <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {{ C.mute }}">Now</div>
+                <div style="font-family: 'Fraunces', serif; font-size: 36px; line-height: 1.1">Isha</div>
+                <div style="font-size: 13px; color: {{ C.mute }}">since 7:28 PM</div>
+              </div>
+              <div>
+                <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {{ C.mute }}">Next</div>
+                <div style="font-family: 'Fraunces', serif; font-size: 36px; line-height: 1.1">Fajr</div>
+                <div style="font-size: 13px; color: {{ C.mute }}">≈ 4:39 AM · in about 7 h</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 22px; padding: 16px; border-radius: 18px; border: 1px solid {{ C.line }}; display: flex; gap: 16px; align-items: center">
+              <div style="position: relative; width: 120px; height: 120px; flex: none">
+                <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="{{ f.qAria }}">
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="{{ C.line }}" stroke-width="1.5"></circle>
+                  <g transform="translate(60 60) rotate(-45)"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" transform="translate(-14 -14) scale(1.15)" fill="{{ C.ink }}"></path></g>
+                  <g transform="{{ f.qRot }}"><line x1="60" y1="60" x2="60" y2="16" stroke="{{ C.ink }}" stroke-width="2" stroke-dasharray="3 4" stroke-linecap="round"></line><rect x="54" y="4" width="12" height="12" rx="2" fill="{{ C.ink }}"></rect></g>
+                </svg>
+              </div>
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {{ C.mute }}">Qibla from your seat</span>
+                <span style="font-size: 16px; font-weight: 600; line-height: 1.3">{{ f.qWords }}</span>
+                <label style="margin-top: 4px; font-size: 12px; color: {{ C.mute }}" for="hzHeading">Aircraft heading</label>
+                <span style="display: flex; align-items: center; gap: 6px">
+                  <input id="hzHeading" type="number" inputMode="numeric" min="0" max="359" value="{{ f.hdg }}" onChange="{{ f.onHdg }}" style="width: 72px; height: 44px; box-sizing: border-box; padding: 0 10px; border-radius: 10px; border: 1px solid {{ C.line }}; background: transparent; color: {{ C.ink }}; font-family: inherit; font-size: 16px">
+                  <span style="font-size: 16px">°</span>
+                </span>
+              </div>
+            </div>
+            <div style="margin-top: 6px; font-size: 12px; color: {{ C.mute }}">From the seat-back map, or ask the crew. The nose of the aircraft is up.</div>
+
+            <div style="margin-top: 22px; display: flex; align-items: baseline; justify-content: space-between">
+              <span style="font-family: 'Fraunces', serif; font-style: italic; font-size: 22px">Along the route</span>
+              <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; border: 1px dashed {{ C.mute }}">Estimates</span>
+            </div>
+            <sc-for list="{{ f.route }}" as="r" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; gap: 10px; min-height: 48px; border-bottom: 1px solid {{ C.line }}">
+                <span style="font-size: 16px; font-weight: 600">{{ r.name }}</span>
+                <span style="flex: 1"></span>
+                <span style="font-size: 13px; color: {{ C.mute }}">{{ r.rel }}</span>
+                <span style="font-size: 15px; font-variant-numeric: tabular-nums; min-width: 82px; text-align: right">{{ r.time }}</span>
+              </div>
+            </sc-for>
+            <div style="margin-top: 10px; font-size: 13px; line-height: 1.5; color: {{ C.mute }}">Times shift as the aircraft moves and if the route changes. Alerts in flight say they are estimates.</div>
+            <button onClick="{{ f.end }}" style="margin-top: 18px; width: 100%; height: 52px; border-radius: 26px; border: 1.5px solid {{ C.line }}; background: transparent; font-size: 16px; font-weight: 500">End in-flight mode</button>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ================= SETTINGS ================= -->
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+        <div style="padding: 12px 16px 20px 8px">
+          <sc-if value="{{ sg.sub }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ sg.back }}" aria-label="Back to Settings" style="width: 48px; height: 48px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+            </button>
+          </sc-if>
+          <div style="{{ sg.headPad }}">
+            <div style="font-family: 'Fraunces', serif; font-size: 38px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.1">{{ sg.title }}</div>
+            <div style="margin-top: 6px; font-size: 14px; line-height: 1.45; color: {{ C.mute }}; max-width: 320px">{{ sg.lead }}</div>
+          </div>
+        </div>
+
+        <div class="ns" style="flex: 1; min-height: 0; overflow: auto; background: {{ S.bg }}; color: {{ S.ink }}; border-radius: 28px 28px 0 0; padding: 6px 20px 24px">
+
+          <!-- Hub -->
+          <sc-if value="{{ sg.isHub }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ sg.groups }}" as="g" hint-placeholder-count="3">
+              <div style="padding: 18px 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {{ S.mute }}">{{ g.label }}</div>
+              <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+                <button onClick="{{ r.go }}" style="width: 100%; min-height: 68px; border: 0; border-bottom: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 14px; padding: 8px 0; text-align: left">
+                  <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 12px; background: {{ S2.well }}; display: flex; align-items: center; justify-content: center; flex: none">
+                    <sc-if value="{{ r.iTimes }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"></path><path d="M6 18a6 6 0 0 1 12 0"></path><path d="M12 4v3M4.9 8.9l2 2M19.1 8.9l-2 2"></path></svg></sc-if>
+                    <sc-if value="{{ r.iAlerts }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"></path></svg></sc-if>
+                    <sc-if value="{{ r.iJamaah }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="2"></circle><circle cx="12" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><path d="M4 20v-6a2 2 0 0 1 4 0v6M10 20v-6a2 2 0 0 1 4 0v6M16 20v-6a2 2 0 0 1 4 0v6"></path></svg></sc-if>
+                    <sc-if value="{{ r.iTravel }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg></sc-if>
+                    <sc-if value="{{ r.iLook }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg></sc-if>
+                    <sc-if value="{{ r.iHelp }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"></path></svg></sc-if>
+                  </span>
+                  <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 16px; font-weight: 600">{{ r.label }}</span>
+                    <span style="font-size: 13px; color: {{ S.mute }}">{{ r.summary }}</span>
+                  </span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+                </button>
+              </sc-for>
+            </sc-for>
+            <div style="padding: 18px 0 0; font-size: 13px; line-height: 1.5; color: {{ S.mute }}">Iqama times live on each mosque, in the Mosques tab, not here.</div>
+          </sc-if>
+
+          <!-- Prayer times -->
+          <sc-if value="{{ sg.isTimes }}" hint-placeholder-val="{{ false }}">
+            <button style="width: 100%; min-height: 68px; border: 0; border-bottom: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 12px; padding: 10px 0; text-align: left">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Calculation method</span><span style="font-size: 13px; color: {{ S.mute }}">Kuwait · chosen automatically for your place</span></span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+            <div style="padding: 18px 0 8px; font-size: 16px; font-weight: 600">Asr</div>
+            <div role="radiogroup" aria-label="Asr method" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: {{ S2.well }}">
+              <sc-for list="{{ sg.asr }}" as="o" hint-placeholder-count="2">
+                <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="{{ o.seg }}"><span style="font-size: 14px; font-weight: 600">{{ o.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ o.desc }}</span></button>
+              </sc-for>
+            </div>
+            <div style="padding: 20px 0 8px; display: flex; align-items: baseline; justify-content: space-between"><span style="font-size: 16px; font-weight: 600">Hijri date</span><span style="font-size: 13px; color: {{ S.mute }}">{{ sg.hijri }}</span></div>
+            <div role="radiogroup" aria-label="Adjust the Hijri date" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: {{ S2.well }}">
+              <sc-for list="{{ sg.hijriAdj }}" as="o" hint-placeholder-count="3">
+                <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="{{ o.seg }}"><span style="font-size: 14px; font-weight: 600">{{ o.label }}</span></button>
+              </sc-for>
+            </div>
+            <div style="padding-top: 6px; font-size: 12px; color: {{ S.mute }}">Match the date your country announces after the moon sighting.</div>
+            <div style="padding: 22px 0 2px; font-size: 16px; font-weight: 600">Extra times on Today</div>
+            <div style="font-size: 13px; color: {{ S.mute }}">Quieter rows. Never an Iqama.</div>
+            <sc-for list="{{ sg.extras }}" as="x" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-bottom: 1px solid {{ S.line }}">
+                <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 500">{{ x.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ x.desc }}</span></span>
+                <button role="switch" aria-checked="{{ x.onStr }}" aria-label="{{ x.label }}" onClick="{{ x.toggle }}" style="{{ x.track }}"><span style="{{ x.thumb }}"></span></button>
+              </div>
+            </sc-for>
+            <button onClick="{{ sg.toggleAdv }}" aria-expanded="{{ sg.advStr }}" style="margin-top: 14px; width: 100%; min-height: 52px; border: 0; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; justify-content: space-between; padding: 0; font-size: 15px; font-weight: 600">
+              Advanced
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{ sg.advChevron }}"><path d="m6 9 6 6 6-6"></path></svg>
+            </button>
+            <sc-if value="{{ sg.advOpen }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ sg.advRows }}" as="a" hint-placeholder-count="2">
+                <button style="width: 100%; min-height: 64px; border: 0; border-top: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 12px; padding: 8px 0; text-align: left">
+                  <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">{{ a.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ a.desc }}</span></span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+                </button>
+              </sc-for>
+            </sc-if>
+          </sc-if>
+
+          <!-- Adhan alerts -->
+          <sc-if value="{{ sg.isAlerts }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 16px 0 4px; font-size: 16px; font-weight: 600">Default sound</div>
+            <div style="font-size: 13px; color: {{ S.mute }}">Used by every prayer unless you choose otherwise below.</div>
+            <div role="radiogroup" aria-label="Default sound">
+              <sc-for list="{{ sg.defaults }}" as="o" hint-placeholder-count="4">
+                <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="width: 100%; min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}; text-align: left">
+                  <span style="{{ o.dot }}"></span>
+                  <span style="display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 500">{{ o.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ o.desc }}</span></span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="padding: 20px 0 4px; font-size: 16px; font-weight: 600">Each prayer</div>
+            <div style="font-size: 13px; color: {{ S.mute }}">Also from Today: tap the sound beside any prayer.</div>
+            <sc-for list="{{ sg.perPrayer }}" as="p" hint-placeholder-count="6">
+              <button onClick="{{ p.open }}" style="width: 100%; min-height: 52px; border: 0; border-bottom: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 10px; padding: 0; text-align: left">
+                <span style="flex: 1; font-size: 15px; font-weight: 500">{{ p.name }}</span>
+                <span style="font-size: 14px; color: {{ S.mute }}">{{ p.mode }}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+              </button>
+            </sc-for>
+            <div style="padding: 20px 0 4px; font-size: 16px; font-weight: 600">Recordings</div>
+            <sc-for list="{{ sg.recordings }}" as="a" hint-placeholder-count="2">
+              <button style="width: 100%; min-height: 60px; border: 0; border-bottom: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 12px; padding: 6px 0; text-align: left">
+                <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">{{ a.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ a.desc }}</span></span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+              </button>
+            </sc-for>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 14px 0 0">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Full-screen Adhan</span><span style="font-size: 12px; line-height: 1.4; color: {{ S.mute }}">When the phone is idle, the Adhan fills the screen with a large Stop.</span></span>
+              <button role="switch" aria-checked="{{ sg.fsStr }}" aria-label="Full-screen Adhan" onClick="{{ sg.toggleFs }}" style="{{ sg.fsTrack }}"><span style="{{ sg.fsThumb }}"></span></button>
+            </div>
+          </sc-if>
+
+          <!-- Jama’ah reminders -->
+          <sc-if value="{{ sg.isJamaah }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top: 14px; padding: 14px 16px; border-radius: 16px; background: {{ S2.well }}; display: flex; flex-direction: column; gap: 10px">
+              <span style="font-size: 14px; line-height: 1.45">Iqama times and which prayers remind you are set on each mosque.</span>
+              <button style="align-self: flex-start; height: 44px; padding: 0 16px; border-radius: 22px; border: 0; background: {{ S2.accentBg }}; color: {{ S2.accentInk }}; font-size: 14px; font-weight: 600">Open Test Mosque</button>
+            </div>
+            <div style="padding: 20px 0 4px; font-size: 16px; font-weight: 600">Reminder sound</div>
+            <div role="radiogroup" aria-label="Reminder sound">
+              <sc-for list="{{ sg.remSounds }}" as="o" hint-placeholder-count="4">
+                <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}; text-align: left">
+                  <span style="{{ o.dot }}"></span>
+                  <span style="display: flex; flex-direction: column"><span lang="{{ o.lang }}" style="font-size: 15px; font-weight: 500">{{ o.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ o.desc }}</span></span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid {{ S.line }}; margin-top: 6px">
+              <span style="flex: 1; font-size: 15px; font-weight: 500">Vibrate</span>
+              <button role="switch" aria-checked="{{ sg.vibStr }}" aria-label="Vibrate" onClick="{{ sg.toggleVib }}" style="{{ sg.vibTrack }}"><span style="{{ sg.vibThumb }}"></span></button>
+            </div>
+            <button onClick="{{ sg.test }}" style="margin-top: 6px; height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 14px; font-weight: 500">Send a test reminder</button>
+            <div style="margin-top: 20px; display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid {{ S.line }}">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Pause all Jama’ah reminders</span><span style="font-size: 12px; line-height: 1.4; color: {{ S.mute }}">From every mosque. Iqama times are kept, and Adhan alerts carry on.</span></span>
+              <button role="switch" aria-checked="{{ sg.pauseStr }}" aria-label="Pause all Jama’ah reminders" onClick="{{ sg.togglePause }}" style="{{ sg.pauseTrack }}"><span style="{{ sg.pauseThumb }}"></span></button>
+            </div>
+          </sc-if>
+
+          <!-- Travel -->
+          <sc-if value="{{ sg.isTravel }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-bottom: 1px solid {{ S.line }}">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Travel mode</span><span style="font-size: 12px; color: {{ S.mute }}">The same switch sits at the top of Today.</span></span>
+              <button role="switch" aria-checked="{{ travelStr }}" aria-label="Travel mode" onClick="{{ toggleTravel }}" style="{{ sg.tvTrack }}">
+                <span style="{{ sg.tvKnob }}">
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ tv.home }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ tv.plane }}"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>
+                </span>
+              </button>
+            </div>
+            <div style="{{ sg.followRow }}">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">Follow my location</span><span style="font-size: 12px; line-height: 1.4; color: {{ S.mute }}">{{ sg.followDesc }}</span></span>
+              <button role="switch" aria-checked="{{ sg.followStr }}" aria-label="Follow my location" onClick="{{ sg.toggleFollow }}" style="{{ sg.followTrack }}"><span style="{{ sg.followThumb }}"></span></button>
+            </div>
+            <button style="width: 100%; min-height: 64px; border: 0; border-bottom: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 12px; padding: 8px 0; text-align: left">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">In-flight mode</span><span style="font-size: 12px; color: {{ S.mute }}">Prayer times and the Qibla from GPS, on a plane</span></span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </sc-if>
+
+          <!-- Language and look -->
+          <sc-if value="{{ sg.isLook }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 16px 0 2px; font-size: 16px; font-weight: 600">Language · اللغة</div>
+            <div role="radiogroup" aria-label="Language">
+              <sc-for list="{{ sg.langs }}" as="o" hint-placeholder-count="3">
+                <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}; text-align: left">
+                  <span style="{{ o.dot }}"></span><span lang="{{ o.lang }}" style="font-size: 15px; font-weight: 500">{{ o.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="padding: 18px 0 2px; font-size: 16px; font-weight: 600">Theme</div>
+            <div role="radiogroup" aria-label="Theme">
+              <sc-for list="{{ sg.themes }}" as="o" hint-placeholder-count="3">
+                <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}; text-align: left">
+                  <span style="{{ o.dot }}"></span><span style="font-size: 15px; font-weight: 500">{{ o.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="padding-top: 6px; font-size: 12px; line-height: 1.45; color: {{ S.mute }}">The sky always follows the time of day. Dark keeps it dimmer.</div>
+          </sc-if>
+
+          <!-- Help and about -->
+          <sc-if value="{{ sg.isHelp }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ sg.helpRows }}" as="a" hint-placeholder-count="3">
+              <button style="width: 100%; min-height: 64px; border: 0; border-bottom: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; display: flex; align-items: center; gap: 12px; padding: 8px 0; text-align: left">
+                <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">{{ a.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ a.desc }}</span></span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.55"><path d="m9 18 6-6-6-6"></path></svg>
+              </button>
+            </sc-for>
+            <div style="padding: 20px 0 0; font-family: 'Fraunces', serif; font-style: italic; font-size: 20px">About Jama’ah</div>
+            <div style="padding-top: 6px; font-size: 14px; line-height: 1.55; color: {{ S.mute }}">Prayer times are worked out on this phone. Iqama times are entered by you, for each mosque. No account, and nothing is uploaded.</div>
+            <div style="padding-top: 10px; font-size: 12px; color: {{ S.mute }}">Version 0.9 · early build</div>
+          </sc-if>
+        </div>
+
+        <nav aria-label="Main" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 8px 8px; background: {{ S.bg }}; border-top: 1px solid {{ S.line }}">
+          <sc-for list="{{ tabsSet }}" as="t" hint-placeholder-count="4">
+            <a href="#" aria-current="{{ t.current }}" style="{{ t.style }}">{{ t.label }}<span style="{{ t.dot }}"></span></a>
+          </sc-for>
+        </nav>
+      </div>
+    </sc-if>
+
+    <!-- ================= FULL-SCREEN ADHAN ================= -->
+    <sc-if value="{{ isAdhan }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 4px 28px 32px">
+        <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: {{ C.mute }}">It’s time for</span>
+        <span style="font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; font-size: 76px; line-height: 1.05; letter-spacing: -0.02em">{{ ad.name }}</span>
+        <span style="margin-top: 6px; font-size: 17px; color: {{ C.mute }}">Adhan · {{ ad.time }}</span>
+        <span style="flex: 1"></span>
+        <div style="position: relative; width: 190px; height: 190px; display: flex; align-items: center; justify-content: center">
+          <sc-if value="{{ ad.playing }}" hint-placeholder-val="{{ true }}">
+            <span class="hz-ring" aria-hidden="true" style="position: absolute; width: 136px; height: 136px; border-radius: 50%; border: 1.5px solid {{ C.ink }}"></span>
+            <span class="hz-ring" aria-hidden="true" style="position: absolute; width: 136px; height: 136px; border-radius: 50%; border: 1.5px solid {{ C.ink }}; animation-delay: 1.3s"></span>
+            <button onClick="{{ ad.stop }}" aria-label="Stop the Adhan" style="position: relative; width: 136px; height: 136px; border-radius: 50%; border: 0; background: {{ C.ink }}; color: {{ C.deep }}; font-size: 22px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"></rect></svg>
+              Stop
+            </button>
+          </sc-if>
+          <sc-if value="{{ ad.stopped }}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+              <span style="font-size: 17px; font-weight: 500">Adhan stopped</span>
+              <button onClick="{{ ad.replay }}" style="height: 48px; padding: 0 22px; border-radius: 24px; border: 1.5px solid {{ C.ink }}; background: transparent; font-size: 15px; font-weight: 500">Dismiss</button>
+            </div>
+          </sc-if>
+        </div>
+        <span style="flex: 1"></span>
+        <span style="font-size: 15px; font-weight: 500">{{ ad.iqLine }}</span>
+        <span style="margin-top: 10px; font-size: 13px; color: {{ C.mute }}; max-width: 280px">Volume keys or turning the phone face down also stop it.</span>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- Snackbar -->
+  <div role="status" aria-live="polite" style="{{ toastStyle }}">{{ toastText }}</div>
+
+  <!-- Adhan alert sheet -->
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 6; background: rgba(4,6,14,0.5); display: flex; flex-direction: column; justify-content: flex-end">
+      <button aria-label="Close" onClick="{{ closeSheet }}" style="flex: 1; border: 0; background: transparent"></button>
+      <div role="dialog" aria-label="{{ sheetTitle }}" style="background: {{ S.bg }}; color: {{ S.ink }}; border-radius: 24px 24px 0 0; padding: 10px 20px 20px">
+        <div style="width: 36px; height: 4px; border-radius: 2px; background: {{ S.line }}; margin: 0 auto 14px"></div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between">
+          <span style="font-family: 'Fraunces', serif; font-style: italic; font-size: 26px">{{ sheetTitle }}</span>
+          <span style="font-size: 14px; color: {{ S.mute }}">Adhan {{ sheetTime }}</span>
+        </div>
+        <div style="margin-top: 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {{ S.mute }}">Notify with sound</div>
+        <sc-for list="{{ optsSound }}" as="o" hint-placeholder-count="3">
+          <button onClick="{{ o.pick }}" role="radio" aria-checked="{{ o.checked }}" style="width: 100%; min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}">
+            <span style="{{ o.dot }}"></span>
+            <span style="display: flex; flex-direction: column; align-items: flex-start; text-align: left"><span style="font-size: 16px; font-weight: 500">{{ o.label }}</span><span style="font-size: 13px; color: {{ S.mute }}">{{ o.desc }}</span></span>
+          </button>
+        </sc-for>
+        <div style="margin-top: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {{ S.mute }}">Notify without sound</div>
+        <sc-for list="{{ optsQuiet }}" as="o" hint-placeholder-count="1">
+          <button onClick="{{ o.pick }}" role="radio" aria-checked="{{ o.checked }}" style="width: 100%; min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}">
+            <span style="{{ o.dot }}"></span>
+            <span style="display: flex; flex-direction: column; align-items: flex-start; text-align: left"><span style="font-size: 16px; font-weight: 500">{{ o.label }}</span><span style="font-size: 13px; color: {{ S.mute }}">{{ o.desc }}</span></span>
+          </button>
+        </sc-for>
+        <div style="margin-top: 8px; padding-top: 4px; border-top: 1px solid {{ S.line }}">
+          <sc-for list="{{ optsOff }}" as="o" hint-placeholder-count="1">
+            <button onClick="{{ o.pick }}" role="radio" aria-checked="{{ o.checked }}" style="width: 100%; min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 4px 2px; border: 0; background: transparent; color: {{ S.ink }}">
+              <span style="{{ o.dot }}"></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-start; text-align: left"><span style="font-size: 16px; font-weight: 500">{{ o.label }}</span><span style="font-size: 13px; color: {{ S.mute }}">{{ o.desc }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+        <button onClick="{{ closeSheet }}" style="margin-top: 12px; width: 100%; height: 52px; border: 0; border-radius: 14px; background: {{ S.ink }}; color: {{ S.bg }}; font-size: 16px; font-weight: 500">Done</button>
+      </div>
+    </div>
+  </sc-if>
+  <!-- In-flight: how it works -->
+  <sc-if value="{{ f.help }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 7; background: rgba(4,6,14,0.5); display: flex; flex-direction: column; justify-content: flex-end">
+      <button aria-label="Close" onClick="{{ f.closeHelp }}" style="flex: 1; border: 0; background: transparent"></button>
+      <div role="dialog" aria-label="How in-flight mode works" style="background: {{ S.bg }}; color: {{ S.ink }}; border-radius: 24px 24px 0 0; padding: 10px 22px 22px">
+        <div style="width: 36px; height: 4px; border-radius: 2px; background: {{ S.line }}; margin: 0 auto 14px"></div>
+        <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 26px">How it works</div>
+        <ol style="margin: 14px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5">
+          <li>Your phone’s GPS works without a network, even in airplane mode.</li>
+          <li>Jama’ah works out the prayer times for where the aircraft is, and updates them as it moves.</li>
+          <li>Times further along are estimates: the speed and route can change.</li>
+          <li>The Qibla is shown against the aircraft’s nose. Enter the heading from the seat-back map; the phone’s compass is not reliable inside an aircraft.</li>
+        </ol>
+        <button onClick="{{ f.closeHelp }}" style="margin-top: 18px; width: 100%; height: 52px; border: 0; border-radius: 14px; background: {{ S.ink }}; color: {{ S.bg }}; font-size: 16px; font-weight: 500">Got it</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Iqama editor -->
+  <sc-if value="{{ edOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 7; background: rgba(4,6,14,0.5); display: flex; flex-direction: column; justify-content: flex-end">
+      <button aria-label="Close without saving" onClick="{{ edCancel }}" style="flex: 1; min-height: 40px; border: 0; background: transparent"></button>
+      <div role="dialog" aria-label="{{ ed.title }}" class="ns" style="max-height: 790px; overflow: auto; background: {{ S.bg }}; color: {{ S.ink }}; border-radius: 24px 24px 0 0; padding: 10px 20px 20px">
+        <div style="width: 36px; height: 4px; border-radius: 2px; background: {{ S.line }}; margin: 0 auto 12px"></div>
+        <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 28px">{{ ed.title }}</div>
+        <div style="margin-top: 2px; font-size: 13px; color: {{ S.mute }}">{{ ed.sub }}</div>
+
+        <div role="radiogroup" aria-label="How this mosque sets its Iqama" style="margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: {{ S2.well }}">
+          <sc-for list="{{ ed.modes }}" as="o" hint-placeholder-count="2">
+            <button role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="{{ o.style }}"><span style="font-size: 14px; font-weight: 600">{{ o.label }}</span><span style="font-size: 12px; color: {{ S.mute }}">{{ o.desc }}</span></button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ ed.isAfter }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+            <button aria-label="One minute less" onClick="{{ ed.afterMinus }}" style="width: 52px; height: 52px; border-radius: 26px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 24px">−</button>
+            <span aria-live="polite" style="display: flex; flex-direction: column; align-items: center">
+              <span style="font-family: 'Fraunces', serif; font-size: 52px; font-weight: 300; line-height: 1">{{ ed.afterText }}</span>
+              <span style="font-size: 13px; color: {{ S.mute }}">minutes after the Adhan</span>
+            </span>
+            <button aria-label="One minute more" onClick="{{ ed.afterPlus }}" style="width: 52px; height: 52px; border-radius: 26px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 24px">+</button>
+          </div>
+          <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ ed.afterChips }}" as="c" hint-placeholder-count="6">
+              <button role="radio" aria-checked="{{ c.checked }}" onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+          <div style="margin-top: 12px; font-size: 14px; line-height: 1.45">{{ ed.afterPreview }}</div>
+        </sc-if>
+
+        <sc-if value="{{ ed.isFixed }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ ed.fixedEmpty }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ ed.startFixed }}" style="margin-top: 18px; width: 100%; min-height: 72px; border-radius: 16px; border: 1.5px dashed {{ S.mute }}; background: transparent; color: {{ S.ink }}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px">
+              <span style="font-size: 16px; font-weight: 500">{{ ed.fixedHint }}</span>
+              <span style="font-size: 12px; color: {{ S.mute }}">Nothing is saved until you choose a time</span>
+            </button>
+          </sc-if>
+          <sc-if value="{{ ed.fixedHas }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 6px">
+              <button aria-label="5 minutes earlier" onClick="{{ ed.f5m }}" style="width: 48px; height: 48px; border-radius: 24px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 13px">−5</button>
+              <button aria-label="1 minute earlier" onClick="{{ ed.f1m }}" style="width: 48px; height: 48px; border-radius: 24px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 13px">−1</button>
+              <span aria-live="polite" style="flex: 1; text-align: center; font-family: 'Fraunces', serif; font-size: 38px; font-weight: 300; white-space: nowrap">{{ ed.fixedText }}</span>
+              <button aria-label="1 minute later" onClick="{{ ed.f1p }}" style="width: 48px; height: 48px; border-radius: 24px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 13px">+1</button>
+              <button aria-label="5 minutes later" onClick="{{ ed.f5p }}" style="width: 48px; height: 48px; border-radius: 24px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 13px">+5</button>
+            </div>
+            <div style="margin-top: 10px; font-size: 14px; text-align: center; color: {{ S.mute }}">The same time every day, whatever the Adhan.</div>
+          </sc-if>
+        </sc-if>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid {{ S.line }}; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <span style="display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 16px; font-weight: 600">Jama’ah reminder</span>
+            <span style="font-size: 13px; color: {{ S.mute }}">A nudge before the congregation starts</span>
+          </span>
+          <button role="switch" aria-checked="{{ ed.remOnStr }}" aria-label="Jama’ah reminder" onClick="{{ ed.toggleRem }}" style="{{ ed.remTrack }}"><span style="{{ ed.remThumb }}"></span></button>
+        </div>
+        <sc-if value="{{ ed.showBefore }}" hint-placeholder-val="{{ true }}">
+          <div role="radiogroup" aria-label="Remind me before the Iqama" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ ed.beforeChips }}" as="c" hint-placeholder-count="5">
+              <button role="radio" aria-checked="{{ c.checked }}" onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="margin-top: 10px; font-size: 14px; color: {{ S.mute }}">{{ ed.remSummary }}</div>
+
+        <div style="margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <button onClick="{{ edCancel }}" style="height: 52px; border-radius: 14px; border: 1px solid {{ S.line }}; background: transparent; color: {{ S.ink }}; font-size: 16px">Cancel</button>
+          <button onClick="{{ edSave }}" aria-disabled="{{ ed.saveDisabled }}" style="{{ ed.saveStyle }}">Save</button>
+        </div>
+        <sc-if value="{{ ed.canClear }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ edClear }}" style="margin-top: 6px; width: 100%; min-height: 48px; border: 0; background: transparent; color: {{ S2.danger }}; font-size: 14px; font-weight: 500">Clear this Iqama</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"travel":{"editor":"boolean","default":false},"now":{"editor":"range","min":0,"max":1439,"step":1,"default":839},"screen":{"editor":"enum","options":["today","adhan","mosque","mosques","onboarding","qibla","flight","settings"],"default":"today"},"settingsPage":{"editor":"enum","options":["hub","times","alerts","jamaah","travel","look","help"],"default":"hub"},"compass":{"editor":"enum","options":["ok","calibrate","none"],"default":"ok"},"flightState":{"editor":"enum","options":["start","waiting","live"],"default":"start"},"obStep":{"editor":"int","min":0,"max":4,"default":0},"mosquesEmpty":{"editor":"boolean","default":false},"editPrayer":{"editor":"enum","options":["none","fajr","dhuhr","asr","maghrib","isha","jumuah"],"default":"none"},"adhanPrayer":{"editor":"enum","options":["fajr","dhuhr","asr","maghrib","isha"],"default":"maghrib"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const t = this.props.travel;
+    this.state = {
+      view: null, moved: false, pin: null, stopped: false,
+      travel: t === true || t === 'true', stretch: false, toastShow: false, toastText: '', sheet: null,
+      alerts: { fajr: 'full', sunrise: 'off', dhuhr: 'short', asr: 'standard', maghrib: 'full', isha: 'silent' },
+      // The mosque's own Iqama schedule: a fixed time, or minutes after the Adhan, or nothing yet.
+      mq: {
+        fajr: { mode: 'after', after: 20, fixed: null, rem: true, before: 10 },
+        dhuhr: { mode: 'fixed', after: null, fixed: 705, rem: false, before: 10 },
+        asr: { mode: 'after', after: 20, fixed: null, rem: true, before: 10 },
+        maghrib: { mode: 'after', after: 5, fixed: null, rem: false, before: 5 },
+        isha: { mode: null, after: null, fixed: null, rem: false, before: 10 },
+        jumuah: { mode: null, after: null, fixed: null, rem: false, before: 15 }
+      },
+      mqPaused: false, ed: null, activeMosque: 'test',
+      obStep: Math.max(0, Math.min(4, Number(this.props.obStep ?? 0) || 0)), obLang: 'en', obPlace: 'none', obMosque: false, obAlerts: true, obNotif: false,
+      qHead: 160, qCalDone: false,
+      fState: this.props.flightState || 'start', fHdg: 120, fHelp: false, fSats: 1,
+      setPage: this.props.settingsPage || 'hub', setDefault: 'short', setAsr: 'standard', setHijri: 0,
+      setExtras: { imsak: true, duha: false, third: false }, setAdv: false, setFs: true,
+      setRemSound: 'chime', setVib: true, setPauseAll: false, setFollow: true, setLang: 'phone', setTheme: 'phone'
+    };
+    const ep = this.props.editPrayer;
+    if (ep && ep !== 'none' && this.state.mq[ep]) {
+      const e = this.state.mq[ep];
+      this.state.ed = { k: ep, mode: e.mode || 'after', after: e.after, fixed: e.fixed, rem: e.mode ? e.rem : true, before: e.before || 10 };
+    }
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf); clearTimeout(this._st); clearTimeout(this._tt); clearTimeout(this._loc); clearInterval(this._gps);
+  }
+  nowMin() { const n = Number(this.props.now); return isNaN(n) ? 839 : n; }
+  // Glide the viewed time to a target, the short way round the clock.
+  animateTo(target, pin, done) {
+    cancelAnimationFrame(this._raf);
+    const from = this._lastView != null ? this._lastView : this.nowMin();
+    let d = target - from; if (d > 720) d -= 1440; if (d < -720) d += 1440;
+    const dur = Math.min(1200, 380 + Math.abs(d) * 0.9), t0 = performance.now();
+    this.setState({ moved: true, pin: pin || null, view: from });
+    const step = (now) => {
+      const f = Math.min(1, (now - t0) / dur);
+      const e = f < 0.5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2;
+      this.setState({ view: (((from + d * e) % 1440) + 1440) % 1440 });
+      if (f < 1) this._raf = requestAnimationFrame(step); else if (done) done();
+    };
+    this._raf = requestAnimationFrame(step);
+  }
+  renderVals() {
+    const s = this.state;
+    const NOW = this.nowMin(), RISE = 342, SET = 1035;
+    const dark = (this.props.theme ?? 'light') === 'dark';
+    const screen = this.props.screen ?? 'today';
+    const isAdhan = screen === 'adhan';
+    const adK = this.props.adhanPrayer ?? 'maghrib';
+
+    // ---------- colour helpers ----------
+    const hx = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const toHex = (c) => '#' + c.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+    const mix = (a, b, f) => { const A = hx(a), B = hx(b); return toHex(A.map((v, i) => v + (B[i] - v) * f)); };
+    const rgba = (h, a) => { const c = hx(h); return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; };
+    const lum = (h) => { const c = hx(h).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+
+    // ---------- prayers ----------
+    const P = [
+      { k: 'fajr', name: 'Fajr', t: 261, after: 20, rem: true },
+      { k: 'sunrise', name: 'Sunrise', t: 342, sunrise: true },
+      { k: 'dhuhr', name: 'Dhuhr', t: 689, fixed: 705, rem: false },
+      { k: 'asr', name: 'Asr', t: 889, after: 20, rem: true },
+      { k: 'maghrib', name: 'Maghrib', t: 1035, after: 5, rem: false },
+      { k: 'isha', name: 'Isha', t: 1111 }
+    ].map((p) => ({ ...p, iq: p.fixed != null ? p.fixed : (p.after != null ? p.t + p.after : null) }));
+    const byK = (k) => P.find((p) => p.k === k);
+    const nextP = P.find((p) => !p.sunrise && p.t > NOW) || P[0];
+    const nextTomorrow = !P.find((p) => !p.sunrise && p.t > NOW);
+    const inForce = (v) => { let r = P[P.length - 1]; P.forEach((p) => { if (p.t <= v) r = p; }); return r; };
+
+    // Onboarding walks through one day: dawn, sunrise, midday, late afternoon, sunset.
+    const OB_T = [255, 348, 700, 960, 1048];
+    const isOb = screen === 'onboarding';
+    // In flight the sky is the one outside the window: night over the Arabian Sea.
+    const isFlight = screen === 'flight';
+    const view = isAdhan ? byK(adK).t : (isFlight ? 1300 : (s.moved && s.view != null ? s.view : (isOb ? OB_T[s.obStep] : NOW)));
+    this._lastView = view;
+    const selP = isAdhan ? byK(adK) : (!s.moved ? nextP : (s.pin ? byK(s.pin) : inForce(view)));
+    const sk = selP.k;
+
+    // ---------- sky that follows the clock ----------
+    // [minute, [5 stops at 0/13/22/34/100%], glow rgba, star opacity, dark-mode dimming]
+    const KF = [
+      [0,    ['#03050D', '#070C1E', '#0E1430', '#0B1024', '#090D1C'], [90, 110, 180, 0.12], 1, 0.2],
+      [261,  ['#070B24', '#1B2152', '#4E4176', '#27254C', '#121530'], [236, 150, 140, 0.45], 0.6, 0.3],
+      [342,  ['#5C79B5', '#B79AC0', '#F2B39A', '#F6D2B0', '#FBEBDD'], [255, 214, 160, 0.75], 0, 0.55],
+      [430,  ['#5E9BD6', '#9CC6EA', '#DCEBF3', '#EEF4F6', '#F7F9FA'], [255, 240, 210, 0.4], 0, 0.65],
+      [689,  ['#4C9BE0', '#7DB8EA', '#B9DBF4', '#DDEEF9', '#EEF6FB'], [255, 255, 255, 0.35], 0, 0.68],
+      [889,  ['#7FB1DA', '#B5CCDC', '#EBD3A6', '#F4E1C2', '#FBF1E2'], [255, 200, 130, 0.45], 0, 0.62],
+      [990,  ['#6E93C4', '#C9A9A6', '#F2B27A', '#F3D2AE', '#FAE8D8'], [255, 170, 100, 0.6], 0, 0.55],
+      [1035, ['#232E66', '#C05A7A', '#F2925E', '#6A3050', '#1B1328'], [255, 150, 90, 0.55], 0.1, 0.4],
+      [1070, ['#141A40', '#3A2A5E', '#8A4A6A', '#2E2040', '#140F22'], [220, 120, 110, 0.35], 0.4, 0.3],
+      [1111, ['#05081A', '#0E1534', '#22295A', '#141A38', '#0C1124'], [110, 120, 190, 0.2], 0.85, 0.2],
+      [1260, ['#03050D', '#070C1E', '#0E1430', '#0B1024', '#090D1C'], [90, 110, 180, 0.12], 1, 0.2],
+      [1440, ['#03050D', '#070C1E', '#0E1430', '#0B1024', '#090D1C'], [90, 110, 180, 0.12], 1, 0.2]
+    ];
+    let ia = 0; while (ia < KF.length - 2 && KF[ia + 1][0] <= view) ia++;
+    const A = KF[ia], B = KF[ia + 1];
+    let fk = (view - A[0]) / (B[0] - A[0]); fk = fk * fk * (3 - 2 * fk);
+    const NIGHT = '#04050B';
+    const stops = A[1].map((c, i) => {
+      let v = mix(c, B[1][i], fk);
+      if (dark) v = mix(v, NIGHT, A[4] + (B[4] - A[4]) * fk);
+      return v;
+    });
+    const glow = A[2].map((v, i) => v + (B[2][i] - v) * fk);
+    const glowA = glow[3] * (dark ? 0.6 : 1);
+    const starOp = A[3] + (B[3] - A[3]) * fk;
+    const skyStyle = 'position: absolute; inset: 0; z-index: 0; background: ' +
+      'radial-gradient(ellipse 75% 16% at 50% 22%, rgba(' + glow.slice(0, 3).map(Math.round).join(',') + ',' + glowA.toFixed(2) + '), rgba(0,0,0,0) 70%), ' +
+      'linear-gradient(180deg, ' + stops[0] + ' 0%, ' + stops[1] + ' 13%, ' + stops[2] + ' 22%, ' + stops[3] + ' 34%, ' + stops[4] + ' 100%)';
+    // Ink flips automatically where the text sits
+    const Lmid = (lum(stops[3]) * 1.2 + lum(stops[4])) / 2.2;
+    const lightInk = Lmid < 0.3;
+    const ink = lightInk ? '#F5F3FA' : mix(stops[0], '#05070F', 0.82);
+    const deep = lightInk ? mix(stops[4], '#000000', 0.25) : '#FBFAF7';
+    const C = { ink, deep, mute: rgba(ink, 0.76), line: rgba(ink, 0.22), halo: rgba(ink, 0.12), trail: rgba(ink, 0.85) };
+
+    // Stars
+    let seed = 7;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const stars = [];
+    for (let i = 0; i < 46; i++) {
+      const x = rnd() * 390, y = rnd() * 300, r = 0.8 + rnd() * 1.6, fade = Math.max(0.25, 1 - y / 320);
+      stars.push({ style: 'position: absolute; left: ' + x.toFixed(0) + 'px; top: ' + y.toFixed(0) + 'px; width: ' + r.toFixed(1) + 'px; height: ' + r.toFixed(1) + 'px; border-radius: 50%; background: #FFFFFF; ' +
+        'box-shadow: 0 0 ' + (r * 3).toFixed(0) + 'px rgba(255,255,255,' + (0.6 * fade).toFixed(2) + '); opacity: ' + fade.toFixed(2) + '; animation-delay: ' + (rnd() * 4).toFixed(1) + 's; animation-duration: ' + (2.6 + rnd() * 3).toFixed(1) + 's' });
+    }
+    const starLayer = 'position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: ' + starOp.toFixed(2);
+    const grainStyle = 'position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: overlay; opacity: ' + (dark ? 0.1 : 0.07);
+
+    // ---------- sun, moon and the path ----------
+    const cx = 195, hy = 118, Rx = 150, Ry = 96, Rn = 36, NL = 1440 - (SET - RISE);
+    const isDay = (t) => t >= RISE && t <= SET;
+    const pos = (t) => {
+      t = ((t % 1440) + 1440) % 1440;
+      if (isDay(t)) { const a = Math.PI * (t - RISE) / (SET - RISE); return { x: cx - Rx * Math.cos(a), y: hy - Ry * Math.sin(a), alt: Math.sin(a) }; }
+      const tt = t < RISE ? t + 1440 : t;
+      const a = Math.PI * (tt - SET) / NL;
+      return { x: cx + Rx * Math.cos(a), y: hy + Rn * Math.sin(a), alt: -Math.sin(a) };
+    };
+    const hm = (m) => { m = Math.round(m); m = ((m % 1440) + 1440) % 1440; const h = Math.floor(m / 60), mm = m % 60, h12 = h % 12 === 0 ? 12 : h % 12; return h12 + ':' + String(mm).padStart(2, '0'); };
+    const ap = (m) => { m = ((Math.round(m) % 1440) + 1440) % 1440; return m < 720 ? 'AM' : 'PM'; };
+    const span = (d) => { d = Math.round(d); const h = Math.floor(d / 60), m = d % 60; return (h ? h + ' h ' : '') + (m || !h ? m + ' min' : '').trim(); };
+    const rel = (t) => t >= NOW ? 'in ' + span(t - NOW) : span(NOW - t) + ' ago';
+
+    const sp = pos(view);
+    const alt = Math.max(0, sp.alt);
+    const warm = Math.min(1, alt * 2.4);
+    const sun = {
+      x: sp.x.toFixed(1), y: sp.y.toFixed(1),
+      core: mix('#FFB062', '#FFF4DC', warm),
+      disc: mix('#FFC27E', '#FFF8EA', warm),
+      op: sp.alt >= 0 ? 1 : 0.28,
+      dayTrail: isDay(view) ? 'M45 118 A150 96 0 0 1 ' + sp.x.toFixed(1) + ' ' + sp.y.toFixed(1) : (view > SET ? 'M45 118 A150 96 0 0 1 345 118' : ''),
+      nightTrail: isDay(view) ? '' : 'M345 118 A150 36 0 0 1 ' + sp.x.toFixed(1) + ' ' + sp.y.toFixed(1),
+      label: isOb ? '' : ((!s.moved && !isAdhan) ? 'Now ' + hm(NOW) : hm(view) + ' ' + ap(view)),
+      labelStyle: 'position: absolute; left: ' + (sp.x - 40).toFixed(0) + 'px; top: ' + (sp.y < 70 ? sp.y + 22 : sp.y - 44).toFixed(0) + 'px; width: 80px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; pointer-events: none; color: ' + C.mute
+    };
+    // Moon: 4 Jumada al-Awwal → about 3.5 days old; it trails the sun by ~50 min a day.
+    const AGE = 3.5, mT = view - AGE * 50.5;
+    const mp = pos(mT), mUp = isDay(((mT % 1440) + 1440) % 1440);
+    const k = (1 - Math.cos(2 * Math.PI * AGE / 29.53)) / 2, mr = 9, rx = mr * Math.abs(1 - 2 * k);
+    const ang = Math.atan2(sp.y - mp.y, sp.x - mp.x) * 180 / Math.PI;
+    const moon = {
+      tf: 'translate(' + mp.x.toFixed(1) + ' ' + mp.y.toFixed(1) + ') rotate(' + ang.toFixed(0) + ')',
+      op: mUp ? (sp.alt > 0 ? 0.35 : 0.95) : 0,
+      path: 'M0 -' + mr + ' A' + mr + ' ' + mr + ' 0 0 1 0 ' + mr + ' A' + rx.toFixed(2) + ' ' + mr + ' 0 0 ' + (k < 0.5 ? 0 : 1) + ' 0 -' + mr + ' Z'
+    };
+
+    const dots = P.map((p) => {
+      const q = pos(p.t), on = p.k === sk, nx = p.k === nextP.k;
+      const size = on ? 16 : 10;
+      const g = '0 0 ' + (on ? 14 : 8) + 'px ' + rgba(C.ink, on ? 0.7 : 0.45);
+      return {
+        on,
+        hit: 'position: absolute; pointer-events: none; left: ' + (q.x - 18).toFixed(0) + 'px; top: ' + (q.y - 18).toFixed(0) + 'px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center',
+        pulse: 'position: absolute; left: 10px; top: 10px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid ' + C.ink,
+        dot: 'position: relative; width: ' + size + 'px; height: ' + size + 'px; border-radius: 50%; box-sizing: border-box; transition: width 400ms cubic-bezier(0.34, 1.56, 0.64, 1), height 400ms cubic-bezier(0.34, 1.56, 0.64, 1); ' +
+          (p.sunrise ? 'border: 2px solid ' + C.ink + '; background: transparent; box-shadow: ' + g
+            : (on ? 'background: ' + C.ink + '; border: 4px solid ' + rgba(C.ink, 0.35) + '; background-clip: padding-box; box-shadow: ' + g
+              : 'background: ' + C.ink + '; box-shadow: ' + g + (nx ? ', 0 0 0 4px ' + rgba(C.ink, 0.22) : '')))
+      };
+    });
+    const sq = pos(selP.t);
+    const selLabelStyle = 'position: absolute; pointer-events: none; left: ' + (sq.x - 50).toFixed(0) + 'px; top: ' + (sq.y + 16).toFixed(0) + 'px; width: 100px; text-align: center; font-family: Fraunces, serif; font-style: italic; font-size: 14px; color: ' + C.ink + (isOb ? '; display: none' : '');
+
+    // Drag / keys on the path
+    const toTime = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - r.left) * 390 / r.width, y = (e.clientY - r.top) * 168 / r.height;
+      const c = Math.max(-1, Math.min(1, (cx - x) / Rx));
+      if (y <= hy + 6) return RISE + Math.acos(c) / Math.PI * (SET - RISE);
+      return (SET + Math.acos(-c) / Math.PI * NL) % 1440;
+    };
+    const scrub = (e) => { cancelAnimationFrame(this._raf); this.setState({ view: toTime(e), moved: true, pin: null }); };
+
+    // ---------- hero / iqama ----------
+    const sel = {
+      name: (isAdhan || s.moved || !nextTomorrow) ? selP.name : selP.name,
+      hm: hm(selP.t), ampm: ap(selP.t),
+      rel: (!s.moved && nextTomorrow) ? 'tomorrow' : rel(selP.t),
+      kicker: selP.sunrise ? 'Sunrise · not a prayer' : (!s.moved ? (nextTomorrow ? 'Next prayer · tomorrow' : 'Next prayer · Adhan') : (s.pin ? 'Adhan' : 'In force at ' + hm(view) + ' ' + ap(view)))
+    };
+    const iq = {
+      set: !selP.sunrise && selP.iq != null,
+      unset: !selP.sunrise && selP.iq == null,
+      none: !!selP.sunrise,
+      time: selP.iq != null ? hm(selP.iq) + ' ' + ap(selP.iq) : '',
+      rel: selP.iq != null ? '· ' + rel(selP.iq) : '',
+      rule: selP.after != null ? 'Adhan + ' + selP.after + ' min · set by you' : 'Fixed time · set by you',
+      bell: !!selP.rem,
+      remText: selP.rem && selP.iq != null ? 'Reminder ' + hm(selP.iq - 10) : 'No reminder'
+    };
+
+    const MODES = {
+      full: { label: 'Full Adhan', short: 'Full', desc: 'The whole recording, played as an alarm' },
+      short: { label: 'Short Adhan', short: 'Short', desc: 'The opening takbir only' },
+      standard: { label: 'Standard sound', short: 'Standard', desc: 'Your phone’s own notification sound' },
+      silent: { label: 'Silent', short: 'Silent', desc: 'Shown in the notification shade, no sound' },
+      off: { label: 'Off', short: 'Off', desc: 'No notification at all' }
+    };
+    const rows = P.map((p) => {
+      const on = p.k === sk, m = s.alerts[p.k];
+      return {
+        name: p.name, time: hm(p.t) + ' ' + ap(p.t),
+        isNext: p.k === nextP.k, current: on ? 'true' : 'false',
+        iqText: p.sunrise ? '' : (p.iq != null ? 'Iqama ' + hm(p.iq) : 'Iqama not set'),
+        pick: () => this.animateTo(p.t, p.k),
+        openAlert: () => this.setState({ sheet: p.k }),
+        alertAria: p.name + ' Adhan alert: ' + MODES[m].label + '. Change',
+        iFull: m === 'full', iShort: m === 'short', iStd: m === 'standard', iSilent: m === 'silent', iOff: m === 'off',
+        modeLabel: MODES[m].short,
+        modeStyle: 'font-size: 10px; font-weight: 600; letter-spacing: 0.04em; color: ' + (m === 'off' ? C.mute : C.ink),
+        wrap: 'display: flex; align-items: stretch; border-radius: 12px; transition: background 400ms ease; background: ' + (on ? C.halo : 'transparent'),
+        mark: 'flex: none; width: 3px; height: 18px; border-radius: 2px; background: ' + (on ? C.ink : 'transparent'),
+        nameStyle: 'font-size: 16px; font-weight: ' + (p.sunrise ? '400; font-style: italic; color: ' + C.mute : '600'),
+        timeStyle: 'min-width: 70px; text-align: right; font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: ' + (p.sunrise ? '400; color: ' + C.mute : '500')
+      };
+    });
+
+    const S = dark ? { bg: '#14151C', ink: '#ECEDF2', mute: '#A3A6B3', line: '#2A2C36' } : { bg: '#FBF9F6', ink: '#15161C', mute: '#575A66', line: '#E2DED7' };
+    const curMode = s.sheet ? s.alerts[s.sheet] : null;
+    const opt = (id) => {
+      const on = curMode === id;
+      return {
+        label: MODES[id].label, desc: MODES[id].desc, checked: on ? 'true' : 'false',
+        pick: () => this.setState({ alerts: { ...s.alerts, [s.sheet]: id } }),
+        dot: 'flex: none; width: 20px; height: 20px; border-radius: 10px; box-sizing: border-box; border: ' + (on ? '6px solid ' + S.ink : '2px solid ' + S.mute)
+      };
+    };
+    const shp = s.sheet ? byK(s.sheet) : null;
+
+    const tOn = s.travel, spring = 'cubic-bezier(0.34, 1.56, 0.64, 1)', kw = s.stretch ? 44 : 32;
+    const tv = {
+      track: 'position: relative; flex: none; width: 72px; height: 40px; padding: 0; border-radius: 20px; box-sizing: border-box; ' +
+        'border: 1.5px solid ' + (tOn ? C.ink : C.line) + '; background: ' + (tOn ? C.ink : 'transparent') + '; transition: background 260ms ease, border-color 260ms ease',
+      knob: 'position: absolute; top: 2.5px; left: ' + (tOn ? (66.5 - kw) : 2.5) + 'px; width: ' + kw + 'px; height: 32px; border-radius: 16px; ' +
+        'background: ' + (tOn ? C.deep : C.ink) + '; color: ' + (tOn ? C.ink : C.deep) + '; transition: left 440ms ' + spring + ', width 190ms ease-out, background 260ms ease',
+      home: 'position: absolute; left: calc(50% - 8px); top: 8px; transition: opacity 200ms ease, transform 400ms ' + spring + '; ' + (tOn ? 'opacity: 0; transform: scale(0.4) rotate(-30deg)' : 'opacity: 1; transform: none'),
+      plane: 'position: absolute; left: calc(50% - 8px); top: 8px; transition: opacity 200ms ease, transform 400ms ' + spring + '; ' + (tOn ? 'opacity: 1; transform: none' : 'opacity: 0; transform: scale(0.4) rotate(45deg)')
+    };
+    const tabs = ['Today', 'Mosques', 'Qibla', 'Settings'].map((label, i) => ({
+      label, current: i === 0 ? 'page' : 'false',
+      style: 'min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 13px; text-decoration: none; font-weight: ' + (i === 0 ? '600; color: ' + C.ink : '500; color: ' + C.mute),
+      dot: 'width: 5px; height: 5px; border-radius: 3px; background: ' + (i === 0 ? C.ink : 'transparent')
+    }));
+
+    // ---------- mosque page + Iqama editor ----------
+    const MQ = [
+      { k: 'fajr', name: 'Fajr', adhan: 261 },
+      { k: 'dhuhr', name: 'Dhuhr', adhan: 689 },
+      { k: 'asr', name: 'Asr', adhan: 889 },
+      { k: 'maghrib', name: 'Maghrib', adhan: 1035 },
+      { k: 'isha', name: 'Isha', adhan: 1111 },
+      { k: 'jumuah', name: 'Jumu’ah', adhan: 689, friday: true }
+    ];
+    const iqOf = (e, adhan) => (e.mode === 'after' && e.after != null) ? adhan + e.after : ((e.mode === 'fixed' && e.fixed != null) ? e.fixed : null);
+    const S2 = dark ? { well: '#1E2029', danger: '#F2B8B5', accentBg: '#ECEDF2', accentInk: '#14151C' } : { well: '#EFEBE4', danger: '#B3261E', accentBg: '#15161C', accentInk: '#FBF9F6' };
+    const swS = (on, dis) => 'flex: none; width: 52px; height: 32px; border-radius: 16px; padding: 4px; box-sizing: border-box; display: flex; align-items: center; transition: background 160ms ease; ' +
+      (dis ? 'border: 1.5px dashed ' + S.mute + '; background: transparent; justify-content: flex-start; cursor: not-allowed;'
+        : (on ? 'border: 0; background: ' + S2.accentBg + '; justify-content: flex-end;' : 'border: 0; background: ' + S.line + '; justify-content: flex-start;'));
+    const thS = (on, dis) => 'width: 24px; height: 24px; border-radius: 12px; background: ' + (dis ? S.line : (on ? S2.accentInk : S.mute));
+    const mq = s.mq;
+    const mrows = MQ.map((m) => {
+      const e = mq[m.k], iqT = iqOf(e, m.adhan), set = iqT != null, on = set && e.rem;
+      return {
+        name: m.name,
+        sub: m.friday ? 'Fridays, in place of Dhuhr' : 'Adhan ' + hm(m.adhan) + ' ' + ap(m.adhan),
+        set, unset: !set,
+        iqama: set ? hm(iqT) + ' ' + ap(iqT) : '',
+        rule: e.mode === 'after' ? 'Adhan + ' + e.after + ' min' : 'Fixed time',
+        remLine: !set ? 'Set an Iqama time to add a reminder' : (on ? (s.mqPaused ? 'Paused · ' : '') + 'Reminder at ' + hm(iqT - e.before) + ' ' + ap(iqT - e.before) : 'Reminder off'),
+        aria: (set ? 'Edit ' : 'Set ') + m.name + ' Iqama',
+        edit: () => this.setState({ ed: { k: m.k, mode: e.mode || 'after', after: e.after, fixed: e.fixed, rem: set ? e.rem : true, before: e.before || 10 } }),
+        onStr: on ? 'true' : 'false',
+        swAria: m.name + ' Jama’ah reminder' + (set ? '' : ', available once an Iqama time is set'),
+        track: swS(on, !set), thumb: thS(on, !set),
+        toggle: () => { if (!set) return; this.setState({ mq: { ...mq, [m.k]: { ...e, rem: !e.rem } } }); }
+      };
+    });
+    const nxq = MQ.filter((m) => !m.friday).map((m) => ({ m, t: iqOf(mq[m.k], m.adhan) })).filter((x) => x.t != null && x.t > NOW).sort((a, b) => a.t - b.t)[0];
+    const d = s.ed;
+    const dm = d ? MQ.find((m) => m.k === d.k) : null;
+    const dVal = d ? iqOf(d, dm.adhan) : null;
+    const dHas = dVal != null;
+    const prevSet = d ? iqOf(mq[d.k], dm.adhan) != null : false;
+    const upd = (p) => this.setState({ ed: { ...this.state.ed, ...p } });
+    const chip = (on) => 'min-width: 56px; height: 44px; padding: 0 12px; border-radius: 22px; font-size: 14px; font-weight: 500; ' +
+      (on ? 'border: 0; background: ' + S2.accentBg + '; color: ' + S2.accentInk : 'border: 1px solid ' + S.line + '; background: transparent; color: ' + S.ink);
+    const edv = !d ? { modes: [], afterChips: [], beforeChips: [] } : {
+      title: dm.name + ' Iqama',
+      sub: 'Test Mosque · ' + (dm.friday ? 'Fridays, in place of Dhuhr' : 'Adhan ' + hm(dm.adhan) + ' ' + ap(dm.adhan) + ' today'),
+      modes: [['after', 'Minutes after Adhan', 'Moves with the Adhan'], ['fixed', 'Fixed time', 'Same time every day']].map(([id, label, desc]) => ({
+        label, desc, checked: d.mode === id ? 'true' : 'false',
+        pick: () => upd({ mode: id }),
+        style: 'min-height: 58px; border: 0; border-radius: 11px; padding: 6px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: ' + S.ink + '; ' +
+          (d.mode === id ? 'background: ' + S.bg + '; box-shadow: 0 1px 3px rgba(0,0,0,0.18)' : 'background: transparent')
+      })),
+      isAfter: d.mode === 'after', isFixed: d.mode === 'fixed',
+      afterText: d.after != null ? String(d.after) : '—',
+      afterMinus: () => upd({ after: Math.max(1, (this.state.ed.after ?? 11) - 1) }),
+      afterPlus: () => upd({ after: Math.min(90, (this.state.ed.after ?? 9) + 1) }),
+      afterChips: [5, 10, 15, 20, 25, 30].map((n) => ({ label: n + ' min', checked: d.after === n ? 'true' : 'false', pick: () => upd({ after: n }), style: chip(d.after === n) })),
+      afterPreview: d.after != null
+        ? (dm.friday ? 'On Fridays the Iqama is ' + d.after + ' min after the Dhuhr Adhan.' : 'Today: Iqama ' + hm(dm.adhan + d.after) + ' ' + ap(dm.adhan + d.after) + '. It moves with the Adhan each day.')
+        : 'Choose how many minutes after the Adhan this mosque starts. Nothing is saved until you do.',
+      fixedEmpty: d.fixed == null, fixedHas: d.fixed != null,
+      fixedHint: 'Adhan ' + hm(dm.adhan) + ' ' + ap(dm.adhan) + ' · tap to set',
+      startFixed: () => upd({ fixed: dm.adhan }),
+      fixedText: d.fixed != null ? hm(d.fixed) + ' ' + ap(d.fixed) : '',
+      f5m: () => upd({ fixed: this.state.ed.fixed - 5 }), f1m: () => upd({ fixed: this.state.ed.fixed - 1 }),
+      f1p: () => upd({ fixed: this.state.ed.fixed + 1 }), f5p: () => upd({ fixed: this.state.ed.fixed + 5 }),
+      remOnStr: dHas && d.rem ? 'true' : 'false',
+      remTrack: swS(dHas && d.rem, !dHas), remThumb: thS(dHas && d.rem, !dHas),
+      toggleRem: () => { if (dHas) upd({ rem: !this.state.ed.rem }); },
+      showBefore: dHas && d.rem,
+      beforeChips: [5, 10, 15, 20, 30].map((n) => ({ label: n + ' min', checked: d.before === n ? 'true' : 'false', pick: () => upd({ before: n }), style: chip(d.before === n) })),
+      remSummary: !dHas ? 'Set the Iqama first to add a reminder.' : (d.rem ? 'Reminder at ' + hm(dVal - d.before) + ' ' + ap(dVal - d.before) + ', ' + d.before + ' min before the Iqama.' : 'No reminder for this prayer.'),
+      saveDisabled: dHas ? 'false' : 'true',
+      saveStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 500; ' + (dHas ? 'background: ' + S2.accentBg + '; color: ' + S2.accentInk : 'background: ' + S2.well + '; color: ' + S.mute + '; cursor: not-allowed'),
+      canClear: prevSet
+    };
+    const flash = (text) => { clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toastShow: false }), 2200); return { toastShow: true, toastText: text }; };
+    const mv = {
+      isMosque: screen === 'mosque',
+      S2, mrows,
+      mqCount: MQ.filter((m) => iqOf(mq[m.k], m.adhan) != null).length + ' of 6 Iqama set',
+      mqNext: nxq ? nxq.m.name + ' ' + hm(nxq.t) + ' ' + ap(nxq.t) + ' · ' + rel(nxq.t) : 'none left today',
+      mqPausedStr: s.mqPaused ? 'true' : 'false',
+      mqPauseTrack: swS(s.mqPaused, false), mqPauseThumb: thS(s.mqPaused, false),
+      toggleMqPause: () => this.setState({ mqPaused: !s.mqPaused }),
+      tabsS: ['Today', 'Mosques', 'Qibla', 'Settings'].map((label, i) => ({
+        label, current: i === 1 ? 'page' : 'false',
+        style: 'min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 13px; text-decoration: none; font-weight: ' + (i === 1 ? '600; color: ' + S.ink : '500; color: ' + S.mute),
+        dot: 'width: 5px; height: 5px; border-radius: 3px; background: ' + (i === 1 ? S.ink : 'transparent')
+      })),
+      edOpen: !!d, ed: edv,
+      edCancel: () => this.setState({ ed: null }),
+      edSave: () => {
+        const cur = this.state.ed; if (!cur || iqOf(cur, dm.adhan) == null) return;
+        const m = cur.mode;
+        this.setState({ mq: { ...this.state.mq, [cur.k]: { mode: m, after: m === 'after' ? cur.after : null, fixed: m === 'fixed' ? cur.fixed : null, rem: cur.rem, before: cur.before } }, ed: null, ...flash(dm.name + ' Iqama saved') });
+      },
+      edClear: () => {
+        const cur = this.state.ed; if (!cur) return;
+        this.setState({ mq: { ...this.state.mq, [cur.k]: { mode: null, after: null, fixed: null, rem: false, before: 10 } }, ed: null, ...flash(dm.name + ' Iqama cleared') });
+      }
+    };
+
+    // ---------- mosques tab ----------
+    const noneSaved = this.props.mosquesEmpty === true || this.props.mosquesEmpty === 'true';
+    const testSet = MQ.filter((m) => iqOf(mq[m.k], m.adhan) != null).length;
+    const MQS = [
+      { id: 'test', name: 'Test Mosque', src: 'Added by you', set: testSet },
+      { id: 'work', name: 'Mosque near work', src: 'From Google Maps · not verified', set: 2, paused: true },
+      { id: 'family', name: 'Grandparents’ mosque', src: 'From OpenStreetMap · not verified', set: 0 }
+    ];
+    const actM = MQS.find((m) => m.id === s.activeMosque) || MQS[0];
+    const mv2 = {
+      isMosques: screen === 'mosques',
+      hasMosques: !noneSaved, noMosques: noneSaved,
+      mosquesLead: noneSaved
+        ? 'Jama’ah means praying together. Add your mosque to see when its congregation starts.'
+        : 'Today and your Jama’ah reminders follow your active mosque, now ' + actM.name + '.',
+      mlist: MQS.map((m) => {
+        const on = m.id === s.activeMosque;
+        return {
+          name: m.name, src: m.src, isActive: on, notActive: !on, paused: !!m.paused,
+          aria: 'Open ' + m.name,
+          setText: m.set ? m.set + ' of 6 Iqama set' : 'No Iqama set yet',
+          pips: [0, 1, 2, 3, 4, 5].map((i) => ({ style: 'width: 8px; height: 8px; border-radius: 4px; box-sizing: border-box; ' + (i < m.set ? 'background: ' + S.ink : 'border: 1.5px dashed ' + S.mute) })),
+          open: () => {},
+          makeActive: () => this.setState({ activeMosque: m.id, ...flash(m.name + ' is now your active mosque') }),
+          wrap: 'display: flex; flex-direction: column; gap: 10px; padding: 14px 14px 16px; margin-bottom: 6px; border-radius: 18px; transition: background 300ms ease; ' +
+            (on ? 'background: ' + S2.well : 'background: transparent; box-shadow: inset 0 -1px 0 ' + S.line + '; border-radius: 0')
+        };
+      })
+    };
+
+    // ---------- onboarding ----------
+    const st = s.obStep;
+    const goStep = (n) => { this.setState({ obStep: n }); this.animateTo(OB_T[n], null); };
+    const arW = s.obLang === 'ar';
+    const nextOk = st !== 1 || s.obPlace === 'found';
+    const swC = (on) => 'flex: none; width: 52px; height: 32px; border-radius: 16px; padding: 4px; box-sizing: border-box; display: flex; align-items: center; border: 1.5px solid ' + (on ? C.ink : C.line) + '; background: ' + (on ? C.ink : 'transparent') + '; justify-content: ' + (on ? 'flex-end' : 'flex-start') + '; transition: background 160ms ease';
+    const thC = (on) => 'width: 22px; height: 22px; border-radius: 11px; background: ' + (on ? C.deep : C.ink);
+    const ob = {
+      kicker: 'Step ' + (st + 1) + ' of 5',
+      s0: st === 0, s1: st === 1, s2: st === 2, s3: st === 3, s4: st === 4,
+      h1: 'margin: 10px 0 0; font-family: \'Fraunces\', serif; font-weight: 400; font-size: 40px; line-height: 1.08; letter-spacing: -0.02em',
+      dir: arW ? 'rtl' : 'ltr', lang: arW ? 'ar' : 'en',
+      welcomeStyle: arW ? 'font-family: \'Noto Naskh Arabic\', serif; text-align: right' : '',
+      welcomeTitle: arW ? 'نصلّي معًا، في وقتها.' : 'Pray together, on time.',
+      welcomeBody: arW ? 'اعرف متى تصلّي، ومتى تبدأ جماعة مسجدك، وتلقَّ تذكيرًا قبلها.' : 'Know when to pray. Know when your mosque starts. Get a nudge before the congregation.',
+      langs: [['en', 'English', 'en'], ['ar', 'العربية', 'ar']].map(([id, label, lang]) => ({
+        label, lang, checked: s.obLang === id ? 'true' : 'false',
+        pick: () => this.setState({ obLang: id }),
+        style: 'height: 48px; border-radius: 12px; font-size: 16px; font-weight: 600; ' + (id === 'ar' ? 'font-family: \'Noto Naskh Arabic\', serif; ' : '') +
+          (s.obLang === id ? 'border: 0; background: ' + C.ink + '; color: ' + C.deep : 'border: 0; background: transparent; color: ' + C.ink)
+      })),
+      placeNone: s.obPlace === 'none', placeLocating: s.obPlace === 'locating', placeFound: s.obPlace === 'found',
+      locate: () => { this.setState({ obPlace: 'locating' }); clearTimeout(this._loc); this._loc = setTimeout(() => this.setState({ obPlace: 'found' }), 1400); },
+      noMosque: !s.obMosque, hasMosque: s.obMosque,
+      addMosque: () => this.setState({ obMosque: true }),
+      rowAria: s.obMosque ? 'A row of worshippers, complete' : 'A row of worshippers with one place still open',
+      youFill: s.obMosque ? C.ink : 'none', youStroke: s.obMosque ? C.ink : C.mute, youDash: s.obMosque ? '0' : '3 3',
+      alertsStr: s.obAlerts ? 'true' : 'false',
+      alertsTrack: swC(s.obAlerts), alertsThumb: thC(s.obAlerts),
+      toggleAlerts: () => this.setState({ obAlerts: !s.obAlerts }),
+      needNotif: s.obAlerts && !s.obNotif, notifOk: s.obAlerts && s.obNotif,
+      allow: () => this.setState({ obNotif: true }),
+      travelSub: s.travel ? 'On · follows your location' : 'Off · uses your saved place',
+      segs: [0, 1, 2, 3, 4].map((i) => ({ style: 'height: 4px; border-radius: 2px; transition: background 400ms ease; background: ' + (i <= st ? C.ink : C.line) })),
+      progressAria: 'Step ' + (st + 1) + ' of 5',
+      canBack: st > 0, back: () => goStep(Math.max(0, st - 1)),
+      notLast: st < 4, isLast: st === 4,
+      nextLabel: st === 2 && !s.obMosque ? 'Not now' : 'Continue',
+      nextDisabled: nextOk ? 'false' : 'true',
+      next: () => { if (nextOk) goStep(Math.min(4, st + 1)); },
+      nextStyle: 'flex: 1; height: 52px; border-radius: 26px; font-size: 16px; font-weight: 600; ' +
+        (!nextOk ? 'border: 1.5px dashed ' + C.line + '; background: transparent; color: ' + C.mute + '; cursor: not-allowed'
+          : (st === 2 && !s.obMosque ? 'border: 1.5px solid ' + C.line + '; background: transparent; color: ' + C.ink : 'border: 0; background: ' + C.ink + '; color: ' + C.deep))
+    };
+
+    // ---------- qibla ----------
+    const QB = 225; // Kuwait City → Kaaba, great-circle (224.6°), 1,204 km
+    const compass = s.qCalDone ? 'ok' : (this.props.compass || 'ok');
+    const head = ((s.qHead % 360) + 360) % 360;
+    const diff = ((QB - head) % 360 + 540) % 360 - 180;
+    const aligned = Math.abs(diff) <= 3;
+    const angAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - r.left) * 280 / r.width - 140, y = (e.clientY - r.top) * 280 / r.height - 140;
+      return Math.atan2(x, -y) * 180 / Math.PI;
+    };
+    const q = {
+      live: compass === 'ok', calibrate: compass === 'calibrate', none: compass === 'none',
+      headRound: Math.round(head),
+      status: aligned ? 'You’re facing the Qibla' : (diff > 0 ? 'Turn right ' + Math.round(diff) + '°' : 'Turn left ' + Math.round(-diff) + '°'),
+      statusStyle: 'margin-top: 8px; font-size: 17px; font-weight: 600; min-height: 24px; transition: color 300ms ease; color: ' + C.ink,
+      dial: 'position: absolute; inset: 0; transform: rotate(' + (-head).toFixed(1) + 'deg)',
+      ring: 'position: absolute; inset: 0; border-radius: 50%; box-sizing: border-box; transition: border-color 300ms ease, border-width 300ms ease; border: ' + (aligned ? '3px solid ' + C.ink : '1.5px solid ' + C.line),
+      halo: 'position: absolute; left: -10px; top: 4px; width: 320px; height: 320px; border-radius: 50%; pointer-events: none; transition: opacity 400ms ease; background: radial-gradient(circle, ' + C.halo + ' 0%, rgba(0,0,0,0) 70%); opacity: ' + (aligned ? 1 : 0),
+      ticks: Array.from({ length: 36 }, (_, i) => {
+        const major = i % 3 === 0;
+        return { style: 'position: absolute; left: 139px; top: 0; width: 2px; height: ' + (major ? 14 : 7) + 'px; border-radius: 1px; background: ' + (major ? C.ink : C.line) + '; transform-origin: 1px 140px; transform: rotate(' + (i * 10) + 'deg)' };
+      }),
+      labels: [['N', 0], ['E', 90], ['S', 180], ['W', 270]].map(([text, a]) => {
+        const th = (a - head) * Math.PI / 180;
+        const x = 140 + 106 * Math.sin(th), y = 140 - 106 * Math.cos(th);
+        return { text, style: 'position: absolute; left: ' + (x - 12).toFixed(1) + 'px; top: ' + (y - 10).toFixed(1) + 'px; width: 24px; text-align: center; font-size: 13px; font-weight: ' + (text === 'N' ? '700' : '500') + '; color: ' + (text === 'N' ? C.ink : C.mute) };
+      }),
+      onDown: (e) => { this._qd = { a: angAt(e), h: this.state.qHead }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} },
+      onMove: (e) => { if (!this._qd) return; this.setState({ qHead: this._qd.h - (angAt(e) - this._qd.a) }); },
+      onUp: () => { this._qd = null; },
+      onKey: (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); this.setState({ qHead: this.state.qHead + 5 }); }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); this.setState({ qHead: this.state.qHead - 5 }); }
+      },
+      doneCal: () => this.setState({ qCalDone: true })
+    };
+    const tabsQ = ['Today', 'Mosques', 'Qibla', 'Settings'].map((label, i) => ({
+      label, current: i === 2 ? 'page' : 'false',
+      style: 'min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 13px; text-decoration: none; font-weight: ' + (i === 2 ? '600; color: ' + C.ink : '500; color: ' + C.mute),
+      dot: 'width: 5px; height: 5px; border-radius: 3px; background: ' + (i === 2 ? C.ink : 'transparent')
+    }));
+
+    // ---------- in-flight ----------
+    const FQB = 274; // Qibla bearing from 21.5° N, 62.0° E
+    const hdg = Math.max(0, Math.min(359, Number(s.fHdg) || 0));
+    const relQ = ((FQB - hdg) % 360 + 360) % 360;
+    const words = relQ < 15 || relQ > 345 ? 'Straight ahead' : relQ < 75 ? 'Ahead, to your right' : relQ < 105 ? 'To your right' : relQ < 165 ? 'Behind you, to the right'
+      : relQ < 195 ? 'Behind you' : relQ < 255 ? 'Behind you, to the left' : relQ < 285 ? 'To your left' : 'Ahead, to your left';
+    const f = {
+      start: s.fState === 'start', waiting: s.fState === 'waiting', live: s.fState === 'live',
+      sats: s.fSats + ' of 4 satellites',
+      startGps: () => {
+        this.setState({ fState: 'waiting', fSats: 1 });
+        clearInterval(this._gps);
+        this._gps = setInterval(() => {
+          const n = this.state.fSats + 1;
+          if (n > 4) { clearInterval(this._gps); this.setState({ fState: 'live' }); } else this.setState({ fSats: n });
+        }, 900);
+      },
+      cancel: () => { clearInterval(this._gps); this.setState({ fState: 'start' }); },
+      end: () => this.setState({ fState: 'start' }),
+      openHelp: () => this.setState({ fHelp: true }), closeHelp: () => this.setState({ fHelp: false }), help: s.fHelp,
+      hdg: String(s.fHdg),
+      onHdg: (e) => this.setState({ fHdg: e.target.value }),
+      qRot: 'rotate(' + relQ + ' 60 60)',
+      qWords: words + ' · ' + relQ + '°',
+      qAria: 'The Qibla is ' + words.toLowerCase() + ', ' + relQ + ' degrees from the nose',
+      route: [
+        { name: 'Fajr', time: '≈ 4:39 AM', rel: 'in about 7 h' },
+        { name: 'Sunrise', time: '≈ 5:58 AM', rel: 'in about 8 h' },
+        { name: 'Dhuhr', time: '≈ 12:04 PM', rel: 'after landing' }
+      ]
+    };
+
+    // ---------- settings ----------
+    const pg = s.setPage;
+    const goPage = (p) => this.setState({ setPage: p });
+    const radioDot = (on) => 'flex: none; width: 20px; height: 20px; border-radius: 10px; box-sizing: border-box; border: ' + (on ? '6px solid ' + S.ink : '2px solid ' + S.mute);
+    const seg = (on) => 'min-height: 48px; border: 0; border-radius: 11px; padding: 6px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: ' + S.ink + '; ' +
+      (on ? 'background: ' + S.bg + '; box-shadow: 0 1px 3px rgba(0,0,0,0.18)' : 'background: transparent');
+    const radios = (items, cur, key) => items.map(([id, label, desc, lang]) => ({
+      label, desc: desc || '', lang: lang || 'en', checked: cur === id ? 'true' : 'false',
+      pick: () => this.setState({ [key]: id }), dot: radioDot(cur === id), seg: seg(cur === id)
+    }));
+    const alertsOn = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].filter((k) => s.alerts[k] !== 'off').length;
+    const SOUNDS = { chime: 'Chime', hayya: 'حيّ على الصلاة', standard: 'Standard sound', silent: 'Silent' };
+    const LANGS = { phone: 'Same as the phone', en: 'English', ar: 'العربية' };
+    const THEMES = { phone: 'Same as the phone', light: 'Light', dark: 'Dark' };
+    const PAGES = {
+      hub: ['Settings', 'Everything is grouped by what it changes. Tap a group to see its options.'],
+      times: ['Prayer times', 'How the Adhan times are worked out for your place.'],
+      alerts: ['Adhan alerts', 'What you hear when it is time to pray.'],
+      jamaah: ['Jama’ah reminders', 'The nudge before your mosque’s congregation starts.'],
+      travel: ['Travel', 'Keep times and the Qibla right while you are away.'],
+      look: ['Language and look', 'Language, digits and theme.'],
+      help: ['Help and about', 'The introduction, troubleshooting and this app.']
+    };
+    const hijriDay = 4 + s.setHijri;
+    const sg = {
+      sub: pg !== 'hub', back: () => goPage('hub'),
+      headPad: pg === 'hub' ? 'padding: 18px 16px 0' : 'padding: 0 16px',
+      title: PAGES[pg][0], lead: PAGES[pg][1],
+      isHub: pg === 'hub', isTimes: pg === 'times', isAlerts: pg === 'alerts', isJamaah: pg === 'jamaah', isTravel: pg === 'travel', isLook: pg === 'look', isHelp: pg === 'help',
+      groups: [
+        { label: 'Every day', rows: [
+          { k: 'times', label: 'Prayer times', summary: 'Kuwait method · Asr ' + (s.setAsr === 'standard' ? 'standard' : 'Hanafi') },
+          { k: 'alerts', label: 'Adhan alerts', summary: { full: 'Full Adhan', short: 'Short Adhan', standard: 'Standard sound', silent: 'Silent' }[s.setDefault] + ' · ' + alertsOn + ' of 6 on' },
+          { k: 'jamaah', label: 'Jama’ah reminders', summary: s.setPauseAll ? 'Paused for every mosque' : 'Test Mosque · ' + SOUNDS[s.setRemSound] }
+        ] },
+        { label: 'Preferences', rows: [
+          { k: 'travel', label: 'Travel', summary: s.travel ? 'On · following your location' : 'Off' },
+          { k: 'look', label: 'Language and look', summary: LANGS[s.setLang] + ' · ' + THEMES[s.setTheme] }
+        ] },
+        { label: 'Help', rows: [
+          { k: 'help', label: 'Help and about', summary: 'Introduction, late alerts, about' }
+        ] }
+      ].map((g) => ({ label: g.label, rows: g.rows.map((r) => ({
+        ...r, go: () => goPage(r.k),
+        iTimes: r.k === 'times', iAlerts: r.k === 'alerts', iJamaah: r.k === 'jamaah', iTravel: r.k === 'travel', iLook: r.k === 'look', iHelp: r.k === 'help'
+      })) })),
+      asr: radios([['standard', 'Standard', 'Shafi’i, Maliki, Hanbali'], ['hanafi', 'Hanafi', 'Later Asr']], s.setAsr, 'setAsr'),
+      hijri: hijriDay + ' Jumada al-Awwal 1448',
+      hijriAdj: [[-1, '−1 day'], [0, 'As calculated'], [1, '+1 day']].map(([n, label]) => ({ label, checked: s.setHijri === n ? 'true' : 'false', pick: () => this.setState({ setHijri: n }), seg: seg(s.setHijri === n) })),
+      extras: [['imsak', 'Imsak', 'A little before Fajr'], ['duha', 'Duha', 'Mid-morning'], ['third', 'Last third of the night', 'For night prayer']].map(([k, label, desc]) => {
+        const on = !!s.setExtras[k];
+        return { label, desc, onStr: on ? 'true' : 'false', track: swS(on, false), thumb: thS(on, false), toggle: () => this.setState({ setExtras: { ...s.setExtras, [k]: !on } }) };
+      }),
+      advOpen: s.setAdv, advStr: s.setAdv ? 'true' : 'false',
+      toggleAdv: () => this.setState({ setAdv: !s.setAdv }),
+      advChevron: 'opacity: 0.6; transition: transform 200ms ease; transform: rotate(' + (s.setAdv ? 180 : 0) + 'deg)',
+      advRows: [
+        { label: 'Far north or south', desc: 'Middle of the night · only used where the night is very short' },
+        { label: 'Adjust times by minutes', desc: 'None' }
+      ],
+      defaults: radios([
+        ['full', 'Full Adhan', 'The whole recording, played as an alarm'],
+        ['short', 'Short Adhan', 'The opening takbir only'],
+        ['standard', 'Standard sound', 'Your phone’s own notification sound'],
+        ['silent', 'Silent', 'Shown in the notification shade, no sound']
+      ], s.setDefault, 'setDefault'),
+      perPrayer: P.map((p) => ({ name: p.name, mode: MODES[s.alerts[p.k]].label, open: () => this.setState({ sheet: p.k }) })),
+      recordings: [
+        { label: 'Full Adhan recording', desc: 'Naghshbandi · or one of your own' },
+        { label: 'Short Adhan clip', desc: 'حيّ على الصلاة' }
+      ],
+      fsStr: s.setFs ? 'true' : 'false', fsTrack: swS(s.setFs, false), fsThumb: thS(s.setFs, false), toggleFs: () => this.setState({ setFs: !s.setFs }),
+      remSounds: radios([
+        ['chime', 'Chime', 'A soft, short tone'],
+        ['hayya', 'حيّ على الصلاة', 'A short recorded call', 'ar'],
+        ['standard', 'Standard sound', 'Your phone’s own notification sound'],
+        ['silent', 'Silent', 'Shown, with no sound']
+      ], s.setRemSound, 'setRemSound'),
+      vibStr: s.setVib ? 'true' : 'false', vibTrack: swS(s.setVib, false), vibThumb: thS(s.setVib, false), toggleVib: () => this.setState({ setVib: !s.setVib }),
+      test: () => this.setState({ ...flash('Test reminder sent') }),
+      pauseStr: s.setPauseAll ? 'true' : 'false', pauseTrack: swS(s.setPauseAll, false), pauseThumb: thS(s.setPauseAll, false), togglePause: () => this.setState({ setPauseAll: !s.setPauseAll }),
+      tvTrack: 'position: relative; flex: none; width: 72px; height: 40px; padding: 0; border-radius: 20px; box-sizing: border-box; border: 1.5px solid ' + (s.travel ? S2.accentBg : S.line) + '; background: ' + (s.travel ? S2.accentBg : 'transparent') + '; transition: background 260ms ease',
+      tvKnob: 'position: absolute; top: 2.5px; left: ' + (s.travel ? (66.5 - (s.stretch ? 44 : 32)) : 2.5) + 'px; width: ' + (s.stretch ? 44 : 32) + 'px; height: 32px; border-radius: 16px; background: ' + (s.travel ? S2.accentInk : S2.accentBg) + '; color: ' + (s.travel ? S2.accentBg : S2.accentInk) + '; transition: left 440ms cubic-bezier(0.34, 1.56, 0.64, 1), width 190ms ease-out, background 260ms ease',
+      followRow: 'display: flex; align-items: center; gap: 12px; min-height: 72px; border-bottom: 1px solid ' + S.line + '; opacity: ' + (s.travel ? 1 : 0.55),
+      followDesc: s.travel ? 'Your place updates when you open the app, so times follow you between cities.' : 'Works while travel mode is on.',
+      followStr: s.travel && s.setFollow ? 'true' : 'false',
+      followTrack: swS(s.travel && s.setFollow, !s.travel), followThumb: thS(s.travel && s.setFollow, !s.travel),
+      toggleFollow: () => { if (s.travel) this.setState({ setFollow: !s.setFollow }); },
+      langs: radios([['phone', 'Same as the phone'], ['en', 'English'], ['ar', 'العربية', '', 'ar']], s.setLang, 'setLang'),
+      themes: radios([['phone', 'Same as the phone'], ['light', 'Light'], ['dark', 'Dark']], s.setTheme, 'setTheme'),
+      helpRows: [
+        { label: 'Show the introduction again', desc: 'The five steps from the first day' },
+        { label: 'Alerts arriving late?', desc: 'Battery settings that keep alerts on time' },
+        { label: 'Scheduled notifications', desc: 'Every alert and reminder planned for the next days' }
+      ]
+    };
+    const tabsSet = ['Today', 'Mosques', 'Qibla', 'Settings'].map((label, i) => ({
+      label, current: i === 3 ? 'page' : 'false',
+      style: 'min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 13px; text-decoration: none; font-weight: ' + (i === 3 ? '600; color: ' + S.ink : '500; color: ' + S.mute),
+      dot: 'width: 5px; height: 5px; border-radius: 3px; background: ' + (i === 3 ? S.ink : 'transparent')
+    }));
+
+    const adP = byK(adK);
+    const ad = {
+      name: adP.name, time: hm(adP.t) + ' ' + ap(adP.t),
+      playing: !s.stopped, stopped: s.stopped,
+      stop: () => this.setState({ stopped: true }),
+      replay: () => this.setState({ stopped: false }),
+      iqLine: adP.iq != null ? 'Iqama at Test Mosque · ' + hm(adP.iq) + ' ' + ap(adP.iq) + ', in ' + span(adP.iq - adP.t) : 'No Iqama set at Test Mosque'
+    };
+
+    return {
+      ...mv, ...mv2, ob, isOb, q, f, tabsQ, isQibla: screen === 'qibla', isFlight, sg, tabsSet, isSettings: screen === 'settings',
+      C, S, stars, starLayer, skyStyle, grainStyle, sun, moon, dots, selLabelStyle, sel, iq, rows, tv, tabs, ad,
+      isToday: screen === 'today', isAdhan, showArc: screen === 'today' || screen === 'adhan' || screen === 'onboarding',
+      moved: s.moved,
+      viewRound: Math.round(view), viewText: hm(view) + ' ' + ap(view) + ', ' + selP.name,
+      onDown: (e) => { this._drag = true; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} scrub(e); },
+      onMove: (e) => { if (this._drag) scrub(e); },
+      onUp: () => { this._drag = false; },
+      onKey: (e) => {
+        const step = e.shiftKey ? 30 : 5;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); this.setState({ moved: true, pin: null, view: (view + step) % 1440 }); }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); this.setState({ moved: true, pin: null, view: (view - step + 1440) % 1440 }); }
+      },
+      backToNow: () => this.animateTo(NOW, null, () => this.setState({ moved: false, view: null })),
+      sheetOpen: !!s.sheet,
+      sheetTitle: shp ? shp.name + ' alert' : '',
+      sheetTime: shp ? hm(shp.t) + ' ' + ap(shp.t) : '',
+      optsSound: s.sheet ? ['full', 'short', 'standard'].map(opt) : [],
+      optsQuiet: s.sheet ? ['silent'].map(opt) : [],
+      optsOff: s.sheet ? ['off'].map(opt) : [],
+      closeSheet: () => this.setState({ sheet: null }),
+      travel: tOn, travelStr: tOn ? 'true' : 'false',
+      subLine: tOn ? 'Following your location · checked 2 min ago' : 'Thu 15 Oct · 4 Jumada al-Awwal 1448',
+      toggleTravel: () => {
+        const v = !tOn;
+        this.setState({ travel: v, stretch: true, toastShow: true, toastText: v ? 'Travel mode on' : 'Travel mode off' });
+        clearTimeout(this._st); clearTimeout(this._tt);
+        this._st = setTimeout(() => this.setState({ stretch: false }), 180);
+        this._tt = setTimeout(() => this.setState({ toastShow: false }), 2200);
+      },
+      toastText: s.toastText,
+      toastStyle: 'position: absolute; z-index: 5; left: 16px; right: 16px; bottom: 80px; padding: 14px 18px; border-radius: 12px; font-size: 15px; font-weight: 500; pointer-events: none; ' +
+        'background: ' + C.ink + '; color: ' + C.deep + '; transition: opacity 220ms ease, transform 260ms ease; ' +
+        (s.toastShow ? 'opacity: 1; transform: none' : 'opacity: 0; transform: translateY(8px)'),
+      rootStyle: 'position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; font-family: \'Instrument Sans\', sans-serif; background: ' + stops[4] + '; color: ' + C.ink + '; transition: color 400ms ease'
+    };
+  }
+}
+</script>
+</body>
+</html>

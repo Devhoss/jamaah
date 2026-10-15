@@ -1,5 +1,8 @@
 # Jama’ah — design brief
 
+> **Outcome (2026-10-15):** the agreed redesign is “Horizon”. Build from
+> [`horizon-spec.md`](horizon-spec.md); this brief stays as the original request.
+
 For a complete redesign of the app, its logo, app icon and splash screen.
 What exists today is a working prototype: every screen works and is tested,
 but the look was never designed. Screenshots of the current app are in
