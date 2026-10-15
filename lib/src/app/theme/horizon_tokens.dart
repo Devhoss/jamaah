@@ -293,18 +293,23 @@ class HorizonType {
     ),
   );
 
-  static HorizonType lerp(HorizonType a, HorizonType b, double t) => HorizonType(
-    hero: TextStyle.lerp(a.hero, b.hero, t)!,
-    display: TextStyle.lerp(a.display, b.display, t)!,
-    onboardingTitle: TextStyle.lerp(a.onboardingTitle, b.onboardingTitle, t)!,
-    prayerName: TextStyle.lerp(a.prayerName, b.prayerName, t)!,
-    section: TextStyle.lerp(a.section, b.section, t)!,
-    kicker: TextStyle.lerp(a.kicker, b.kicker, t)!,
-    row: TextStyle.lerp(a.row, b.row, t)!,
-    body: TextStyle.lerp(a.body, b.body, t)!,
-    meta: TextStyle.lerp(a.meta, b.meta, t)!,
-    rowTime: TextStyle.lerp(a.rowTime, b.rowTime, t)!,
-  );
+  static HorizonType lerp(HorizonType a, HorizonType b, double t) =>
+      HorizonType(
+        hero: TextStyle.lerp(a.hero, b.hero, t)!,
+        display: TextStyle.lerp(a.display, b.display, t)!,
+        onboardingTitle: TextStyle.lerp(
+          a.onboardingTitle,
+          b.onboardingTitle,
+          t,
+        )!,
+        prayerName: TextStyle.lerp(a.prayerName, b.prayerName, t)!,
+        section: TextStyle.lerp(a.section, b.section, t)!,
+        kicker: TextStyle.lerp(a.kicker, b.kicker, t)!,
+        row: TextStyle.lerp(a.row, b.row, t)!,
+        body: TextStyle.lerp(a.body, b.body, t)!,
+        meta: TextStyle.lerp(a.meta, b.meta, t)!,
+        rowTime: TextStyle.lerp(a.rowTime, b.rowTime, t)!,
+      );
 }
 
 /// Page gutters, radii and row heights (spec §2.4).

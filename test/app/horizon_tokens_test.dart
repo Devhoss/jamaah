@@ -116,8 +116,16 @@ void main() {
     test('Arabic has no italic, no tracking, and only bundled weights', () {
       const t = HorizonType.arabic;
       final all = [
-        t.hero, t.display, t.onboardingTitle, t.prayerName, t.section,
-        t.kicker, t.row, t.body, t.meta, t.rowTime,
+        t.hero,
+        t.display,
+        t.onboardingTitle,
+        t.prayerName,
+        t.section,
+        t.kicker,
+        t.row,
+        t.body,
+        t.meta,
+        t.rowTime,
       ];
       for (final s in all) {
         expect(s.fontStyle, isNot(FontStyle.italic));
@@ -160,11 +168,17 @@ void main() {
   test('every bundled font asset loads', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     const assets = [
-      'Fraunces-Light', 'Fraunces-Regular', 'Fraunces-Italic',
-      'InstrumentSans-Regular', 'InstrumentSans-Medium',
-      'InstrumentSans-SemiBold', 'NotoNaskhArabic-Medium',
-      'NotoNaskhArabic-SemiBold', 'NotoSansArabic-Regular',
-      'NotoSansArabic-Medium', 'NotoSansArabic-SemiBold',
+      'Fraunces-Light',
+      'Fraunces-Regular',
+      'Fraunces-Italic',
+      'InstrumentSans-Regular',
+      'InstrumentSans-Medium',
+      'InstrumentSans-SemiBold',
+      'NotoNaskhArabic-Medium',
+      'NotoNaskhArabic-SemiBold',
+      'NotoSansArabic-Regular',
+      'NotoSansArabic-Medium',
+      'NotoSansArabic-SemiBold',
     ];
     for (final name in assets) {
       final data = await rootBundle.load('assets/fonts/$name.ttf');
