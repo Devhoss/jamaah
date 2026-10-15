@@ -81,7 +81,7 @@ class IqamaTicket extends StatelessWidget {
     switch (content) {
       case final TicketSet set:
         final deep = palette.deep;
-        final soft = deep.withValues(alpha: 0.8);
+        final soft = palette.deepSoft;
         return Semantics(
           container: true,
           label: l10n.ticketSemantics(

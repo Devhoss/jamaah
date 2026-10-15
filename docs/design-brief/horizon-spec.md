@@ -174,6 +174,22 @@ Animate ink/deep changes over ~400 ms so a flip during a drag is not abrupt. Uni
 `ink` on the stop under each text block keeps ≥ 4.5:1 (≥ 3:1 for the hero) at every minute of
 a few sample days (Kuwait winter and summer, London summer for a long dusk).
 
+**As built (owner, 2026-10-15).** The single threshold above left near-white text on mid-tone
+sky (2.6:1 for rows before sunrise, 2.3:1 for the hero at golden hour), so:
+
+- **Ink per block.** Each block of text (top bar, hero, notes and ticket, rows, the label under
+  the sun) picks whichever of the two inks reads better against the sky actually behind it,
+  glow included, measured from the real layout. For the few minutes when neither ink reaches
+  the block's contrast, a faint shade of the opposite tone (≤ 20%) is laid under that block
+  only. The dark theme never needs it.
+- **Muted text.** `mute` starts at ink 76% per block and its opacity is raised only as far as
+  needed to keep 4.5:1 against the sky behind that block (3:1 for text 24 px or larger); never
+  below 76%, never above 100%. Where muted text reaches full ink, the hierarchy rests on size
+  and weight; no other colour is added. The Iqama ticket's quieter lines follow the same rule
+  on the ink box: `deep` at 80%, raised only as needed for 4.5:1.
+- **Tests** check the ink, the shade and every muted block at every minute of Kuwait winter
+  and summer, London summer and Oslo summer, in both themes.
+
 ### 3.3 Stars and grain
 
 - 46 stars, seeded (fixed positions), in the top 300 px; size 0.8–2.4 px; brightness fades
@@ -465,6 +481,8 @@ line plus the next useful action, never an illustration or a red banner.
 3. Font bundle size check (aim: only the weights in §2.1).
 4. Real-device check that the sky + stars + grain stay smooth on a mid-range Android phone
    (Samsung A53 is the owner’s test device).
+5. **Before release:** an in-app licences page with the Lucide icon licence
+   (`docs/licences/lucide-LICENSE.txt`) and the four fonts’ OFL (`assets/fonts/licences/`).
 
 ## 9. Suggested build order
 

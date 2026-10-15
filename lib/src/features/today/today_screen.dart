@@ -486,6 +486,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                 ink: SunPathInk(
                                   ink: p.ink,
                                   labelInk: Color(inks.label.ink.argb),
+                                  labelMuteAlpha: inks.label.muteAlpha,
                                 ),
                                 moon: MoonPhase.fromHijriDay(hijri.hDay),
                                 sunLabel: _view.moved

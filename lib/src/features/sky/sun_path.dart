@@ -42,16 +42,23 @@ class SunPathMarker {
 /// The sky ink the path is drawn in (spec §2.3 A).
 @immutable
 class SunPathInk {
-  const SunPathInk({required this.ink, required this.labelInk});
+  const SunPathInk({
+    required this.ink,
+    required this.labelInk,
+    this.labelMuteAlpha = 0.76,
+  });
 
   final Color ink;
 
   /// The label under the sun, which takes its ink at its own point.
   final Color labelInk;
 
+  /// The label is muted text: 76%, raised where the sky needs it.
+  final double labelMuteAlpha;
+
   Color get line => ink.withValues(alpha: 0.22);
   Color get trail => ink.withValues(alpha: 0.85);
-  Color get mute => labelInk.withValues(alpha: 0.76);
+  Color get mute => labelInk.withValues(alpha: labelMuteAlpha);
 }
 
 /// The sun on its path (spec §3.4): the day arc above the horizon, the night
@@ -480,6 +487,7 @@ class _SunPathPainter extends CustomPainter {
       old.minute != minute ||
       old.ink.ink != ink.ink ||
       old.ink.labelInk != ink.labelInk ||
+      old.ink.labelMuteAlpha != ink.labelMuteAlpha ||
       old.scale != scale ||
       old.geometry.sunrise != geometry.sunrise ||
       old.geometry.sunset != geometry.sunset ||

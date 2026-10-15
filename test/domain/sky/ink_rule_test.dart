@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/sky/ink_rule.dart';
@@ -84,6 +86,110 @@ void main() {
     }
   }
 
+  // Muted text (spec §3.2, owner 2026-10-15): starts at 76% of the ink and is
+  // raised only as far as the sky behind its block needs, never past 100%.
+  // Today's muted blocks sit in the top bar, the hero's small lines, the
+  // middle (notes, ticket line, flight row) and the rows; the label under
+  // the sun is checked at its own point.
+  const mutedBlocks = [
+    SkyRegion(0, 0.08, minContrast: 4.5),
+    SkyRegion(0.28, 0.45, minContrast: 4.5),
+    SkyRegion(0.45, 0.58, minContrast: 4.5),
+    SkyRegion(0.58, 1, minContrast: 4.5),
+  ];
+
+  List<SkyRgb> behind(SkyFrame frame, SkyInk ink, Iterable<double> ys) => [
+    for (final y in ys)
+      for (final c in [frame.colorAt(y), frame.colorWithGlowAt(y)])
+        ink.shade.over(c),
+  ];
+
+  void expectMuted(SkyInk ink, List<SkyRgb> under, String where) {
+    for (final (alpha, target) in [
+      (ink.muteAlpha, 4.5),
+      (ink.muteLargeAlpha, 3.0),
+    ]) {
+      expect(alpha, inInclusiveRange(SkyInk.muteBaseAlpha, 1.0), reason: where);
+      final worst = SkyInk.worstMuted(ink.ink, under, alpha);
+      if (alpha < 1) {
+        expect(worst, greaterThanOrEqualTo(target - 1e-9), reason: where);
+      } else {
+        // At full ink it is the ink itself, which the region guarantees.
+        expect(worst, greaterThanOrEqualTo(min(target, ink.contrast) - 1e-9));
+      }
+      if (alpha > SkyInk.muteBaseAlpha + 1e-9) {
+        // Raised no further than needed.
+        expect(
+          SkyInk.worstMuted(ink.ink, under, alpha - 0.01),
+          lessThan(target),
+          reason: '$where: $alpha',
+        );
+      }
+    }
+  }
+
+  for (final sample in days) {
+    for (final dark in [false, true]) {
+      final theme = dark ? 'dark' : 'light';
+      test('${sample.name} ($theme): muted text keeps 4.5:1 (3:1 large)', () {
+        final model = SkyModel.forDay(sample.day);
+        final path = SunPathGeometry(
+          sunrise: sample.day.timeOf(Prayer.sunrise)!,
+          sunset: sample.day.timeOf(Prayer.maghrib)!,
+        );
+        var raised = 0;
+        for (var m = 0; m < 1440; m++) {
+          final frame = model.frameAt(m.toDouble(), dark: dark);
+          for (final block in mutedBlocks) {
+            final ink = SkyInk.forRegion(frame, block);
+            expectMuted(
+              ink,
+              behind(frame, ink, block.samples),
+              'minute $m, ${block.top}-${block.bottom}',
+            );
+            if (ink.muteAlpha > SkyInk.muteBaseAlpha) raised++;
+          }
+          final sun = path.positionAt(m.toDouble()).point;
+          final labelY = sun.y < 70 ? sun.y + 29 : sun.y - 37;
+          final x = sun.x / SunPathGeometry.width;
+          final y =
+              SkyRegion.sunPathTop +
+              labelY / SunPathGeometry.height * SkyRegion.sunPathHeight;
+          final label = SkyInk.forPoint(frame, x, y);
+          expectMuted(label, [
+            for (var i = -2; i <= 2; i++)
+              for (var j = -2; j <= 2; j++)
+                label.shade.over(
+                  frame.colorAtPoint(x + 0.1 * i / 2, y + 0.012 * j / 2),
+                ),
+          ], 'label at minute $m');
+        }
+        // Most of the day muted text keeps its 76%.
+        expect(raised, lessThan(1440 * mutedBlocks.length));
+      });
+    }
+  }
+
+  test('the ticket\'s quieter lines keep 4.5:1 on the ink fill', () {
+    for (final sample in days) {
+      final model = SkyModel.forDay(sample.day);
+      for (final dark in [false, true]) {
+        for (var m = 0; m < 1440; m += 5) {
+          final frame = model.frameAt(m.toDouble(), dark: dark);
+          final ink = SkyInk.forRegion(frame, mutedBlocks[2]);
+          // deep at 80% over the ink-coloured box, raised where needed.
+          expect(ink.deepSoftAlpha, inInclusiveRange(0.8, 1.0));
+          final soft = ink.ink.mix(ink.deep, ink.deepSoftAlpha);
+          expect(
+            soft.contrastWith(ink.ink),
+            greaterThanOrEqualTo(4.5),
+            reason: '${sample.name} dark=$dark minute $m',
+          );
+        }
+      }
+    }
+  });
+
   test('text on an ink fill (the ticket) keeps 4.5:1 all day', () {
     for (final sample in days) {
       final model = SkyModel.forDay(sample.day);
@@ -125,7 +231,7 @@ void main() {
       SkyModel.reference.frameAt(689),
       SkyRegion.content,
     );
-    expect(ink.mute.alpha, 0.76);
+    expect(ink.mute.alpha, inInclusiveRange(0.76, 1.0));
     expect(ink.line.alpha, 0.22);
     expect(ink.halo.alpha, 0.12);
     expect(ink.trail.alpha, 0.85);

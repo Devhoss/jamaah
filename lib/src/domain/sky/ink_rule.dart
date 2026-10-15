@@ -53,6 +53,8 @@ class SkyInk {
     required this.isLight,
     required this.shade,
     required this.contrast,
+    this.muteAlpha = SkyInk.muteBaseAlpha,
+    this.muteLargeAlpha = SkyInk.muteBaseAlpha,
   });
 
   /// Light ink, on a dark sky.
@@ -65,8 +67,12 @@ class SkyInk {
   /// Text on an ink fill (the Iqama ticket, snackbar) when the ink is dark.
   static final deepOnDarkInk = SkyRgb.hex('#FBFAF7');
 
-  /// Alphas of the derived tokens (spec §2.3 A).
-  static const muteAlpha = 0.76;
+  /// Alphas of the derived tokens (spec §2.3 A). Muted text starts at
+  /// [muteBaseAlpha] and is raised per block where the sky needs it.
+  static const muteBaseAlpha = 0.76;
+
+  /// Muted text 24 px or larger only needs 3:1 (spec §3.2, 2026-10-15).
+  static const largeTextSize = 24.0;
   static const lineAlpha = 0.22;
   static const haloAlpha = 0.12;
   static const trailAlpha = 0.85;
@@ -88,7 +94,16 @@ class SkyInk {
   /// The worst contrast of [ink] over the region, shade included.
   final double contrast;
 
+  /// Muted (secondary) text: [ink] at 76%, raised only as far as needed to
+  /// keep 4.5:1 against the sky behind the block, never above 100%
+  /// (owner, 2026-10-15).
+  final double muteAlpha;
+
+  /// The same for muted text of 24 px or more, which needs 3:1.
+  final double muteLargeAlpha;
+
   SkyRgba get mute => SkyRgba(ink, muteAlpha);
+  SkyRgba get muteLarge => SkyRgba(ink, muteLargeAlpha);
   SkyRgba get line => SkyRgba(ink, lineAlpha);
   SkyRgba get halo => SkyRgba(ink, haloAlpha);
   SkyRgba get trail => SkyRgba(ink, trailAlpha);
@@ -113,13 +128,51 @@ class SkyInk {
       worst = _worst(ink, [for (final c in under) c.mix(shadeTone, alpha)]);
     }
 
+    final shaded = [for (final c in under) c.mix(shadeTone, alpha)];
     return SkyInk(
       ink: ink,
       deep: useLight ? _deepOnLight(frame.stops[4], ink) : deepOnDarkInk,
       isLight: useLight,
       shade: SkyRgba(shadeTone, alpha),
       contrast: worst,
+      muteAlpha: muteAlphaFor(ink, shaded, 4.5),
+      muteLargeAlpha: muteAlphaFor(ink, shaded, 3),
     );
+  }
+
+  /// The lowest alpha from 76% up that keeps muted [ink] at [target]
+  /// against every colour in [under] (the sky with its shade).
+  static double muteAlphaFor(
+    SkyRgb ink,
+    List<SkyRgb> under,
+    double target, {
+    double base = muteBaseAlpha,
+  }) {
+    var a = base;
+    while (a < 1 && _worstMuted(ink, under, a) < target) {
+      a = (a + 0.01).clamp(base, 1.0);
+    }
+    return a;
+  }
+
+  /// The ticket's quieter lines: [deep] at 80% on the ink box, raised the
+  /// same way where that box is too close in tone.
+  static const deepSoftBaseAlpha = 0.8;
+
+  double get deepSoftAlpha =>
+      muteAlphaFor(deep, [ink], 4.5, base: deepSoftBaseAlpha);
+
+  /// The worst contrast of [ink] drawn at [alpha] over [under].
+  static double worstMuted(SkyRgb ink, List<SkyRgb> under, double alpha) =>
+      _worstMuted(ink, under, alpha);
+
+  static double _worstMuted(SkyRgb ink, List<SkyRgb> under, double alpha) {
+    var worst = double.infinity;
+    for (final c in under) {
+      final r = c.mix(ink, alpha).contrastWith(c);
+      if (r < worst) worst = r;
+    }
+    return worst;
   }
 
   /// The ink for a small label centred at ([x], [y]) (fractions of width and
