@@ -243,10 +243,11 @@ hangs low in the west after Maghrib.
 
 - One clock drives twinkle/breathe/pulse. Pause it when the screen is not
   visible (`TickerMode`) and when the app is in the background.
-  *As built (2026-10-16):* it ticks at 24 fps, and only the small layers that move (stars, the
+  *As built (2026-10-16):* it ticks at 12 fps, and only the small layers that move (stars, the
   sun’s halo, the selected marker’s pulse) repaint, each behind a `RepaintBoundary`; the
-  gradient, glow, shade and grain are a cached layer redrawn only when the minute or theme
-  changes.
+  gradient, glow, shade, grain and the path’s still parts are cached images redrawn only when
+  the minute or theme changes, and the stars are one sprite drawn in a single call. Measured on
+  the A53: Today idles at ~13% of a core (was ~90%).
 - `MediaQuery.disableAnimations` (reduce motion): no twinkle, pulse, breathe, figure-eight or
   spinner rotation; glides become instant.
 - Glides along the arc: ease-in-out cubic, duration `min(1200, 380 + 0.9 ms × minutes)`, the

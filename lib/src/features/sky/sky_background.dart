@@ -7,6 +7,7 @@ import '../../domain/sky/sky_model.dart';
 import '../../domain/sky/star_field.dart';
 import 'grain.dart';
 import 'sky_motion.dart';
+import 'snapshot_paint.dart';
 
 /// A faint band of shade under one block of text, for the few minutes when no
 /// ink reads well enough on the bare sky (spec §3.2, amended 2026-10-15).
@@ -79,7 +80,7 @@ class _SkyBackgroundState extends State<SkyBackground> {
       children: [
         Positioned.fill(
           child: RepaintBoundary(
-            child: CustomPaint(
+            child: SnapshotPaint(
               painter: SkyPainter(
                 frame: widget.frame,
                 dark: widget.dark,
@@ -119,24 +120,74 @@ class StarsPainter extends CustomPainter {
   final double opacity;
   final SkyMotion? motion;
 
-  static final _halo = Paint()
-    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
-  static final _dot = Paint();
+  /// One soft star (a bright core with its glow), drawn for every star in a
+  /// single atlas call instead of 46 blurs per tick.
+  static final ui.Image _sprite = _makeSprite();
+  static const _spriteSize = 32.0;
+
+  static ui.Image _makeSprite() {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const c = Offset(_spriteSize / 2, _spriteSize / 2);
+    canvas.drawCircle(
+      c,
+      _spriteSize / 2,
+      Paint()
+        ..shader = ui.Gradient.radial(
+          c,
+          _spriteSize / 2,
+          [
+            Colors.white,
+            Colors.white,
+            Colors.white.withValues(alpha: 0.35),
+            Colors.white.withValues(alpha: 0),
+          ],
+          const [0, 0.42, 0.55, 1],
+        ),
+    );
+    final picture = recorder.endRecording();
+    final image = picture.toImageSync(_spriteSize.toInt(), _spriteSize.toInt());
+    picture.dispose();
+    return image;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final seconds = motion?.seconds;
     final scale = size.width / StarField.frameWidth;
+    final transforms = <RSTransform>[];
+    final colors = <Color>[];
+    final rects = <Rect>[];
+    const src = Rect.fromLTWH(0, 0, _spriteSize, _spriteSize);
     for (final star in StarField.stars) {
       final o = star.opacityAt(seconds) * opacity;
       if (o <= 0.01) continue;
-      final c = Offset(star.x * scale, star.y);
-      final r = star.size / 2;
-      _halo.color = Colors.white.withValues(alpha: 0.6 * star.brightness * o);
-      canvas.drawCircle(c, r * 2.2, _halo);
-      _dot.color = Colors.white.withValues(alpha: o);
-      canvas.drawCircle(c, r, _dot);
+      // The core covers 42% of the sprite: the star's own size; the glow
+      // around it reaches about 2.4 times further.
+      final k = star.size / (_spriteSize * 0.42);
+      transforms.add(
+        RSTransform.fromComponents(
+          rotation: 0,
+          scale: k,
+          anchorX: _spriteSize / 2,
+          anchorY: _spriteSize / 2,
+          translateX: star.x * scale,
+          translateY: star.y,
+        ),
+      );
+      rects.add(src);
+      colors.add(Colors.white.withValues(alpha: o));
     }
+    if (transforms.isEmpty) return;
+    canvas.drawAtlas(
+      _sprite,
+      transforms,
+      rects,
+      colors,
+      BlendMode.modulate,
+      null,
+      Paint()..filterQuality = FilterQuality.low,
+    );
   }
 
   @override

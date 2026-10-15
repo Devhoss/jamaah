@@ -224,6 +224,21 @@ void main() {
     expect(dark.deep.contrastWith(dark.fill), greaterThanOrEqualTo(4.5));
   });
 
+  test('a block scrolled to the very edge still gets a real ink', () {
+    // A zero-height band once sampled with a division by zero: NaN ink, and
+    // the page fell to the grey error screen on the phone (2026-10-16).
+    for (final y in [0.0, 0.5, 1.0]) {
+      final ink = SkyInk.forRegion(
+        SkyModel.reference.frameAt(689),
+        SkyRegion(y, y, minContrast: 4.5),
+      );
+      for (final v in [ink.ink.r, ink.ink.g, ink.ink.b, ink.muteAlpha]) {
+        expect(v.isFinite, isTrue);
+      }
+      expect(() => ink.ink.argb, returnsNormally);
+    }
+  });
+
   test('a dark sky gets light ink and a pale one gets dark ink', () {
     final night = SkyModel.reference.frameAt(60);
     final noon = SkyModel.reference.frameAt(689);

@@ -9,6 +9,7 @@ import '../../domain/prayer.dart';
 import '../../domain/sky/moon_phase.dart';
 import '../../domain/sky/sun_path_geometry.dart';
 import '../sky/sky_motion.dart';
+import 'snapshot_paint.dart';
 import 'sun_path_labels.dart';
 
 /// One prayer's dot on the arc.
@@ -197,6 +198,12 @@ class SunPath extends StatelessWidget {
     return placed;
   }
 
+  /// The moving layer paints every tick; the still ones are cached images.
+  static Widget _layerPaint(_Layer layer, CustomPainter painter) =>
+      layer == _Layer.motion
+      ? CustomPaint(painter: painter)
+      : SnapshotPaint(painter: painter);
+
   static const keyStep = 5.0;
   static const keyBigStep = 30.0;
   static const talkBackStep = 15.0;
@@ -237,8 +244,9 @@ class SunPath extends StatelessWidget {
                 for (final layer in _Layer.values)
                   Positioned.fill(
                     child: RepaintBoundary(
-                      child: CustomPaint(
-                        painter: _SunPathPainter(
+                      child: _layerPaint(
+                        layer,
+                        _SunPathPainter(
                           layer: layer,
                           geometry: geometry,
                           minute: minute,

@@ -31,6 +31,12 @@ class SkyRegion {
   /// Sample points across the band, every 1% of the height.
   Iterable<double> get samples sync* {
     final n = ((bottom - top) * 100).round();
+    // A band too thin to step through (a block scrolled to the edge of the
+    // screen) is sampled where it is; dividing by zero steps gave NaN ink.
+    if (n <= 0) {
+      yield top.clamp(0.0, 1.0);
+      return;
+    }
     for (var i = 0; i <= n; i++) {
       yield top + (bottom - top) * i / n;
     }

@@ -8,10 +8,11 @@ import '../../domain/sky/star_field.dart';
 /// The one clock behind every slow movement on the sky: twinkle, the sun's
 /// breathing halo, the selected marker's pulse (spec §3.6).
 ///
-/// It ticks at [fps] rather than every display frame: these movements are
-/// slow, and only the small layers that show them repaint on each tick, while
-/// the gradient, glow and grain stay cached (owner, 2026-10-16: Today idled
-/// at ~90% of a core when everything repainted at 60 fps).
+/// It ticks at [SkyMotionScope.fps] rather than every display frame: these
+/// movements are slow, and only the small layers that show them repaint on
+/// each tick, while the gradient, glow and grain stay cached images (owner,
+/// 2026-10-16: Today idled at ~90% of a core when everything repainted at
+/// 60 fps).
 ///
 /// It stops when the screen is hidden (TickerMode), when the app goes to the
 /// background, and for good under reduce motion
@@ -22,8 +23,10 @@ class SkyMotionScope extends StatefulWidget {
 
   final Widget child;
 
-  /// Ticks per second for twinkle, breathe and pulse.
-  static const fps = 24;
+  /// Ticks per second for twinkle, breathe and pulse. Measured on the A53
+  /// (2026-10-16): 24 fps idled Today at ~24% of a core, 12 fps at ~13%; the
+  /// movements are slow (4.8 s breath, 2.4 s pulse, multi-second twinkles).
+  static const fps = 12;
 
   @override
   State<SkyMotionScope> createState() => _SkyMotionScopeState();

@@ -268,15 +268,22 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
     return const NotificationSyncState();
   }
 
-  /// Asks for a sync soon (this microtask turn), however many times it is called.
+  /// Asks for a sync soon, however many times it is called.
+  ///
+  /// Requests within [debounce] become one sync: one tap can write settings
+  /// twice (travel mode, then the location follower's check), and each full
+  /// sync reschedules every notification on this isolate. Waiting also lets
+  /// the switch that started it finish its animation first (2026-10-16).
   void requestSync() {
     if (_queued) return;
     _queued = true;
-    scheduleMicrotask(() {
+    Timer(debounce, () {
       _queued = false;
-      unawaited(syncNow());
+      if (ref.mounted) unawaited(syncNow());
     });
   }
+
+  static const debounce = Duration(milliseconds: 400);
 
   /// Syncs now. While a sync is already running this asks for one more pass
   /// and waits for both, so a caller always returns after its change is in.

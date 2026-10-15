@@ -926,6 +926,30 @@ void main() {
       expect(row(Prayer.isha), findsOneWidget);
     });
 
+    testApp('scrolling the whole day to the end never breaks the page', (
+      tester,
+    ) async {
+      // A small phone, travel mode on, so the hero scrolls fully away.
+      tester.view.physicalSize = const Size(1080, 1500);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await settings.setLocation(cairo.toStored());
+      await settings.saveTravel(
+        const TravelSettings(travelMode: true, followLocation: false),
+      );
+      await openToday(tester);
+      final scroll = find.byType(Scrollable).first;
+      for (var i = 0; i < 6; i++) {
+        await tester.drag(scroll, const Offset(0, -400));
+        await tester.pump();
+        expect(tester.takeException(), isNull, reason: 'drag $i');
+      }
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(row(Prayer.isha), findsOneWidget);
+      expect(find.byType(ErrorWidget), findsNothing);
+    });
+
     testApp('the dark theme keeps the same reading', (tester) async {
       await settings.setLocation(cairo.toStored());
       await tester.pumpWidget(harness(dark: true));

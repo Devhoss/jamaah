@@ -251,10 +251,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       final box = key.currentContext?.findRenderObject() as RenderBox?;
       if (box == null || !box.hasSize) return null;
       final top = box.localToGlobal(Offset.zero, ancestor: root).dy;
-      return (
-        (top / h).clamp(0.0, 1.0),
-        ((top + box.size.height) / h).clamp(0.0, 1.0),
-      );
+      // A block scrolled off screen keeps a sliver at the edge, so its ink is
+      // still read against real sky.
+      final t = (top / h).clamp(0.0, 0.99);
+      final b = ((top + box.size.height) / h).clamp(t + 0.01, 1.0);
+      return (t, b);
     }
 
     final top = band(_topKey), path = band(_pathKey), hero = band(_heroKey);

@@ -53,11 +53,15 @@ void main() {
       expect(motion.running, isTrue);
       await tester.pump(const Duration(seconds: 2));
       expect(motion.seconds, closeTo(2, 0.05));
-      // About 24 ticks a second, not one per display frame.
+      // A dozen ticks a second (SkyMotionScope.fps), not one per display
+      // frame: measured on the A53, 12 fps idles at ~13% of a core.
       var ticks = 0;
       motion.clock.addListener(() => ticks++);
       await tester.pump(const Duration(seconds: 1));
-      expect(ticks, inInclusiveRange(23, 25));
+      expect(
+        ticks,
+        inInclusiveRange(SkyMotionScope.fps - 1, SkyMotionScope.fps + 1),
+      );
     });
 
     testWidgets('reduce motion stops it: nothing twinkles or pulses', (
