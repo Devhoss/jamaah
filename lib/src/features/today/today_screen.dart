@@ -281,20 +281,23 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     return _sky!;
   }
 
-  void _reportNav(SkyPalette rows, [Color? fade]) {
+  void _reportNav(
+    SkyPalette rows, [
+    ({Color top, Color line, Color bottom})? backdrop,
+  ]) {
     final colors = BottomNavColors(
       ink: rows.ink,
       muted: rows.mute,
       line: rows.line,
       background: Colors.transparent,
-      fade: fade,
+      backdrop: backdrop,
     );
     final last = _lastNav;
     if (last != null &&
         last.ink == colors.ink &&
         last.muted == colors.muted &&
         last.line == colors.line &&
-        last.fade == colors.fade) {
+        last.backdrop == colors.backdrop) {
       return;
     }
     _lastNav = colors;
@@ -421,11 +424,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     return AnimatedSkyPalette(
       palette: SkyPalette.of(inks.rows),
       builder: (context, rowsPalette) {
-        // The bar fades in the sky at the bottom, shade included.
-        _reportNav(
-          rowsPalette,
-          Color(inks.rows.shade.over(frame.colorAt(1)).argb),
+        // The bar draws back the sky that is right behind it, shade
+        // included: at the top of its fade, at its line, at the bottom.
+        final screen = MediaQuery.sizeOf(context).height;
+        final nav = MediaQuery.paddingOf(context).bottom;
+        Color skyAt(double px) => Color(
+          inks.rows.shade
+              .over(frame.colorAt((px / screen).clamp(0.0, 1.0)))
+              .argb,
         );
+        _reportNav(rowsPalette, (
+          top: skyAt(screen - nav),
+          line: skyAt(screen - nav + BottomNav.fadeHeight),
+          bottom: skyAt(screen),
+        ));
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: _overlayFor(inks.top.isLight),
           child: SkyMotionScope(
@@ -500,7 +512,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                 ),
                                 moon: MoonPhase.fromHijriDay(hijri.hDay),
                                 sunLabel: sunLabel,
-                                combinedLabel: selection == null
+                                // Only when the sun is at the pinned
+                                // prayer's own time.
+                                combinedLabel:
+                                    selection == null ||
+                                        _view.pinned != selection.prayer ||
+                                        times[selection.prayer] == null ||
+                                        _view.viewMinute?.round() !=
+                                            times[selection.prayer]
                                     ? null
                                     : l10n.sunLabelCombined(
                                         prayerNameOn(

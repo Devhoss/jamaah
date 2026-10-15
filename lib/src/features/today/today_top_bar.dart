@@ -98,6 +98,7 @@ class TodayTopBar extends StatelessWidget {
               ink: palette.ink,
               deep: palette.deep,
               outline: palette.line,
+              fill: palette.fill,
             ),
           ),
         ],

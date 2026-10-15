@@ -215,7 +215,10 @@ void main() {
       final handle = tester.ensureSemantics();
       await pump(tester, set);
       // The label in capitals, the mosque's name as the user typed it.
-      expect(find.text('IQAMA · Test Mosque', findRichText: true), findsOneWidget);
+      expect(
+        find.text('IQAMA · Test Mosque', findRichText: true),
+        findsOneWidget,
+      );
       expect(find.text('Adhan + 20 min · set by you'), findsOneWidget);
       final box = tester.widget<Container>(
         find
@@ -260,6 +263,33 @@ void main() {
       await tester.tap(find.text(_t.ticketSetTime));
       expect(opened, 1);
     });
+
+    testWidgets(
+      'a long mosque name gets the full width; the reminder moves under the time',
+      (tester) async {
+        const long = TicketSet(
+          mosque: 'Masjid Abdullah Al-Mubarak Al-Sabah, Jabriya',
+          time: '3:09 PM',
+          relative: 'in 29 min',
+          rule: 'Adhan + 20 min · set by you',
+          reminder: 'Reminder 2:59 PM',
+          reminderOn: true,
+        );
+        await pump(tester, long);
+        final time = tester.getRect(
+          find.textContaining('3:09 PM', findRichText: true).first,
+        );
+        final reminder = tester.getRect(find.text('Reminder 2:59 PM'));
+        expect(reminder.top, greaterThan(time.top), reason: 'on its own line');
+        // A short name keeps the reminder beside the time.
+        await pump(tester, set);
+        final t2 = tester.getRect(
+          find.textContaining('3:09 PM', findRichText: true).first,
+        );
+        final r2 = tester.getRect(find.text('Reminder 2:59 PM'));
+        expect(r2.left, greaterThan(t2.left));
+      },
+    );
 
     testWidgets('Sunrise: the plain admission, no Iqama', (tester) async {
       await pump(tester, const TicketSunrise());

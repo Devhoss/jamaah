@@ -78,6 +78,23 @@ void main() {
     );
   }
 
+  test('the moon never sits on a prayer marker', () {
+    for (final m in markers) {
+      for (final off in const [Offset.zero, Offset(4, 3), Offset(-8, 2)]) {
+        final p = SunPathLabels.clearOfMarkers(m + off, markers);
+        for (final other in markers) {
+          expect(
+            (p - other).distance,
+            greaterThanOrEqualTo(SunPathLabels.moonClearance - 1e-6),
+          );
+        }
+      }
+    }
+    // Far from every marker it stays where it is.
+    final free = at(600) + const Offset(0, 30);
+    expect(SunPathLabels.clearOfMarkers(free, markers), free);
+  });
+
   test('a free slot is used as it is, below first', () {
     final p = SunPathLabels.place(
       anchor: at(689),

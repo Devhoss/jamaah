@@ -10,7 +10,7 @@ class BottomNavColors {
     required this.muted,
     required this.line,
     required this.background,
-    this.fade,
+    this.backdrop,
   });
 
   /// The surface version, for pages whose controls sit on a solid surface.
@@ -26,10 +26,14 @@ class BottomNavColors {
   final Color line;
   final Color background;
 
-  /// On the sky: the sky's colour at the bottom of the screen. The bar then
-  /// fades the sky in behind itself, so rows scrolling under it soften out
-  /// instead of running into its line (owner, 2026-10-16).
-  final Color? fade;
+  /// On the sky: the sky's own colours sampled right behind the bar, at the
+  /// top of its fade, at its line and at the bottom. The bar draws them back
+  /// over the rows, transparent at the top and [backdropOpacity] under the
+  /// labels, so nothing legible shows through and no band of another colour
+  /// appears (owner, 2026-10-16).
+  final ({Color top, Color line, Color bottom})? backdrop;
+
+  static const backdropOpacity = 0.96;
 }
 
 /// Four text tabs with a small dot under the one you are on (spec §2.5):
@@ -61,13 +65,24 @@ class BottomNav extends StatelessWidget {
     final c =
         colors ?? BottomNavColors.surface(HorizonTheme.of(context).surfaces);
     final type = HorizonTheme.typeOf(context);
-    final fade = c.fade;
+    final back = c.backdrop;
+    const o = BottomNavColors.backdropOpacity;
 
     final bar = Material(
-      color: fade == null ? c.background : fade.withValues(alpha: 0.94),
+      color: back == null ? c.background : Colors.transparent,
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: c.line)),
+          gradient: back == null
+              ? null
+              : LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    back.line.withValues(alpha: o),
+                    back.bottom.withValues(alpha: o),
+                  ],
+                ),
         ),
         child: SafeArea(
           top: false,
@@ -93,7 +108,7 @@ class BottomNav extends StatelessWidget {
         ),
       ),
     );
-    if (fade == null) return bar;
+    if (back == null) return bar;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,8 +122,8 @@ class BottomNav extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  fade.withValues(alpha: 0),
-                  fade.withValues(alpha: 0.94),
+                  back.top.withValues(alpha: 0),
+                  back.line.withValues(alpha: o),
                 ],
               ),
             ),

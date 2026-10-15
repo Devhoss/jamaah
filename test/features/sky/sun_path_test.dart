@@ -120,13 +120,46 @@ void main() {
 
   testWidgets('arrow keys move 5 minutes, with Shift 30', (tester) async {
     final scrubs = await pump(tester);
-    Focus.of(tester.element(find.text('Dhuhr'))).requestFocus();
+    Focus.of(tester.element(find.text('Now 11:29'))).requestFocus();
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
     await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
     expect(scrubs, [694, 659]);
+  });
+
+  testWidgets('near the sun, the prayer name steps aside unless merged', (
+    tester,
+  ) async {
+    // The sun on Dhuhr's marker without a combined label (not a row tap):
+    // the viewed time alone; the hero names the prayer.
+    await pump(tester);
+    expect(find.text('Now 11:29'), findsOneWidget);
+    expect(find.text('Dhuhr'), findsNothing);
+    // A row tap: the view is at Dhuhr's own time, one label says both.
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 390,
+            child: SunPath(
+              geometry: geometry,
+              minute: 689,
+              markers: markers,
+              ink: ink,
+              sunLabel: '11:29 AM',
+              selectedLabel: 'Dhuhr',
+              combinedLabel: 'Dhuhr · 11:29 AM',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Dhuhr · 11:29 AM'), findsOneWidget);
+    expect(find.text('Dhuhr'), findsNothing);
+    expect(find.text('11:29 AM'), findsNothing);
   });
 
   testWidgets('without a handler it is a picture: no slider, no gestures', (

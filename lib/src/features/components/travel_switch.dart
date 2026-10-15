@@ -9,7 +9,8 @@ class TravelSwitchColors {
     required this.ink,
     required this.deep,
     required this.outline,
-  });
+    Color? fill,
+  }) : fill = fill ?? ink;
 
   /// The knob when off, and the track when on.
   final Color ink;
@@ -19,6 +20,10 @@ class TravelSwitchColors {
 
   /// The track's outline when off.
   final Color outline;
+
+  /// The track when on: [ink], or in the dark theme at night ink at ~88%
+  /// over the sky, like the Iqama ticket (owner, 2026-10-16).
+  final Color fill;
 }
 
 /// Travel mode: a calm 72 × 40 pill whose knob carries a house (off) or a
@@ -116,10 +121,10 @@ class _TravelSwitchState extends State<TravelSwitch>
                     width: TravelSwitch.width,
                     height: TravelSwitch.height,
                     decoration: BoxDecoration(
-                      color: widget.value ? c.ink : Colors.transparent,
+                      color: widget.value ? c.fill : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: widget.value ? c.ink : c.outline,
+                        color: widget.value ? c.fill : c.outline,
                         width: 1.5,
                       ),
                     ),

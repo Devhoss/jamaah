@@ -106,8 +106,9 @@ class SunPath extends StatelessWidget {
   final TextStyle? labelStyle;
   final TextStyle? selectedLabelStyle;
 
-  /// Said instead of both labels when the sun is close to the selected
-  /// marker: "Dhuhr · 12:42 PM" (see [SunPathLabels.shouldMerge]).
+  /// Said instead of both labels when the sun sits on the selected marker
+  /// because the view is at that prayer's own time: "Dhuhr · 12:42 PM". Give
+  /// it only then; near the marker at any other time the name is hidden.
   final String? combinedLabel;
 
   /// Null makes the path a picture only (onboarding, full-screen Adhan).
@@ -166,10 +167,12 @@ class SunPath extends StatelessWidget {
     ];
 
     final placed = <_PlacedLabel>[];
-    final merge =
-        combinedLabel != null &&
-        sunLabel != null &&
-        SunPathLabels.shouldMerge(sun, selected, scale);
+    // The sun and the selected marker overlap. Only when the viewed time is
+    // that prayer's own (a row tap) does one label say both; otherwise the
+    // sun keeps the viewed time and the prayer's name, which the hero says
+    // anyway, steps aside (owner, 2026-10-16).
+    final close = SunPathLabels.shouldMerge(sun, selected, scale);
+    final merge = close && combinedLabel != null && sunLabel != null;
     final sunText = merge ? combinedLabel! : sunLabel;
     if (sunText != null) {
       final size = measure(sunText, sunStyle);
@@ -184,7 +187,7 @@ class SunPath extends StatelessWidget {
       placed.add(_PlacedLabel(sunText, sunStyle, at, size));
     }
     final name = selectedLabel;
-    if (!merge && name != null && selected != null) {
+    if (!close && name != null && selected != null) {
       final size = measure(name, nameStyle);
       final at = SunPathLabels.place(
         anchor: selected,
@@ -457,7 +460,19 @@ class _SunPathPainter extends CustomPainter {
     final m = moon;
     if (m != null) {
       final place = m.placeAt(geometry, minute);
-      if (place.visible) _paintMoon(canvas, m, place);
+      if (place.visible) {
+        final clear = SunPathLabels.clearOfMarkers(
+          Offset(place.point.x, place.point.y),
+          [
+            for (final marker in markers)
+              Offset(
+                geometry.positionAt(marker.minute.toDouble()).point.x,
+                geometry.positionAt(marker.minute.toDouble()).point.y,
+              ),
+          ],
+        );
+        _paintMoon(canvas, m, place, clear);
+      }
     }
   }
 
@@ -526,11 +541,11 @@ class _SunPathPainter extends CustomPainter {
     }
   }
 
-  void _paintMoon(Canvas canvas, MoonPhase m, MoonPlacement place) {
+  void _paintMoon(Canvas canvas, MoonPhase m, MoonPlacement place, Offset at) {
     const r = 9.0;
     const lit = Color(0xFFF4F1E6);
     canvas.save();
-    canvas.translate(place.point.x, place.point.y);
+    canvas.translate(at.dx, at.dy);
     canvas.rotate(place.rotationDegrees * math.pi / 180);
     canvas.drawCircle(
       Offset.zero,

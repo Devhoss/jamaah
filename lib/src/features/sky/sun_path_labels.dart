@@ -15,6 +15,33 @@ abstract final class SunPathLabels {
   /// The gap between a label and the point it names.
   static const gap = 14.0;
 
+  /// The moon's place, moved just far enough that it does not sit on a
+  /// prayer marker (owner, 2026-10-16): pushed straight away from the
+  /// nearest marker it overlaps, upward when it is exactly on one.
+  static Offset clearOfMarkers(
+    Offset moon,
+    List<Offset> markers, {
+    double gap = moonClearance,
+  }) {
+    var p = moon;
+    for (var pass = 0; pass < 3; pass++) {
+      var moved = false;
+      for (final m in markers) {
+        final d = p - m;
+        final dist = d.distance;
+        if (dist >= gap) continue;
+        final dir = dist < 1e-6 ? const Offset(0, -1) : d / dist;
+        p = m + dir * gap;
+        moved = true;
+      }
+      if (!moved) break;
+    }
+    return p;
+  }
+
+  /// Moon radius (9) plus a marker dot and a little air.
+  static const moonClearance = 17.0;
+
   static bool shouldMerge(Offset sun, Offset? selected, double scale) =>
       selected != null && (sun - selected).distance * scale < mergeDistance;
 

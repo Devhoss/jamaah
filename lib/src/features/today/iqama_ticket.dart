@@ -99,50 +99,14 @@ class IqamaTicket extends StatelessWidget {
               color: palette.fill,
               borderRadius: radius,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _kicker(
-                        context,
-                        l10n,
-                        set.mosque,
-                        type.kicker.copyWith(color: soft),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: set.time,
-                              style: type.rowTime.copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: deep,
-                              ),
-                            ),
-                            const TextSpan(text: ' '),
-                            TextSpan(
-                              text: l10n.ticketWhen(set.relative),
-                              style: type.meta.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: soft,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(set.rule, style: type.meta.copyWith(color: soft)),
-                      if (set.note != null)
-                        Text(set.note!, style: type.meta.copyWith(color: soft)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Row(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final kickerStyle = type.kicker.copyWith(color: soft);
+                final reminderStyle = type.meta.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: deep,
+                );
+                final reminder = Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (set.reminderOn) ...[
@@ -154,16 +118,84 @@ class IqamaTicket extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                     ],
-                    Text(
-                      set.reminder,
-                      style: type.meta.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: deep,
+                    Flexible(child: Text(set.reminder, style: reminderStyle)),
+                  ],
+                );
+                // When the mosque's name would wrap beside the reminder, the
+                // reminder takes its own line under the time and the kicker
+                // gets the full width (owner, 2026-10-16).
+                final scaler = MediaQuery.textScalerOf(context);
+                final direction = Directionality.of(context);
+                double widthOf(InlineSpan span) {
+                  final painter = TextPainter(
+                    text: span,
+                    textDirection: direction,
+                    textScaler: scaler,
+                    maxLines: 1,
+                  )..layout();
+                  final w = painter.width;
+                  painter.dispose();
+                  return w;
+                }
+
+                final kickerWidth = widthOf(
+                  _kickerSpan(context, l10n, set.mosque, kickerStyle),
+                );
+                final reminderWidth =
+                    widthOf(
+                      TextSpan(text: set.reminder, style: reminderStyle),
+                    ) +
+                    (set.reminderOn ? 21 : 0);
+                final stacked =
+                    kickerWidth + 14 + reminderWidth > constraints.maxWidth;
+
+                final details = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _kicker(context, l10n, set.mosque, kickerStyle),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: set.time,
+                            style: type.rowTime.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: deep,
+                            ),
+                          ),
+                          const TextSpan(text: ' '),
+                          TextSpan(
+                            text: l10n.ticketWhen(set.relative),
+                            style: type.meta.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: soft,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    if (stacked)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: reminder,
+                      ),
+                    Text(set.rule, style: type.meta.copyWith(color: soft)),
+                    if (set.note != null)
+                      Text(set.note!, style: type.meta.copyWith(color: soft)),
                   ],
-                ),
-              ],
+                );
+                if (stacked) return details;
+                return Row(
+                  children: [
+                    Expanded(child: details),
+                    const SizedBox(width: 14),
+                    reminder,
+                  ],
+                );
+              },
             ),
           ),
         );
@@ -298,22 +330,29 @@ class IqamaTicket extends StatelessWidget {
     AppLocalizations l10n,
     String mosque,
     TextStyle style,
+  ) => Text.rich(
+    _kickerSpan(context, l10n, mosque, style),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
+  );
+
+  static TextSpan _kickerSpan(
+    BuildContext context,
+    AppLocalizations l10n,
+    String mosque,
+    TextStyle style,
   ) {
     const mark = '\u0000';
     final arabic = Localizations.localeOf(context).languageCode == 'ar';
     final template = l10n.ticketKicker(mark);
     final parts = (arabic ? template : template.toUpperCase()).split(mark);
-    return Text.rich(
-      TextSpan(
-        style: style,
-        children: [
-          TextSpan(text: parts.first),
-          TextSpan(text: mosque, style: style.copyWith(letterSpacing: 0.2)),
-          if (parts.length > 1) TextSpan(text: parts.sublist(1).join()),
-        ],
-      ),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
+    return TextSpan(
+      style: style,
+      children: [
+        TextSpan(text: parts.first),
+        TextSpan(text: mosque, style: style.copyWith(letterSpacing: 0.2)),
+        if (parts.length > 1) TextSpan(text: parts.sublist(1).join()),
+      ],
     );
   }
 }
