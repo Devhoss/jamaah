@@ -1286,6 +1286,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get prayerRecordingHint => arabicDigits(super.prayerRecordingHint);
 
   @override
+  String get heroKickerTomorrow => arabicDigits(super.heroKickerTomorrow);
+
+  @override
+  String get heroKickerAdhan => arabicDigits(super.heroKickerAdhan);
+
+  @override
+  String get heroKickerSunrise => arabicDigits(super.heroKickerSunrise);
+
+  @override
+  String get heroBackToNow => arabicDigits(super.heroBackToNow);
+
+  @override
+  String get sunPathLabel => arabicDigits(super.sunPathLabel);
+
+  @override
+  String get notesTitle => arabicDigits(super.notesTitle);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1768,4 +1786,40 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String recordingsForPrayer(String prayer) =>
       arabicDigits(super.recordingsForPrayer(prayer));
+
+  @override
+  String heroKickerHeld(String prayer, String countdown) =>
+      arabicDigits(super.heroKickerHeld(prayer, countdown));
+
+  @override
+  String heroKickerInForce(String time) =>
+      arabicDigits(super.heroKickerInForce(time));
+
+  @override
+  String heroMeta(String period, String relative) =>
+      arabicDigits(super.heroMeta(period, relative));
+
+  @override
+  String heroAdhanAgo(String ago) =>
+      arabicDigits(super.heroAdhanAgo(ago));
+
+  @override
+  String sunNow(String time) =>
+      arabicDigits(super.sunNow(time));
+
+  @override
+  String sunPathValue(String time, String prayer) =>
+      arabicDigits(super.sunPathValue(time, prayer));
+
+  @override
+  String placeSubline(String date, String hijri) =>
+      arabicDigits(super.placeSubline(date, hijri));
+
+  @override
+  String placeButtonSemantics(String place) =>
+      arabicDigits(super.placeButtonSemantics(place));
+
+  @override
+  String moreNotes(int count) =>
+      arabicDigits(super.moreNotes(count));
 }

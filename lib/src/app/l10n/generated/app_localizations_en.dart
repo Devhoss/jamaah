@@ -2031,4 +2031,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String recordingsForPrayer(String prayer) {
     return 'Recording for $prayer';
   }
+
+  @override
+  String get heroKickerTomorrow => 'Next prayer · tomorrow';
+
+  @override
+  String heroKickerHeld(String prayer, String countdown) {
+    return '$prayer · Iqama $countdown';
+  }
+
+  @override
+  String get heroKickerAdhan => 'Adhan';
+
+  @override
+  String heroKickerInForce(String time) {
+    return 'In force at $time';
+  }
+
+  @override
+  String get heroKickerSunrise => 'Sunrise · not a prayer';
+
+  @override
+  String get heroBackToNow => 'Back to now';
+
+  @override
+  String heroMeta(String period, String relative) {
+    return '$period · $relative';
+  }
+
+  @override
+  String heroAdhanAgo(String ago) {
+    return 'Adhan $ago';
+  }
+
+  @override
+  String sunNow(String time) {
+    return 'Now $time';
+  }
+
+  @override
+  String get sunPathLabel => 'Look through the day';
+
+  @override
+  String sunPathValue(String time, String prayer) {
+    return '$time, $prayer';
+  }
+
+  @override
+  String placeSubline(String date, String hijri) {
+    return '$date · $hijri';
+  }
+
+  @override
+  String placeButtonSemantics(String place) {
+    return 'Place: $place. Change place';
+  }
+
+  @override
+  String moreNotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more notes',
+      one: '1 more note',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notesTitle => 'Notes';
 }

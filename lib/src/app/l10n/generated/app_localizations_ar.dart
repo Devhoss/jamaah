@@ -2190,4 +2190,76 @@ class AppLocalizationsAr extends AppLocalizations {
   String recordingsForPrayer(String prayer) {
     return 'تسجيل $prayer';
   }
+
+  @override
+  String get heroKickerTomorrow => 'الصلاة القادمة · غدًا';
+
+  @override
+  String heroKickerHeld(String prayer, String countdown) {
+    return '$prayer · الإقامة $countdown';
+  }
+
+  @override
+  String get heroKickerAdhan => 'الأذان';
+
+  @override
+  String heroKickerInForce(String time) {
+    return 'الوقت الحاضر عند $time';
+  }
+
+  @override
+  String get heroKickerSunrise => 'الشروق · ليس وقت صلاة';
+
+  @override
+  String get heroBackToNow => 'العودة إلى الآن';
+
+  @override
+  String heroMeta(String period, String relative) {
+    return '$period · $relative';
+  }
+
+  @override
+  String heroAdhanAgo(String ago) {
+    return 'الأذان $ago';
+  }
+
+  @override
+  String sunNow(String time) {
+    return 'الآن $time';
+  }
+
+  @override
+  String get sunPathLabel => 'تصفّح اليوم';
+
+  @override
+  String sunPathValue(String time, String prayer) {
+    return '$time، $prayer';
+  }
+
+  @override
+  String placeSubline(String date, String hijri) {
+    return '$date · $hijri';
+  }
+
+  @override
+  String placeButtonSemantics(String place) {
+    return 'المكان: $place. تغيير المكان';
+  }
+
+  @override
+  String moreNotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة أخرى',
+      many: '$count ملاحظة أخرى',
+      few: '$count ملاحظات أخرى',
+      two: 'ملاحظتان أخريان',
+      one: 'ملاحظة أخرى',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notesTitle => 'ملاحظات';
 }

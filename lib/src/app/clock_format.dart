@@ -28,4 +28,15 @@ class ClockFormat {
     final moment = DateTime(2000, 1, 1, at.hour, at.minute);
     return (use24Hour ? DateFormat.Hm(locale) : DateFormat.jm(locale)).format(moment);
   }
+
+  /// The time split for the hero (Horizon): `1:59` big and `PM` beside it. A
+  /// 24-hour device has no period.
+  ({String clock, String? period}) parts(LocalTime at) {
+    final moment = DateTime(2000, 1, 1, at.hour, at.minute);
+    if (use24Hour) return (clock: DateFormat.Hm(locale).format(moment), period: null);
+    return (
+      clock: DateFormat('h:mm', locale).format(moment),
+      period: DateFormat('a', locale).format(moment),
+    );
+  }
 }

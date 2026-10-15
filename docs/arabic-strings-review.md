@@ -556,3 +556,18 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 543 | `prayerRecordingSame` | Same as in Settings ({name}) | كما في الإعدادات ({name}) |
 | 544 | `prayerRecordingHint` | Plays when this prayer’s sound is Full Adhan. | يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل. |
 | 545 | `recordingsForPrayer` | Recording for {prayer} | تسجيل {prayer} |
+| 546 | `heroKickerTomorrow` | Next prayer · tomorrow | الصلاة القادمة · غدًا |
+| 547 | `heroKickerHeld` | {prayer} · Iqama {countdown} | {prayer} · الإقامة {countdown} |
+| 548 | `heroKickerAdhan` | Adhan | الأذان |
+| 549 | `heroKickerInForce` | In force at {time} | الوقت الحاضر عند {time} |
+| 550 | `heroKickerSunrise` | Sunrise · not a prayer | الشروق · ليس وقت صلاة |
+| 551 | `heroBackToNow` | Back to now | العودة إلى الآن |
+| 552 | `heroMeta` | {period} · {relative} | {period} · {relative} |
+| 553 | `heroAdhanAgo` | Adhan {ago} | الأذان {ago} |
+| 554 | `sunNow` | Now {time} | الآن {time} |
+| 555 | `sunPathLabel` | Look through the day | تصفّح اليوم |
+| 556 | `sunPathValue` | {time}, {prayer} | {time}، {prayer} |
+| 557 | `placeSubline` | {date} · {hijri} | {date} · {hijri} |
+| 558 | `placeButtonSemantics` | Place: {place}. Change place | المكان: {place}. تغيير المكان |
+| 559 | `moreNotes` | {count, plural, =1{1 more note} other{{count} more notes}} | {count, plural, =1{ملاحظة أخرى} =2{ملاحظتان أخريان} few{{count} ملاحظات أخرى} many{{count} ملاحظة أخرى} other{{count} ملاحظة أخرى}} |
+| 560 | `notesTitle` | Notes | ملاحظات |

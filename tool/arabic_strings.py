@@ -607,6 +607,21 @@ AR = {
     'prayerRecordingSame': 'كما في الإعدادات ({name})',
     'prayerRecordingHint': 'يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل.',
     'recordingsForPrayer': 'تسجيل {prayer}',
+    "heroKickerTomorrow": 'الصلاة القادمة · غدًا',
+    "heroKickerHeld": '{prayer} · الإقامة {countdown}',
+    "heroKickerAdhan": 'الأذان',
+    "heroKickerInForce": 'الوقت الحاضر عند {time}',
+    "heroKickerSunrise": 'الشروق · ليس وقت صلاة',
+    "heroBackToNow": 'العودة إلى الآن',
+    "heroMeta": '{period} · {relative}',
+    "heroAdhanAgo": 'الأذان {ago}',
+    "sunNow": 'الآن {time}',
+    "sunPathLabel": 'تصفّح اليوم',
+    "sunPathValue": '{time}، {prayer}',
+    "placeSubline": '{date} · {hijri}',
+    "placeButtonSemantics": 'المكان: {place}. تغيير المكان',
+    "moreNotes": plural('count', one='ملاحظة أخرى', two='ملاحظتان أخريان', few='{n} ملاحظات أخرى', many='{n} ملاحظة أخرى'),
+    "notesTitle": 'ملاحظات',
 }
 
 

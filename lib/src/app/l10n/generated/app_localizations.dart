@@ -3375,6 +3375,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recording for {prayer}'**
   String recordingsForPrayer(String prayer);
+
+  /// No description provided for @heroKickerTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Next prayer · tomorrow'**
+  String get heroKickerTomorrow;
+
+  /// No description provided for @heroKickerHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · Iqama {countdown}'**
+  String heroKickerHeld(String prayer, String countdown);
+
+  /// No description provided for @heroKickerAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan'**
+  String get heroKickerAdhan;
+
+  /// No description provided for @heroKickerInForce.
+  ///
+  /// In en, this message translates to:
+  /// **'In force at {time}'**
+  String heroKickerInForce(String time);
+
+  /// No description provided for @heroKickerSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise · not a prayer'**
+  String get heroKickerSunrise;
+
+  /// No description provided for @heroBackToNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to now'**
+  String get heroBackToNow;
+
+  /// No description provided for @heroMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{period} · {relative}'**
+  String heroMeta(String period, String relative);
+
+  /// No description provided for @heroAdhanAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan {ago}'**
+  String heroAdhanAgo(String ago);
+
+  /// No description provided for @sunNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now {time}'**
+  String sunNow(String time);
+
+  /// No description provided for @sunPathLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Look through the day'**
+  String get sunPathLabel;
+
+  /// No description provided for @sunPathValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}, {prayer}'**
+  String sunPathValue(String time, String prayer);
+
+  /// No description provided for @placeSubline.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {hijri}'**
+  String placeSubline(String date, String hijri);
+
+  /// No description provided for @placeButtonSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Place: {place}. Change place'**
+  String placeButtonSemantics(String place);
+
+  /// No description provided for @moreNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more note} other{{count} more notes}}'**
+  String moreNotes(int count);
+
+  /// No description provided for @notesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
 }
 
 class _AppLocalizationsDelegate
