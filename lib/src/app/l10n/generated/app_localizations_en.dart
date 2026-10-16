@@ -1298,12 +1298,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onbStart => 'Start';
 
   @override
-  String get onbWelcomeTagline =>
-      'Know when to pray. Know when your mosque starts. Get reminded on time.';
+  String get onbWelcomeTagline => 'Pray together, on time.';
 
   @override
   String get onbWelcomeBody =>
-      'Prayer times are worked out on this phone. No account, and nothing about you is uploaded.';
+      'Know when to pray. Know when your mosque starts. Get a nudge before the congregation.';
 
   @override
   String get onbLanguage => 'Language';
@@ -1328,7 +1327,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbMosqueBody =>
-      'Add the mosque you usually pray at. You then enter its Iqama times yourself: Jama’ah never guesses them. You can add more mosques later.';
+      'Jama’ah means praying together. Add the mosque you pray at to see when its congregation starts, and get a nudge before it.';
 
   @override
   String onbMosqueDone(String mosque) {
@@ -1340,10 +1339,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbAlertsBody =>
-      'An Adhan alert at each prayer time, and a Jama’ah reminder before your mosque\'s Iqama. You can change every alert, its sound and its timing later in Settings.';
+      'An alert at each Adhan. You can choose the sound for each prayer later, from Today.';
 
   @override
-  String get onbAlertsSwitch => 'Adhan alert for the five prayers';
+  String get onbAlertsSwitch => 'Alerts for the five prayers';
 
   @override
   String get onbAlertsSwitchHint =>
@@ -1351,17 +1350,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbAlertsBattery =>
-      'Some phones stop alerts to save battery. If one doesn\'t arrive, set Jama’ah\'s battery use to Unrestricted in the phone\'s settings.';
+      'Some phones stop apps in the background to save battery. If an alert ever comes late, let Jama’ah run unrestricted.';
 
   @override
   String get onbTravelTitle => 'Do you travel often?';
 
   @override
   String get onbTravelBody =>
-      'Travel mode lets your prayer times follow you between cities and time zones, without changing your phone\'s clock. On a plane, it adds in-flight mode: prayer times and the Qibla aboard, from GPS, with no internet.';
+      'Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route.';
 
   @override
-  String get onbTravelSwitch => 'Turn on travel mode';
+  String get onbTravelSwitch => 'Travel mode';
 
   @override
   String get onbTravelHint =>
@@ -2645,4 +2644,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qiblaSteadyNow => 'It’s steady now';
+
+  @override
+  String get onbLanguageLabel => 'Language · اللغة';
+
+  @override
+  String get onbLanguageLater => 'You can change it later in Settings.';
+
+  @override
+  String get onbPlaceBody =>
+      'Prayer times are worked out on your phone from your place. An approximate location is enough, and it never leaves your phone.';
+
+  @override
+  String onbPlaceDetails(String method, String prayer, String time) {
+    return 'Method: $method · next Adhan $prayer $time';
+  }
+
+  @override
+  String get onbPlaceNotRight => 'Not right? Choose a city';
+
+  @override
+  String get onbMosqueRowOpen =>
+      'A row of worshippers, with one place open for you';
+
+  @override
+  String get onbMosqueRowFull => 'A full row, with you in it';
+
+  @override
+  String onbMosqueAdded(String mosque) {
+    return '$mosque added';
+  }
+
+  @override
+  String get onbMosqueAddedBody =>
+      'Its Iqama times are not configured yet. Set them from the Mosques tab whenever you are ready.';
+
+  @override
+  String get onbAlertsFiveHint => 'Fajr, Dhuhr, Asr, Maghrib and Isha';
+
+  @override
+  String get onbAllowNote =>
+      'Android will ask if Jama’ah may send notifications. Without it, alerts can’t appear.';
+
+  @override
+  String get onbNotificationsAllowed => 'Notifications allowed';
+
+  @override
+  String get onbBatterySettings => 'Battery settings';
+
+  @override
+  String get onbTravelOnSub => 'On: times follow you';
+
+  @override
+  String get onbTravelOffSub => 'Off: times stay where you set them';
+
+  @override
+  String get onbTravelSame => 'The same switch sits at the top of Today.';
 }

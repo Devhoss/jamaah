@@ -72,9 +72,15 @@ class _CityListPageState extends ConsumerState<CityListPage> {
                       place.displayName,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    trailing: Text(
-                      _shortZone(place.ianaZone),
-                      style: Theme.of(context).textTheme.bodySmall,
+                    // Capped, so a long zone at a large text size wraps
+                    // instead of pushing the row past the screen.
+                    trailing: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 104),
+                      child: Text(
+                        _shortZone(place.ianaZone),
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                     onTap: () => Navigator.of(context).pop(place),
                   ),

@@ -1622,6 +1622,48 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get qiblaSteadyNow => arabicDigits(super.qiblaSteadyNow);
 
   @override
+  String get onbLanguageLabel => arabicDigits(super.onbLanguageLabel);
+
+  @override
+  String get onbLanguageLater => arabicDigits(super.onbLanguageLater);
+
+  @override
+  String get onbPlaceBody => arabicDigits(super.onbPlaceBody);
+
+  @override
+  String get onbPlaceNotRight => arabicDigits(super.onbPlaceNotRight);
+
+  @override
+  String get onbMosqueRowOpen => arabicDigits(super.onbMosqueRowOpen);
+
+  @override
+  String get onbMosqueRowFull => arabicDigits(super.onbMosqueRowFull);
+
+  @override
+  String get onbMosqueAddedBody => arabicDigits(super.onbMosqueAddedBody);
+
+  @override
+  String get onbAlertsFiveHint => arabicDigits(super.onbAlertsFiveHint);
+
+  @override
+  String get onbAllowNote => arabicDigits(super.onbAllowNote);
+
+  @override
+  String get onbNotificationsAllowed => arabicDigits(super.onbNotificationsAllowed);
+
+  @override
+  String get onbBatterySettings => arabicDigits(super.onbBatterySettings);
+
+  @override
+  String get onbTravelOnSub => arabicDigits(super.onbTravelOnSub);
+
+  @override
+  String get onbTravelOffSub => arabicDigits(super.onbTravelOffSub);
+
+  @override
+  String get onbTravelSame => arabicDigits(super.onbTravelSame);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -2290,4 +2332,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String compassLeanMore(String point, String more, String less) =>
       arabicDigits(super.compassLeanMore(point, more, less));
+
+  @override
+  String onbPlaceDetails(String method, String prayer, String time) =>
+      arabicDigits(super.onbPlaceDetails(method, prayer, time));
+
+  @override
+  String onbMosqueAdded(String mosque) =>
+      arabicDigits(super.onbMosqueAdded(mosque));
 }

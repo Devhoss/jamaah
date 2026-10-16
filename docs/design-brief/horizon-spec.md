@@ -393,6 +393,12 @@ events). The SunPath shows markers, no labels, not interactive. Bottom: five-seg
 5. **Travel:** “Do you travel often?” + explanation, the `TravelSwitch`, “The same switch sits
    at the top of Today.” Then **Start** → Today.
 
+As built (Phase 5, 2026-10-16): the place is required — Continue stays dashed until a place is
+found or a city chosen from the bundled list, which works offline (owner). Step 4 keeps
+“Ring even when my phone is on silent” under the five-prayer switch (owner). Continue asks for
+notifications once if **Allow notifications** was not tapped. The sky glides between the
+day's own Fajr, sunrise, Dhuhr, Asr and Maghrib (the reference day before a place exists).
+
 ### 4.7 Qibla
 
 - Sky header: “Qibla”, “From Kuwait City · 1,204 km to the Kaaba” (great-circle; Kuwait City →

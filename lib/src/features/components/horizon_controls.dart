@@ -16,6 +16,7 @@ class AppSwitch extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.semanticLabel,
+    this.colors,
     super.key,
   });
 
@@ -25,12 +26,24 @@ class AppSwitch extends StatelessWidget {
   final ValueChanged<bool>? onChanged;
   final String semanticLabel;
 
+  /// On the sky (onboarding) instead of a surface.
+  final AppSwitchColors? colors;
+
   static const width = 52.0;
   static const height = 32.0;
 
   @override
   Widget build(BuildContext context) {
     final s = HorizonTheme.of(context).surfaces;
+    final c =
+        colors ??
+        AppSwitchColors(
+          trackOn: s.accent,
+          trackOff: s.divider,
+          knobOn: s.onAccent,
+          knobOff: s.onSurfaceMuted,
+          outline: s.onSurfaceMuted,
+        );
     final enabled = onChanged != null;
     final on = enabled && value;
     final still = MediaQuery.disableAnimationsOf(context);
@@ -40,7 +53,7 @@ class AppSwitch extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       decoration: enabled
           ? BoxDecoration(
-              color: on ? s.accent : s.divider,
+              color: on ? c.trackOn : c.trackOff,
               borderRadius: BorderRadius.circular(16),
             )
           : null,
@@ -55,7 +68,7 @@ class AppSwitch extends StatelessWidget {
           height: 24,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: !enabled ? s.divider : (on ? s.onAccent : s.onSurfaceMuted),
+            color: !enabled ? c.trackOff : (on ? c.knobOn : c.knobOff),
           ),
         ),
       ),
@@ -76,7 +89,7 @@ class AppSwitch extends StatelessWidget {
             child: enabled
                 ? track
                 : CustomPaint(
-                    painter: DashedOutline(color: s.onSurfaceMuted, radius: 16),
+                    painter: DashedOutline(color: c.outline, radius: 16),
                     child: track,
                   ),
           ),
@@ -84,6 +97,25 @@ class AppSwitch extends StatelessWidget {
       ),
     );
   }
+}
+
+/// An [AppSwitch]'s colours.
+class AppSwitchColors {
+  const AppSwitchColors({
+    required this.trackOn,
+    required this.trackOff,
+    required this.knobOn,
+    required this.knobOff,
+    required this.outline,
+  });
+
+  final Color trackOn;
+  final Color trackOff;
+  final Color knobOn;
+  final Color knobOff;
+
+  /// The dashed track of a disabled switch.
+  final Color outline;
 }
 
 /// One choice of a [Segmented]: a label and an optional line under it.
@@ -263,6 +295,7 @@ class PillButton extends StatelessWidget {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
                     LineIcon(icon!, size: 18, strokeWidth: 2, color: fg),

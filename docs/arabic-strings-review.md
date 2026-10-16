@@ -367,23 +367,23 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 354 | `onbBack` | Back | رجوع |
 | 355 | `onbNotNow` | Not now | ليس الآن |
 | 356 | `onbStart` | Start | ابدأ |
-| 357 | `onbWelcomeTagline` | Know when to pray. Know when your mosque starts. Get reminded on time. | اعرف متى تصلي. اعرف متى تُقام الصلاة في مسجدك. ونبّهك في الوقت. |
-| 358 | `onbWelcomeBody` | Prayer times are worked out on this phone. No account, and nothing about you is uploaded. | تُحسب مواقيت الصلاة على هذا الهاتف. بلا حساب، ولا يُرفع أي شيء عنك. |
+| 357 | `onbWelcomeTagline` | Pray together, on time. | نصلّي معًا، في وقتها. |
+| 358 | `onbWelcomeBody` | Know when to pray. Know when your mosque starts. Get a nudge before the congregation. | اعرف متى تصلّي، ومتى تبدأ الجماعة في مسجدك، وتلقَّ تذكيرًا قبلها. |
 | 359 | `onbLanguage` | Language | اللغة |
 | 360 | `onbPlaceFound` | Found you near {city} | وجدناك قرب {city} |
 | 361 | `placeNear` | {place}, near {city} | {place}، قرب {city} |
 | 362 | `onbPlaceDone` | Prayer times for {place} | مواقيت الصلاة في {place} |
 | 363 | `onbMosqueTitle` | Your mosque | مسجدك |
-| 364 | `onbMosqueBody` | Add the mosque you usually pray at. You then enter its Iqama times yourself: Jama’ah never guesses them. You can add more mosques later. | أضف المسجد الذي تصلي فيه عادة، ثم أدخل أوقات الإقامة فيه بنفسك: فالتطبيق لا يخمّنها أبدًا. ويمكنك إضافة مساجد أخرى لاحقًا. |
+| 364 | `onbMosqueBody` | Jama’ah means praying together. Add the mosque you pray at to see when its congregation starts, and get a nudge before it. | الجماعة تعني الصلاة معًا. أضف المسجد الذي تصلّي فيه لترى متى تبدأ جماعته، ولتتلقّى تذكيرًا قبلها. |
 | 365 | `onbMosqueDone` | Added: {mosque}. Enter its Iqama times from the Mosques tab. | أُضيف: {mosque}. أدخل أوقات الإقامة فيه من تبويب المساجد. |
 | 366 | `onbAlertsTitle` | Prayer alerts | تنبيهات الصلاة |
-| 367 | `onbAlertsBody` | An Adhan alert at each prayer time, and a Jama’ah reminder before your mosque's Iqama. You can change every alert, its sound and its timing later in Settings. | تنبيه أذان عند كل صلاة، وتذكير الجماعة قبل الإقامة في مسجدك. ويمكنك تغيير كل تنبيه وصوته وتوقيته لاحقًا من الإعدادات. |
-| 368 | `onbAlertsSwitch` | Adhan alert for the five prayers | تنبيه الأذان للصلوات الخمس |
+| 367 | `onbAlertsBody` | An alert at each Adhan. You can choose the sound for each prayer later, from Today. | تنبيه عند كل أذان. يمكنك اختيار صوت كل صلاة لاحقًا من «اليوم». |
+| 368 | `onbAlertsSwitch` | Alerts for the five prayers | تنبيهات الصلوات الخمس |
 | 369 | `onbAlertsSwitchHint` | Your phone will ask to allow notifications. | سيطلب هاتفك السماح بالإشعارات. |
-| 370 | `onbAlertsBattery` | Some phones stop alerts to save battery. If one doesn't arrive, set Jama’ah's battery use to Unrestricted in the phone's settings. | توقف بعض الهواتف التنبيهات لتوفير البطارية. إن لم يصل أحدها، فاجعل استخدام البطارية لهذا التطبيق «غير مقيّد» من إعدادات الهاتف. |
+| 370 | `onbAlertsBattery` | Some phones stop apps in the background to save battery. If an alert ever comes late, let Jama’ah run unrestricted. | تُوقف بعض الهواتف التطبيقات في الخلفية لتوفير البطارية. إذا تأخّر تنبيه يومًا، فاسمح لتطبيق «جماعة» بالعمل دون قيود. |
 | 371 | `onbTravelTitle` | Do you travel often? | هل تسافر كثيرًا؟ |
-| 372 | `onbTravelBody` | Travel mode lets your prayer times follow you between cities and time zones, without changing your phone's clock. On a plane, it adds in-flight mode: prayer times and the Qibla aboard, from GPS, with no internet. | يجعل وضع السفر مواقيتك تتبعك بين المدن والمناطق الزمنية دون تغيير ساعة هاتفك. وعلى متن الطائرة يضيف وضع الطيران: مواقيت الصلاة والقبلة من GPS ودون إنترنت. |
-| 373 | `onbTravelSwitch` | Turn on travel mode | تشغيل وضع السفر |
+| 372 | `onbTravelBody` | Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route. | يتبع وضع السفر موقعك، فتبقى الأوقات والقبلة صحيحة حيثما حللت. وعلى متن الطائرة يمكنه عرض مواقيت الصلاة على طول الرحلة. |
+| 373 | `onbTravelSwitch` | Travel mode | وضع السفر |
 | 374 | `onbTravelHint` | You can switch it any time with the airplane at the top of the app. | يمكنك تبديله في أي وقت من الطائرة أعلى التطبيق. |
 | 375 | `settingsShowIntro` | Show the introduction again | عرض المقدمة مرة أخرى |
 | 376 | `inFlightHelp` | How it works | طريقة العمل |
@@ -713,3 +713,19 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 700 | `qiblaNoCompassHint` | This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets. | لا بوصلة في هذا الهاتف، فلا يستطيع السهم أن يتبعك. وجّهه نحو اتجاه تعرفه، كجهة غروب الشمس. |
 | 701 | `qiblaNeedsMoment` | The compass needs a moment | البوصلة تحتاج إلى لحظة |
 | 702 | `qiblaSteadyNow` | It’s steady now | استقرّت البوصلة الآن |
+| 703 | `onbLanguageLabel` | Language · اللغة | اللغة · Language |
+| 704 | `onbLanguageLater` | You can change it later in Settings. | يمكنك تغييرها لاحقًا من الإعدادات. |
+| 705 | `onbPlaceBody` | Prayer times are worked out on your phone from your place. An approximate location is enough, and it never leaves your phone. | تُحسب مواقيت الصلاة على هاتفك من مكانك. يكفي موقع تقريبي، ولا يغادر هاتفك أبدًا. |
+| 706 | `onbPlaceDetails` | Method: {method} · next Adhan {prayer} {time} | الطريقة: {method} · الأذان القادم {prayer} {time} |
+| 707 | `onbPlaceNotRight` | Not right? Choose a city | ليس صحيحًا؟ اختر مدينة |
+| 708 | `onbMosqueRowOpen` | A row of worshippers, with one place open for you | صفّ من المصلّين، فيه مكان شاغر لك |
+| 709 | `onbMosqueRowFull` | A full row, with you in it | صفّ مكتمل، وأنت فيه |
+| 710 | `onbMosqueAdded` | {mosque} added | أُضيف {mosque} |
+| 711 | `onbMosqueAddedBody` | Its Iqama times are not configured yet. Set them from the Mosques tab whenever you are ready. | لم تُضبط أوقات الإقامة فيه بعد. اضبطها من تبويب «المساجد» متى شئت. |
+| 712 | `onbAlertsFiveHint` | Fajr, Dhuhr, Asr, Maghrib and Isha | الفجر والظهر والعصر والمغرب والعشاء |
+| 713 | `onbAllowNote` | Android will ask if Jama’ah may send notifications. Without it, alerts can’t appear. | سيسألك أندرويد إن كان يُسمح لتطبيق «جماعة» بإرسال الإشعارات. ومن دون ذلك لا تظهر التنبيهات. |
+| 714 | `onbNotificationsAllowed` | Notifications allowed | الإشعارات مسموح بها |
+| 715 | `onbBatterySettings` | Battery settings | إعدادات البطارية |
+| 716 | `onbTravelOnSub` | On: times follow you | مفعّل: الأوقات تتبعك |
+| 717 | `onbTravelOffSub` | Off: times stay where you set them | متوقف: تبقى الأوقات حيث ضبطتها |
+| 718 | `onbTravelSame` | The same switch sits at the top of Today. | المفتاح نفسه موجود أعلى «اليوم». |

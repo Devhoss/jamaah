@@ -2241,13 +2241,13 @@ abstract class AppLocalizations {
   /// No description provided for @onbWelcomeTagline.
   ///
   /// In en, this message translates to:
-  /// **'Know when to pray. Know when your mosque starts. Get reminded on time.'**
+  /// **'Pray together, on time.'**
   String get onbWelcomeTagline;
 
   /// No description provided for @onbWelcomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Prayer times are worked out on this phone. No account, and nothing about you is uploaded.'**
+  /// **'Know when to pray. Know when your mosque starts. Get a nudge before the congregation.'**
   String get onbWelcomeBody;
 
   /// No description provided for @onbLanguage.
@@ -2283,7 +2283,7 @@ abstract class AppLocalizations {
   /// No description provided for @onbMosqueBody.
   ///
   /// In en, this message translates to:
-  /// **'Add the mosque you usually pray at. You then enter its Iqama times yourself: Jama’ah never guesses them. You can add more mosques later.'**
+  /// **'Jama’ah means praying together. Add the mosque you pray at to see when its congregation starts, and get a nudge before it.'**
   String get onbMosqueBody;
 
   /// No description provided for @onbMosqueDone.
@@ -2301,13 +2301,13 @@ abstract class AppLocalizations {
   /// No description provided for @onbAlertsBody.
   ///
   /// In en, this message translates to:
-  /// **'An Adhan alert at each prayer time, and a Jama’ah reminder before your mosque\'s Iqama. You can change every alert, its sound and its timing later in Settings.'**
+  /// **'An alert at each Adhan. You can choose the sound for each prayer later, from Today.'**
   String get onbAlertsBody;
 
   /// No description provided for @onbAlertsSwitch.
   ///
   /// In en, this message translates to:
-  /// **'Adhan alert for the five prayers'**
+  /// **'Alerts for the five prayers'**
   String get onbAlertsSwitch;
 
   /// No description provided for @onbAlertsSwitchHint.
@@ -2319,7 +2319,7 @@ abstract class AppLocalizations {
   /// No description provided for @onbAlertsBattery.
   ///
   /// In en, this message translates to:
-  /// **'Some phones stop alerts to save battery. If one doesn\'t arrive, set Jama’ah\'s battery use to Unrestricted in the phone\'s settings.'**
+  /// **'Some phones stop apps in the background to save battery. If an alert ever comes late, let Jama’ah run unrestricted.'**
   String get onbAlertsBattery;
 
   /// No description provided for @onbTravelTitle.
@@ -2331,13 +2331,13 @@ abstract class AppLocalizations {
   /// No description provided for @onbTravelBody.
   ///
   /// In en, this message translates to:
-  /// **'Travel mode lets your prayer times follow you between cities and time zones, without changing your phone\'s clock. On a plane, it adds in-flight mode: prayer times and the Qibla aboard, from GPS, with no internet.'**
+  /// **'Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route.'**
   String get onbTravelBody;
 
   /// No description provided for @onbTravelSwitch.
   ///
   /// In en, this message translates to:
-  /// **'Turn on travel mode'**
+  /// **'Travel mode'**
   String get onbTravelSwitch;
 
   /// No description provided for @onbTravelHint.
@@ -4323,6 +4323,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It’s steady now'**
   String get qiblaSteadyNow;
+
+  /// No description provided for @onbLanguageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language · اللغة'**
+  String get onbLanguageLabel;
+
+  /// No description provided for @onbLanguageLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change it later in Settings.'**
+  String get onbLanguageLater;
+
+  /// No description provided for @onbPlaceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times are worked out on your phone from your place. An approximate location is enough, and it never leaves your phone.'**
+  String get onbPlaceBody;
+
+  /// No description provided for @onbPlaceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Method: {method} · next Adhan {prayer} {time}'**
+  String onbPlaceDetails(String method, String prayer, String time);
+
+  /// No description provided for @onbPlaceNotRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Not right? Choose a city'**
+  String get onbPlaceNotRight;
+
+  /// No description provided for @onbMosqueRowOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'A row of worshippers, with one place open for you'**
+  String get onbMosqueRowOpen;
+
+  /// No description provided for @onbMosqueRowFull.
+  ///
+  /// In en, this message translates to:
+  /// **'A full row, with you in it'**
+  String get onbMosqueRowFull;
+
+  /// No description provided for @onbMosqueAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque} added'**
+  String onbMosqueAdded(String mosque);
+
+  /// No description provided for @onbMosqueAddedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its Iqama times are not configured yet. Set them from the Mosques tab whenever you are ready.'**
+  String get onbMosqueAddedBody;
+
+  /// No description provided for @onbAlertsFiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr, Dhuhr, Asr, Maghrib and Isha'**
+  String get onbAlertsFiveHint;
+
+  /// No description provided for @onbAllowNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Android will ask if Jama’ah may send notifications. Without it, alerts can’t appear.'**
+  String get onbAllowNote;
+
+  /// No description provided for @onbNotificationsAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications allowed'**
+  String get onbNotificationsAllowed;
+
+  /// No description provided for @onbBatterySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery settings'**
+  String get onbBatterySettings;
+
+  /// No description provided for @onbTravelOnSub.
+  ///
+  /// In en, this message translates to:
+  /// **'On: times follow you'**
+  String get onbTravelOnSub;
+
+  /// No description provided for @onbTravelOffSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: times stay where you set them'**
+  String get onbTravelOffSub;
+
+  /// No description provided for @onbTravelSame.
+  ///
+  /// In en, this message translates to:
+  /// **'The same switch sits at the top of Today.'**
+  String get onbTravelSame;
 }
 
 class _AppLocalizationsDelegate

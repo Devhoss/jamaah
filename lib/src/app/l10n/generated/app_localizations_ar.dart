@@ -1401,12 +1401,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onbStart => 'ابدأ';
 
   @override
-  String get onbWelcomeTagline =>
-      'اعرف متى تصلي. اعرف متى تُقام الصلاة في مسجدك. ونبّهك في الوقت.';
+  String get onbWelcomeTagline => 'نصلّي معًا، في وقتها.';
 
   @override
   String get onbWelcomeBody =>
-      'تُحسب مواقيت الصلاة على هذا الهاتف. بلا حساب، ولا يُرفع أي شيء عنك.';
+      'اعرف متى تصلّي، ومتى تبدأ الجماعة في مسجدك، وتلقَّ تذكيرًا قبلها.';
 
   @override
   String get onbLanguage => 'اللغة';
@@ -1431,7 +1430,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onbMosqueBody =>
-      'أضف المسجد الذي تصلي فيه عادة، ثم أدخل أوقات الإقامة فيه بنفسك: فالتطبيق لا يخمّنها أبدًا. ويمكنك إضافة مساجد أخرى لاحقًا.';
+      'الجماعة تعني الصلاة معًا. أضف المسجد الذي تصلّي فيه لترى متى تبدأ جماعته، ولتتلقّى تذكيرًا قبلها.';
 
   @override
   String onbMosqueDone(String mosque) {
@@ -1443,27 +1442,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onbAlertsBody =>
-      'تنبيه أذان عند كل صلاة، وتذكير الجماعة قبل الإقامة في مسجدك. ويمكنك تغيير كل تنبيه وصوته وتوقيته لاحقًا من الإعدادات.';
+      'تنبيه عند كل أذان. يمكنك اختيار صوت كل صلاة لاحقًا من «اليوم».';
 
   @override
-  String get onbAlertsSwitch => 'تنبيه الأذان للصلوات الخمس';
+  String get onbAlertsSwitch => 'تنبيهات الصلوات الخمس';
 
   @override
   String get onbAlertsSwitchHint => 'سيطلب هاتفك السماح بالإشعارات.';
 
   @override
   String get onbAlertsBattery =>
-      'توقف بعض الهواتف التنبيهات لتوفير البطارية. إن لم يصل أحدها، فاجعل استخدام البطارية لهذا التطبيق «غير مقيّد» من إعدادات الهاتف.';
+      'تُوقف بعض الهواتف التطبيقات في الخلفية لتوفير البطارية. إذا تأخّر تنبيه يومًا، فاسمح لتطبيق «جماعة» بالعمل دون قيود.';
 
   @override
   String get onbTravelTitle => 'هل تسافر كثيرًا؟';
 
   @override
   String get onbTravelBody =>
-      'يجعل وضع السفر مواقيتك تتبعك بين المدن والمناطق الزمنية دون تغيير ساعة هاتفك. وعلى متن الطائرة يضيف وضع الطيران: مواقيت الصلاة والقبلة من GPS ودون إنترنت.';
+      'يتبع وضع السفر موقعك، فتبقى الأوقات والقبلة صحيحة حيثما حللت. وعلى متن الطائرة يمكنه عرض مواقيت الصلاة على طول الرحلة.';
 
   @override
-  String get onbTravelSwitch => 'تشغيل وضع السفر';
+  String get onbTravelSwitch => 'وضع السفر';
 
   @override
   String get onbTravelHint => 'يمكنك تبديله في أي وقت من الطائرة أعلى التطبيق.';
@@ -2813,4 +2812,59 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qiblaSteadyNow => 'استقرّت البوصلة الآن';
+
+  @override
+  String get onbLanguageLabel => 'اللغة · Language';
+
+  @override
+  String get onbLanguageLater => 'يمكنك تغييرها لاحقًا من الإعدادات.';
+
+  @override
+  String get onbPlaceBody =>
+      'تُحسب مواقيت الصلاة على هاتفك من مكانك. يكفي موقع تقريبي، ولا يغادر هاتفك أبدًا.';
+
+  @override
+  String onbPlaceDetails(String method, String prayer, String time) {
+    return 'الطريقة: $method · الأذان القادم $prayer $time';
+  }
+
+  @override
+  String get onbPlaceNotRight => 'ليس صحيحًا؟ اختر مدينة';
+
+  @override
+  String get onbMosqueRowOpen => 'صفّ من المصلّين، فيه مكان شاغر لك';
+
+  @override
+  String get onbMosqueRowFull => 'صفّ مكتمل، وأنت فيه';
+
+  @override
+  String onbMosqueAdded(String mosque) {
+    return 'أُضيف $mosque';
+  }
+
+  @override
+  String get onbMosqueAddedBody =>
+      'لم تُضبط أوقات الإقامة فيه بعد. اضبطها من تبويب «المساجد» متى شئت.';
+
+  @override
+  String get onbAlertsFiveHint => 'الفجر والظهر والعصر والمغرب والعشاء';
+
+  @override
+  String get onbAllowNote =>
+      'سيسألك أندرويد إن كان يُسمح لتطبيق «جماعة» بإرسال الإشعارات. ومن دون ذلك لا تظهر التنبيهات.';
+
+  @override
+  String get onbNotificationsAllowed => 'الإشعارات مسموح بها';
+
+  @override
+  String get onbBatterySettings => 'إعدادات البطارية';
+
+  @override
+  String get onbTravelOnSub => 'مفعّل: الأوقات تتبعك';
+
+  @override
+  String get onbTravelOffSub => 'متوقف: تبقى الأوقات حيث ضبطتها';
+
+  @override
+  String get onbTravelSame => 'المفتاح نفسه موجود أعلى «اليوم».';
 }

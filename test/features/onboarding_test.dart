@@ -87,11 +87,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Step 2 needs a place (owner, 2026-10-16): one from the bundled list.
+  Future<void> chooseCity(WidgetTester tester, String choose) async {
+    await tapText(tester, choose);
+    await tapText(tester, 'Riyadh, Saudi Arabia');
+  }
+
   testApp('a fresh install starts with the introduction', (tester) async {
     await open(tester);
     expect(find.byType(OnboardingPage), findsOneWidget);
     expect(find.text(t.onbWelcomeTagline), findsOneWidget);
-    expect(find.text(t.onbStep(1, 5)), findsOneWidget);
+    expect(find.text(t.onbStep(1, 5).toUpperCase()), findsOneWidget);
   });
 
   testApp('an install that already has a place goes straight in', (
@@ -164,10 +170,29 @@ void main() {
     expect(find.text(t.locationChooseCity), findsOneWidget);
   });
 
-  testApp('everything can be left for later', (tester) async {
+  testApp('the place step waits for a place, and says nothing is lost', (
+    tester,
+  ) async {
     await open(tester);
     await tapText(tester, t.onbContinue);
-    await tapText(tester, t.onbNotNow); // place
+    expect(find.text(t.onbStep(2, 5).toUpperCase()), findsOneWidget);
+    await tapText(tester, t.onbContinue);
+    expect(
+      find.text(t.onbStep(2, 5).toUpperCase()),
+      findsOneWidget,
+      reason: 'Continue is disabled until there is a place',
+    );
+    expect(find.text(t.locationChooseCity), findsOneWidget);
+    await chooseCity(tester, t.locationChooseCity);
+    await tapText(tester, t.onbContinue);
+    expect(find.text(t.onbStep(3, 5).toUpperCase()), findsOneWidget);
+  });
+
+  testApp('after the place, everything can be left for later', (tester) async {
+    await open(tester);
+    await tapText(tester, t.onbContinue);
+    await chooseCity(tester, t.locationChooseCity);
+    await tapText(tester, t.onbContinue);
     await tapText(tester, t.onbNotNow); // mosque
     await tapText(tester, t.onbAlertsSwitch); // off
     await tapText(tester, t.onbContinue);
@@ -175,11 +200,6 @@ void main() {
     expect((await settings.read()).adhanAlerts.hasAnyEnabled, isFalse);
     await tapText(tester, t.onbStart);
     expect(find.byType(AppShell), findsOneWidget);
-    expect(
-      find.text(t.todayNeedsPlaceTitle),
-      findsOneWidget,
-      reason: 'Today asks for the place that was skipped',
-    );
   });
 
   testApp('alerts can be set to ring on silent, all of them at once', (
@@ -187,7 +207,8 @@ void main() {
   ) async {
     await open(tester);
     await tapText(tester, t.onbContinue);
-    await tapText(tester, t.onbNotNow); // place
+    await chooseCity(tester, t.locationChooseCity);
+    await tapText(tester, t.onbContinue);
     await tapText(tester, t.onbNotNow); // mosque
     await tapText(tester, t.onbRingInSilent);
     await tapText(tester, t.onbContinue);
@@ -203,7 +224,8 @@ void main() {
   testApp('left alone, nothing rings on silent', (tester) async {
     await open(tester);
     await tapText(tester, t.onbContinue);
-    await tapText(tester, t.onbNotNow);
+    await chooseCity(tester, t.locationChooseCity);
+    await tapText(tester, t.onbContinue);
     await tapText(tester, t.onbNotNow);
     expect(find.text(t.onbRingInSilent), findsOneWidget);
     await tapText(tester, t.onbContinue);
@@ -215,9 +237,9 @@ void main() {
   testApp('Back returns to the step before', (tester) async {
     await open(tester);
     await tapText(tester, t.onbContinue);
-    expect(find.text(t.onbStep(2, 5)), findsOneWidget);
+    expect(find.text(t.onbStep(2, 5).toUpperCase()), findsOneWidget);
     await tapText(tester, t.onbBack);
-    expect(find.text(t.onbStep(1, 5)), findsOneWidget);
+    expect(find.text(t.onbStep(1, 5).toUpperCase()), findsOneWidget);
   });
 
   testApp('Settings can show the introduction again, and comes back', (
@@ -242,9 +264,10 @@ void main() {
     );
     await tapText(tester, t.settingsShowIntro);
     expect(find.byType(OnboardingPage), findsOneWidget);
-    for (var i = 0; i < 4; i++) {
-      await tapText(tester, t.onbContinue);
-    }
+    await tapText(tester, t.onbContinue); // language
+    await tapText(tester, t.onbContinue); // the place is already set
+    await tapText(tester, t.onbNotNow); // no mosque
+    await tapText(tester, t.onbContinue); // alerts
     await tapText(tester, t.onbStart);
     expect(find.byType(HelpAboutPage), findsOneWidget);
     expect((await settings.read()).adhanAlerts.enabledPrayers, [
@@ -260,10 +283,16 @@ void main() {
   testApp('every step survives Arabic at a large text size', (tester) async {
     await settings.setLanguage(AppLanguage.ar);
     await open(tester, textScale: 2.0);
-    for (var i = 0; i < 4; i++) {
-      expect(tester.takeException(), isNull, reason: 'step ${i + 1}');
-      await tapText(tester, ar.onbContinue);
-    }
+    expect(tester.takeException(), isNull, reason: 'step 1');
+    await tapText(tester, ar.onbContinue);
+    expect(tester.takeException(), isNull, reason: 'step 2');
+    await chooseCity(tester, ar.locationChooseCity);
+    expect(tester.takeException(), isNull, reason: 'step 2, found');
+    await tapText(tester, ar.onbContinue);
+    expect(tester.takeException(), isNull, reason: 'step 3');
+    await tapText(tester, ar.onbNotNow);
+    expect(tester.takeException(), isNull, reason: 'step 4');
+    await tapText(tester, ar.onbContinue);
     expect(tester.takeException(), isNull, reason: 'step 5');
     expect(find.text(ar.onbTravelTitle), findsOneWidget);
   });
