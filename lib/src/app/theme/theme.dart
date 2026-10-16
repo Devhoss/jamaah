@@ -1,190 +1,285 @@
 import 'package:flutter/material.dart';
 
 import 'horizon_tokens.dart';
-import 'tokens.dart';
 
-/// Builds the light and dark themes from the tokens in [AppColors]/[AppType].
+/// The app's Material theme, built from the Horizon surface tokens (spec
+/// §2.3 B) so that every stock widget, its ripples, dialogs, fields, the time
+/// picker and the progress spinner, reads in the same quiet ink as the pages.
+/// There is no brand colour: "accent" is the ink itself (2026-10-16, the
+/// prototype's green retired).
 ///
 /// Text uses the bundled Horizon UI font (Instrument Sans, Arabic falling back
-/// to Noto Sans Arabic). The Horizon surface tokens and type scale ride along as
-/// [HorizonTheme]; the colours here are still the prototype's until each screen
-/// is rebuilt.
+/// to Noto Sans Arabic). The surface tokens and type scale ride along as
+/// [HorizonTheme].
 abstract final class AppTheme {
-  static ThemeData light() => _base(
-    colorScheme: const ColorScheme.light(
-      primary: AppColors.lightPrimary,
-      onPrimary: AppColors.onPrimary,
-      // Set explicitly: left out, Material falls back to its teal (#03DAC6), which
-      // then fills selected chips and the time picker's AM/PM toggle.
-      secondary: AppColors.lightPrimary,
-      onSecondary: AppColors.onPrimary,
-      secondaryContainer: AppColors.lightSage,
-      onSecondaryContainer: AppColors.lightInk,
-      tertiary: AppColors.lightPrimary,
-      onTertiary: AppColors.onPrimary,
-      tertiaryContainer: AppColors.lightSage,
-      onTertiaryContainer: AppColors.lightInk,
-      surface: AppColors.lightSurface,
-      onSurface: AppColors.lightInk,
-      error: AppColors.lightDestructive,
-      outline: AppColors.lightLine,
-      outlineVariant: AppColors.lightLine,
-    ),
-    bg: AppColors.lightBg,
-    surface: AppColors.lightSurface,
-    ink: AppColors.lightInk,
-    muted: AppColors.lightMuted,
-    line: AppColors.lightLine,
-    sage: AppColors.lightSage,
-    brightness: Brightness.light,
-    horizon: HorizonTheme.light,
-  );
+  static ThemeData light() => _base(HorizonTheme.light, Brightness.light);
 
-  static ThemeData dark() => _base(
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.darkPrimary,
-      onPrimary: AppColors.onPrimary,
-      // Set explicitly: left out, Material falls back to its teal (#03DAC6), which
-      // then fills selected chips and the time picker's AM/PM toggle.
-      secondary: AppColors.darkPrimary,
-      onSecondary: AppColors.onPrimary,
-      secondaryContainer: AppColors.darkSage,
-      onSecondaryContainer: AppColors.darkInk,
-      tertiary: AppColors.darkPrimary,
-      onTertiary: AppColors.onPrimary,
-      tertiaryContainer: AppColors.darkSage,
-      onTertiaryContainer: AppColors.darkInk,
-      surface: AppColors.darkSurface,
-      onSurface: AppColors.darkInk,
-      error: AppColors.darkDestructive,
-      outline: AppColors.darkLine,
-      outlineVariant: AppColors.darkLine,
-    ),
-    bg: AppColors.darkBg,
-    surface: AppColors.darkSurface,
-    ink: AppColors.darkInk,
-    muted: AppColors.darkMuted,
-    line: AppColors.darkLine,
-    sage: AppColors.darkSage,
-    brightness: Brightness.dark,
-    horizon: HorizonTheme.dark,
-  );
+  static ThemeData dark() => _base(HorizonTheme.dark, Brightness.dark);
 
-  static ThemeData _base({
-    required ColorScheme colorScheme,
-    required Color bg,
-    required Color surface,
-    required Color ink,
-    required Color muted,
-    required Color line,
-    required Color sage,
-    required Brightness brightness,
-    required HorizonTheme horizon,
-  }) {
+  static ThemeData _base(HorizonTheme horizon, Brightness brightness) {
+    final s = horizon.surfaces;
+    // Every role is named: left out, Material falls back to its own purples
+    // and teal, which then fill selected chips and the time picker.
+    final scheme = ColorScheme(
+      brightness: brightness,
+      primary: s.accent,
+      onPrimary: s.onAccent,
+      primaryContainer: s.well,
+      onPrimaryContainer: s.onSurface,
+      secondary: s.accent,
+      onSecondary: s.onAccent,
+      secondaryContainer: s.well,
+      onSecondaryContainer: s.onSurface,
+      tertiary: s.accent,
+      onTertiary: s.onAccent,
+      tertiaryContainer: s.well,
+      onTertiaryContainer: s.onSurface,
+      error: s.danger,
+      onError: s.surface,
+      surface: s.surface,
+      onSurface: s.onSurface,
+      onSurfaceVariant: s.onSurfaceMuted,
+      surfaceContainerLowest: s.surface,
+      surfaceContainerLow: s.surface,
+      surfaceContainer: s.surface,
+      surfaceContainerHigh: s.surface,
+      surfaceContainerHighest: s.well,
+      outline: s.onSurfaceMuted,
+      outlineVariant: s.divider,
+      shadow: Colors.transparent,
+      scrim: s.scrim,
+      inverseSurface: s.accent,
+      onInverseSurface: s.onAccent,
+      inversePrimary: s.well,
+      surfaceTint: Colors.transparent,
+    );
     final base = ThemeData(
       useMaterial3: true,
       fontFamily: HorizonFonts.uiFamily,
       fontFamilyFallback: HorizonFonts.uiFallback,
       brightness: brightness,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: bg,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: s.surface,
     );
+    // A touch is a soft wash of the ink, on the sky and on surfaces alike.
+    final wash = s.onSurface.withValues(alpha: 0.08);
 
     return base.copyWith(
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: bg,
-      canvasColor: bg,
-      cardColor: surface,
-      dividerColor: line,
+      scaffoldBackgroundColor: s.surface,
+      canvasColor: s.surface,
+      cardColor: s.surface,
+      dividerColor: s.divider,
       shadowColor: Colors.transparent,
-      splashColor: sage.withValues(alpha: 0.4),
-      highlightColor: sage.withValues(alpha: 0.3),
-      textTheme: _textTheme(base.textTheme, ink, muted),
-      extensions: [AppInk(muted: muted, sage: sage), horizon],
+      splashColor: wash,
+      highlightColor: s.onSurface.withValues(alpha: 0.05),
+      hoverColor: s.onSurface.withValues(alpha: 0.04),
+      focusColor: s.onSurface.withValues(alpha: 0.12),
+      textTheme: _textTheme(base.textTheme, s),
+      extensions: [horizon],
       appBarTheme: AppBarTheme(
-        backgroundColor: bg,
-        foregroundColor: ink,
+        backgroundColor: s.surface,
+        foregroundColor: s.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: _ui.copyWith(
-          color: ink,
-          fontSize: AppType.titleSize,
+          color: s.onSurface,
+          fontSize: 20,
           fontWeight: FontWeight.w600,
-          letterSpacing: -0.02 * AppType.titleSize / 28,
         ),
       ),
-      dividerTheme: DividerThemeData(color: line, thickness: 1, space: 1),
-      iconTheme: IconThemeData(color: ink, size: 22),
+      dividerTheme: DividerThemeData(color: s.divider, thickness: 1, space: 1),
+      iconTheme: IconThemeData(color: s.onSurface, size: 22),
       listTileTheme: ListTileThemeData(
-        iconColor: ink,
-        textColor: ink,
-        minVerticalPadding: AppSpace.lg,
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: surface,
-        indicatorColor: sage,
-        elevation: 0,
-        height: 56 + AppSpace.sm,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        labelTextStyle: WidgetStatePropertyAll(
-          _ui.copyWith(fontSize: AppType.bodySize, color: muted),
-        ),
+        iconColor: s.onSurface,
+        textColor: s.onSurface,
+        minVerticalPadding: 12,
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: bg,
+        backgroundColor: s.surface,
+        modalBackgroundColor: s.surface,
         surfaceTintColor: Colors.transparent,
+        dragHandleColor: s.divider,
+        modalBarrierColor: s.scrim,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(HorizonShape.sheetRadius),
+          ),
         ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: s.surface,
+        surfaceTintColor: Colors.transparent,
+        barrierColor: s.scrim,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: _ui.copyWith(
+          color: s.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: _ui.copyWith(
+          color: s.onSurfaceMuted,
+          fontSize: 15,
+          height: 1.45,
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: s.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: s.divider),
+        ),
+        textStyle: _ui.copyWith(color: s.onSurface, fontSize: 15),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surface,
-        border: _inputBorder(line),
-        enabledBorder: _inputBorder(line),
-        focusedBorder: _inputBorder(colorScheme.primary, width: 2),
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
+        fillColor: s.well,
+        labelStyle: _ui.copyWith(color: s.onSurfaceMuted),
+        floatingLabelStyle: _ui.copyWith(color: s.onSurface),
+        hintStyle: _ui.copyWith(color: s.onSurfaceMuted),
+        errorStyle: _ui.copyWith(color: s.danger),
+        border: _inputBorder(Colors.transparent),
+        enabledBorder: _inputBorder(Colors.transparent),
+        focusedBorder: _inputBorder(s.onSurface, width: 1.5),
+        errorBorder: _inputBorder(s.danger),
+        focusedErrorBorder: _inputBorder(s.danger, width: 1.5),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: s.onSurface,
+        selectionColor: s.onSurface.withValues(alpha: 0.2),
+        selectionHandleColor: s.onSurface,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: s.onSurface,
+        linearTrackColor: s.divider,
+        circularTrackColor: Colors.transparent,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: AppColors.onPrimary,
-          minimumSize: const Size(0, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.button),
-          ),
+          backgroundColor: s.accent,
+          foregroundColor: s.onAccent,
+          disabledBackgroundColor: s.well,
+          disabledForegroundColor: s.onSurfaceMuted,
+          minimumSize: const Size(0, 52),
+          shape: const StadiumBorder(),
           textStyle: _ui.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          backgroundColor: surface,
-          foregroundColor: ink,
-          minimumSize: const Size(0, 50),
-          side: BorderSide(color: line),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.button),
-          ),
-          textStyle: _ui.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+          foregroundColor: s.onSurface,
+          minimumSize: const Size(0, 52),
+          side: BorderSide(color: s.divider, width: 1.5),
+          shape: const StadiumBorder(),
+          textStyle: _ui.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: ink,
-          minimumSize: const Size(0, AppSpace.touchTarget),
+          foregroundColor: s.onSurface,
+          minimumSize: const Size(0, 48),
+          textStyle: _ui.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
         ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(foregroundColor: s.onSurface),
       ),
       switchTheme: SwitchThemeData(
         thumbIcon: WidgetStateProperty.resolveWith((_) => null),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.onAccent
+              : s.onSurfaceMuted,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.accent
+              : s.divider,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      radioTheme: RadioThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.accent
+              : s.onSurfaceMuted,
+        ),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.accent
+              : Colors.transparent,
+        ),
+        checkColor: WidgetStatePropertyAll(s.onAccent),
+        side: BorderSide(color: s.onSurfaceMuted, width: 1.5),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.transparent,
+        selectedColor: s.accent,
+        labelStyle: _ui.copyWith(color: s.onSurface, fontSize: 14),
+        secondaryLabelStyle: _ui.copyWith(color: s.onAccent, fontSize: 14),
+        side: BorderSide(color: s.divider),
+        shape: const StadiumBorder(),
+        checkmarkColor: s.onAccent,
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: s.surface,
+        dialBackgroundColor: s.well,
+        dialHandColor: s.accent,
+        dialTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.onAccent
+              : s.onSurface,
+        ),
+        hourMinuteColor: WidgetStateColor.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? s.accent : s.well,
+        ),
+        hourMinuteTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.onAccent
+              : s.onSurface,
+        ),
+        dayPeriodColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.accent
+              : Colors.transparent,
+        ),
+        dayPeriodTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? s.onAccent
+              : s.onSurface,
+        ),
+        dayPeriodBorderSide: BorderSide(color: s.divider),
+        entryModeIconColor: s.onSurfaceMuted,
+        helpTextStyle: _ui.copyWith(
+          color: s.onSurfaceMuted,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        cancelButtonStyle: TextButton.styleFrom(foregroundColor: s.onSurface),
+        confirmButtonStyle: TextButton.styleFrom(foregroundColor: s.onSurface),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: ink,
-        contentTextStyle: _ui.copyWith(color: bg),
+        backgroundColor: s.accent,
+        contentTextStyle: _ui.copyWith(color: s.onAccent, fontSize: 15),
+        actionTextColor: s.onAccent,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.input),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: s.accent,
+          borderRadius: BorderRadius.circular(8),
         ),
+        textStyle: _ui.copyWith(color: s.onAccent, fontSize: 13),
       ),
     );
   }
@@ -197,72 +292,40 @@ abstract final class AppTheme {
 
   static OutlineInputBorder _inputBorder(Color color, {double width = 1}) =>
       OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.input),
+        borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: color, width: width),
       );
-  static TextTheme _textTheme(TextTheme base, Color ink, Color muted) => base
+
+  static TextTheme _textTheme(TextTheme base, HorizonSurfaces s) => base
       .copyWith(
         headlineLarge: base.headlineLarge?.copyWith(
-          fontSize: AppType.titleSize,
+          fontSize: 28,
           fontWeight: FontWeight.w600,
-          letterSpacing: -0.56,
-          color: ink,
+          color: s.onSurface,
         ),
         titleLarge: base.titleLarge?.copyWith(
-          fontSize: AppType.rowSize,
+          fontSize: 17,
           fontWeight: FontWeight.w600,
-          color: ink,
+          color: s.onSurface,
         ),
         titleMedium: base.titleMedium?.copyWith(
-          fontSize: AppType.rowSize,
+          fontSize: 17,
           fontWeight: FontWeight.w500,
-          color: ink,
+          color: s.onSurface,
         ),
         bodyMedium: base.bodyMedium?.copyWith(
-          fontSize: AppType.bodySize,
-          color: ink,
+          fontSize: 15,
+          color: s.onSurface,
         ),
         bodySmall: base.bodySmall?.copyWith(
-          fontSize: AppType.bodySize,
-          color: muted,
+          fontSize: 13,
+          color: s.onSurfaceMuted,
         ),
         labelLarge: base.labelLarge?.copyWith(
-          fontSize: AppType.bodySize,
+          fontSize: 15,
           fontWeight: FontWeight.w600,
-          color: ink,
+          color: s.onSurface,
         ),
       )
-      .apply(bodyColor: ink, displayColor: ink);
-}
-
-/// The two prototype tones a [ColorScheme] does not carry: the muted ink used for
-/// secondary text and sunrise, and the sage wash behind the prayer in force.
-///
-/// Widgets read these through [of] so they stay correct in the dark theme instead
-/// of reaching for [AppColors] directly.
-@immutable
-class AppInk extends ThemeExtension<AppInk> {
-  const AppInk({required this.muted, required this.sage});
-
-  final Color muted;
-  final Color sage;
-
-  static AppInk of(BuildContext context) =>
-      Theme.of(context).extension<AppInk>() ??
-      const AppInk(muted: AppColors.lightMuted, sage: AppColors.lightSage);
-
-  @override
-  AppInk copyWith({Color? muted, Color? sage}) => AppInk(
-    muted: muted ?? this.muted,
-    sage: sage ?? this.sage,
-  );
-
-  @override
-  AppInk lerp(ThemeExtension<AppInk>? other, double t) {
-    if (other is! AppInk) return this;
-    return AppInk(
-      muted: Color.lerp(muted, other.muted, t)!,
-      sage: Color.lerp(sage, other.sage, t)!,
-    );
-  }
+      .apply(bodyColor: s.onSurface, displayColor: s.onSurface);
 }
