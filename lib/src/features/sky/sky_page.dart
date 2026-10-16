@@ -17,13 +17,22 @@ import 'sky_palette.dart';
 /// The sky here is still: no twinkle or breathing, so these pages cost
 /// nothing while open (owner, 2026-10-16: CPU on idle pages).
 class SkyPage extends ConsumerWidget {
-  const SkyPage({required this.header, required this.panel, super.key});
+  const SkyPage({
+    required this.header,
+    required this.panel,
+    this.sky,
+    super.key,
+  });
 
   /// The header on the sky, given the sky's ink.
   final Widget Function(BuildContext context, SkyPalette palette) header;
 
   /// The rows, switches and notes of the page.
   final List<Widget> panel;
+
+  /// A sky other than the place's at this minute: in flight, the one outside
+  /// the aircraft.
+  final SkyFrame? sky;
 
   /// The band of the screen the header's text sits in.
   static const headerBand = SkyRegion(0, 0.42, minContrast: 4.5);
@@ -32,10 +41,10 @@ class SkyPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final today = ref.watch(todayProvider);
-    final frame = today != null && today.areTimesAvailable
+    final frame = sky ?? (today != null && today.areTimesAvailable
         ? SkyModel.forDay(today.day)
               .frameAt(today.moment.minutesOfDay.toDouble(), dark: dark)
-        : SkyModel.reference.frameAt(_deviceMinute(ref), dark: dark);
+        : SkyModel.reference.frameAt(_deviceMinute(ref), dark: dark));
     final ink = SkyInk.forRegion(frame, headerBand);
     final palette = SkyPalette.of(ink);
     final s = HorizonTheme.of(context).surfaces;

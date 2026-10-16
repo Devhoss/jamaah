@@ -2867,4 +2867,91 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onbTravelSame => 'المفتاح نفسه موجود أعلى «اليوم».';
+
+  @override
+  String get inFlightStartTitle => 'مواقيت الصلاة على ارتفاع ١١٬٠٠٠ متر';
+
+  @override
+  String get inFlightStartLead =>
+      'تُحسب من نظام GPS في هاتفك، وهو يعمل في وضع الطيران دون شبكة.';
+
+  @override
+  String get inFlightWindowNote =>
+      'اجلس قرب النافذة إن استطعت. قد يستغرق تحديد الموقع الأول بضع دقائق.';
+
+  @override
+  String get inFlightLookingTitle => 'نبحث عن الأقمار الصناعية';
+
+  @override
+  String get inFlightKeepLooking =>
+      'أبقِ الهاتف قرب النافذة وشاشته إلى الأعلى.';
+
+  @override
+  String inFlightAircraftTime(String time, String offset) {
+    return 'توقيت الطائرة $time ($offset)، حسب موقعك';
+  }
+
+  @override
+  String inFlightPosition(String lat, String lon) {
+    return '$lat · $lon';
+  }
+
+  @override
+  String inFlightLatNorth(String degrees) {
+    return '$degrees° ش';
+  }
+
+  @override
+  String inFlightLatSouth(String degrees) {
+    return '$degrees° ج';
+  }
+
+  @override
+  String inFlightLonEast(String degrees) {
+    return '$degrees° ق';
+  }
+
+  @override
+  String inFlightLonWest(String degrees) {
+    return '$degrees° غ';
+  }
+
+  @override
+  String get inFlightAlongTitle => 'على طول الرحلة';
+
+  @override
+  String get inFlightEstimates => 'تقديرات';
+
+  @override
+  String get inFlightHeadingHint =>
+      'اتجاه الطائرة: من خريطة المقعد، أو اسأل الطاقم.';
+
+  @override
+  String inFlightQiblaWords(String words, String degrees) {
+    return '$words · $degrees°';
+  }
+
+  @override
+  String get qiblaDirStraightAhead => 'أمامك مباشرة';
+
+  @override
+  String get qiblaDirAheadRight => 'أمامك، إلى يمينك';
+
+  @override
+  String get qiblaDirRight => 'إلى يمينك';
+
+  @override
+  String get qiblaDirBehindRight => 'خلفك، إلى اليمين';
+
+  @override
+  String get qiblaDirBehind => 'خلفك';
+
+  @override
+  String get qiblaDirBehindLeft => 'خلفك، إلى اليسار';
+
+  @override
+  String get qiblaDirLeft => 'إلى يسارك';
+
+  @override
+  String get qiblaDirAheadLeft => 'أمامك، إلى يسارك';
 }

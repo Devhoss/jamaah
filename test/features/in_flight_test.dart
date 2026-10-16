@@ -112,6 +112,14 @@ void main() {
   }
 
   Future<void> tapStart(WidgetTester tester, String label) async {
+    // At twice the text size the sky's header alone can fill the screen.
+    if (find.text(label).evaluate().isEmpty) {
+      await tester.scrollUntilVisible(
+        find.text(label),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+    }
     await tester.ensureVisible(find.text(label));
     await tester.pumpAndSettle();
     await tester.tap(find.text(label));
@@ -193,7 +201,8 @@ void main() {
       200,
       scrollable: scroll,
     );
-    expect(find.textContaining('to the left of the nose'), findsOneWidget);
+    // About 90° to the left: "To your left · 269°" (spec §4.8 words).
+    expect(find.textContaining(t.qiblaDirLeft), findsOneWidget);
     expect(find.text(t.inFlightHeadingGps('315')), findsOneWidget);
   });
 
@@ -226,6 +235,8 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).last,
     );
+    await tester.ensureVisible(end);
+    await tester.pumpAndSettle();
     await tester.tap(end);
     await tester.pumpAndSettle();
     expect((await settings.read()).inFlight, isNull);
@@ -279,6 +290,8 @@ void main() {
     );
     expect(find.text(t.inFlightNoCourse), findsOneWidget);
 
+    await tester.ensureVisible(find.text(t.inFlightEnterHeading));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(t.inFlightEnterHeading));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '400');
@@ -290,7 +303,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(t.inFlightHeadingManual('225')), findsOneWidget);
-    expect(find.text(t.inFlightQiblaAhead), findsOneWidget);
+    expect(find.textContaining(t.qiblaDirStraightAhead), findsOneWidget);
     await tester.tap(find.text(t.inFlightUseGps));
     await tester.pumpAndSettle();
     expect(find.text(t.inFlightNoCourse), findsOneWidget);

@@ -729,3 +729,26 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 716 | `onbTravelOnSub` | On: times follow you | مفعّل: الأوقات تتبعك |
 | 717 | `onbTravelOffSub` | Off: times stay where you set them | متوقف: تبقى الأوقات حيث ضبطتها |
 | 718 | `onbTravelSame` | The same switch sits at the top of Today. | المفتاح نفسه موجود أعلى «اليوم». |
+| 719 | `inFlightStartTitle` | Prayer times at 11,000 metres | مواقيت الصلاة على ارتفاع ١١٬٠٠٠ متر |
+| 720 | `inFlightStartLead` | Worked out from your phone’s GPS. It works in airplane mode, with no network. | تُحسب من نظام GPS في هاتفك، وهو يعمل في وضع الطيران دون شبكة. |
+| 721 | `inFlightWindowNote` | Sit by a window if you can. The first fix can take a few minutes. | اجلس قرب النافذة إن استطعت. قد يستغرق تحديد الموقع الأول بضع دقائق. |
+| 722 | `inFlightLookingTitle` | Looking for satellites | نبحث عن الأقمار الصناعية |
+| 723 | `inFlightKeepLooking` | Keep the phone near a window, screen up. | أبقِ الهاتف قرب النافذة وشاشته إلى الأعلى. |
+| 724 | `inFlightAircraftTime` | Aircraft time {time} ({offset}), from your position | توقيت الطائرة {time} ({offset})، حسب موقعك |
+| 725 | `inFlightPosition` | {lat} · {lon} | {lat} · {lon} |
+| 726 | `inFlightLatNorth` | {degrees}° N | {degrees}° ش |
+| 727 | `inFlightLatSouth` | {degrees}° S | {degrees}° ج |
+| 728 | `inFlightLonEast` | {degrees}° E | {degrees}° ق |
+| 729 | `inFlightLonWest` | {degrees}° W | {degrees}° غ |
+| 730 | `inFlightAlongTitle` | Along the route | على طول الرحلة |
+| 731 | `inFlightEstimates` | Estimates | تقديرات |
+| 732 | `inFlightHeadingHint` | Aircraft heading: from the seat-back map, or ask the crew. | اتجاه الطائرة: من خريطة المقعد، أو اسأل الطاقم. |
+| 733 | `inFlightQiblaWords` | {words} · {degrees}° | {words} · {degrees}° |
+| 734 | `qiblaDirStraightAhead` | Straight ahead | أمامك مباشرة |
+| 735 | `qiblaDirAheadRight` | Ahead, to your right | أمامك، إلى يمينك |
+| 736 | `qiblaDirRight` | To your right | إلى يمينك |
+| 737 | `qiblaDirBehindRight` | Behind you, to the right | خلفك، إلى اليمين |
+| 738 | `qiblaDirBehind` | Behind you | خلفك |
+| 739 | `qiblaDirBehindLeft` | Behind you, to the left | خلفك، إلى اليسار |
+| 740 | `qiblaDirLeft` | To your left | إلى يسارك |
+| 741 | `qiblaDirAheadLeft` | Ahead, to your left | أمامك، إلى يسارك |

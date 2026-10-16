@@ -2700,4 +2700,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbTravelSame => 'The same switch sits at the top of Today.';
+
+  @override
+  String get inFlightStartTitle => 'Prayer times at 11,000 metres';
+
+  @override
+  String get inFlightStartLead =>
+      'Worked out from your phone’s GPS. It works in airplane mode, with no network.';
+
+  @override
+  String get inFlightWindowNote =>
+      'Sit by a window if you can. The first fix can take a few minutes.';
+
+  @override
+  String get inFlightLookingTitle => 'Looking for satellites';
+
+  @override
+  String get inFlightKeepLooking => 'Keep the phone near a window, screen up.';
+
+  @override
+  String inFlightAircraftTime(String time, String offset) {
+    return 'Aircraft time $time ($offset), from your position';
+  }
+
+  @override
+  String inFlightPosition(String lat, String lon) {
+    return '$lat · $lon';
+  }
+
+  @override
+  String inFlightLatNorth(String degrees) {
+    return '$degrees° N';
+  }
+
+  @override
+  String inFlightLatSouth(String degrees) {
+    return '$degrees° S';
+  }
+
+  @override
+  String inFlightLonEast(String degrees) {
+    return '$degrees° E';
+  }
+
+  @override
+  String inFlightLonWest(String degrees) {
+    return '$degrees° W';
+  }
+
+  @override
+  String get inFlightAlongTitle => 'Along the route';
+
+  @override
+  String get inFlightEstimates => 'Estimates';
+
+  @override
+  String get inFlightHeadingHint =>
+      'Aircraft heading: from the seat-back map, or ask the crew.';
+
+  @override
+  String inFlightQiblaWords(String words, String degrees) {
+    return '$words · $degrees°';
+  }
+
+  @override
+  String get qiblaDirStraightAhead => 'Straight ahead';
+
+  @override
+  String get qiblaDirAheadRight => 'Ahead, to your right';
+
+  @override
+  String get qiblaDirRight => 'To your right';
+
+  @override
+  String get qiblaDirBehindRight => 'Behind you, to the right';
+
+  @override
+  String get qiblaDirBehind => 'Behind you';
+
+  @override
+  String get qiblaDirBehindLeft => 'Behind you, to the left';
+
+  @override
+  String get qiblaDirLeft => 'To your left';
+
+  @override
+  String get qiblaDirAheadLeft => 'Ahead, to your left';
 }

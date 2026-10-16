@@ -10,8 +10,7 @@ import '../../app/clock_format.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../data/flight_gps.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/in_flight.dart';
@@ -19,11 +18,17 @@ import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
 import '../../domain/prayer_times_calculator.dart';
 import '../../domain/qibla.dart' as qibla;
+import '../../domain/qibla_words.dart';
+import '../../domain/sky/sky_model.dart';
 import '../../domain/time_model.dart';
 import '../../domain/zone_lookup.dart';
 import '../../domain/zone_offsets.dart';
+import '../components/horizon_controls.dart';
+import '../components/line_icon.dart';
 import '../location/place_copy.dart';
-import '../components/app_widgets.dart';
+import '../settings/settings_kit.dart';
+import '../sky/sky_page.dart';
+import '../sky/sky_palette.dart';
 import 'in_flight_help_page.dart';
 
 Future<void> openInFlight(BuildContext context) =>
@@ -236,119 +241,196 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
     if (value != null && mounted) setState(() => _manualHeading = value);
   }
 
+  void _cancel() {
+    _routeRun++;
+    final sub = _sub;
+    _sub = null;
+    unawaited(sub?.cancel());
+    setState(() {
+      _stage = _Stage.explain;
+      _fix = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final fix = _fix;
+    final now = ref.watch(minuteClockProvider);
+    final settings =
+        ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
+
+    // The sky outside the aircraft, at its position (spec §4.8), once there
+    // is a fix; until then the place's own.
+    _Aboard? aboard;
+    if (_stage == _Stage.live && fix != null) {
+      final (:calculator, :zone) = _calculatorFor(fix, settings);
+      final times = inFlightTimes(
+        calculator: calculator,
+        zone: zone,
+        fix: fix,
+        now: now,
+      );
+      final offset = zone.offsetMinutesAt(now.toUtc());
+      int local(DateTime utc) {
+        final l = utc.toUtc().add(Duration(minutes: offset));
+        return l.hour * 60 + l.minute;
+      }
+
+      int? at(Prayer p) => switch (times.times[p]) {
+        final t? => local(t),
+        null => null,
+      };
+      final model = SkyModel.anchored(
+        fajr: at(Prayer.fajr),
+        sunrise: at(Prayer.sunrise),
+        dhuhr: at(Prayer.dhuhr),
+        asr: at(Prayer.asr),
+        sunset: at(Prayer.maghrib),
+        isha: at(Prayer.isha),
+      );
+      aboard = _Aboard(
+        times: times,
+        offsetMinutes: offset,
+        localMinute: local(now),
+        sky: model.frameAt(local(now).toDouble(), dark: dark),
+      );
+    }
+
+    final (title, lead) = switch (_stage) {
+      _Stage.explain ||
+      _Stage.starting ||
+      _Stage.failed => (l10n.inFlightStartTitle, l10n.inFlightStartLead),
+      _Stage.live when fix == null => (
+        l10n.inFlightLookingTitle,
+        l10n.inFlightKeepLooking,
+      ),
+      _Stage.live => (
+        l10n.inFlightTitle,
+        l10n.inFlightAircraftTime(
+          ClockFormat.of(context).time(LocalTime(aboard?.localMinute ?? 0)),
+          'UTC${utcOffsetLabel(aboard?.offsetMinutes ?? 0)}',
+        ),
+      ),
+    };
 
     final body = switch (_stage) {
-      _Stage.explain || _Stage.starting => [
-        AppPrompt(
-          children: [
-            Text(l10n.inFlightExplainBody, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: AppSpace.md),
-            FilledButton(
-              onPressed: _stage == _Stage.starting ? null : _start,
-              child: Text(l10n.inFlightStart),
-            ),
-          ],
-        ),
-      ],
-      _Stage.failed => [
-        AppPrompt(
-          children: [
-            Text(switch (_failure!) {
-              FlightGpsFailure.serviceDisabled => l10n.inFlightServiceOff,
-              FlightGpsFailure.needsPrecise => l10n.inFlightNeedsPrecise,
-              FlightGpsFailure.permanentlyDenied =>
-                l10n.inFlightPermanentlyDenied,
-            }, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: AppSpace.md),
-            Wrap(
-              spacing: AppSpace.sm,
-              children: [
-                FilledButton(
-                  onPressed: _start,
-                  child: Text(l10n.inFlightTryAgain),
-                ),
-                if (_failure == FlightGpsFailure.permanentlyDenied)
-                  OutlinedButton(
-                    onPressed: () => ref.read(flightGpsProvider).openSettings(),
-                    child: Text(l10n.inFlightOpenSettings),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ],
-      _Stage.live when _fix == null => [
-        const SizedBox(height: AppSpace.lg),
-        Row(
-          children: [
-            const SizedBox.square(
-              dimension: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(width: AppSpace.md),
-            Expanded(
-              child: Text(
-                l10n.inFlightWaiting,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-          ],
-        ),
-      ],
-      _Stage.live => _live(context, _fix!),
+      _Stage.explain || _Stage.starting => _explain(context),
+      _Stage.failed => _failed(context),
+      _Stage.live when fix == null => _waiting(context),
+      _Stage.live => _live(context, fix!, aboard!),
     };
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.inFlightTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            tooltip: l10n.inFlightHelp,
-            onPressed: () => openInFlightHelp(context),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: [
+      body: SkyPage(
+        sky: aboard?.sky,
+        header: (context, p) => _Header(palette: p, title: title, lead: lead),
+        panel: [
           ...body,
-          const SizedBox(height: AppSpace.lg),
-          Text(
-            l10n.inFlightCompassNote,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
+          const SizedBox(height: 18),
+          SettingsNote(l10n.inFlightCompassNote, top: 0),
         ],
       ),
     );
   }
 
-  List<Widget> _live(BuildContext context, InFlightFix fix) {
+  List<Widget> _explain(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
+    final s = HorizonTheme.of(context).surfaces;
+    return [
+      const SizedBox(height: 8),
+      ExcludeSemantics(
+        child: SizedBox(
+          height: 72,
+          child: CustomPaint(
+            painter: _RoutePainter(line: s.divider, plane: s.onSurface),
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      SettingsNote(l10n.inFlightExplainBody, top: 0),
+      const SizedBox(height: 16),
+      SizedBox(
+        width: double.infinity,
+        child: PillButton(
+          label: l10n.inFlightStart,
+          icon: LineIcons.pin,
+          filled: true,
+          ink: s.accent,
+          onInk: s.onAccent,
+          line: s.divider,
+          onPressed: _stage == _Stage.starting ? null : _start,
+        ),
+      ),
+      const SizedBox(height: 10),
+      SettingsNote(l10n.inFlightWindowNote, top: 0),
+    ];
+  }
+
+  List<Widget> _failed(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      Semantics(
+        liveRegion: true,
+        child: SettingsNote(switch (_failure!) {
+          FlightGpsFailure.serviceDisabled => l10n.inFlightServiceOff,
+          FlightGpsFailure.needsPrecise => l10n.inFlightNeedsPrecise,
+          FlightGpsFailure.permanentlyDenied => l10n.inFlightPermanentlyDenied,
+        }, top: 4),
+      ),
+      const SizedBox(height: 14),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          SettingsButton(
+            label: l10n.inFlightTryAgain,
+            filled: true,
+            onPressed: _start,
+          ),
+          if (_failure == FlightGpsFailure.permanentlyDenied)
+            SettingsButton(
+              label: l10n.inFlightOpenSettings,
+              onPressed: () => ref.read(flightGpsProvider).openSettings(),
+            ),
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> _waiting(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
+    return [
+      const SizedBox(height: 8),
+      const Center(child: _Rings(size: 120)),
+      const SizedBox(height: 14),
+      Semantics(
+        liveRegion: true,
+        child: Text(
+          l10n.inFlightWaiting,
+          textAlign: TextAlign.center,
+          style: type.row.copyWith(color: s.onSurface),
+        ),
+      ),
+      const SizedBox(height: 16),
+      Center(
+        child: SettingsButton(label: l10n.cancel, onPressed: _cancel),
+      ),
+    ];
+  }
+
+  List<Widget> _live(BuildContext context, InFlightFix fix, _Aboard aboard) {
+    final l10n = AppLocalizations.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
     final now = ref.watch(minuteClockProvider);
     final settings =
         ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
     final clock = ClockFormat.of(context);
-
-    final (:calculator, :zone) = _calculatorFor(fix, settings);
-    final times = inFlightTimes(
-      calculator: calculator,
-      zone: zone,
-      fix: fix,
-      now: now,
-    );
+    final times = aboard.times;
 
     String onPhone(DateTime utc) {
       final local = utc.toLocal();
@@ -378,10 +460,20 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
           );
     final sunset = times.sunsetShift?.inMinutes ?? 0;
     final sunrise = times.sunriseShift?.inMinutes ?? 0;
-    final muted = theme.textTheme.bodySmall?.copyWith(color: ink.muted);
+    final muted = type.meta.copyWith(height: 1.45, color: s.onSurfaceMuted);
+    final clockwise = fromNose == null
+        ? null
+        : (fromNose.round() % 360 + 360) % 360;
 
     return [
-      const SizedBox(height: AppSpace.md),
+      // Where the aircraft is, and how fresh the fix is.
+      Text(
+        positionLabel(l10n, fix.latitude, fix.longitude),
+        style: type.row.copyWith(
+          color: s.onSurface,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
       Text(
         lost
             ? l10n.inFlightFixLost(agoLabel(l10n, fix.at, now))
@@ -395,32 +487,62 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
         ),
         style: muted,
       ),
-      const SizedBox(height: AppSpace.lg),
-      Text(
-        times.current == null
-            ? l10n.inFlightNoneNow
-            : l10n.inFlightNow(prayerName(l10n, times.current!)),
-        style: theme.textTheme.titleMedium,
-      ),
-      if (times.next != null) ...[
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          l10n.inFlightNext(
-            prayerName(l10n, times.next!),
-            countdown(times.nextAt!),
-          ),
-          style: theme.textTheme.headlineSmall,
+      const SizedBox(height: 16),
+      // Now and Next, side by side when they fit.
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: s.well,
+          borderRadius: BorderRadius.circular(16),
         ),
-        Text(l10n.inFlightOnPhone(onPhone(times.nextAt!)), style: muted),
-      ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              times.current == null
+                  ? l10n.inFlightNoneNow
+                  : l10n.inFlightNow(prayerName(l10n, times.current!)),
+              style: type.prayerName.copyWith(fontSize: 24, color: s.onSurface),
+            ),
+            if (times.next != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                l10n.inFlightNext(
+                  prayerName(l10n, times.next!),
+                  countdown(times.nextAt!),
+                ),
+                style: type.row.copyWith(color: s.onSurface),
+              ),
+              Text(l10n.inFlightOnPhone(onPhone(times.nextAt!)), style: muted),
+            ],
+          ],
+        ),
+      ),
       if (_route.isNotEmpty) ...[
-        const SizedBox(height: AppSpace.md),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 22, 0, 6),
+          child: Row(
+            children: [
+              Flexible(
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    l10n.inFlightAlongTitle,
+                    style: type.section.copyWith(color: s.onSurface),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              _Tag(label: l10n.inFlightEstimates),
+            ],
+          ),
+        ),
         Text(
           l10n.inFlightAlongRoute(
             prayerName(l10n, _route.first.prayer),
             countdown(_route.first.at),
           ),
-          style: theme.textTheme.titleMedium,
+          style: type.row.copyWith(color: s.onSurface),
         ),
         Text(l10n.inFlightAboutOnPhone(onPhone(_route.first.at)), style: muted),
         for (final later in _route.skip(1))
@@ -431,10 +553,11 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
             ),
             style: muted,
           ),
+        const SizedBox(height: 4),
         Text(l10n.inFlightAssumesCourse, style: muted),
       ],
       if (settings.inFlight case final hold? when hold.activeAt(now)) ...[
-        const SizedBox(height: AppSpace.md),
+        const SizedBox(height: 14),
         Text(
           l10n.inFlightAlertsHeld(switch (ref.watch(currentPlaceProvider)) {
             final p? => placeLabel(l10n, p),
@@ -442,49 +565,66 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
           }, onPhone(hold.pausedUntil)),
           style: muted,
         ),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: TextButton(onPressed: _end, child: Text(l10n.inFlightEnd)),
-        ),
+        const SizedBox(height: 8),
+        SettingsButton(label: l10n.inFlightEnd, onPressed: _end),
       ],
-      if (sunset > 0) ...[
-        const SizedBox(height: AppSpace.sm),
-        Text(l10n.inFlightSunsetLater(sunset), style: muted),
-      ],
+      if (sunset > 0 || sunrise > 0) const SizedBox(height: 10),
+      if (sunset > 0) Text(l10n.inFlightSunsetLater(sunset), style: muted),
       if (sunrise > 0) Text(l10n.inFlightSunriseEarlier(sunrise), style: muted),
-      const SizedBox(height: AppSpace.sm),
+      const SizedBox(height: 6),
       Text(l10n.inFlightMovingNote, style: muted),
-      AppSectionHeader(l10n.inFlightTimesHeader),
-      AppRows(
-        children: [
-          for (final prayer in Prayer.adhanPrayers)
-            if (times.times[prayer] case final at?)
-              AppRow(
-                leading: null,
-                muted: prayer == Prayer.sunrise,
-                title: Text(prayerName(l10n, prayer)),
-                trailing: Text(onPhone(at)),
+      SettingsHeading(l10n.inFlightTimesHeader),
+      for (final (i, prayer) in Prayer.adhanPrayers.indexed)
+        if (times.times[prayer] case final at?)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: i < Prayer.adhanPrayers.length - 1
+                  ? Border(bottom: BorderSide(color: s.divider))
+                  : null,
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: MergeSemantics(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        prayerName(l10n, prayer),
+                        style: type.row.copyWith(
+                          color: prayer == Prayer.sunrise
+                              ? s.onSurfaceMuted
+                              : s.onSurface,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      onPhone(at),
+                      style: type.row.copyWith(
+                        color: s.onSurface,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-        ],
-      ),
-      AppSectionHeader(l10n.inFlightQiblaHeader),
+            ),
+          ),
+      SettingsHeading(l10n.inFlightQiblaHeader),
       Center(
         child: Semantics(
           label: l10n.inFlightDiagramLabel,
-          child: _AircraftDiagram(fromNose: fromNose),
+          child: _SeatRing(fromNose: fromNose),
         ),
       ),
-      const SizedBox(height: AppSpace.md),
-      if (fromNose != null)
+      const SizedBox(height: 12),
+      if (clockwise != null)
         Text(
-          switch (fromNose.round()) {
-            final d when d.abs() <= 3 => l10n.inFlightQiblaAhead,
-            final d when d.abs() >= 177 => l10n.inFlightQiblaBehind,
-            final d when d > 0 => l10n.inFlightQiblaRight('$d'),
-            final d => l10n.inFlightQiblaLeft('${-d}'),
-          },
+          l10n.inFlightQiblaWords(
+            qiblaDirectionText(l10n, QiblaDirection.fromRelative(fromNose!)),
+            '$clockwise',
+          ),
           textAlign: TextAlign.center,
-          style: theme.textTheme.titleMedium,
+          style: type.row.copyWith(color: s.onSurface),
         ),
       Text(
         heading == null
@@ -500,19 +640,21 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
         style: muted,
         textAlign: TextAlign.center,
       ),
-      const SizedBox(height: AppSpace.sm),
+      const SizedBox(height: 10),
+      SettingsNote(l10n.inFlightHeadingHint, top: 0),
+      const SizedBox(height: 8),
       Wrap(
-        alignment: WrapAlignment.center,
-        spacing: AppSpace.sm,
+        spacing: 10,
+        runSpacing: 8,
         children: [
-          OutlinedButton(
+          SettingsButton(
+            label: l10n.inFlightEnterHeading,
             onPressed: _enterHeading,
-            child: Text(l10n.inFlightEnterHeading),
           ),
           if (_manualHeading != null)
-            TextButton(
+            SettingsButton(
+              label: l10n.inFlightUseGps,
               onPressed: () => setState(() => _manualHeading = null),
-              child: Text(l10n.inFlightUseGps),
             ),
         ],
       ),
@@ -520,97 +662,415 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
   }
 }
 
-/// An aircraft seen from above, nose up, with an arrow from its centre
-/// towards the Qibla. No arrow until there is a heading to measure from.
-class _AircraftDiagram extends StatelessWidget {
-  const _AircraftDiagram({required this.fromNose});
+/// What the screen knows aboard: the times at the fix and the aircraft's own
+/// clock there.
+class _Aboard {
+  const _Aboard({
+    required this.times,
+    required this.offsetMinutes,
+    required this.localMinute,
+    required this.sky,
+  });
 
-  final double? fromNose;
+  final InFlightTimes times;
+  final int offsetMinutes;
+  final int localMinute;
+  final SkyFrame sky;
+}
+
+/// "21.5° N · 62.0° E".
+String positionLabel(AppLocalizations l10n, double lat, double lon) {
+  String deg(double v) => v.abs().toStringAsFixed(1);
+  return l10n.inFlightPosition(
+    lat >= 0
+        ? l10n.inFlightLatNorth(deg(lat))
+        : l10n.inFlightLatSouth(deg(lat)),
+    lon >= 0 ? l10n.inFlightLonEast(deg(lon)) : l10n.inFlightLonWest(deg(lon)),
+  );
+}
+
+/// The eight words for where the Qibla is from the aircraft's nose.
+String qiblaDirectionText(AppLocalizations l10n, QiblaDirection d) =>
+    switch (d) {
+      QiblaDirection.straightAhead => l10n.qiblaDirStraightAhead,
+      QiblaDirection.aheadRight => l10n.qiblaDirAheadRight,
+      QiblaDirection.right => l10n.qiblaDirRight,
+      QiblaDirection.behindRight => l10n.qiblaDirBehindRight,
+      QiblaDirection.behind => l10n.qiblaDirBehind,
+      QiblaDirection.behindLeft => l10n.qiblaDirBehindLeft,
+      QiblaDirection.left => l10n.qiblaDirLeft,
+      QiblaDirection.aheadLeft => l10n.qiblaDirAheadLeft,
+    };
+
+/// Back, "How it works", the kicker, the title and one line, on the sky.
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.palette,
+    required this.title,
+    required this.lead,
+  });
+
+  final SkyPalette palette;
+  final String title;
+  final String lead;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return CustomPaint(
-      size: const Size.square(200),
-      painter: _AircraftPainter(
-        fromNose: fromNose,
-        body: AppInk.of(context).muted,
-        arrow: scheme.primary,
-        // Left and right are the aircraft's, whatever the reading direction.
-        textDirection: TextDirection.ltr,
+    final l10n = AppLocalizations.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final p = palette;
+    final arabic = Localizations.localeOf(context).languageCode == 'ar';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 16, 0),
+          child: Row(
+            children: [
+              Semantics(
+                button: true,
+                label: l10n.settingsBack,
+                excludeSemantics: true,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => Navigator.of(context).maybePop(),
+                  child: SizedBox.square(
+                    dimension: 48,
+                    child: Center(
+                      child: Transform.flip(
+                        flipX: Directionality.of(context) == TextDirection.rtl,
+                        child: LineIcon(LineIcons.back, size: 22, color: p.ink),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Flexible(
+                flex: 8,
+                child: Tooltip(
+                  message: l10n.inFlightHelp,
+                  child: PillButton(
+                    label: l10n.inFlightHelp,
+                    ink: p.ink,
+                    onInk: p.deep,
+                    line: p.line,
+                    onPressed: () => openInFlightHelp(context),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                arabic ? l10n.inFlightTitle : l10n.inFlightTitle.toUpperCase(),
+                style: type.kicker.copyWith(color: p.mute),
+              ),
+              const SizedBox(height: 4),
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: type.display.copyWith(fontSize: 34, color: p.ink),
+                ),
+              ),
+              const SizedBox(height: 6),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 340),
+                child: Text(
+                  lead,
+                  style: type.body.copyWith(fontSize: 14, color: p.mute),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Tag extends StatelessWidget {
+  const _Tag({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: s.onSurfaceMuted),
+      ),
+      child: Text(
+        label,
+        style: type.meta.copyWith(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: s.onSurface,
+        ),
       ),
     );
   }
 }
 
-class _AircraftPainter extends CustomPainter {
-  _AircraftPainter({
-    required this.fromNose,
-    required this.body,
-    required this.arrow,
-    required this.textDirection,
-  });
+/// A plane on a dotted route.
+class _RoutePainter extends CustomPainter {
+  _RoutePainter({required this.line, required this.plane});
 
-  final double? fromNose;
-  final Color body;
-  final Color arrow;
-  final TextDirection textDirection;
+  final Color line;
+  final Color plane;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final dot = Paint()..color = line;
+    final y = size.height * 0.62;
+    final path = Path()
+      ..moveTo(8, y + 10)
+      ..quadraticBezierTo(size.width / 2, -6, size.width - 8, y + 10);
+    for (final metric in path.computeMetrics()) {
+      for (var d = 0.0; d < metric.length; d += 10) {
+        final t = metric.getTangentForOffset(d);
+        if (t != null) canvas.drawCircle(t.position, 1.6, dot);
+      }
+      final at = metric.getTangentForOffset(metric.length * 0.58);
+      if (at == null) continue;
+      canvas.save();
+      canvas.translate(at.position.dx, at.position.dy);
+      canvas.rotate(-at.angle + math.pi / 2);
+      canvas.scale(1.1);
+      canvas.translate(-12, -12);
+      final p = Paint()
+        ..color = plane
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round;
+      // Lucide's plane, nose up.
+      canvas.drawPath(
+        Path()
+          ..moveTo(12, 2)
+          ..lineTo(13.5, 8.5)
+          ..lineTo(21, 13)
+          ..lineTo(21, 15)
+          ..lineTo(13.5, 13)
+          ..lineTo(13, 19)
+          ..lineTo(15.5, 21)
+          ..lineTo(8.5, 21)
+          ..lineTo(11, 19)
+          ..lineTo(10.5, 13)
+          ..lineTo(3, 15)
+          ..lineTo(3, 13)
+          ..lineTo(10.5, 8.5)
+          ..close(),
+        p,
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RoutePainter old) =>
+      old.line != line || old.plane != plane;
+}
+
+/// Rings that slowly widen while the GPS looks for satellites; still under
+/// reduce motion.
+class _Rings extends StatefulWidget {
+  const _Rings({required this.size});
+
+  final double size;
+
+  @override
+  State<_Rings> createState() => _RingsState();
+}
+
+class _RingsState extends State<_Rings> with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
+    return ExcludeSemantics(
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => CustomPaint(
+            painter: _RingsPainter(
+              t: _controller.isAnimating ? _controller.value : 0.5,
+              color: s.accent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RingsPainter extends CustomPainter {
+  _RingsPainter({required this.t, required this.color});
+
+  final double t;
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
+    final max = size.width / 2;
+    for (var i = 0; i < 3; i++) {
+      final f = (t + i / 3) % 1;
+      canvas.drawCircle(
+        c,
+        max * (0.25 + 0.75 * f),
+        Paint()
+          ..color = color.withValues(alpha: (1 - f) * 0.5)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
+    }
+    canvas.drawCircle(c, 6, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_RingsPainter old) => old.t != t || old.color != color;
+}
+
+/// The Qibla from your seat (spec §4.8): a ring with the aircraft nose up and
+/// the Qibla's line at its angle from the nose. No line until there is a
+/// heading to measure from. Left and right are the aircraft's, whatever the
+/// reading direction.
+class _SeatRing extends StatelessWidget {
+  const _SeatRing({required this.fromNose});
+
+  final double? fromNose;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
+    return CustomPaint(
+      size: const Size.square(200),
+      painter: _SeatRingPainter(
+        fromNose: fromNose,
+        ring: s.divider,
+        body: s.onSurfaceMuted,
+        mark: s.accent,
+      ),
+    );
+  }
+}
+
+class _SeatRingPainter extends CustomPainter {
+  _SeatRingPainter({
+    required this.fromNose,
+    required this.ring,
+    required this.body,
+    required this.mark,
+  });
+
+  final double? fromNose;
+  final Color ring;
+  final Color body;
+  final Color mark;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.width / 2 - 8;
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..color = ring
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
     final s = size.width / 200;
     final fill = Paint()..color = body.withValues(alpha: 0.35);
     // Fuselage, wings and tail, nose up.
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromCenter(center: c, width: 18 * s, height: 150 * s),
-        Radius.circular(9 * s),
+        Rect.fromCenter(center: c, width: 14 * s, height: 110 * s),
+        Radius.circular(7 * s),
       ),
       fill,
     );
     final wing = Path()
-      ..moveTo(c.dx, c.dy - 18 * s)
-      ..lineTo(c.dx + 80 * s, c.dy + 12 * s)
-      ..lineTo(c.dx + 80 * s, c.dy + 22 * s)
-      ..lineTo(c.dx, c.dy + 8 * s)
-      ..lineTo(c.dx - 80 * s, c.dy + 22 * s)
-      ..lineTo(c.dx - 80 * s, c.dy + 12 * s)
+      ..moveTo(c.dx, c.dy - 14 * s)
+      ..lineTo(c.dx + 58 * s, c.dy + 8 * s)
+      ..lineTo(c.dx + 58 * s, c.dy + 16 * s)
+      ..lineTo(c.dx, c.dy + 6 * s)
+      ..lineTo(c.dx - 58 * s, c.dy + 16 * s)
+      ..lineTo(c.dx - 58 * s, c.dy + 8 * s)
       ..close();
     canvas.drawPath(wing, fill);
     final tail = Path()
-      ..moveTo(c.dx, c.dy + 50 * s)
-      ..lineTo(c.dx + 30 * s, c.dy + 68 * s)
-      ..lineTo(c.dx + 30 * s, c.dy + 74 * s)
-      ..lineTo(c.dx, c.dy + 64 * s)
-      ..lineTo(c.dx - 30 * s, c.dy + 74 * s)
-      ..lineTo(c.dx - 30 * s, c.dy + 68 * s)
+      ..moveTo(c.dx, c.dy + 36 * s)
+      ..lineTo(c.dx + 22 * s, c.dy + 50 * s)
+      ..lineTo(c.dx + 22 * s, c.dy + 55 * s)
+      ..lineTo(c.dx, c.dy + 47 * s)
+      ..lineTo(c.dx - 22 * s, c.dy + 55 * s)
+      ..lineTo(c.dx - 22 * s, c.dy + 50 * s)
       ..close();
     canvas.drawPath(tail, fill);
 
     final angle = fromNose;
     if (angle == null) return;
     final a = angle * math.pi / 180;
-    final r = 92 * s;
-    final tip = c + Offset(math.sin(a) * r, -math.cos(a) * r);
-    final paint = Paint()
-      ..color = arrow
-      ..strokeWidth = 4 * s
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(c, tip, paint);
-    final head = 12 * s;
-    for (final side in [-1, 1]) {
-      final back = a + math.pi + side * 0.45;
-      canvas.drawLine(
-        tip,
-        tip + Offset(math.sin(back) * head, -math.cos(back) * head),
-        paint,
-      );
-    }
-    canvas.drawCircle(c, 5 * s, Paint()..color = arrow);
+    final tip = c + Offset(math.sin(a) * (r - 14), -math.cos(a) * (r - 14));
+    canvas.drawLine(
+      c,
+      tip,
+      Paint()
+        ..color = mark
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.save();
+    canvas.translate(tip.dx, tip.dy);
+    canvas.rotate(a);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset.zero, width: 16, height: 16),
+        const Radius.circular(3),
+      ),
+      Paint()..color = mark,
+    );
+    canvas.restore();
+    canvas.drawCircle(c, 4, Paint()..color = mark);
   }
 
   @override
-  bool shouldRepaint(_AircraftPainter old) =>
-      old.fromNose != fromNose || old.body != body || old.arrow != arrow;
+  bool shouldRepaint(_SeatRingPainter old) =>
+      old.fromNose != fromNose ||
+      old.ring != ring ||
+      old.body != body ||
+      old.mark != mark;
 }

@@ -4419,6 +4419,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The same switch sits at the top of Today.'**
   String get onbTravelSame;
+
+  /// No description provided for @inFlightStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times at 11,000 metres'**
+  String get inFlightStartTitle;
+
+  /// No description provided for @inFlightStartLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from your phone’s GPS. It works in airplane mode, with no network.'**
+  String get inFlightStartLead;
+
+  /// No description provided for @inFlightWindowNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Sit by a window if you can. The first fix can take a few minutes.'**
+  String get inFlightWindowNote;
+
+  /// No description provided for @inFlightLookingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for satellites'**
+  String get inFlightLookingTitle;
+
+  /// No description provided for @inFlightKeepLooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the phone near a window, screen up.'**
+  String get inFlightKeepLooking;
+
+  /// No description provided for @inFlightAircraftTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Aircraft time {time} ({offset}), from your position'**
+  String inFlightAircraftTime(String time, String offset);
+
+  /// No description provided for @inFlightPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'{lat} · {lon}'**
+  String inFlightPosition(String lat, String lon);
+
+  /// No description provided for @inFlightLatNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° N'**
+  String inFlightLatNorth(String degrees);
+
+  /// No description provided for @inFlightLatSouth.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° S'**
+  String inFlightLatSouth(String degrees);
+
+  /// No description provided for @inFlightLonEast.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° E'**
+  String inFlightLonEast(String degrees);
+
+  /// No description provided for @inFlightLonWest.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° W'**
+  String inFlightLonWest(String degrees);
+
+  /// No description provided for @inFlightAlongTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Along the route'**
+  String get inFlightAlongTitle;
+
+  /// No description provided for @inFlightEstimates.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimates'**
+  String get inFlightEstimates;
+
+  /// No description provided for @inFlightHeadingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Aircraft heading: from the seat-back map, or ask the crew.'**
+  String get inFlightHeadingHint;
+
+  /// No description provided for @inFlightQiblaWords.
+  ///
+  /// In en, this message translates to:
+  /// **'{words} · {degrees}°'**
+  String inFlightQiblaWords(String words, String degrees);
+
+  /// No description provided for @qiblaDirStraightAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight ahead'**
+  String get qiblaDirStraightAhead;
+
+  /// No description provided for @qiblaDirAheadRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Ahead, to your right'**
+  String get qiblaDirAheadRight;
+
+  /// No description provided for @qiblaDirRight.
+  ///
+  /// In en, this message translates to:
+  /// **'To your right'**
+  String get qiblaDirRight;
+
+  /// No description provided for @qiblaDirBehindRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind you, to the right'**
+  String get qiblaDirBehindRight;
+
+  /// No description provided for @qiblaDirBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind you'**
+  String get qiblaDirBehind;
+
+  /// No description provided for @qiblaDirBehindLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind you, to the left'**
+  String get qiblaDirBehindLeft;
+
+  /// No description provided for @qiblaDirLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'To your left'**
+  String get qiblaDirLeft;
+
+  /// No description provided for @qiblaDirAheadLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Ahead, to your left'**
+  String get qiblaDirAheadLeft;
 }
 
 class _AppLocalizationsDelegate

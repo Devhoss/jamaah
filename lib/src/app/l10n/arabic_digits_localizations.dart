@@ -1664,6 +1664,54 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get onbTravelSame => arabicDigits(super.onbTravelSame);
 
   @override
+  String get inFlightStartTitle => arabicDigits(super.inFlightStartTitle);
+
+  @override
+  String get inFlightStartLead => arabicDigits(super.inFlightStartLead);
+
+  @override
+  String get inFlightWindowNote => arabicDigits(super.inFlightWindowNote);
+
+  @override
+  String get inFlightLookingTitle => arabicDigits(super.inFlightLookingTitle);
+
+  @override
+  String get inFlightKeepLooking => arabicDigits(super.inFlightKeepLooking);
+
+  @override
+  String get inFlightAlongTitle => arabicDigits(super.inFlightAlongTitle);
+
+  @override
+  String get inFlightEstimates => arabicDigits(super.inFlightEstimates);
+
+  @override
+  String get inFlightHeadingHint => arabicDigits(super.inFlightHeadingHint);
+
+  @override
+  String get qiblaDirStraightAhead => arabicDigits(super.qiblaDirStraightAhead);
+
+  @override
+  String get qiblaDirAheadRight => arabicDigits(super.qiblaDirAheadRight);
+
+  @override
+  String get qiblaDirRight => arabicDigits(super.qiblaDirRight);
+
+  @override
+  String get qiblaDirBehindRight => arabicDigits(super.qiblaDirBehindRight);
+
+  @override
+  String get qiblaDirBehind => arabicDigits(super.qiblaDirBehind);
+
+  @override
+  String get qiblaDirBehindLeft => arabicDigits(super.qiblaDirBehindLeft);
+
+  @override
+  String get qiblaDirLeft => arabicDigits(super.qiblaDirLeft);
+
+  @override
+  String get qiblaDirAheadLeft => arabicDigits(super.qiblaDirAheadLeft);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -2340,4 +2388,32 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String onbMosqueAdded(String mosque) =>
       arabicDigits(super.onbMosqueAdded(mosque));
+
+  @override
+  String inFlightAircraftTime(String time, String offset) =>
+      arabicDigits(super.inFlightAircraftTime(time, offset));
+
+  @override
+  String inFlightPosition(String lat, String lon) =>
+      arabicDigits(super.inFlightPosition(lat, lon));
+
+  @override
+  String inFlightLatNorth(String degrees) =>
+      arabicDigits(super.inFlightLatNorth(degrees));
+
+  @override
+  String inFlightLatSouth(String degrees) =>
+      arabicDigits(super.inFlightLatSouth(degrees));
+
+  @override
+  String inFlightLonEast(String degrees) =>
+      arabicDigits(super.inFlightLonEast(degrees));
+
+  @override
+  String inFlightLonWest(String degrees) =>
+      arabicDigits(super.inFlightLonWest(degrees));
+
+  @override
+  String inFlightQiblaWords(String words, String degrees) =>
+      arabicDigits(super.inFlightQiblaWords(words, degrees));
 }
