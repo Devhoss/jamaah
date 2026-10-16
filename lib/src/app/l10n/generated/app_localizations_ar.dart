@@ -2395,4 +2395,64 @@ class AppLocalizationsAr extends AppLocalizations {
   String placeNearCity(String city) {
     return 'قرب $city';
   }
+
+  @override
+  String mosquesLead(String mosque) {
+    return 'يتبع «اليوم» وتذكيرات الجماعة مسجدك النشط، وهو الآن $mosque.';
+  }
+
+  @override
+  String get mosquesLeadNoActive => 'اجعل أحد المساجد نشطًا ليتبعه «اليوم».';
+
+  @override
+  String get mosquesFindNearby => 'ابحث بالقرب منك';
+
+  @override
+  String get mosquesAddManually => 'أضف يدويًا';
+
+  @override
+  String get mosqueSourceGoogleUnverified => 'من خرائط Google · غير موثّق';
+
+  @override
+  String get mosqueSourceOsmUnverified => 'من OpenStreetMap · غير موثّق';
+
+  @override
+  String get mosqueNoIqamaYet => 'لم تُحدَّد أي إقامة بعد';
+
+  @override
+  String get mosqueActiveLong => 'نشط · «اليوم» يستخدم هذا المسجد';
+
+  @override
+  String get mosqueMakeActive => 'اجعله نشطًا';
+
+  @override
+  String mosqueMadeActive(String mosque) {
+    return 'أصبح $mosque مسجدك النشط';
+  }
+
+  @override
+  String get mosquesFooter =>
+      'المساجد التي تُعثر عليها عبر الإنترنت تُظهر مصدرها وهي غير موثّقة. أوقات الإقامة التي تُدخلها تبقى على هذا الهاتف.';
+
+  @override
+  String get mosquesEmptyTitle => 'لك مكانٌ في الصف';
+
+  @override
+  String get mosquesEmptyBody =>
+      'أضف المسجد الذي تصلّي فيه. سيُظهر «جماعة» موعد بدء صلاة الجماعة فيه ويذكّرك قبلها.';
+
+  @override
+  String get mosquesEmptyFind => 'ابحث عن مساجد قريبة';
+
+  @override
+  String get mosquesEmptyAdd => 'أضف مسجدًا بنفسك';
+
+  @override
+  String get mosquesEmptyNote =>
+      'أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك.';
+
+  @override
+  String mosqueRowSemantics(String mosque, String source, String count) {
+    return '$mosque. $source. $count';
+  }
 }

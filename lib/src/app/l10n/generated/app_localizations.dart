@@ -3651,6 +3651,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Near {city}'**
   String placeNearCity(String city);
+
+  /// No description provided for @mosquesLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Today and your Jama’ah reminders follow your active mosque, now {mosque}.'**
+  String mosquesLead(String mosque);
+
+  /// No description provided for @mosquesLeadNoActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Make one mosque active and Today follows it.'**
+  String get mosquesLeadNoActive;
+
+  /// No description provided for @mosquesFindNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Find nearby'**
+  String get mosquesFindNearby;
+
+  /// No description provided for @mosquesAddManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Add manually'**
+  String get mosquesAddManually;
+
+  /// No description provided for @mosqueSourceGoogleUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'From Google Maps · not verified'**
+  String get mosqueSourceGoogleUnverified;
+
+  /// No description provided for @mosqueSourceOsmUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'From OpenStreetMap · not verified'**
+  String get mosqueSourceOsmUnverified;
+
+  /// No description provided for @mosqueNoIqamaYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Iqama set yet'**
+  String get mosqueNoIqamaYet;
+
+  /// No description provided for @mosqueActiveLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Active · Today uses this mosque'**
+  String get mosqueActiveLong;
+
+  /// No description provided for @mosqueMakeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Make active'**
+  String get mosqueMakeActive;
+
+  /// No description provided for @mosqueMadeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque} is now your active mosque'**
+  String mosqueMadeActive(String mosque);
+
+  /// No description provided for @mosquesFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosques found online show where they came from and are not verified. Your Iqama times stay on this phone.'**
+  String get mosquesFooter;
+
+  /// No description provided for @mosquesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'There’s a place for you'**
+  String get mosquesEmptyTitle;
+
+  /// No description provided for @mosquesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the mosque you pray at. Jama’ah will show when its congregation starts and remind you before it.'**
+  String get mosquesEmptyBody;
+
+  /// No description provided for @mosquesEmptyFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find mosques nearby'**
+  String get mosquesEmptyFind;
+
+  /// No description provided for @mosquesEmptyAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one yourself'**
+  String get mosquesEmptyAdd;
+
+  /// No description provided for @mosquesEmptyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You enter its Iqama times. Nothing is guessed, and nothing leaves your phone.'**
+  String get mosquesEmptyNote;
+
+  /// No description provided for @mosqueRowSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque}. {source}. {count}'**
+  String mosqueRowSemantics(String mosque, String source, String count);
 }
 
 class _AppLocalizationsDelegate

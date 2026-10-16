@@ -601,3 +601,20 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 588 | `rowIqamaNotSet` | Iqama not set | الإقامة غير محدّدة |
 | 589 | `sunLabelCombined` | {prayer} · {time} | {prayer} · {time} |
 | 590 | `placeNearCity` | Near {city} | قرب {city} |
+| 591 | `mosquesLead` | Today and your Jama’ah reminders follow your active mosque, now {mosque}. | يتبع «اليوم» وتذكيرات الجماعة مسجدك النشط، وهو الآن {mosque}. |
+| 592 | `mosquesLeadNoActive` | Make one mosque active and Today follows it. | اجعل أحد المساجد نشطًا ليتبعه «اليوم». |
+| 593 | `mosquesFindNearby` | Find nearby | ابحث بالقرب منك |
+| 594 | `mosquesAddManually` | Add manually | أضف يدويًا |
+| 595 | `mosqueSourceGoogleUnverified` | From Google Maps · not verified | من خرائط Google · غير موثّق |
+| 596 | `mosqueSourceOsmUnverified` | From OpenStreetMap · not verified | من OpenStreetMap · غير موثّق |
+| 597 | `mosqueNoIqamaYet` | No Iqama set yet | لم تُحدَّد أي إقامة بعد |
+| 598 | `mosqueActiveLong` | Active · Today uses this mosque | نشط · «اليوم» يستخدم هذا المسجد |
+| 599 | `mosqueMakeActive` | Make active | اجعله نشطًا |
+| 600 | `mosqueMadeActive` | {mosque} is now your active mosque | أصبح {mosque} مسجدك النشط |
+| 601 | `mosquesFooter` | Mosques found online show where they came from and are not verified. Your Iqama times stay on this phone. | المساجد التي تُعثر عليها عبر الإنترنت تُظهر مصدرها وهي غير موثّقة. أوقات الإقامة التي تُدخلها تبقى على هذا الهاتف. |
+| 602 | `mosquesEmptyTitle` | There’s a place for you | لك مكانٌ في الصف |
+| 603 | `mosquesEmptyBody` | Add the mosque you pray at. Jama’ah will show when its congregation starts and remind you before it. | أضف المسجد الذي تصلّي فيه. سيُظهر «جماعة» موعد بدء صلاة الجماعة فيه ويذكّرك قبلها. |
+| 604 | `mosquesEmptyFind` | Find mosques nearby | ابحث عن مساجد قريبة |
+| 605 | `mosquesEmptyAdd` | Add one yourself | أضف مسجدًا بنفسك |
+| 606 | `mosquesEmptyNote` | You enter its Iqama times. Nothing is guessed, and nothing leaves your phone. | أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك. |
+| 607 | `mosqueRowSemantics` | {mosque}. {source}. {count} | {mosque}. {source}. {count} |

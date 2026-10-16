@@ -2232,4 +2232,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String placeNearCity(String city) {
     return 'Near $city';
   }
+
+  @override
+  String mosquesLead(String mosque) {
+    return 'Today and your Jama’ah reminders follow your active mosque, now $mosque.';
+  }
+
+  @override
+  String get mosquesLeadNoActive =>
+      'Make one mosque active and Today follows it.';
+
+  @override
+  String get mosquesFindNearby => 'Find nearby';
+
+  @override
+  String get mosquesAddManually => 'Add manually';
+
+  @override
+  String get mosqueSourceGoogleUnverified => 'From Google Maps · not verified';
+
+  @override
+  String get mosqueSourceOsmUnverified => 'From OpenStreetMap · not verified';
+
+  @override
+  String get mosqueNoIqamaYet => 'No Iqama set yet';
+
+  @override
+  String get mosqueActiveLong => 'Active · Today uses this mosque';
+
+  @override
+  String get mosqueMakeActive => 'Make active';
+
+  @override
+  String mosqueMadeActive(String mosque) {
+    return '$mosque is now your active mosque';
+  }
+
+  @override
+  String get mosquesFooter =>
+      'Mosques found online show where they came from and are not verified. Your Iqama times stay on this phone.';
+
+  @override
+  String get mosquesEmptyTitle => 'There’s a place for you';
+
+  @override
+  String get mosquesEmptyBody =>
+      'Add the mosque you pray at. Jama’ah will show when its congregation starts and remind you before it.';
+
+  @override
+  String get mosquesEmptyFind => 'Find mosques nearby';
+
+  @override
+  String get mosquesEmptyAdd => 'Add one yourself';
+
+  @override
+  String get mosquesEmptyNote =>
+      'You enter its Iqama times. Nothing is guessed, and nothing leaves your phone.';
+
+  @override
+  String mosqueRowSemantics(String mosque, String source, String count) {
+    return '$mosque. $source. $count';
+  }
 }

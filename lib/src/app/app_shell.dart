@@ -45,7 +45,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           onOpenMosque: (id) => openMosqueDetail(context, id),
           onNavColors: (colors) => setState(() => _skyNav = colors),
         ),
-        1 => const SafeArea(bottom: false, child: MosquesScreen()),
+        1 => const MosquesScreen(),
         2 => const SafeArea(bottom: false, child: QiblaScreen()),
         _ => const SafeArea(bottom: false, child: SettingsPage(asTab: true)),
       },

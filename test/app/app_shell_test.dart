@@ -121,18 +121,18 @@ void main() {
     await open(tester);
     await goTo(tester, t.tabMosques);
 
-    expect(find.text(t.noSavedMosques), findsOneWidget);
+    expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
     expect(
       find.byType(AppRow),
       findsNothing,
       reason: 'no mosque exists yet, so no row may look like one',
     );
     expect(
-      find.text(t.findNearbyMosques),
+      find.text(t.mosquesEmptyFind),
       findsOneWidget,
       reason: 'a mosque gets here by being found nearby, or added by hand',
     );
-    expect(find.text(t.addMosqueManually), findsOneWidget);
+    expect(find.text(t.mosquesEmptyAdd), findsOneWidget);
   });
 
   testApp('Qibla without a place asks for one, with no bearing on show', (
@@ -222,7 +222,7 @@ void main() {
     await tester.tap(find.text(t.addMosqueTitle));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.noSavedMosques), findsOneWidget);
+    expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
     expect(selectedTab(tester), 1);
     expect(
       find.text(t.addMosqueTitle),

@@ -118,7 +118,13 @@ void main() {
 
   Future<void> openNearby(WidgetTester tester) async {
     await tapText(tester, t.tabMosques);
-    await tapText(tester, t.findNearbyMosques);
+    // "Find mosques nearby" while the list is empty, "Find nearby" after.
+    await tapText(
+      tester,
+      find.text(t.mosquesEmptyFind).evaluate().isNotEmpty
+          ? t.mosquesEmptyFind
+          : t.mosquesFindNearby,
+    );
   }
 
   Future<void> searchHere(WidgetTester tester) async {

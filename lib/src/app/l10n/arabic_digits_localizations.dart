@@ -1352,6 +1352,48 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get rowIqamaNotSet => arabicDigits(super.rowIqamaNotSet);
 
   @override
+  String get mosquesLeadNoActive => arabicDigits(super.mosquesLeadNoActive);
+
+  @override
+  String get mosquesFindNearby => arabicDigits(super.mosquesFindNearby);
+
+  @override
+  String get mosquesAddManually => arabicDigits(super.mosquesAddManually);
+
+  @override
+  String get mosqueSourceGoogleUnverified => arabicDigits(super.mosqueSourceGoogleUnverified);
+
+  @override
+  String get mosqueSourceOsmUnverified => arabicDigits(super.mosqueSourceOsmUnverified);
+
+  @override
+  String get mosqueNoIqamaYet => arabicDigits(super.mosqueNoIqamaYet);
+
+  @override
+  String get mosqueActiveLong => arabicDigits(super.mosqueActiveLong);
+
+  @override
+  String get mosqueMakeActive => arabicDigits(super.mosqueMakeActive);
+
+  @override
+  String get mosquesFooter => arabicDigits(super.mosquesFooter);
+
+  @override
+  String get mosquesEmptyTitle => arabicDigits(super.mosquesEmptyTitle);
+
+  @override
+  String get mosquesEmptyBody => arabicDigits(super.mosquesEmptyBody);
+
+  @override
+  String get mosquesEmptyFind => arabicDigits(super.mosquesEmptyFind);
+
+  @override
+  String get mosquesEmptyAdd => arabicDigits(super.mosquesEmptyAdd);
+
+  @override
+  String get mosquesEmptyNote => arabicDigits(super.mosquesEmptyNote);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1932,4 +1974,16 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String placeNearCity(String city) =>
       arabicDigits(super.placeNearCity(city));
+
+  @override
+  String mosquesLead(String mosque) =>
+      arabicDigits(super.mosquesLead(mosque));
+
+  @override
+  String mosqueMadeActive(String mosque) =>
+      arabicDigits(super.mosqueMadeActive(mosque));
+
+  @override
+  String mosqueRowSemantics(String mosque, String source, String count) =>
+      arabicDigits(super.mosqueRowSemantics(mosque, source, count));
 }

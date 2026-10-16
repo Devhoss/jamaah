@@ -17,6 +17,7 @@ import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
+import 'package:jamaah/src/features/components/horizon_controls.dart';
 import 'package:jamaah/src/features/mosques/iqama_editor_sheet.dart';
 import 'package:jamaah/src/features/mosques/mosque_detail_page.dart';
 import 'package:jamaah/src/features/mosques/mosques_screen.dart';
@@ -155,6 +156,16 @@ void main() {
       tester.widget<ButtonStyleButton>(buttonWith(label).last).onPressed !=
       null;
 
+  /// The tab's add button: "Add one yourself" while the list is empty,
+  /// "Add manually" once it has a mosque (Horizon).
+  Future<void> tapAddOnTab(WidgetTester tester) async {
+    final empty = find.text(t.mosquesEmptyAdd);
+    await tapText(
+      tester,
+      empty.evaluate().isNotEmpty ? t.mosquesEmptyAdd : t.mosquesAddManually,
+    );
+  }
+
   /// Adds a mosque through the sheet, landing on its detail page.
   Future<void> addThroughSheet(
     WidgetTester tester, {
@@ -162,7 +173,7 @@ void main() {
     String address = '12 Garden Road',
   }) async {
     await goToMosques(tester);
-    await tapText(tester, t.addMosqueManually);
+    await tapAddOnTab(tester);
     await tester.enterText(
       find.widgetWithText(TextField, t.mosqueNameLabel),
       name,
@@ -207,11 +218,69 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  group('the Mosques tab (Horizon)', () {
+    testApp('empty: there is a place for you, and nothing is guessed', (
+      tester,
+    ) async {
+      await open(tester);
+      await goToMosques(tester);
+      expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
+      expect(find.text(t.mosquesEmptyBody), findsOneWidget);
+      expect(find.text(t.mosquesEmptyNote), findsOneWidget);
+      expect(find.text(t.mosquesEmptyFind), findsOneWidget);
+      expect(find.text(t.mosquesEmptyAdd), findsOneWidget);
+      expect(find.byType(CongregationFigures), findsOneWidget);
+    });
+
+    testApp('each mosque says where it came from and how much is set', (
+      tester,
+    ) async {
+      final found = await mosques.add(
+        name: 'Found Mosque',
+        address: '',
+        source: MosqueSource.google,
+      );
+      await settings.setActiveMosqueId(found.id);
+      await open(tester);
+      await goToMosques(tester);
+      expect(find.text(t.mosqueSourceGoogleUnverified), findsOneWidget);
+      expect(find.text(t.mosqueNoIqamaYet), findsOneWidget);
+      expect(find.text(t.mosqueActiveLong), findsOneWidget);
+      expect(find.text(t.mosquesLead('Found Mosque')), findsOneWidget);
+      await mosques.setIqama(found.id, Prayer.fajr, LocalTime.of(5, 0));
+      await mosques.setIqama(found.id, Prayer.asr, null, afterAdhanMinutes: 15);
+      await tester.pumpAndSettle();
+      expect(find.text(t.iqamaStatusPartial(2, 6)), findsOneWidget);
+      await reveal(tester, find.text(t.mosquesFooter));
+      expect(find.text(t.mosquesFooter), findsOneWidget);
+    });
+
+    testApp('Make active moves Today to that mosque, and says so', (
+      tester,
+    ) async {
+      final first = await mosques.add(
+        name: 'First',
+        address: '',
+        source: MosqueSource.manual,
+      );
+      await mosques.add(name: 'Second', address: '', source: MosqueSource.manual);
+      await settings.setActiveMosqueId(first.id);
+      await open(tester);
+      await goToMosques(tester);
+      expect(find.text(t.mosqueMakeActive), findsOneWidget);
+      await tapText(tester, t.mosqueMakeActive);
+      final second = await savedMosque('Second');
+      expect((await settings.read()).activeMosqueId, second.id);
+      expect(find.text(t.mosqueMadeActive('Second')), findsOneWidget);
+      expect(find.text(t.mosquesLead('Second')), findsOneWidget);
+    });
+  });
+
   group('adding a mosque by hand', () {
     testApp('Add stays disabled until there is a name', (tester) async {
       await open(tester);
       await goToMosques(tester);
-      await tapText(tester, t.addMosqueManually);
+      await tapAddOnTab(tester);
 
       expect(isEnabled(tester, t.add), isFalse);
       await tester.enterText(
@@ -274,15 +343,15 @@ void main() {
 
       expect(find.byType(MosquesScreen), findsOneWidget);
       expect(find.text('Masjid al-Nour'), findsOneWidget);
-      expect(find.text(t.tagActive), findsOneWidget);
-      expect(find.text(t.iqamaStatusNone), findsOneWidget);
-      expect(find.text(t.noSavedMosques), findsNothing);
+      expect(find.text(t.mosqueActiveLong), findsOneWidget);
+      expect(find.text(t.mosqueNoIqamaYet), findsOneWidget);
+      expect(find.text(t.mosquesEmptyTitle), findsNothing);
     });
 
     testApp('cancelling stores nothing', (tester) async {
       await open(tester);
       await goToMosques(tester);
-      await tapText(tester, t.addMosqueManually);
+      await tapAddOnTab(tester);
       await tester.enterText(
         find.widgetWithText(TextField, t.mosqueNameLabel),
         'Masjid al-Nour',
@@ -290,7 +359,7 @@ void main() {
       await tapText(tester, t.cancel);
 
       expect(await mosques.saved(), isEmpty);
-      expect(find.text(t.noSavedMosques), findsOneWidget);
+      expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
     });
   });
 
@@ -641,7 +710,7 @@ void main() {
       await addThroughSheet(tester, name: 'First');
       await tester.pageBack();
       await tester.pumpAndSettle();
-      await tapText(tester, t.addMosqueManually);
+      await tapAddOnTab(tester);
       await tester.enterText(
         find.widgetWithText(TextField, t.mosqueNameLabel),
         'Second',
@@ -683,7 +752,7 @@ void main() {
       expect(await mosques.saved(), isEmpty);
       expect((await settings.read()).activeMosqueId, isNull);
       expect(find.byType(MosqueDetailPage), findsNothing);
-      expect(find.text(t.noSavedMosques), findsOneWidget);
+      expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
 
       await tapText(tester, t.tabToday);
       expect(find.text(t.addMosqueTitle), findsOneWidget);

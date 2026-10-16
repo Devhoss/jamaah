@@ -589,5 +589,22 @@
   "alertButtonSemantics": "تنبيه أذان {prayer}: {mode}. تغيير",
   "rowIqamaNotSet": "الإقامة غير محدّدة",
   "sunLabelCombined": "{prayer} · {time}",
-  "placeNearCity": "قرب {city}"
+  "placeNearCity": "قرب {city}",
+  "mosquesLead": "يتبع «اليوم» وتذكيرات الجماعة مسجدك النشط، وهو الآن {mosque}.",
+  "mosquesLeadNoActive": "اجعل أحد المساجد نشطًا ليتبعه «اليوم».",
+  "mosquesFindNearby": "ابحث بالقرب منك",
+  "mosquesAddManually": "أضف يدويًا",
+  "mosqueSourceGoogleUnverified": "من خرائط Google · غير موثّق",
+  "mosqueSourceOsmUnverified": "من OpenStreetMap · غير موثّق",
+  "mosqueNoIqamaYet": "لم تُحدَّد أي إقامة بعد",
+  "mosqueActiveLong": "نشط · «اليوم» يستخدم هذا المسجد",
+  "mosqueMakeActive": "اجعله نشطًا",
+  "mosqueMadeActive": "أصبح {mosque} مسجدك النشط",
+  "mosquesFooter": "المساجد التي تُعثر عليها عبر الإنترنت تُظهر مصدرها وهي غير موثّقة. أوقات الإقامة التي تُدخلها تبقى على هذا الهاتف.",
+  "mosquesEmptyTitle": "لك مكانٌ في الصف",
+  "mosquesEmptyBody": "أضف المسجد الذي تصلّي فيه. سيُظهر «جماعة» موعد بدء صلاة الجماعة فيه ويذكّرك قبلها.",
+  "mosquesEmptyFind": "ابحث عن مساجد قريبة",
+  "mosquesEmptyAdd": "أضف مسجدًا بنفسك",
+  "mosquesEmptyNote": "أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك.",
+  "mosqueRowSemantics": "{mosque}. {source}. {count}"
 }
