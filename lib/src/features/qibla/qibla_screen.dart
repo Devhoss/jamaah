@@ -155,7 +155,8 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
               .distanceKm(latitude: place.latitude, longitude: place.longitude)
               .round(),
         );
-    final placeName = placeLabel(l10n, place);
+    // "Near Cairo" for a found place, as Today names it.
+    final placeName = placeShortLabel(l10n, place);
     final big = type.display.copyWith(
       fontSize: 56,
       color: s.onSurface,
