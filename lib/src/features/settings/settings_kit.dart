@@ -265,9 +265,18 @@ class SettingsSwitchRow extends StatelessWidget {
     final type = HorizonTheme.typeOf(context);
     final s = HorizonTheme.of(context).surfaces;
     final enabled = onChanged != null;
+    // One TalkBack node for the row: the title, what it does, and its state,
+    // toggled by a tap anywhere on it.
     return _RowFrame(
       divider: divider,
-      child: InkWell(
+      child: Semantics(
+        toggled: value && enabled,
+        enabled: enabled,
+        label: title,
+        hint: hint,
+        onTap: enabled ? () => onChanged!(!value) : null,
+        excludeSemantics: true,
+        child: InkWell(
         onTap: enabled ? () => onChanged!(!value) : null,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 56),
@@ -310,6 +319,7 @@ class SettingsSwitchRow extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }
