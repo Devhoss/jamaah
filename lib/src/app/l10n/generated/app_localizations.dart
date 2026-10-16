@@ -4203,6 +4203,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each method\'s angles, and where it is used.'**
   String get methodListLead;
+
+  /// No description provided for @compassEast.
+  ///
+  /// In en, this message translates to:
+  /// **'E'**
+  String get compassEast;
+
+  /// No description provided for @compassWest.
+  ///
+  /// In en, this message translates to:
+  /// **'W'**
+  String get compassWest;
+
+  /// No description provided for @qiblaLead.
+  ///
+  /// In en, this message translates to:
+  /// **'From {place} · {distance} km to the Kaaba'**
+  String qiblaLead(String place, String distance);
+
+  /// No description provided for @compassPointNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'North'**
+  String get compassPointNorth;
+
+  /// No description provided for @compassPointNorthEast.
+  ///
+  /// In en, this message translates to:
+  /// **'North-east'**
+  String get compassPointNorthEast;
+
+  /// No description provided for @compassPointEast.
+  ///
+  /// In en, this message translates to:
+  /// **'East'**
+  String get compassPointEast;
+
+  /// No description provided for @compassPointSouthEast.
+  ///
+  /// In en, this message translates to:
+  /// **'South-east'**
+  String get compassPointSouthEast;
+
+  /// No description provided for @compassPointSouth.
+  ///
+  /// In en, this message translates to:
+  /// **'South'**
+  String get compassPointSouth;
+
+  /// No description provided for @compassPointSouthWest.
+  ///
+  /// In en, this message translates to:
+  /// **'South-west'**
+  String get compassPointSouthWest;
+
+  /// No description provided for @compassPointWest.
+  ///
+  /// In en, this message translates to:
+  /// **'West'**
+  String get compassPointWest;
+
+  /// No description provided for @compassPointNorthWest.
+  ///
+  /// In en, this message translates to:
+  /// **'North-west'**
+  String get compassPointNorthWest;
+
+  /// No description provided for @compassLowerNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'north'**
+  String get compassLowerNorth;
+
+  /// No description provided for @compassLowerEast.
+  ///
+  /// In en, this message translates to:
+  /// **'east'**
+  String get compassLowerEast;
+
+  /// No description provided for @compassLowerSouth.
+  ///
+  /// In en, this message translates to:
+  /// **'south'**
+  String get compassLowerSouth;
+
+  /// No description provided for @compassLowerWest.
+  ///
+  /// In en, this message translates to:
+  /// **'west'**
+  String get compassLowerWest;
+
+  /// No description provided for @compassLeanToward.
+  ///
+  /// In en, this message translates to:
+  /// **'{point}, a little towards the {toward}'**
+  String compassLeanToward(String point, String toward);
+
+  /// No description provided for @compassLeanMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{point}, a little more {more} than {less}'**
+  String compassLeanMore(String point, String more, String less);
+
+  /// No description provided for @qiblaNoCompassHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets.'**
+  String get qiblaNoCompassHint;
+
+  /// No description provided for @qiblaNeedsMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'The compass needs a moment'**
+  String get qiblaNeedsMoment;
+
+  /// No description provided for @qiblaSteadyNow.
+  ///
+  /// In en, this message translates to:
+  /// **'It’s steady now'**
+  String get qiblaSteadyNow;
 }
 
 class _AppLocalizationsDelegate

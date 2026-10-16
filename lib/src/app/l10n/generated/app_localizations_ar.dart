@@ -2746,4 +2746,71 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get methodListLead => 'زوايا كل طريقة، وأين تُستعمل.';
+
+  @override
+  String get compassEast => 'ق';
+
+  @override
+  String get compassWest => 'غ';
+
+  @override
+  String qiblaLead(String place, String distance) {
+    return 'من $place · $distance كم إلى الكعبة';
+  }
+
+  @override
+  String get compassPointNorth => 'الشمال';
+
+  @override
+  String get compassPointNorthEast => 'الشمال الشرقي';
+
+  @override
+  String get compassPointEast => 'الشرق';
+
+  @override
+  String get compassPointSouthEast => 'الجنوب الشرقي';
+
+  @override
+  String get compassPointSouth => 'الجنوب';
+
+  @override
+  String get compassPointSouthWest => 'الجنوب الغربي';
+
+  @override
+  String get compassPointWest => 'الغرب';
+
+  @override
+  String get compassPointNorthWest => 'الشمال الغربي';
+
+  @override
+  String get compassLowerNorth => 'الشمال';
+
+  @override
+  String get compassLowerEast => 'الشرق';
+
+  @override
+  String get compassLowerSouth => 'الجنوب';
+
+  @override
+  String get compassLowerWest => 'الغرب';
+
+  @override
+  String compassLeanToward(String point, String toward) {
+    return '$point، مع ميل قليل نحو $toward';
+  }
+
+  @override
+  String compassLeanMore(String point, String more, String less) {
+    return '$point، أقرب قليلًا إلى $more منه إلى $less';
+  }
+
+  @override
+  String get qiblaNoCompassHint =>
+      'لا بوصلة في هذا الهاتف، فلا يستطيع السهم أن يتبعك. وجّهه نحو اتجاه تعرفه، كجهة غروب الشمس.';
+
+  @override
+  String get qiblaNeedsMoment => 'البوصلة تحتاج إلى لحظة';
+
+  @override
+  String get qiblaSteadyNow => 'استقرّت البوصلة الآن';
 }

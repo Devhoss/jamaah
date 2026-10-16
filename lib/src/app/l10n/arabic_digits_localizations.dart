@@ -1571,6 +1571,57 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get methodListLead => arabicDigits(super.methodListLead);
 
   @override
+  String get compassEast => arabicDigits(super.compassEast);
+
+  @override
+  String get compassWest => arabicDigits(super.compassWest);
+
+  @override
+  String get compassPointNorth => arabicDigits(super.compassPointNorth);
+
+  @override
+  String get compassPointNorthEast => arabicDigits(super.compassPointNorthEast);
+
+  @override
+  String get compassPointEast => arabicDigits(super.compassPointEast);
+
+  @override
+  String get compassPointSouthEast => arabicDigits(super.compassPointSouthEast);
+
+  @override
+  String get compassPointSouth => arabicDigits(super.compassPointSouth);
+
+  @override
+  String get compassPointSouthWest => arabicDigits(super.compassPointSouthWest);
+
+  @override
+  String get compassPointWest => arabicDigits(super.compassPointWest);
+
+  @override
+  String get compassPointNorthWest => arabicDigits(super.compassPointNorthWest);
+
+  @override
+  String get compassLowerNorth => arabicDigits(super.compassLowerNorth);
+
+  @override
+  String get compassLowerEast => arabicDigits(super.compassLowerEast);
+
+  @override
+  String get compassLowerSouth => arabicDigits(super.compassLowerSouth);
+
+  @override
+  String get compassLowerWest => arabicDigits(super.compassLowerWest);
+
+  @override
+  String get qiblaNoCompassHint => arabicDigits(super.qiblaNoCompassHint);
+
+  @override
+  String get qiblaNeedsMoment => arabicDigits(super.qiblaNeedsMoment);
+
+  @override
+  String get qiblaSteadyNow => arabicDigits(super.qiblaSteadyNow);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -2227,4 +2278,16 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String extraAlertsFor(String names) =>
       arabicDigits(super.extraAlertsFor(names));
+
+  @override
+  String qiblaLead(String place, String distance) =>
+      arabicDigits(super.qiblaLead(place, distance));
+
+  @override
+  String compassLeanToward(String point, String toward) =>
+      arabicDigits(super.compassLeanToward(point, toward));
+
+  @override
+  String compassLeanMore(String point, String more, String less) =>
+      arabicDigits(super.compassLeanMore(point, more, less));
 }

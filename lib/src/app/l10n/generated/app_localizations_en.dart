@@ -2578,4 +2578,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodListLead => 'Each method\'s angles, and where it is used.';
+
+  @override
+  String get compassEast => 'E';
+
+  @override
+  String get compassWest => 'W';
+
+  @override
+  String qiblaLead(String place, String distance) {
+    return 'From $place · $distance km to the Kaaba';
+  }
+
+  @override
+  String get compassPointNorth => 'North';
+
+  @override
+  String get compassPointNorthEast => 'North-east';
+
+  @override
+  String get compassPointEast => 'East';
+
+  @override
+  String get compassPointSouthEast => 'South-east';
+
+  @override
+  String get compassPointSouth => 'South';
+
+  @override
+  String get compassPointSouthWest => 'South-west';
+
+  @override
+  String get compassPointWest => 'West';
+
+  @override
+  String get compassPointNorthWest => 'North-west';
+
+  @override
+  String get compassLowerNorth => 'north';
+
+  @override
+  String get compassLowerEast => 'east';
+
+  @override
+  String get compassLowerSouth => 'south';
+
+  @override
+  String get compassLowerWest => 'west';
+
+  @override
+  String compassLeanToward(String point, String toward) {
+    return '$point, a little towards the $toward';
+  }
+
+  @override
+  String compassLeanMore(String point, String more, String less) {
+    return '$point, a little more $more than $less';
+  }
+
+  @override
+  String get qiblaNoCompassHint =>
+      'This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets.';
+
+  @override
+  String get qiblaNeedsMoment => 'The compass needs a moment';
+
+  @override
+  String get qiblaSteadyNow => 'It’s steady now';
 }

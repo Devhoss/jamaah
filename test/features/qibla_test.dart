@@ -155,28 +155,32 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
 
     expect(find.text(t.qiblaNoCompassTitle), findsOneWidget);
-    expect(
-      find.text(t.qiblaNoCompassBody('$bearing', cairo.displayName)),
-      findsOneWidget,
-    );
+    expect(find.text(t.qiblaNoCompassHint), findsOneWidget);
     expect(find.text(t.qiblaDegrees('$bearing')), findsOneWidget);
+    // Cairo's 136° is south-east, in words.
+    expect(find.text(t.compassPointSouthEast), findsOneWidget);
   });
 
-  testApp('a low-accuracy compass asks to be calibrated, and says how', (
+  testApp('a low-accuracy compass asks for a moment, says how, then says steady', (
     tester,
   ) async {
     await open(tester);
     await heading(tester, 100, accuracy: 45);
-    expect(find.text(t.qiblaNeedsCalibration), findsOneWidget);
+    expect(find.text(t.qiblaNeedsMoment), findsOneWidget);
+    expect(find.text(t.qiblaCalibrateBody), findsOneWidget);
 
-    await tester.tap(find.text(t.qiblaCalibrate).first);
+    final how = find.text(t.qiblaCalibrate);
+    await tester.ensureVisible(how);
+    await tester.pumpAndSettle();
+    await tester.tap(how);
     await tester.pumpAndSettle();
     expect(find.text(t.qiblaCalibrateTitle), findsOneWidget);
     await tester.tap(find.text(t.qiblaCalibrateDone));
     await tester.pumpAndSettle();
 
     await heading(tester, 100);
-    expect(find.text(t.qiblaNeedsCalibration), findsNothing);
+    expect(find.text(t.qiblaNeedsMoment), findsNothing);
+    expect(find.text(t.qiblaSteadyNow), findsOneWidget);
   });
 
   testApp('the distance to the Kaaba is shown', (tester) async {

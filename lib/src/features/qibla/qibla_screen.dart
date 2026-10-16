@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' show PathMetric;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,20 +10,22 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../../app/compass.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../domain/place.dart';
 import '../../domain/qibla.dart' as qibla;
-import '../components/app_widgets.dart';
+import '../../domain/qibla_words.dart';
 import '../location/location_sheet.dart';
 import '../location/place_copy.dart';
+import '../settings/settings_kit.dart';
 
-/// The Qibla: a supporting feature, never dominant (AGENTS.md).
+/// The Qibla (Horizon spec §4.7): a supporting tab, never dominant
+/// (AGENTS.md). The sky header names the place and the distance; on the
+/// surface below, the dial.
 ///
 /// The bearing is worked out on the device from the saved place, so it is
 /// always shown, compass or not. With a compass the dial turns with the phone,
 /// corrected from magnetic to true north; without one, the bearing stands on
-/// its own with a line on how to use it.
+/// its own with the direction in words and a line on how to use it.
 class QiblaScreen extends ConsumerWidget {
   const QiblaScreen({super.key});
 
@@ -41,6 +44,9 @@ class QiblaScreen extends ConsumerWidget {
 /// How long the compass may stay silent before the screen says there is none.
 const _noCompassAfter = Duration(seconds: 3);
 
+/// Within this many degrees the phone faces the Qibla.
+const _alignedWithin = 3;
+
 class _QiblaView extends ConsumerStatefulWidget {
   const _QiblaView({required this.place, super.key});
 
@@ -57,6 +63,9 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
   double? _declination;
   bool _noCompass = false;
   bool _wasAligned = false;
+
+  /// The compass needed calibrating and no longer does: say it is steady.
+  bool _steadyAgain = false;
 
   /// The dial's angle as one continuous number, so turning past north spins
   /// the short way instead of all the way round.
@@ -90,7 +99,13 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
     final heading = qibla.trueHeading(reading.heading, _declination ?? 0);
     final current = (-_dialTurns * 360) % 360;
     final step = _shortest(current, heading);
+    final wasUnsteady = _reading?.needsCalibration ?? false;
     setState(() {
+      if (reading.needsCalibration) {
+        _steadyAgain = false;
+      } else if (wasUnsteady) {
+        _steadyAgain = true;
+      }
       _reading = reading;
       _noCompass = false;
       _dialTurns -= step / 360;
@@ -115,8 +130,8 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
     final place = widget.place;
     final bearing = qibla.qiblaBearingRounded(
       latitude: place.latitude,
@@ -129,7 +144,8 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
     final turn = heading == null
         ? null
         : qibla.angleDifference(heading.round() % 360, bearing);
-    final aligned = turn != null && turn.abs() <= 3;
+    final aligned = turn != null && turn.abs() <= _alignedWithin;
+    final unsteady = reading?.needsCalibration ?? false;
 
     final distance =
         NumberFormat.decimalPattern(
@@ -140,106 +156,104 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
               .round(),
         );
     final placeName = placeLabel(l10n, place);
+    final big = type.display.copyWith(
+      fontSize: 56,
+      color: s.onSurface,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.xxl,
-        AppSpace.lg,
-        AppSpace.xxl,
-        AppSpace.xxl,
-      ),
-      children: [
-        PageTitle(l10n.tabQibla),
-        Text(
-          l10n.qiblaFrom(placeName),
-          style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+    // From the screen, not a LayoutBuilder: the panel is measured by its
+    // intrinsic height, which a LayoutBuilder cannot answer.
+    final dialSize = math.min(
+      MediaQuery.sizeOf(context).width - 2 * HorizonShape.gutterSurface,
+      280.0,
+    );
+    Widget dial({required bool turning}) => Center(
+      child: Semantics(
+        label: l10n.qiblaDialLabel('$bearing'),
+        excludeSemantics: true,
+        child: _Dial(
+          size: dialSize,
+          bearing: bearing.toDouble(),
+          dialTurns: turning ? _dialTurns : 0,
+          aligned: aligned,
         ),
-        if (_noCompass)
-          AppPrompt(
-            children: [
-              Text(
-                l10n.qiblaNoCompassTitle,
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: AppSpace.xs),
-              Text(
-                l10n.qiblaDegrees('$bearing'),
-                style: theme.textTheme.displayMedium,
-              ),
-              const SizedBox(height: AppSpace.xs),
-              Text(
-                l10n.qiblaNoCompassBody('$bearing', placeName),
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
-          )
-        else ...[
-          const SizedBox(height: AppSpace.lg),
-          Center(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final size = math.min(constraints.maxWidth, 300.0);
-                return Semantics(
-                  label: l10n.qiblaDialLabel('$bearing'),
-                  excludeSemantics: true,
-                  child: _Dial(
-                    size: size,
-                    bearing: bearing.toDouble(),
-                    dialTurns: _dialTurns,
-                    aligned: aligned,
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: AppSpace.lg),
+      ),
+    );
+
+    return SettingsScaffold(
+      title: l10n.tabQibla,
+      lead: l10n.qiblaLead(placeName, distance),
+      onTab: true,
+      children: [
+        const SizedBox(height: 12),
+        if (_noCompass) ...[
+          dial(turning: false),
+          const SizedBox(height: 14),
+          Center(child: Text(l10n.qiblaDegrees('$bearing'), style: big)),
           Center(
             child: Text(
-              l10n.qiblaDegrees('$bearing'),
-              style: theme.textTheme.displayMedium,
-            ),
-          ),
-          Center(
-            child: Text(
-              switch (turn) {
-                null => l10n.qiblaFromNorth('$bearing'),
-                _ when aligned => l10n.qiblaAligned,
-                final t when t > 0 => l10n.qiblaTurnRight('$t'),
-                final t => l10n.qiblaTurnLeft('${-t}'),
-              },
+              compassWordsText(l10n, CompassWords.of(bearing.toDouble())),
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: aligned ? theme.colorScheme.primary : null,
+              style: type.row.copyWith(color: s.onSurface),
+            ),
+          ),
+          const SizedBox(height: 14),
+          SettingsHeading(l10n.qiblaNoCompassTitle, top: 0),
+          SettingsNote(l10n.qiblaNoCompassHint, top: 0),
+        ] else ...[
+          dial(turning: true),
+          const SizedBox(height: 14),
+          Center(child: Text(l10n.qiblaDegrees('$bearing'), style: big)),
+          Semantics(
+            liveRegion: aligned,
+            child: Center(
+              child: Text(
+                switch (turn) {
+                  null => l10n.qiblaFromNorth('$bearing'),
+                  _ when aligned => l10n.qiblaAligned,
+                  final t when t > 0 => l10n.qiblaTurnRight('$t'),
+                  final t => l10n.qiblaTurnLeft('${-t}'),
+                },
+                textAlign: TextAlign.center,
+                style: type.row.copyWith(
+                  color: s.onSurface,
+                  fontWeight: aligned ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
             ),
           ),
-          if (reading?.needsCalibration ?? false) ...[
-            const SizedBox(height: AppSpace.md),
-            _CalibrationNote(onHow: () => _showCalibration(context)),
+          if (unsteady) ...[
+            const SizedBox(height: 18),
+            const _CalibrationCard(),
+          ] else if (_steadyAgain) ...[
+            const SizedBox(height: 10),
+            Semantics(
+              liveRegion: true,
+              child: Center(
+                child: Text(
+                  l10n.qiblaSteadyNow,
+                  style: type.meta.copyWith(color: s.onSurfaceMuted),
+                ),
+              ),
+            ),
           ],
-        ],
-        const SizedBox(height: AppSpace.lg),
-        Text(l10n.qiblaDistance(distance), style: theme.textTheme.bodyMedium),
-        if (!_noCompass) ...[
-          const SizedBox(height: AppSpace.xs),
-          Text(
-            l10n.qiblaHoldFlat,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
-          const SizedBox(height: AppSpace.xs),
-          Text(
+          const SizedBox(height: 18),
+          SettingsNote(l10n.qiblaHoldFlat, top: 0),
+          SettingsNote(
             _declination == null
                 ? l10n.qiblaMagneticNote
                 : l10n.qiblaDeclinationNote(
                     _declination!.abs().toStringAsFixed(1),
                   ),
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+            top: 4,
           ),
+          const SizedBox(height: 4),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
+            child: SettingsTextButton(
+              label: l10n.qiblaCalibrate,
               onPressed: () => _showCalibration(context),
-              child: Text(l10n.qiblaCalibrate),
             ),
           ),
         ],
@@ -247,6 +261,40 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
     );
   }
 }
+
+/// "South-west, a little more west than south".
+String compassWordsText(AppLocalizations l10n, CompassWords w) {
+  final point = compassPointName(l10n, w.point);
+  final toward = w.toward;
+  if (toward == null) return point;
+  final away = w.away;
+  return away == null
+      ? l10n.compassLeanToward(point, compassLowerName(l10n, toward))
+      : l10n.compassLeanMore(
+          point,
+          compassLowerName(l10n, toward),
+          compassLowerName(l10n, away),
+        );
+}
+
+String compassPointName(AppLocalizations l10n, CompassPoint p) => switch (p) {
+  CompassPoint.north => l10n.compassPointNorth,
+  CompassPoint.northEast => l10n.compassPointNorthEast,
+  CompassPoint.east => l10n.compassPointEast,
+  CompassPoint.southEast => l10n.compassPointSouthEast,
+  CompassPoint.south => l10n.compassPointSouth,
+  CompassPoint.southWest => l10n.compassPointSouthWest,
+  CompassPoint.west => l10n.compassPointWest,
+  CompassPoint.northWest => l10n.compassPointNorthWest,
+};
+
+/// A cardinal inside a sentence: "west".
+String compassLowerName(AppLocalizations l10n, CompassPoint p) => switch (p) {
+  CompassPoint.north => l10n.compassLowerNorth,
+  CompassPoint.east => l10n.compassLowerEast,
+  CompassPoint.south => l10n.compassLowerSouth,
+  _ => l10n.compassLowerWest,
+};
 
 /// Degrees to add to [from] to reach [to] the short way: within ±180.
 double _shortest(double from, double to) {
@@ -256,74 +304,180 @@ double _shortest(double from, double to) {
 
 Future<void> _showCalibration(BuildContext context) {
   final l10n = AppLocalizations.of(context);
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (sheetContext) => SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.lg,
+  return showSettingsSheet<void>(
+    context,
+    builder: (sheetContext) => SettingsSheetBody(
+      title: l10n.qiblaCalibrateTitle,
+      children: [
+        const _FigureEight(size: 120),
+        const SizedBox(height: 12),
+        SettingsNote(l10n.qiblaCalibrateBody, top: 0),
+        const SizedBox(height: 16),
+        SettingsButton(
+          label: l10n.qiblaCalibrateDone,
+          filled: true,
+          onPressed: () => Navigator.of(sheetContext).pop(),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.qiblaCalibrateTitle,
-              style: Theme.of(sheetContext).textTheme.titleLarge,
-            ),
-            const SizedBox(height: AppSpace.sm),
-            Text(
-              l10n.qiblaCalibrateBody,
-              style: Theme.of(sheetContext).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: AppSpace.lg),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: () => Navigator.of(sheetContext).pop(),
-                child: Text(l10n.qiblaCalibrateDone),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     ),
   );
 }
 
-class _CalibrationNote extends StatelessWidget {
-  const _CalibrationNote({required this.onHow});
-
-  final VoidCallback onHow;
+/// "The compass needs a moment", with the figure-eight to draw.
+class _CalibrationCard extends StatelessWidget {
+  const _CalibrationCard();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        Icon(Icons.explore_off_outlined, color: AppInk.of(context).muted),
-        const SizedBox(width: AppSpace.sm),
-        Expanded(
-          child: Text(
-            l10n.qiblaNeedsCalibration,
-            style: theme.textTheme.bodyMedium,
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: s.well,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          const _FigureEight(size: 72),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.qiblaNeedsMoment,
+                  style: type.row.copyWith(color: s.onSurface),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.qiblaCalibrateBody,
+                  style: type.meta.copyWith(
+                    height: 1.4,
+                    color: s.onSurfaceMuted,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        TextButton(onPressed: onHow, child: Text(l10n.qiblaCalibrate)),
-      ],
+        ],
+      ),
     );
   }
 }
 
-/// The compass card: it turns with the phone so north stays north, and the
-/// Qibla mark sits at its bearing on it. The pointer at the top is where the
-/// phone points.
+/// A figure-eight with a short stroke travelling along it (still under
+/// reduce motion).
+class _FigureEight extends StatefulWidget {
+  const _FigureEight({required this.size});
+
+  final double size;
+
+  @override
+  State<_FigureEight> createState() => _FigureEightState();
+}
+
+class _FigureEightState extends State<_FigureEight>
+    with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: widget.size,
+        height: widget.size * 0.6,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => CustomPaint(
+            painter: _FigureEightPainter(
+              t: _controller.value,
+              track: s.divider,
+              stroke: s.accent,
+              moving: _controller.isAnimating,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FigureEightPainter extends CustomPainter {
+  _FigureEightPainter({
+    required this.t,
+    required this.track,
+    required this.stroke,
+    required this.moving,
+  });
+
+  final double t;
+  final Color track;
+  final Color stroke;
+  final bool moving;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // A lemniscate of Gerono, sampled.
+    final path = Path();
+    for (var i = 0; i <= 64; i++) {
+      final a = i / 64 * 2 * math.pi;
+      final p = Offset(
+        size.width / 2 + math.sin(a) * (size.width / 2 - 4),
+        size.height / 2 + math.sin(a) * math.cos(a) * (size.height - 8),
+      );
+      i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+    }
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 3;
+    canvas.drawPath(path, line..color = moving ? track : stroke);
+    if (!moving) return;
+    final PathMetric metric = path.computeMetrics().first;
+    final start = metric.length * t;
+    final piece = metric.length * 0.18;
+    canvas.drawPath(
+      metric.extractPath(start, math.min(start + piece, metric.length)),
+      line..color = stroke,
+    );
+    if (start + piece > metric.length) {
+      canvas.drawPath(
+        metric.extractPath(0, start + piece - metric.length),
+        line,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_FigureEightPainter old) =>
+      old.t != t || old.stroke != stroke || old.moving != moving;
+}
+
+/// The compass card (spec §4.7): it turns with the phone so north stays
+/// north, with the Kaaba's square at the Qibla bearing on it. The notch at the
+/// top is where the phone points; it never turns.
 class _Dial extends StatelessWidget {
   const _Dial({
     required this.size,
@@ -339,192 +493,165 @@ class _Dial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final ink = AppInk.of(context);
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
-    final colors = _DialColors(
-      face: aligned ? ink.sage : scheme.surface,
-      line: scheme.outlineVariant,
-      ink: scheme.onSurface,
-      muted: ink.muted,
-      mark: scheme.primary,
-      onMark: scheme.onPrimary,
-    );
-
+    final l10n = AppLocalizations.of(context);
+    final s = HorizonTheme.of(context).surfaces;
+    final type = HorizonTheme.typeOf(context);
+    final still = MediaQuery.disableAnimationsOf(context);
     return SizedBox.square(
       dimension: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          AnimatedRotation(
-            turns: dialTurns,
-            duration: reduceMotion
-                ? Duration.zero
-                : const Duration(milliseconds: 200),
-            child: CustomPaint(
-              size: Size.square(size),
-              painter: _DialPainter(
-                bearing: bearing,
-                colors: colors,
-                textDirection: Directionality.of(context),
-                north: AppLocalizations.of(context).compassNorth,
-                south: AppLocalizations.of(context).compassSouth,
-              ),
-            ),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(end: dialTurns),
+        duration: still ? Duration.zero : const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        builder: (context, turns, _) => CustomPaint(
+          painter: _DialPainter(
+            rotation: turns * 2 * math.pi,
+            bearing: bearing,
+            aligned: aligned,
+            ring: s.divider,
+            ink: s.onSurface,
+            muted: s.onSurfaceMuted,
+            mark: s.accent,
+            labels: [
+              l10n.compassNorth,
+              l10n.compassEast,
+              l10n.compassSouth,
+              l10n.compassWest,
+            ],
+            labelStyle: type.meta,
+            textDirection: Directionality.of(context),
           ),
-          Positioned(
-            top: 0,
-            child: CustomPaint(
-              size: const Size(20, 16),
-              painter: _PointerPainter(scheme.primary),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
-}
-
-class _DialColors {
-  const _DialColors({
-    required this.face,
-    required this.line,
-    required this.ink,
-    required this.muted,
-    required this.mark,
-    required this.onMark,
-  });
-
-  final Color face;
-  final Color line;
-  final Color ink;
-  final Color muted;
-  final Color mark;
-  final Color onMark;
 }
 
 class _DialPainter extends CustomPainter {
   _DialPainter({
+    required this.rotation,
     required this.bearing,
-    required this.colors,
+    required this.aligned,
+    required this.ring,
+    required this.ink,
+    required this.muted,
+    required this.mark,
+    required this.labels,
+    required this.labelStyle,
     required this.textDirection,
-    required this.north,
-    required this.south,
   });
 
+  /// The dial's turn in radians, clockwise.
+  final double rotation;
   final double bearing;
-  final _DialColors colors;
+  final bool aligned;
+  final Color ring;
+  final Color ink;
+  final Color muted;
+  final Color mark;
+
+  /// N, E, S, W.
+  final List<String> labels;
+  final TextStyle labelStyle;
   final TextDirection textDirection;
-  final String north;
-  final String south;
+
+  Offset _at(Offset c, double radius, double radians) =>
+      c + Offset(math.sin(radians) * radius, -math.cos(radians) * radius);
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    final r = size.width / 2 - 8;
+    final r = size.width / 2 - 14;
 
-    canvas.drawCircle(c, r, Paint()..color = colors.face);
+    if (aligned) {
+      canvas.drawCircle(
+        c,
+        r + 8,
+        Paint()
+          ..color = mark.withValues(alpha: 0.16)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+      );
+    }
     canvas.drawCircle(
       c,
       r,
       Paint()
-        ..color = colors.line
+        ..color = aligned ? mark : ring
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+        ..strokeWidth = aligned ? 4 : 1.5,
     );
 
+    // 36 ticks, every third longer.
     final tick = Paint()
-      ..color = colors.muted
+      ..color = muted
       ..strokeCap = StrokeCap.round;
-    for (var deg = 0; deg < 360; deg += 10) {
-      final major = deg % 90 == 0;
-      tick.strokeWidth = major ? 2 : 1;
-      final a = _radians(deg.toDouble());
-      final outer = r - 6;
-      final inner = r - (major ? 18 : 12);
-      canvas.drawLine(
-        c + Offset(math.sin(a) * inner, -math.cos(a) * inner),
-        c + Offset(math.sin(a) * outer, -math.cos(a) * outer),
-        tick,
-      );
+    for (var i = 0; i < 36; i++) {
+      final major = i % 3 == 0;
+      tick.strokeWidth = major ? 2 : 1.2;
+      final a = rotation + i * 10 * math.pi / 180;
+      canvas.drawLine(_at(c, r - (major ? 16 : 10), a), _at(c, r - 4, a), tick);
     }
 
-    _label(canvas, c, r - 36, 0, north, colors.ink, 16, FontWeight.w700);
-    _label(canvas, c, r - 36, 180, south, colors.muted, 14, FontWeight.w400);
+    // N, E, S, W stay upright as the dial turns; N is bold.
+    for (var i = 0; i < 4; i++) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: labels[i],
+          style: labelStyle.copyWith(
+            fontSize: i == 0 ? 16 : 14,
+            fontWeight: i == 0 ? FontWeight.w700 : FontWeight.w500,
+            color: i == 0 ? ink : muted,
+          ),
+        ),
+        textDirection: textDirection,
+      )..layout();
+      final at = _at(c, r - 32, rotation + i * math.pi / 2);
+      painter.paint(canvas, at - Offset(painter.width / 2, painter.height / 2));
+    }
 
-    // The Qibla mark: a filled disc at the bearing, with a small square.
-    final a = _radians(bearing);
-    final markR = r - 52;
-    final at = c + Offset(math.sin(a) * markR, -math.cos(a) * markR);
+    // The line to the Kaaba's small square, at the Qibla bearing.
+    final a = rotation + bearing * math.pi / 180;
+    final square = _at(c, r - 54, a);
     canvas.drawLine(
       c,
-      at,
+      square,
       Paint()
-        ..color = colors.mark.withValues(alpha: 0.35)
-        ..strokeWidth = 2,
+        ..color = mark
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round,
     );
-    canvas.drawCircle(at, 16, Paint()..color = colors.mark);
+    canvas.save();
+    canvas.translate(square.dx, square.dy);
+    canvas.rotate(a);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromCenter(center: at, width: 14, height: 14),
-        const Radius.circular(2),
+        Rect.fromCenter(center: Offset.zero, width: 16, height: 16),
+        const Radius.circular(3),
       ),
-      Paint()..color = colors.onMark,
+      Paint()..color = mark,
     );
-    canvas.drawCircle(c, 4, Paint()..color = colors.muted);
-  }
+    canvas.restore();
+    canvas.drawCircle(c, 4, Paint()..color = ink);
 
-  void _label(
-    Canvas canvas,
-    Offset c,
-    double radius,
-    double deg,
-    String text,
-    Color color,
-    double fontSize,
-    FontWeight weight,
-  ) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(color: color, fontSize: fontSize, fontWeight: weight),
-      ),
-      textDirection: textDirection,
-    )..layout();
-    final a = _radians(deg);
-    final at = c + Offset(math.sin(a) * radius, -math.cos(a) * radius);
-    painter.paint(canvas, at - Offset(painter.width / 2, painter.height / 2));
+    // The phone's forward notch, fixed at the top.
+    final notch = Path()
+      ..moveTo(c.dx, c.dy - r + 2)
+      ..lineTo(c.dx - 8, c.dy - r - 12)
+      ..lineTo(c.dx + 8, c.dy - r - 12)
+      ..close();
+    canvas.drawPath(notch, Paint()..color = ink);
   }
 
   @override
   bool shouldRepaint(_DialPainter old) =>
+      old.rotation != rotation ||
       old.bearing != bearing ||
-      old.colors.face != colors.face ||
-      old.colors.mark != colors.mark ||
-      old.colors.ink != colors.ink ||
-      old.north != north;
+      old.aligned != aligned ||
+      old.ring != ring ||
+      old.ink != ink ||
+      old.mark != mark ||
+      old.labels[0] != labels[0];
 }
-
-class _PointerPainter extends CustomPainter {
-  _PointerPainter(this.color);
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()
-      ..moveTo(size.width / 2, size.height)
-      ..lineTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..close();
-    canvas.drawPath(path, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_PointerPainter old) => old.color != color;
-}
-
-double _radians(double degrees) => degrees * math.pi / 180;
 
 class _NeedsPlace extends StatelessWidget {
   const _NeedsPlace();
@@ -532,22 +659,17 @@ class _NeedsPlace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpace.xxl),
+    return SettingsScaffold(
+      title: l10n.tabQibla,
+      onTab: true,
       children: [
-        const SizedBox(height: AppSpace.xxl),
-        AppPrompt(
-          children: [
-            Text(l10n.qiblaNeedsPlaceTitle, style: theme.textTheme.titleLarge),
-            const SizedBox(height: AppSpace.sm),
-            Text(l10n.qiblaNeedsPlaceBody, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: AppSpace.md),
-            FilledButton(
-              onPressed: () => showLocationSheet(context),
-              child: Text(l10n.todayChoosePlace),
-            ),
-          ],
+        SettingsHeading(l10n.qiblaNeedsPlaceTitle, top: 4),
+        SettingsNote(l10n.qiblaNeedsPlaceBody, top: 0),
+        const SizedBox(height: 14),
+        SettingsButton(
+          label: l10n.todayChoosePlace,
+          filled: true,
+          onPressed: () => showLocationSheet(context),
         ),
       ],
     );

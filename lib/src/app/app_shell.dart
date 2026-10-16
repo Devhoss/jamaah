@@ -46,7 +46,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           onNavColors: (colors) => setState(() => _skyNav = colors),
         ),
         1 => const MosquesScreen(),
-        2 => const SafeArea(bottom: false, child: QiblaScreen()),
+        2 => const QiblaScreen(),
         // Under the sky, like Mosques: SkyPage keeps the status bar clear.
         _ => const SettingsPage(asTab: true),
       },

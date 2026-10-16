@@ -693,3 +693,23 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 680 | `helpCheckBody` | The list shows every alert and reminder waiting on this phone, and says if a permission is missing. | تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص. |
 | 681 | `helpAbout` | About | عن التطبيق |
 | 682 | `methodListLead` | Each method's angles, and where it is used. | زوايا كل طريقة، وأين تُستعمل. |
+| 683 | `compassEast` | E | ق |
+| 684 | `compassWest` | W | غ |
+| 685 | `qiblaLead` | From {place} · {distance} km to the Kaaba | من {place} · {distance} كم إلى الكعبة |
+| 686 | `compassPointNorth` | North | الشمال |
+| 687 | `compassPointNorthEast` | North-east | الشمال الشرقي |
+| 688 | `compassPointEast` | East | الشرق |
+| 689 | `compassPointSouthEast` | South-east | الجنوب الشرقي |
+| 690 | `compassPointSouth` | South | الجنوب |
+| 691 | `compassPointSouthWest` | South-west | الجنوب الغربي |
+| 692 | `compassPointWest` | West | الغرب |
+| 693 | `compassPointNorthWest` | North-west | الشمال الغربي |
+| 694 | `compassLowerNorth` | north | الشمال |
+| 695 | `compassLowerEast` | east | الشرق |
+| 696 | `compassLowerSouth` | south | الجنوب |
+| 697 | `compassLowerWest` | west | الغرب |
+| 698 | `compassLeanToward` | {point}, a little towards the {toward} | {point}، مع ميل قليل نحو {toward} |
+| 699 | `compassLeanMore` | {point}, a little more {more} than {less} | {point}، أقرب قليلًا إلى {more} منه إلى {less} |
+| 700 | `qiblaNoCompassHint` | This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets. | لا بوصلة في هذا الهاتف، فلا يستطيع السهم أن يتبعك. وجّهه نحو اتجاه تعرفه، كجهة غروب الشمس. |
+| 701 | `qiblaNeedsMoment` | The compass needs a moment | البوصلة تحتاج إلى لحظة |
+| 702 | `qiblaSteadyNow` | It’s steady now | استقرّت البوصلة الآن |
