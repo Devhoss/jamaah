@@ -118,6 +118,22 @@ void main() {
     expect(ids, contains('miscellaneous'));
   });
 
+  test('keeps a channel whose notification is showing, such as a test', () async {
+    final gateway = FakeNotificationGateway();
+    final shown = n(9, fromNow: Duration.zero);
+    await gateway.showNow(
+      ScheduledItem(
+        planned: shown,
+        channel: channelFor(shown),
+        title: 't',
+        body: 'b',
+      ),
+    );
+    // Nothing is planned: every channel of the app is unused.
+    await NotificationSync(gateway).apply(plan: const [], now: now, textFor: text);
+    expect(await gateway.channelIds(), contains(channelFor(shown).id));
+  });
+
   test(
     'denied exact alarms degrade to inexact timing, and the report says so',
     () async {

@@ -85,6 +85,13 @@ class LocalNotificationsGateway implements NotificationGateway {
   }
 
   @override
+  Future<Set<String>> activeChannelIds() async {
+    await _init();
+    final active = await _android?.getActiveNotifications() ?? const [];
+    return {for (final n in active) ?n.channelId};
+  }
+
+  @override
   Future<void> deleteChannel(String id) async {
     await _init();
     await _android?.deleteNotificationChannel(channelId: id);

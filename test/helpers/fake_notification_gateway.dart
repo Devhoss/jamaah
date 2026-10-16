@@ -34,6 +34,11 @@ class FakeNotificationGateway implements NotificationGateway {
   };
 
   @override
+  Future<Set<String>> activeChannelIds() async => {
+    for (final item in shownNow) item.channel.id,
+  };
+
+  @override
   Future<void> deleteChannel(String id) async {
     channels.remove(id);
     foreignChannels.remove(id);

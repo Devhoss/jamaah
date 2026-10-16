@@ -53,6 +53,9 @@ abstract interface class NotificationGateway {
   /// Ids of every channel this app has created.
   Future<Set<String>> channelIds();
 
+  /// Ids of the channels with a notification on screen or in the shade now.
+  Future<Set<String>> activeChannelIds();
+
   Future<void> deleteChannel(String id);
 
   Future<List<PendingItem>> pending();
@@ -177,7 +180,12 @@ class NotificationSync {
 
     // Channels nothing uses any more: a retired tone version, or a mode no
     // prayer uses. Removing them keeps the system settings list honest.
-    final inUse = {for (final c in channels) c.id};
+    // A channel with a notification showing is kept too: deleting it would
+    // take that notification away (a test sent a moment ago, 2026-10-16).
+    final inUse = {
+      for (final c in channels) c.id,
+      ...await _gateway.activeChannelIds(),
+    };
     for (final id in await _gateway.channelIds()) {
       if (id.startsWith(kChannelPrefix) && !inUse.contains(id)) {
         await _gateway.deleteChannel(id);
