@@ -357,8 +357,8 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 344 | `settingsPrayerTimesSection` | Prayer times | مواقيت الصلاة |
 | 345 | `settingsMethod` | Calculation method | طريقة الحساب |
 | 346 | `settingsAsr` | Asr method | طريقة حساب العصر |
-| 347 | `settingsHighLatitude` | Higher latitudes | خطوط العرض العليا |
-| 348 | `settingsAdjustments` | Manual adjustments | تعديلات يدوية |
+| 347 | `settingsHighLatitude` | Far north or south | أقصى الشمال أو الجنوب |
+| 348 | `settingsAdjustments` | Adjust times by minutes | ضبط الأوقات بالدقائق |
 | 349 | `settingsHijri` | Hijri date | التاريخ الهجري |
 | 350 | `zoneNotePlace` | Times are local time in {place} ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي في {place} ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
 | 351 | `inFlightTitle` | In flight | على متن الطائرة |
@@ -495,7 +495,7 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 482 | `settingsReminderTest` | Send a test reminder | إرسال تذكير تجريبي |
 | 483 | `settingsReminderTestSent` | Test reminder sent. | أُرسل التذكير التجريبي. |
 | 484 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
-| 485 | `settingsPauseAllIqamaHint` | No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected. | لا تذكيرات جماعة من أي مسجد حتى توقف هذا الخيار. تبقى أوقات الإقامة محفوظة، ولا تتأثر تنبيهات الأذان. |
+| 485 | `settingsPauseAllIqamaHint` | From every mosque. Iqama times are kept, and Adhan alerts carry on. | من كل المساجد. تبقى أوقات الإقامة محفوظة، وتستمر تنبيهات الأذان. |
 | 486 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
 | 487 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
 | 488 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
@@ -650,3 +650,45 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 637 | `iqamaMoreMinutes` | One minute more | دقيقة أكثر |
 | 638 | `iqamaEarlier` | {minutes, plural, =1{1 minute earlier} other{{minutes} minutes earlier}} | {minutes, plural, =1{تقديم دقيقة} =2{تقديم دقيقتين} few{تقديم {minutes} دقائق} many{تقديم {minutes} دقيقة} other{تقديم {minutes} دقيقة}} |
 | 639 | `iqamaLater` | {minutes, plural, =1{1 minute later} other{{minutes} minutes later}} | {minutes, plural, =1{تأخير دقيقة} =2{تأخير دقيقتين} few{تأخير {minutes} دقائق} many{تأخير {minutes} دقيقة} other{تأخير {minutes} دقيقة}} |
+| 640 | `settingsBack` | Back | رجوع |
+| 641 | `settingsGroupEveryDay` | Every day | كل يوم |
+| 642 | `settingsGroupPreferences` | Preferences | التفضيلات |
+| 643 | `settingsGroupHelp` | Help | المساعدة |
+| 644 | `settingsLanguageLook` | Language and look | اللغة والمظهر |
+| 645 | `settingsHelpAbout` | Help and about | المساعدة وعن التطبيق |
+| 646 | `settingsHubFooter` | Iqama times live on each mosque, in the Mosques tab, not here. | أوقات الإقامة محفوظة في كل مسجد، في تبويب «المساجد»، لا هنا. |
+| 647 | `settingsPrayerTimesSummary` | {method} · Asr {asr} | {method} · العصر {asr} |
+| 648 | `settingsAlertsSummary` | {sound} · {on} of {total} on | {sound} · {on} من {total} مفعّلة |
+| 649 | `settingsSummaryPair` | {first} · {second} | {first} · {second} |
+| 650 | `settingsRemindersPausedShort` | All paused | كلها موقوفة مؤقتًا |
+| 651 | `settingsNoActiveMosque` | No active mosque | لا مسجد نشط |
+| 652 | `travelSummaryOff` | Off | متوقف |
+| 653 | `travelSummaryOn` | On | مفعّل |
+| 654 | `travelSummaryFollowing` | On · following your location | مفعّل · يتبع موقعك |
+| 655 | `settingsHelpSummary` | Introduction, late alerts, about | المقدمة، والتنبيهات المتأخرة، وعن التطبيق |
+| 656 | `settingsPrayerTimesLead` | How the times on Today are worked out. | كيف تُحسب الأوقات في «اليوم». |
+| 657 | `settingsAlertsLead` | What you hear at each Adhan. | ما تسمعه عند كل أذان. |
+| 658 | `settingsRemindersLead` | How the reminder before your mosque’s Iqama sounds. | صوت التذكير الذي يسبق إقامة مسجدك. |
+| 659 | `settingsTravelLead` | Times that follow you on a journey. | أوقات تتبعك في سفرك. |
+| 660 | `settingsLanguageLookLead` | The app’s language and theme. | لغة التطبيق ومظهره. |
+| 661 | `settingsHelpLead` | Getting started, late alerts, and this build. | البداية، والتنبيهات المتأخرة، وهذا الإصدار. |
+| 662 | `extraOnTodaySection` | Extra times on Today | أوقات إضافية في «اليوم» |
+| 663 | `extraAlertsAndTiming` | Alerts and timing | التنبيهات والتوقيت |
+| 664 | `extraNoAlerts` | No alerts | بلا تنبيهات |
+| 665 | `extraAlertsFor` | Alerts: {names} | التنبيهات: {names} |
+| 666 | `settingsAdvanced` | Advanced | متقدّم |
+| 667 | `highLatitudeLead` | When the night is short, Fajr and Isha need a rule. | حين يقصر الليل، يحتاج الفجر والعشاء إلى قاعدة. |
+| 668 | `alertsEachPrayer` | Each prayer | كل صلاة |
+| 669 | `alertsAlsoFromToday` | Also from Today: tap the sound beside any prayer. | ومن «اليوم» أيضًا: انقر الصوت بجانب أي صلاة. |
+| 670 | `alertsRecordings` | Recordings | التسجيلات |
+| 671 | `alertsSilentSection` | When the phone is on silent | حين يكون الهاتف على الوضع الصامت |
+| 672 | `settingsRemindersOnMosque` | Iqama times and which prayers remind you are set on each mosque. | أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد. |
+| 673 | `followNeedsTravel` | Available while travel mode is on. | متاح أثناء تفعيل وضع السفر. |
+| 674 | `travelInFlightValue` | Prayer times and the Qibla on a plane | أوقات الصلاة والقبلة على متن الطائرة |
+| 675 | `themeSkyNote` | The sky always follows the time of day. Dark keeps it dimmer. | السماء تتبع وقت النهار دائمًا، والوضع الداكن يجعلها أخفت. |
+| 676 | `helpLateAlerts` | Alerts arriving late? | هل تصل التنبيهات متأخرة؟ |
+| 677 | `helpLateAlertsLead` | Most often the phone is saving battery. | غالبًا ما يكون الهاتف يوفّر البطارية. |
+| 678 | `helpBatteryTitle` | Battery use | استخدام البطارية |
+| 679 | `helpCheckTitle` | Check what is scheduled | تحقّق ممّا هو مجدول |
+| 680 | `helpCheckBody` | The list shows every alert and reminder waiting on this phone, and says if a permission is missing. | تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص. |
+| 681 | `helpAbout` | About | عن التطبيق |

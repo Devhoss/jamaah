@@ -1,32 +1,20 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/app.dart';
-import '../../app/audio_preview.dart';
-import '../../app/build_info.dart';
 import '../../app/l10n/generated/app_localizations.dart';
-import '../../app/l10n/prayer_labels.dart';
 import '../../app/location_follower.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
 import '../../domain/adhan_recordings.dart';
 import '../../domain/place.dart';
 import '../../domain/prayer.dart';
-import '../components/app_widgets.dart';
-import '../mosques/mosque_detail_page.dart';
-import '../onboarding/onboarding_page.dart';
-import 'adhan_recordings_page.dart';
-import 'extra_times_page.dart';
+import 'adhan_alerts_page.dart';
 import 'jamaah_reminder_settings.dart';
-import 'prayer_alert_page.dart';
-import 'prayer_time_settings.dart';
-import 'scheduled_notifications_page.dart';
+import 'preference_pages.dart';
+import 'prayer_times_page.dart';
+import 'settings_kit.dart';
 
 String shortAdhanName(AppLocalizations l10n, ShortAdhan clip) =>
     switch (clip) {
@@ -96,381 +84,66 @@ Future<void> updateAdhanAlerts(
   await ref.read(settingsRepositoryProvider).saveAdhanAlerts(change(current));
 }
 
-/// Settings for what reaches the user and when (AGENTS.md). Iqama reminders are
-/// not configured here: they belong to each mosque, so this only points there.
+/// Settings (Horizon spec §4.9): six rows in three groups, each saying what
+/// it is set to now. Iqama times are not here: they belong to each mosque.
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({this.asTab = false, super.key});
 
-  /// Shown as the fourth tab (Horizon, 2026-10-15): no back arrow, and the
-  /// title sits on the page like the other tabs' titles.
+  /// Shown as the fourth tab (Horizon, 2026-10-15): no back arrow.
   final bool asTab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final settings =
         ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
-    final alerts = settings.adhanAlerts;
-    final travel = settings.travel;
     final active = ref.watch(activeMosqueProvider);
 
-    return Scaffold(
-      appBar: asTab ? null : AppBar(title: Text(l10n.settingsTitle)),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          asTab ? AppSpace.lg : 0,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: [
-          if (asTab) PageTitle(l10n.settingsTitle),
-          AppSectionHeader(l10n.settingsPrayerTimesSection),
-          const PrayerTimesSettingsSection(),
-          const SizedBox(height: AppSpace.md),
-          AppRows(
-            children: [
-              AppRow(
-                leading: null,
-                onTap: () => openExtraTimes(context),
-                title: _TwoLines(
-                  first: l10n.settingsExtraTimes,
-                  second: extraTimesSummary(l10n, settings.extraTimes),
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-            ],
-          ),
-          AppSectionHeader(l10n.settingsAdhanSection),
-          AppRows(
-            children: [
-              AppRow(
-                leading: null,
-                onTap: () => _chooseDefaultSound(context, ref, alerts),
-                // The value sits under the title rather than beside it, so a large text
-                // size wraps it instead of pushing the row off the screen.
-                title: _TwoLines(
-                  first: l10n.settingsDefaultSound,
-                  second: soundModeName(l10n, alerts.defaultSoundMode),
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-              AppRow(
-                leading: null,
-                onTap: () => _chooseShortAdhan(context, ref, alerts),
-                title: _TwoLines(
-                  first: l10n.settingsShortAdhan,
-                  second: shortAdhanName(l10n, alerts.shortAdhan),
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-              AppRow(
-                leading: null,
-                onTap: () => openAdhanRecordings(context),
-                title: _TwoLines(
-                  first: l10n.settingsFullRecording,
-                  second: recordingName(alerts),
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-              for (final prayer in Prayer.adhanPrayers)
-                AppRow(
-                  leading: null,
-                  muted: prayer == Prayer.sunrise,
-                  onTap: () => openPrayerAlert(context, prayer),
-                  title: _TwoLines(
-                    first: prayerName(l10n, prayer),
-                    second: alertSummary(l10n, alerts, prayer),
-                  ),
-                  trailing: Icon(Icons.chevron_right, color: ink.muted),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.md),
-          _FullScreenRow(alerts: alerts),
-          const SizedBox(height: AppSpace.md),
-          AppRows(
-            children: [
-              for (final (target, title) in [
-                (RingTarget.adhan, l10n.settingsAdhanRingInSilent),
-                (RingTarget.preAdhan, l10n.settingsPreAdhanRingInSilent),
-              ])
-                SwitchListTile(
-                  title: Text(title),
-                  subtitle: Text(
-                    alerts.ringInSilentFor(target) == RingCoverage.some
-                        ? l10n.ringInSilentSome
-                        : l10n.alertRingInSilentHint,
-                  ),
-                  // A mix reads as off: one tap rings them all.
-                  value: alerts.ringInSilentFor(target) == RingCoverage.all,
-                  onChanged: (on) => updateAdhanAlerts(
-                    ref,
-                    (a) => a.withRingInSilentForAll(target, on: on),
-                  ),
-                ),
-            ],
-          ),
-          AppSectionHeader(l10n.settingsIqamaSection),
-          Text(l10n.settingsIqamaBody, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: AppSpace.sm),
-          if (active == null)
-            Text(
-              l10n.settingsIqamaNoMosque,
-              style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-            )
-          else
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: OutlinedButton(
-                onPressed: () => openMosqueDetail(context, active.id),
-                child: Text(l10n.settingsIqamaOpenActive(active.name)),
-              ),
-            ),
-          const SizedBox(height: AppSpace.md),
-          const JamaahReminderSoundRows(),
-          const SizedBox(height: AppSpace.md),
-          AppRows(
-            children: [
-              SwitchListTile(
-                title: Text(l10n.settingsPauseAllIqama),
-                subtitle: Text(l10n.settingsPauseAllIqamaHint),
-                value: travel.pauseAllIqamaReminders,
-                onChanged: (on) => ref
-                    .read(settingsRepositoryProvider)
-                    .saveTravel(travel.copyWith(pauseAllIqamaReminders: on)),
-              ),
-            ],
-          ),
-          AppSectionHeader(l10n.settingsTravelSection),
-          AppRows(
-            children: [
-              SwitchListTile(
-                secondary: Icon(
-                  travel.travelMode ? Icons.flight : Icons.flight_outlined,
-                ),
-                title: Text(l10n.settingsTravelMode),
-                subtitle: Text(l10n.settingsTravelModeHint),
-                value: travel.travelMode,
-                onChanged: (on) => setTravelMode(context, ref, on),
-              ),
-              SwitchListTile(
-                title: Text(l10n.settingsFollowLocation),
-                subtitle: Text(l10n.settingsFollowLocationHint),
-                value: travel.followLocation,
-                onChanged: (on) => _setFollow(context, ref, on),
-              ),
-            ],
-          ),
-          AppSectionHeader(l10n.settingsAppearanceSection),
-          AppRows(
-            children: [
-              AppRow(
-                leading: null,
-                onTap: () => _chooseLanguage(context, ref, settings.language),
-                title: _TwoLines(
-                  first: l10n.settingsLanguage,
-                  second: languageName(l10n, settings.language),
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-              AppRow(
-                leading: null,
-                onTap: () => _chooseTheme(context, ref, settings.themeMode),
-                title: _TwoLines(
-                  first: l10n.settingsTheme,
-                  second: themeModeName(l10n, settings.themeMode),
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-            ],
-          ),
-          AppSectionHeader(l10n.settingsNotificationsSection),
-          AppRows(
-            children: [
-              AppRow(
-                leading: null,
-                onTap: () => openScheduledNotifications(context),
-                title: Text(l10n.scheduledTitle),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.lg),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
-              onPressed: () => replayOnboarding(context),
-              child: Text(l10n.settingsShowIntro),
-            ),
-          ),
-          Text(
-            l10n.aboutBody,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
-          const SizedBox(height: AppSpace.sm),
-          // Which build this is, for testers' reports; left to right in
-          // either language.
-          Text(
-            buildLabel(),
-            textDirection: TextDirection.ltr,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
-        ],
-      ),
-    );
-  }
+    void go(Widget page) => pushSettingsPage(context, page);
 
-  /// The option is the user's tap, so the location dialog may show now; if the
-  /// device says no, the option stays off and the reason is shown.
-  Future<void> _setFollow(BuildContext context, WidgetRef ref, bool on) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = AppLocalizations.of(context);
-    final failure = await ref
-        .read(locationFollowerProvider)
-        .setFollowLocation(on);
-    if (failure != null) {
-      messenger.showSnackBar(SnackBar(content: Text(followFailure(l10n, failure))));
-    }
-  }
-
-  Future<void> _chooseShortAdhan(
-    BuildContext context,
-    WidgetRef ref,
-    AdhanAlertSettings alerts,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final preview = ref.read(audioPreviewProvider);
-    final chosen = await showSoundChoiceSheet<ShortAdhan>(
-      context,
-      current: alerts.shortAdhan,
-      preview: preview,
-      choices: [
-        SoundChoice(
-          value: ShortAdhan.naghshbandi,
-          title: l10n.shortAdhanNaghshbandi,
-          hint: l10n.shortAdhanNaghshbandiHint,
-          asset: ShortAdhan.naghshbandi.asset,
+    return SettingsScaffold(
+      title: l10n.settingsTitle,
+      onTab: asTab,
+      children: [
+        SettingsHeading(l10n.settingsGroupEveryDay, top: 4),
+        SettingsLinkRow(
+          title: l10n.settingsPrayerTimesSection,
+          value: prayerTimesSummary(l10n, settings),
+          onTap: () => go(const PrayerTimesPage()),
         ),
-        SoundChoice(
-          value: ShortAdhan.hayya,
-          title: l10n.soundHayya,
-          hint: l10n.shortAdhanHayyaHint,
-          asset: ShortAdhan.hayya.asset,
+        SettingsLinkRow(
+          title: l10n.settingsAdhanSection,
+          value: adhanAlertsSummary(l10n, settings.adhanAlerts),
+          onTap: () => go(const AdhanAlertsPage()),
         ),
+        SettingsLinkRow(
+          title: l10n.settingsIqamaSection,
+          value: jamaahRemindersSummary(l10n, settings, active),
+          onTap: () => go(const JamaahRemindersPage()),
+          divider: false,
+        ),
+        SettingsHeading(l10n.settingsGroupPreferences),
+        SettingsLinkRow(
+          title: l10n.settingsTravelSection,
+          value: travelSummary(l10n, settings.travel),
+          onTap: () => go(const TravelPage()),
+        ),
+        SettingsLinkRow(
+          title: l10n.settingsLanguageLook,
+          value: languageLookSummary(l10n, settings),
+          onTap: () => go(const LanguageLookPage()),
+          divider: false,
+        ),
+        SettingsHeading(l10n.settingsGroupHelp),
+        SettingsLinkRow(
+          title: l10n.settingsHelpAbout,
+          value: l10n.settingsHelpSummary,
+          onTap: () => go(const HelpAboutPage()),
+          divider: false,
+        ),
+        SettingsNote(l10n.settingsHubFooter, top: 18),
       ],
     );
-    unawaited(preview.stop());
-    if (chosen == null || chosen == alerts.shortAdhan) return;
-    await updateAdhanAlerts(ref, (all) => all.copyWith(shortAdhan: chosen));
-  }
-
-  Future<void> _chooseLanguage(
-    BuildContext context,
-    WidgetRef ref,
-    AppLanguage current,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final chosen = await showModalBottomSheet<AppLanguage>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SafeArea(
-        child: SingleChildScrollView(
-          child: RadioGroup<AppLanguage>(
-            groupValue: current,
-            onChanged: (l) => Navigator.of(sheetContext).pop(l),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final language in AppLanguage.values)
-                  RadioListTile<AppLanguage>(
-                    value: language,
-                    title: Text(languageName(l10n, language)),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    if (chosen == null || chosen == current) return;
-    await ref.read(appLocaleProvider.notifier).choose(chosen);
-  }
-
-  Future<void> _chooseTheme(
-    BuildContext context,
-    WidgetRef ref,
-    AppThemeMode current,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final chosen = await showModalBottomSheet<AppThemeMode>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SafeArea(
-        child: SingleChildScrollView(
-          child: RadioGroup<AppThemeMode>(
-            groupValue: current,
-            onChanged: (mode) => Navigator.of(sheetContext).pop(mode),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final mode in const [
-                  AppThemeMode.system,
-                  AppThemeMode.light,
-                  AppThemeMode.dark,
-                ])
-                  RadioListTile<AppThemeMode>(
-                    value: mode,
-                    title: Text(themeModeName(l10n, mode)),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    if (chosen == null || chosen == current) return;
-    await ref.read(themeModeProvider.notifier).choose(chosen);
-  }
-
-  Future<void> _chooseDefaultSound(
-    BuildContext context,
-    WidgetRef ref,
-    AdhanAlertSettings alerts,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final chosen = await showModalBottomSheet<AdhanSoundMode>(
-      context: context,
-      showDragHandle: true,
-      // Four options with their explanations are taller than the default sheet
-      // on a phone, and taller still at a large text size.
-      isScrollControlled: true,
-      builder: (sheetContext) => SafeArea(
-        child: SingleChildScrollView(
-          child: RadioGroup<AdhanSoundMode>(
-            groupValue: alerts.defaultSoundMode,
-            onChanged: (mode) => Navigator.of(sheetContext).pop(mode),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final mode in AdhanSoundMode.values)
-                  RadioListTile<AdhanSoundMode>(
-                    value: mode,
-                    title: Text(soundModeName(l10n, mode)),
-                    subtitle: Text(soundModeHint(l10n, mode)),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    if (chosen == null || chosen == alerts.defaultSoundMode) return;
-    await updateAdhanAlerts(ref, (a) => a.withSoundMode(chosen));
   }
 }
 
@@ -502,113 +175,3 @@ String soundModeHint(AppLocalizations l10n, AdhanSoundMode mode) =>
       AdhanSoundMode.standard => l10n.alertStandardHint,
       AdhanSoundMode.silent => l10n.alertSilentHint,
     };
-
-class _TwoLines extends StatelessWidget {
-  const _TwoLines({required this.first, required this.second});
-
-  final String first;
-  final String second;
-
-  @override
-  Widget build(BuildContext context) {
-    final ink = AppInk.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          first,
-          style: const TextStyle(
-            fontSize: AppType.rowSize,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Text(second, style: TextStyle(fontSize: 13, color: ink.muted)),
-      ],
-    );
-  }
-}
-
-/// The global full-screen switch, and Android 14's own permission for it.
-class _FullScreenRow extends ConsumerStatefulWidget {
-  const _FullScreenRow({required this.alerts});
-
-  final AdhanAlertSettings alerts;
-
-  @override
-  ConsumerState<_FullScreenRow> createState() => _FullScreenRowState();
-}
-
-class _FullScreenRowState extends ConsumerState<_FullScreenRow> {
-  bool? _allowed;
-  late final AppLifecycleListener _lifecycle;
-
-  @override
-  void initState() {
-    super.initState();
-    // Back from the system page: read the permission again.
-    _lifecycle = AppLifecycleListener(onResume: _check);
-    _check();
-  }
-
-  @override
-  void dispose() {
-    _lifecycle.dispose();
-    super.dispose();
-  }
-
-  Future<void> _check() async {
-    final allowed = await ref
-        .read(notificationGatewayProvider)
-        .canUseFullScreen();
-    if (mounted) setState(() => _allowed = allowed);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
-    final on = widget.alerts.fullScreen;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppRows(
-          children: [
-            SwitchListTile(
-              title: Text(l10n.settingsFullScreen),
-              subtitle: Text(l10n.settingsFullScreenHint),
-              value: on,
-              onChanged: (value) async {
-                await updateAdhanAlerts(
-                  ref,
-                  (a) => a.copyWith(fullScreen: value),
-                );
-                if (value) {
-                  await ref.read(notificationPermissionRequestProvider)();
-                  await _check();
-                }
-              },
-            ),
-          ],
-        ),
-        if (on && _allowed == false) ...[
-          const SizedBox(height: AppSpace.sm),
-          Text(
-            l10n.settingsFullScreenDenied,
-            style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
-              onPressed: () => ref
-                  .read(localNotificationsGatewayProvider)
-                  .openFullScreenSettings(),
-              child: Text(l10n.settingsFullScreenAllow),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}

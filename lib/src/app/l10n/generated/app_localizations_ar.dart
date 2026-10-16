@@ -1367,10 +1367,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsAsr => 'طريقة حساب العصر';
 
   @override
-  String get settingsHighLatitude => 'خطوط العرض العليا';
+  String get settingsHighLatitude => 'أقصى الشمال أو الجنوب';
 
   @override
-  String get settingsAdjustments => 'تعديلات يدوية';
+  String get settingsAdjustments => 'ضبط الأوقات بالدقائق';
 
   @override
   String get settingsHijri => 'التاريخ الهجري';
@@ -1926,7 +1926,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsPauseAllIqamaHint =>
-      'لا تذكيرات جماعة من أي مسجد حتى توقف هذا الخيار. تبقى أوقات الإقامة محفوظة، ولا تتأثر تنبيهات الأذان.';
+      'من كل المساجد. تبقى أوقات الإقامة محفوظة، وتستمر تنبيهات الأذان.';
 
   @override
   String get mosquePauseReminders => 'إيقاف تذكيرات هذا المسجد مؤقتًا';
@@ -2603,4 +2603,144 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsBack => 'رجوع';
+
+  @override
+  String get settingsGroupEveryDay => 'كل يوم';
+
+  @override
+  String get settingsGroupPreferences => 'التفضيلات';
+
+  @override
+  String get settingsGroupHelp => 'المساعدة';
+
+  @override
+  String get settingsLanguageLook => 'اللغة والمظهر';
+
+  @override
+  String get settingsHelpAbout => 'المساعدة وعن التطبيق';
+
+  @override
+  String get settingsHubFooter =>
+      'أوقات الإقامة محفوظة في كل مسجد، في تبويب «المساجد»، لا هنا.';
+
+  @override
+  String settingsPrayerTimesSummary(String method, String asr) {
+    return '$method · العصر $asr';
+  }
+
+  @override
+  String settingsAlertsSummary(String sound, int on, int total) {
+    return '$sound · $on من $total مفعّلة';
+  }
+
+  @override
+  String settingsSummaryPair(String first, String second) {
+    return '$first · $second';
+  }
+
+  @override
+  String get settingsRemindersPausedShort => 'كلها موقوفة مؤقتًا';
+
+  @override
+  String get settingsNoActiveMosque => 'لا مسجد نشط';
+
+  @override
+  String get travelSummaryOff => 'متوقف';
+
+  @override
+  String get travelSummaryOn => 'مفعّل';
+
+  @override
+  String get travelSummaryFollowing => 'مفعّل · يتبع موقعك';
+
+  @override
+  String get settingsHelpSummary => 'المقدمة، والتنبيهات المتأخرة، وعن التطبيق';
+
+  @override
+  String get settingsPrayerTimesLead => 'كيف تُحسب الأوقات في «اليوم».';
+
+  @override
+  String get settingsAlertsLead => 'ما تسمعه عند كل أذان.';
+
+  @override
+  String get settingsRemindersLead => 'صوت التذكير الذي يسبق إقامة مسجدك.';
+
+  @override
+  String get settingsTravelLead => 'أوقات تتبعك في سفرك.';
+
+  @override
+  String get settingsLanguageLookLead => 'لغة التطبيق ومظهره.';
+
+  @override
+  String get settingsHelpLead => 'البداية، والتنبيهات المتأخرة، وهذا الإصدار.';
+
+  @override
+  String get extraOnTodaySection => 'أوقات إضافية في «اليوم»';
+
+  @override
+  String get extraAlertsAndTiming => 'التنبيهات والتوقيت';
+
+  @override
+  String get extraNoAlerts => 'بلا تنبيهات';
+
+  @override
+  String extraAlertsFor(String names) {
+    return 'التنبيهات: $names';
+  }
+
+  @override
+  String get settingsAdvanced => 'متقدّم';
+
+  @override
+  String get highLatitudeLead =>
+      'حين يقصر الليل، يحتاج الفجر والعشاء إلى قاعدة.';
+
+  @override
+  String get alertsEachPrayer => 'كل صلاة';
+
+  @override
+  String get alertsAlsoFromToday =>
+      'ومن «اليوم» أيضًا: انقر الصوت بجانب أي صلاة.';
+
+  @override
+  String get alertsRecordings => 'التسجيلات';
+
+  @override
+  String get alertsSilentSection => 'حين يكون الهاتف على الوضع الصامت';
+
+  @override
+  String get settingsRemindersOnMosque =>
+      'أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد.';
+
+  @override
+  String get followNeedsTravel => 'متاح أثناء تفعيل وضع السفر.';
+
+  @override
+  String get travelInFlightValue => 'أوقات الصلاة والقبلة على متن الطائرة';
+
+  @override
+  String get themeSkyNote =>
+      'السماء تتبع وقت النهار دائمًا، والوضع الداكن يجعلها أخفت.';
+
+  @override
+  String get helpLateAlerts => 'هل تصل التنبيهات متأخرة؟';
+
+  @override
+  String get helpLateAlertsLead => 'غالبًا ما يكون الهاتف يوفّر البطارية.';
+
+  @override
+  String get helpBatteryTitle => 'استخدام البطارية';
+
+  @override
+  String get helpCheckTitle => 'تحقّق ممّا هو مجدول';
+
+  @override
+  String get helpCheckBody =>
+      'تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص.';
+
+  @override
+  String get helpAbout => 'عن التطبيق';
 }

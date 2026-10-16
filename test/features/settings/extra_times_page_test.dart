@@ -16,6 +16,7 @@ import 'package:jamaah/src/domain/extra_times.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/settings/extra_times_page.dart';
+import 'package:jamaah/src/features/settings/settings_kit.dart';
 
 import '../../helpers/fake_clock.dart';
 import '../../helpers/fake_notification_gateway.dart';
@@ -76,6 +77,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
+    // Settings → Prayer times, the hub's first row (Horizon, 2026-10-16).
+    await tester.tap(find.byType(SettingsLinkRow).first);
+    await tester.pumpAndSettle();
   }
 
   Future<void> tapText(WidgetTester tester, String text) async {
@@ -104,22 +108,22 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testApp('Settings shows what is on Today and opens the page', (tester) async {
+  testApp('Prayer times shows them inline and opens the page', (tester) async {
     await open(tester);
     await tester.scrollUntilVisible(
-      find.text(t.settingsExtraTimes),
+      find.text(t.extraAlertsAndTiming),
       200,
       scrollable: find.byType(Scrollable).last,
     );
-    expect(find.text(t.extraImsak), findsWidgets);
-    await tapText(tester, t.settingsExtraTimes);
+    expect(find.widgetWithText(SettingsSwitchRow, t.extraImsak), findsOne);
+    await tapText(tester, t.extraAlertsAndTiming);
     expect(find.byType(ExtraTimesPage), findsOneWidget);
     expect(find.text(t.extraTimesIntro), findsOneWidget);
   });
 
   testApp('showing Duha and alerting Qiyam are saved', (tester) async {
     await open(tester);
-    await tapText(tester, t.settingsExtraTimes);
+    await tapText(tester, t.extraAlertsAndTiming);
 
     await tapSwitch(tester, const ValueKey('show-duha'));
     expect((await settings.read()).extraTimes.shown, {
@@ -138,7 +142,7 @@ void main() {
 
   testApp('Imsak and Duha minutes are chosen from a list', (tester) async {
     await open(tester);
-    await tapText(tester, t.settingsExtraTimes);
+    await tapText(tester, t.extraAlertsAndTiming);
 
     await tapText(tester, t.extraImsakRule(10));
     for (final m in const [0, 5, 10, 15, 20]) {
@@ -152,21 +156,26 @@ void main() {
     expect((await settings.read()).extraTimes.duhaMinutes, 25);
   });
 
-  testApp('nothing shown says so in Settings', (tester) async {
+  testApp('the switches on Prayer times show one on Today', (tester) async {
     await settings.saveExtraTimes(const ExtraTimesSettings(shown: {}));
     await open(tester);
+    final duha = find.widgetWithText(SettingsSwitchRow, t.extraDuha);
     await tester.scrollUntilVisible(
-      find.text(t.extraNoneShown),
+      duha,
       200,
       scrollable: find.byType(Scrollable).last,
     );
-    expect(find.text(t.extraNoneShown), findsOneWidget);
+    await tester.ensureVisible(duha);
+    await tester.pumpAndSettle();
+    await tester.tap(duha);
+    await tester.pumpAndSettle();
+    expect((await settings.read()).extraTimes.shown, {ExtraTime.duha});
   });
 
   testApp('Arabic at a large text size', (tester) async {
     await settings.setLanguage(AppLanguage.ar);
     await open(tester, textScale: 2.0);
-    await tapText(tester, ar.settingsExtraTimes);
+    await tapText(tester, ar.extraAlertsAndTiming);
     expect(tester.takeException(), isNull);
     await tester.scrollUntilVisible(
       find.text(ar.extraQiyam),

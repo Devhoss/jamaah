@@ -24,6 +24,28 @@ String extraTimesSummary(AppLocalizations l10n, ExtraTimesSettings extra) {
   return names.isEmpty ? l10n.extraNoneShown : names.join(l10n.listSeparator);
 }
 
+/// When an extra time falls: "10 min before Fajr", or the last third's rule.
+String extraRuleLine(
+  AppLocalizations l10n,
+  ExtraTimesSettings extra,
+  ExtraTime t,
+) => switch (t) {
+  ExtraTime.imsak => l10n.extraImsakRule(extra.imsakMinutes),
+  ExtraTime.duha => l10n.extraDuhaRule(extra.duhaMinutes),
+  ExtraTime.qiyam => l10n.extraQiyamRule,
+};
+
+/// Which extra times alert, or none.
+String extraAlertsSummary(AppLocalizations l10n, ExtraTimesSettings extra) {
+  final names = [
+    for (final t in ExtraTime.values)
+      if (extra.alerts.contains(t)) extraTimeName(l10n, t),
+  ];
+  return names.isEmpty
+      ? l10n.extraNoAlerts
+      : l10n.extraAlertsFor(names.join(l10n.listSeparator));
+}
+
 /// Settings → Extra times (2026-10-14): Imsak, Duha and the last third of
 /// the night. For each, whether Today shows it and whether it alerts; for
 /// Imsak and Duha, their minutes.
@@ -149,6 +171,7 @@ Future<int?> _chooseMinutes(
   ),
 );
 
-extension on Set<ExtraTime> {
+/// Adds or removes one extra time.
+extension ExtraTimeToggle on Set<ExtraTime> {
   void toggle(ExtraTime t, bool on) => on ? add(t) : remove(t);
 }

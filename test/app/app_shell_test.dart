@@ -150,7 +150,7 @@ void main() {
     );
   });
 
-  testApp('the Settings tab opens Settings, prayer times first, with no back arrow', (
+  testApp('the Settings tab opens the hub, every day first, with no back arrow', (
     tester,
   ) async {
     await open(tester);
@@ -159,11 +159,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsPage), findsOneWidget);
-    expect(
-      find.text(t.settingsPrayerTimesSection.toUpperCase()),
-      findsOneWidget,
-    );
-    expect(find.text(t.settingsMethod), findsOneWidget);
+    expect(find.text(t.settingsGroupEveryDay), findsOneWidget);
+    expect(find.text(t.settingsPrayerTimesSection), findsOneWidget);
+    expect(find.text(t.settingsHubFooter), findsOneWidget);
     expect(find.byType(BackButton), findsNothing);
     expect(selectedTab(tester), BottomNav.settingsIndex);
   });

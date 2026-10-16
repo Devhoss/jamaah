@@ -18,7 +18,7 @@ import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/onboarding/onboarding_page.dart';
-import 'package:jamaah/src/features/settings/settings_page.dart';
+import 'package:jamaah/src/features/settings/preference_pages.dart';
 
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_notification_gateway.dart';
@@ -234,6 +234,7 @@ void main() {
     await open(tester);
     await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
+    await tapText(tester, t.settingsHelpAbout);
     await tester.scrollUntilVisible(
       find.text(t.settingsShowIntro),
       300,
@@ -245,7 +246,7 @@ void main() {
       await tapText(tester, t.onbContinue);
     }
     await tapText(tester, t.onbStart);
-    expect(find.byType(SettingsPage), findsOneWidget);
+    expect(find.byType(HelpAboutPage), findsOneWidget);
     expect((await settings.read()).adhanAlerts.enabledPrayers, [
       Prayer.maghrib,
     ], reason: 'replaying changes nothing the user did not change');

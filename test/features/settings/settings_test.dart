@@ -28,8 +28,10 @@ import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/mosques/mosque_detail_page.dart';
+import 'package:jamaah/src/features/settings/adhan_alerts_page.dart';
+import 'package:jamaah/src/features/settings/preference_pages.dart';
 import 'package:jamaah/src/features/settings/prayer_alert_page.dart';
-import 'package:jamaah/src/features/settings/settings_page.dart';
+import 'package:jamaah/src/features/settings/settings_kit.dart';
 
 import '../../helpers/fake_clock.dart';
 import '../../helpers/fake_notification_gateway.dart';
@@ -121,8 +123,25 @@ void main() {
   Future<void> openSettingsPage(WidgetTester tester) =>
       tap(tester, find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
 
-  Future<void> openPrayer(WidgetTester tester, Prayer prayer) async {
+  /// Settings, then one of its six pages (Horizon, 2026-10-16).
+  Future<void> openHubRow(WidgetTester tester, String title) async {
     await openSettingsPage(tester);
+    await tapText(tester, title);
+  }
+
+  Future<void> openAlerts(WidgetTester tester) =>
+      openHubRow(tester, t.settingsAdhanSection);
+
+  Future<void> openReminders(WidgetTester tester) =>
+      openHubRow(tester, t.settingsIqamaSection);
+
+  Future<void> back(WidgetTester tester) async {
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> openPrayer(WidgetTester tester, Prayer prayer) async {
+    await openAlerts(tester);
     await tapText(tester, switch (prayer) {
       Prayer.fajr => t.prayerFajr,
       Prayer.sunrise => t.prayerSunrise,
@@ -139,14 +158,18 @@ void main() {
 
   Finder switchTile(String title) => find.widgetWithText(SwitchListTile, title);
 
+  /// A switch on the Horizon Settings pages.
+  Finder switchRow(String title) =>
+      find.widgetWithText(SettingsSwitchRow, title);
+
   group('the settings page', () {
     testApp('lists all six times, every one off on a fresh install', (
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
 
-      expect(find.byType(SettingsPage), findsOneWidget);
+      expect(find.byType(AdhanAlertsPage), findsOneWidget);
       expect(find.text(t.settingsAlertOff), findsNWidgets(6));
       expect(find.text(t.soundModeStandard), findsOneWidget);
     });
@@ -155,8 +178,7 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
-      await tapText(tester, t.settingsDefaultSound);
+      await openAlerts(tester);
       await tapText(tester, t.soundModeSilent);
 
       expect((await stored()).defaultSoundMode, AdhanSoundMode.silent);
@@ -167,7 +189,7 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
+      await openReminders(tester);
       await reveal(tester, find.text(t.settingsIqamaNoMosque));
       expect(find.text(t.settingsIqamaNoMosque), findsOneWidget);
     });
@@ -181,7 +203,7 @@ void main() {
           source: MosqueSource.manual,
         );
         await open(tester);
-        await openSettingsPage(tester);
+        await openReminders(tester);
         await tapText(tester, t.settingsIqamaOpenActive('Masjid al-Nour'));
         expect(find.byType(MosqueDetailPage), findsOneWidget);
       },
@@ -298,8 +320,8 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
-      await tap(tester, switchTile(t.settingsAdhanRingInSilent));
+      await openAlerts(tester);
+      await tap(tester, switchRow(t.settingsAdhanRingInSilent));
       expect(
         (await stored()).ringInSilentFor(RingTarget.adhan),
         RingCoverage.all,
@@ -309,7 +331,7 @@ void main() {
         RingCoverage.none,
         reason: 'the reminders before have their own switch',
       );
-      await tap(tester, switchTile(t.settingsPreAdhanRingInSilent));
+      await tap(tester, switchRow(t.settingsPreAdhanRingInSilent));
       expect(
         (await stored()).ringInSilentFor(RingTarget.preAdhan),
         RingCoverage.all,
@@ -326,10 +348,10 @@ void main() {
         ),
       );
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
       await reveal(tester, find.text(t.ringInSilentSome));
       expect(find.text(t.ringInSilentSome), findsOneWidget);
-      await tap(tester, switchTile(t.settingsAdhanRingInSilent));
+      await tap(tester, switchRow(t.settingsAdhanRingInSilent));
       expect(
         (await stored()).ringInSilentFor(RingTarget.adhan),
         RingCoverage.all,
@@ -338,7 +360,7 @@ void main() {
 
     testApp('the build is named at the bottom, for testers', (tester) async {
       await open(tester);
-      await openSettingsPage(tester);
+      await openHubRow(tester, t.settingsHelpAbout);
       await reveal(tester, find.text(buildLabel()));
       expect(find.text(buildLabel()), findsOneWidget);
       expect(buildLabel(), contains(kGitCommit));
@@ -346,8 +368,8 @@ void main() {
 
     testApp('Jama’ah reminders can ring on silent', (tester) async {
       await open(tester);
-      await openSettingsPage(tester);
-      await tap(tester, switchTile(t.alertRingInSilent));
+      await openReminders(tester);
+      await tap(tester, switchRow(t.alertRingInSilent));
       expect((await settings.read()).jamaahReminders.ringInSilent, isTrue);
     });
 
@@ -358,7 +380,7 @@ void main() {
         const JamaahReminderSettings(ringInSilent: true),
       );
       await open(tester);
-      await openSettingsPage(tester);
+      await openReminders(tester);
       await tapText(tester, t.settingsReminderTest);
       expect(gateway.playedNow, hasLength(1));
       expect(gateway.shownNow, isEmpty);
@@ -432,8 +454,8 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
-      await tap(tester, switchTile(t.settingsFullScreen));
+      await openAlerts(tester);
+      await tap(tester, switchRow(t.settingsFullScreen));
       expect((await stored()).fullScreen, isTrue);
       expect(find.text(t.settingsFullScreenDenied), findsNothing);
     });
@@ -443,8 +465,8 @@ void main() {
     ) async {
       gateway.fullScreenAllowed = false;
       await open(tester);
-      await openSettingsPage(tester);
-      await tap(tester, switchTile(t.settingsFullScreen));
+      await openAlerts(tester);
+      await tap(tester, switchRow(t.settingsFullScreen));
       await reveal(tester, find.text(t.settingsFullScreenDenied));
       expect(find.text(t.settingsFullScreenDenied), findsOneWidget);
       expect(find.text(t.settingsFullScreenAllow), findsOneWidget);
@@ -491,7 +513,7 @@ void main() {
     ) async {
       picked = (path: '/sounds/new.mp3', name: 'My Fajr');
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
       await tapText(tester, t.settingsFullRecording);
       await tapText(tester, t.soundAddFromPhone);
       final added = (await settings.read()).customSounds.single;
@@ -510,7 +532,7 @@ void main() {
         (await stored()).copyWith(fullRecording: mine.id),
       );
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
       await tapText(tester, t.settingsFullRecording);
       await tap(tester, find.byTooltip(t.soundOptions('My Fajr')));
       await tapText(tester, t.soundDelete);
@@ -538,8 +560,7 @@ void main() {
     testApp('the Jama’ah reminder can use your own sound', (tester) async {
       picked = (path: '/sounds/bell.ogg', name: 'Bell');
       await open(tester);
-      await openSettingsPage(tester);
-      await tapText(tester, t.settingsReminderSound);
+      await openReminders(tester);
       await tapText(tester, t.reminderSoundCustom);
       final r = (await settings.read()).jamaahReminders;
       expect(r.sound, ReminderSound.custom);
@@ -551,7 +572,7 @@ void main() {
     testApp('rename: cancel leaves it, save renames it', (tester) async {
       await settings.addCustomSound(mine);
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
       await tapText(tester, t.settingsFullRecording);
 
       await tap(tester, find.byTooltip(t.soundOptions('My Fajr')));
@@ -578,6 +599,7 @@ void main() {
       await settings.setLanguage(AppLanguage.ar);
       await open(tester, textScale: 2.0);
       await openSettingsPage(tester);
+      await tapText(tester, ar.settingsAdhanSection);
       await tapText(tester, ar.settingsFullRecording);
       expect(tester.takeException(), isNull);
       expect(find.text(ar.recordingsYours), findsOneWidget);
@@ -586,8 +608,7 @@ void main() {
 
     testApp('nothing picked changes nothing', (tester) async {
       await open(tester);
-      await openSettingsPage(tester);
-      await tapText(tester, t.settingsReminderSound);
+      await openReminders(tester);
       await tapText(tester, t.reminderSoundCustom);
       expect(
         (await settings.read()).jamaahReminders.sound,
@@ -601,7 +622,7 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
       await tapText(tester, t.settingsFullRecording);
       expect(find.byType(AdhanRecordingsPage), findsOneWidget);
 
@@ -639,11 +660,10 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      await openSettingsPage(tester);
-      await reveal(tester, find.text(t.settingsReminderSound));
+      await openReminders(tester);
+      await reveal(tester, find.text(t.reminderSoundChime));
       expect(find.text(t.reminderSoundChime), findsOneWidget);
 
-      await tapText(tester, t.settingsReminderSound);
       await tap(tester, find.text(t.alertPreview).first);
       expect(preview.played.last, 'assets/audio/chime/reminder_chime.wav');
       await tap(tester, find.text(t.alertPreview).last);
@@ -655,9 +675,9 @@ void main() {
         ReminderSound.standard,
       );
       expect(preview.stops, greaterThan(0),
-          reason: 'closing the sheet stops the preview');
+          reason: 'choosing a sound stops the preview');
 
-      final vibrate = switchTile(t.settingsReminderVibrate);
+      final vibrate = switchRow(t.settingsReminderVibrate);
       await reveal(tester, vibrate);
       await tap(tester, vibrate);
       expect((await settings.read()).jamaahReminders.vibrate, isFalse);
@@ -670,7 +690,7 @@ void main() {
         const JamaahReminderSettings(sound: ReminderSound.silent),
       );
       await open(tester);
-      await openSettingsPage(tester);
+      await openReminders(tester);
       await tapText(tester, t.settingsReminderTest);
 
       final shown = gateway.shownNow.single;
@@ -694,7 +714,7 @@ void main() {
         ),
       );
       await open(tester);
-      await openSettingsPage(tester);
+      await openAlerts(tester);
       expect(find.text(t.shortAdhanNaghshbandi), findsOneWidget);
 
       await tapText(tester, t.settingsShortAdhan);
@@ -730,19 +750,17 @@ void main() {
         Duration.zero,
         reason: 'the switch is instant, not a 200 ms blend of every colour',
       );
-      await openSettingsPage(tester);
+      await openHubRow(tester, t.settingsLanguageLook);
 
-      await tapText(tester, t.settingsTheme);
       await tapText(tester, t.themeLight);
       expect((await settings.read()).themeMode, AppThemeMode.light);
       expect(applied(), ThemeMode.light);
       expect(find.text(t.themeLight), findsOneWidget);
 
-      await tapText(tester, t.settingsTheme);
       await tapText(tester, t.themeDark);
       expect(applied(), ThemeMode.dark);
       expect(
-        Theme.of(tester.element(find.byType(SettingsPage))).brightness,
+        Theme.of(tester.element(find.byType(LanguageLookPage))).brightness,
         Brightness.dark,
       );
     });
@@ -758,30 +776,32 @@ void main() {
         source: MosqueSource.manual,
       );
       await open(tester);
-      await openSettingsPage(tester);
+      await openReminders(tester);
 
-      final pause = switchTile(t.settingsPauseAllIqama);
+      final pause = switchRow(t.settingsPauseAllIqama);
       await reveal(tester, pause);
       await tap(tester, pause);
       expect((await settings.read()).travel.pauseAllIqamaReminders, isTrue);
 
+      await back(tester);
       await tester.tap(find.byKey(BottomNav.tabKey(0)));
       await tester.pumpAndSettle();
       expect(find.text(t.pausedAllNote), findsOneWidget);
     });
   });
-  testApp('both pages and the sound sheet survive a large text size', (
+  testApp('the hub, the alerts page and one prayer survive a large text size', (
     tester,
   ) async {
     await open(tester, textScale: 2.0);
     await openSettingsPage(tester);
     expect(tester.takeException(), isNull);
 
-    await tapText(tester, t.settingsDefaultSound);
+    await tapText(tester, t.settingsAdhanSection);
     expect(tester.takeException(), isNull);
-    // Choosing a sound closes the sheet.
-    await tapText(tester, t.soundModeShort);
+    // The default sound, not the short clip's row of the same name.
+    await tap(tester, find.text(t.soundModeShort).first);
     expect(tester.takeException(), isNull);
+    expect((await stored()).defaultSoundMode, AdhanSoundMode.short);
 
     await tapText(tester, t.prayerFajr);
     await tapText(tester, t.reminderCustom);

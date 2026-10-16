@@ -180,29 +180,21 @@ void main() {
       await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
       await tester.pumpAndSettle();
 
-      final row = find.text(en.settingsLanguage);
-      await tester.scrollUntilVisible(
-        row,
-        200,
-        scrollable: find.byType(Scrollable).last,
-      );
-      await tester.tap(row);
+      await tester.tap(find.text(en.settingsLanguageLook));
       await tester.pumpAndSettle();
       await tester.tap(find.text('العربية'));
       await tester.pumpAndSettle();
 
       expect((await settings.read()).language, AppLanguage.ar);
-      expect(find.text(ar.settingsTitle), findsOneWidget);
+      expect(find.text(ar.settingsLanguageLook), findsOneWidget);
       expect(
-        Directionality.of(tester.element(find.text(ar.settingsTitle))),
+        Directionality.of(tester.element(find.text(ar.settingsLanguageLook))),
         TextDirection.rtl,
       );
 
-      await tester.tap(find.text(ar.settingsLanguage));
-      await tester.pumpAndSettle();
       await tester.tap(find.text('English'));
       await tester.pumpAndSettle();
-      expect(find.text(en.settingsTitle), findsOneWidget);
+      expect(find.text(en.settingsLanguageLook), findsOneWidget);
     });
 
     testApp('notifications are written in the chosen language', (tester) async {

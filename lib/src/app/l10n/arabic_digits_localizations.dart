@@ -1454,6 +1454,120 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get iqamaMoreMinutes => arabicDigits(super.iqamaMoreMinutes);
 
   @override
+  String get settingsBack => arabicDigits(super.settingsBack);
+
+  @override
+  String get settingsGroupEveryDay => arabicDigits(super.settingsGroupEveryDay);
+
+  @override
+  String get settingsGroupPreferences => arabicDigits(super.settingsGroupPreferences);
+
+  @override
+  String get settingsGroupHelp => arabicDigits(super.settingsGroupHelp);
+
+  @override
+  String get settingsLanguageLook => arabicDigits(super.settingsLanguageLook);
+
+  @override
+  String get settingsHelpAbout => arabicDigits(super.settingsHelpAbout);
+
+  @override
+  String get settingsHubFooter => arabicDigits(super.settingsHubFooter);
+
+  @override
+  String get settingsRemindersPausedShort => arabicDigits(super.settingsRemindersPausedShort);
+
+  @override
+  String get settingsNoActiveMosque => arabicDigits(super.settingsNoActiveMosque);
+
+  @override
+  String get travelSummaryOff => arabicDigits(super.travelSummaryOff);
+
+  @override
+  String get travelSummaryOn => arabicDigits(super.travelSummaryOn);
+
+  @override
+  String get travelSummaryFollowing => arabicDigits(super.travelSummaryFollowing);
+
+  @override
+  String get settingsHelpSummary => arabicDigits(super.settingsHelpSummary);
+
+  @override
+  String get settingsPrayerTimesLead => arabicDigits(super.settingsPrayerTimesLead);
+
+  @override
+  String get settingsAlertsLead => arabicDigits(super.settingsAlertsLead);
+
+  @override
+  String get settingsRemindersLead => arabicDigits(super.settingsRemindersLead);
+
+  @override
+  String get settingsTravelLead => arabicDigits(super.settingsTravelLead);
+
+  @override
+  String get settingsLanguageLookLead => arabicDigits(super.settingsLanguageLookLead);
+
+  @override
+  String get settingsHelpLead => arabicDigits(super.settingsHelpLead);
+
+  @override
+  String get extraOnTodaySection => arabicDigits(super.extraOnTodaySection);
+
+  @override
+  String get extraAlertsAndTiming => arabicDigits(super.extraAlertsAndTiming);
+
+  @override
+  String get extraNoAlerts => arabicDigits(super.extraNoAlerts);
+
+  @override
+  String get settingsAdvanced => arabicDigits(super.settingsAdvanced);
+
+  @override
+  String get highLatitudeLead => arabicDigits(super.highLatitudeLead);
+
+  @override
+  String get alertsEachPrayer => arabicDigits(super.alertsEachPrayer);
+
+  @override
+  String get alertsAlsoFromToday => arabicDigits(super.alertsAlsoFromToday);
+
+  @override
+  String get alertsRecordings => arabicDigits(super.alertsRecordings);
+
+  @override
+  String get alertsSilentSection => arabicDigits(super.alertsSilentSection);
+
+  @override
+  String get settingsRemindersOnMosque => arabicDigits(super.settingsRemindersOnMosque);
+
+  @override
+  String get followNeedsTravel => arabicDigits(super.followNeedsTravel);
+
+  @override
+  String get travelInFlightValue => arabicDigits(super.travelInFlightValue);
+
+  @override
+  String get themeSkyNote => arabicDigits(super.themeSkyNote);
+
+  @override
+  String get helpLateAlerts => arabicDigits(super.helpLateAlerts);
+
+  @override
+  String get helpLateAlertsLead => arabicDigits(super.helpLateAlertsLead);
+
+  @override
+  String get helpBatteryTitle => arabicDigits(super.helpBatteryTitle);
+
+  @override
+  String get helpCheckTitle => arabicDigits(super.helpCheckTitle);
+
+  @override
+  String get helpCheckBody => arabicDigits(super.helpCheckBody);
+
+  @override
+  String get helpAbout => arabicDigits(super.helpAbout);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -2094,4 +2208,20 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String iqamaLater(int minutes) =>
       arabicDigits(super.iqamaLater(minutes));
+
+  @override
+  String settingsPrayerTimesSummary(String method, String asr) =>
+      arabicDigits(super.settingsPrayerTimesSummary(method, asr));
+
+  @override
+  String settingsAlertsSummary(String sound, int on, int total) =>
+      arabicDigits(super.settingsAlertsSummary(sound, on, total));
+
+  @override
+  String settingsSummaryPair(String first, String second) =>
+      arabicDigits(super.settingsSummaryPair(first, second));
+
+  @override
+  String extraAlertsFor(String names) =>
+      arabicDigits(super.extraAlertsFor(names));
 }

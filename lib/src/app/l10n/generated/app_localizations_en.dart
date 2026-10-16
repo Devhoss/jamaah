@@ -1264,10 +1264,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAsr => 'Asr method';
 
   @override
-  String get settingsHighLatitude => 'Higher latitudes';
+  String get settingsHighLatitude => 'Far north or south';
 
   @override
-  String get settingsAdjustments => 'Manual adjustments';
+  String get settingsAdjustments => 'Adjust times by minutes';
 
   @override
   String get settingsHijri => 'Hijri date';
@@ -1812,7 +1812,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPauseAllIqamaHint =>
-      'No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.';
+      'From every mosque. Iqama times are kept, and Adhan alerts carry on.';
 
   @override
   String get mosquePauseReminders => 'Pause this mosque\'s reminders';
@@ -2432,4 +2432,147 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsBack => 'Back';
+
+  @override
+  String get settingsGroupEveryDay => 'Every day';
+
+  @override
+  String get settingsGroupPreferences => 'Preferences';
+
+  @override
+  String get settingsGroupHelp => 'Help';
+
+  @override
+  String get settingsLanguageLook => 'Language and look';
+
+  @override
+  String get settingsHelpAbout => 'Help and about';
+
+  @override
+  String get settingsHubFooter =>
+      'Iqama times live on each mosque, in the Mosques tab, not here.';
+
+  @override
+  String settingsPrayerTimesSummary(String method, String asr) {
+    return '$method · Asr $asr';
+  }
+
+  @override
+  String settingsAlertsSummary(String sound, int on, int total) {
+    return '$sound · $on of $total on';
+  }
+
+  @override
+  String settingsSummaryPair(String first, String second) {
+    return '$first · $second';
+  }
+
+  @override
+  String get settingsRemindersPausedShort => 'All paused';
+
+  @override
+  String get settingsNoActiveMosque => 'No active mosque';
+
+  @override
+  String get travelSummaryOff => 'Off';
+
+  @override
+  String get travelSummaryOn => 'On';
+
+  @override
+  String get travelSummaryFollowing => 'On · following your location';
+
+  @override
+  String get settingsHelpSummary => 'Introduction, late alerts, about';
+
+  @override
+  String get settingsPrayerTimesLead =>
+      'How the times on Today are worked out.';
+
+  @override
+  String get settingsAlertsLead => 'What you hear at each Adhan.';
+
+  @override
+  String get settingsRemindersLead =>
+      'How the reminder before your mosque’s Iqama sounds.';
+
+  @override
+  String get settingsTravelLead => 'Times that follow you on a journey.';
+
+  @override
+  String get settingsLanguageLookLead => 'The app’s language and theme.';
+
+  @override
+  String get settingsHelpLead =>
+      'Getting started, late alerts, and this build.';
+
+  @override
+  String get extraOnTodaySection => 'Extra times on Today';
+
+  @override
+  String get extraAlertsAndTiming => 'Alerts and timing';
+
+  @override
+  String get extraNoAlerts => 'No alerts';
+
+  @override
+  String extraAlertsFor(String names) {
+    return 'Alerts: $names';
+  }
+
+  @override
+  String get settingsAdvanced => 'Advanced';
+
+  @override
+  String get highLatitudeLead =>
+      'When the night is short, Fajr and Isha need a rule.';
+
+  @override
+  String get alertsEachPrayer => 'Each prayer';
+
+  @override
+  String get alertsAlsoFromToday =>
+      'Also from Today: tap the sound beside any prayer.';
+
+  @override
+  String get alertsRecordings => 'Recordings';
+
+  @override
+  String get alertsSilentSection => 'When the phone is on silent';
+
+  @override
+  String get settingsRemindersOnMosque =>
+      'Iqama times and which prayers remind you are set on each mosque.';
+
+  @override
+  String get followNeedsTravel => 'Available while travel mode is on.';
+
+  @override
+  String get travelInFlightValue => 'Prayer times and the Qibla on a plane';
+
+  @override
+  String get themeSkyNote =>
+      'The sky always follows the time of day. Dark keeps it dimmer.';
+
+  @override
+  String get helpLateAlerts => 'Alerts arriving late?';
+
+  @override
+  String get helpLateAlertsLead => 'Most often the phone is saving battery.';
+
+  @override
+  String get helpBatteryTitle => 'Battery use';
+
+  @override
+  String get helpCheckTitle => 'Check what is scheduled';
+
+  @override
+  String get helpCheckBody =>
+      'The list shows every alert and reminder waiting on this phone, and says if a permission is missing.';
+
+  @override
+  String get helpAbout => 'About';
 }

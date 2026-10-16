@@ -115,7 +115,9 @@ void main() {
     await open(tester);
     await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
-    await tapText(tester, t.settingsTravelMode);
+    await tapText(tester, t.settingsTravelSection);
+    await tester.tap(find.byType(TravelSwitch));
+    await tester.pumpAndSettle();
 
     expect(find.text(t.followDenied), findsOneWidget);
     final travel = (await settings.read()).travel;

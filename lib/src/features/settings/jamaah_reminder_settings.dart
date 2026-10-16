@@ -8,8 +8,6 @@ import '../../app/custom_sound_actions.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
 import '../../data/notifications/notification_sync.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
@@ -17,31 +15,62 @@ import '../../domain/adhan_recordings.dart';
 import '../../domain/notification_channels.dart';
 import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
-import '../components/app_widgets.dart';
+import '../../domain/mosque.dart';
+import '../mosques/mosque_detail_page.dart';
+import 'settings_kit.dart';
 
 /// The bundled chime, as Settings previews it. The notification channel plays
 /// the same file from android/app/src/main/res/raw/reminder_chime.wav.
 const kReminderChimeAsset = 'assets/audio/chime/reminder_chime.wav';
 
-/// How every Jama’ah reminder sounds: the sound, vibration, and a test.
-/// Which prayers have a reminder, and how early, stays on each mosque.
-class JamaahReminderSoundRows extends ConsumerStatefulWidget {
-  const JamaahReminderSoundRows({super.key});
-
-  @override
-  ConsumerState<JamaahReminderSoundRows> createState() =>
-      _JamaahReminderSoundRowsState();
+/// "Masjid al-Nour · Chime": what the hub row says.
+String jamaahRemindersSummary(
+  AppLocalizations l10n,
+  AppSettingsSnapshot settings,
+  Mosque? active,
+) {
+  final r = settings.jamaahReminders;
+  final sound = switch (r.customSound) {
+    final mine? when r.sound == ReminderSound.custom =>
+      l10n.reminderSoundCustomNamed(mine.name),
+    _ => reminderSoundName(l10n, r.sound),
+  };
+  if (settings.travel.pauseAllIqamaReminders) {
+    return l10n.settingsSummaryPair(l10n.settingsRemindersPausedShort, sound);
+  }
+  return l10n.settingsSummaryPair(
+    active?.name ?? l10n.settingsNoActiveMosque,
+    sound,
+  );
 }
 
-class _JamaahReminderSoundRowsState
-    extends ConsumerState<JamaahReminderSoundRows> {
+/// How every Jama’ah reminder sounds (spec §4.9): the sound, vibration,
+/// ringing on silent, a test, and pausing them all. Which prayers have a
+/// reminder, and how early, stays on each mosque, so this only leads there.
+class JamaahRemindersPage extends ConsumerStatefulWidget {
+  const JamaahRemindersPage({super.key});
+
+  @override
+  ConsumerState<JamaahRemindersPage> createState() =>
+      _JamaahRemindersPageState();
+}
+
+class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
   late final AudioPreview _preview;
+  String? _playing;
   bool _sent = false;
 
   @override
   void initState() {
     super.initState();
     _preview = ref.read(audioPreviewProvider);
+  }
+
+  @override
+  void dispose() {
+    // Leaving the page stops a sound it started.
+    if (_playing != null) unawaited(_preview.stop());
+    super.dispose();
   }
 
   JamaahReminderSettings get _current =>
@@ -51,50 +80,28 @@ class _JamaahReminderSoundRowsState
   Future<void> _save(JamaahReminderSettings value) =>
       ref.read(settingsRepositoryProvider).saveJamaahReminders(value);
 
-  Future<void> _chooseSound(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final current = _current.sound;
-    final chosen = await showSoundChoiceSheet<ReminderSound>(
-      context,
-      current: current,
-      preview: _preview,
-      choices: [
-        SoundChoice(
-          value: ReminderSound.chime,
-          title: l10n.reminderSoundChime,
-          hint: l10n.reminderSoundChimeHint,
-          asset: kReminderChimeAsset,
-        ),
-        SoundChoice(
-          value: ReminderSound.hayya,
-          title: l10n.soundHayya,
-          hint: l10n.reminderSoundHayyaHint,
-          asset: kHayyaAsset,
-        ),
-        SoundChoice(
-          value: ReminderSound.standard,
-          title: l10n.soundModeStandard,
-          hint: l10n.reminderSoundStandardHint,
-        ),
-        SoundChoice(
-          value: ReminderSound.silent,
-          title: l10n.soundModeSilent,
-          hint: l10n.reminderSoundSilentHint,
-        ),
-        SoundChoice(
-          value: ReminderSound.custom,
-          title: l10n.reminderSoundCustom,
-          hint: l10n.reminderSoundCustomHint,
-          asset: _current.customSoundPath,
-        ),
-      ],
+  Future<void> _togglePreview(String asset) async {
+    if (_playing == asset) {
+      await _preview.stop();
+      if (mounted) setState(() => _playing = null);
+      return;
+    }
+    setState(() => _playing = asset);
+    unawaited(
+      _preview.play(asset).whenComplete(() {
+        if (mounted && _playing == asset) setState(() => _playing = null);
+      }),
     );
-    unawaited(_preview.stop());
-    if (chosen == null) return;
+  }
+
+  Future<void> _choose(ReminderSound chosen) async {
+    if (_playing != null) {
+      unawaited(_preview.stop());
+      setState(() => _playing = null);
+    }
     // Your own sound: a file from the phone, picked now (2026-10-15); picking
     // again replaces it. Nothing picked changes nothing.
     if (chosen == ReminderSound.custom) {
-      if (!context.mounted) return;
       final sound = await addSoundFromPhone(context, ref);
       if (sound == null) return;
       await _save(
@@ -102,7 +109,7 @@ class _JamaahReminderSoundRowsState
       );
       return;
     }
-    if (chosen == current) return;
+    if (chosen == _current.sound) return;
     await _save(_current.copyWith(sound: chosen));
   }
 
@@ -151,75 +158,104 @@ class _JamaahReminderSoundRowsState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ink = AppInk.of(context);
-    final reminders =
-        ref.watch(appSettingsProvider).value?.jamaahReminders ??
-        SettingsRepository.defaults.jamaahReminders;
+    final settings =
+        ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
+    final reminders = settings.jamaahReminders;
+    final travel = settings.travel;
+    final active = ref.watch(activeMosqueProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+    Widget? preview(String? asset) => asset == null
+        ? null
+        : SettingsTextButton(
+            label: _playing == asset ? l10n.alertStopPreview : l10n.alertPreview,
+            onPressed: () => _togglePreview(asset),
+          );
+
+    final mine = reminders.customSound;
+    return SettingsScaffold(
+      title: l10n.settingsIqamaSection,
+      lead: l10n.settingsRemindersLead,
       children: [
-        AppRows(
-          children: [
-            AppRow(
-              leading: null,
-              onTap: () => _chooseSound(context),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(l10n.settingsReminderSound),
-                  Text(
-                    switch (reminders.customSound) {
-                      final mine? when reminders.sound == ReminderSound.custom =>
-                        l10n.reminderSoundCustomNamed(mine.name),
-                      _ => reminderSoundName(l10n, reminders.sound),
-                    },
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: ink.muted),
-                  ),
-                ],
-              ),
-              trailing: Icon(Icons.chevron_right, color: ink.muted),
+        SettingsNote(l10n.settingsRemindersOnMosque, top: 4),
+        const SizedBox(height: 12),
+        if (active == null)
+          SettingsNote(l10n.settingsIqamaNoMosque, top: 0)
+        else
+          SettingsButton(
+            label: l10n.settingsIqamaOpenActive(active.name),
+            onPressed: () => openMosqueDetail(context, active.id),
+          ),
+        SettingsHeading(l10n.settingsReminderSound),
+        RadioList<ReminderSound>(
+          options: [
+            RadioOption(
+              ReminderSound.chime,
+              l10n.reminderSoundChime,
+              description: l10n.reminderSoundChimeHint,
+              trailing: preview(kReminderChimeAsset),
             ),
-            SwitchListTile(
-              title: Text(l10n.settingsReminderVibrate),
-              value: reminders.vibrate,
-              onChanged: (on) => _save(reminders.copyWith(vibrate: on)),
+            RadioOption(
+              ReminderSound.hayya,
+              l10n.soundHayya,
+              description: l10n.reminderSoundHayyaHint,
+              trailing: preview(kHayyaAsset),
             ),
-            SwitchListTile(
-              title: Text(l10n.alertRingInSilent),
-              subtitle: Text(
-                reminders.sound == ReminderSound.silent
-                    ? l10n.alertRingInSilentNeedsSound
-                    : l10n.alertRingInSilentHint,
-              ),
-              value:
-                  reminders.ringInSilent &&
-                  reminders.sound != ReminderSound.silent,
-              onChanged: reminders.sound == ReminderSound.silent
-                  ? null
-                  : (on) => _save(reminders.copyWith(ringInSilent: on)),
+            RadioOption(
+              ReminderSound.standard,
+              l10n.soundModeStandard,
+              description: l10n.reminderSoundStandardHint,
+            ),
+            RadioOption(
+              ReminderSound.silent,
+              l10n.soundModeSilent,
+              description: l10n.reminderSoundSilentHint,
+            ),
+            RadioOption(
+              ReminderSound.custom,
+              l10n.reminderSoundCustom,
+              description: mine == null
+                  ? l10n.reminderSoundCustomHint
+                  : l10n.reminderSoundCustomNamed(mine.name),
+              trailing: preview(reminders.customSoundPath),
             ),
           ],
+          selected: reminders.sound,
+          onChanged: _choose,
         ),
-        const SizedBox(height: AppSpace.sm),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: AppSpace.md,
-          children: [
-            OutlinedButton(
-              onPressed: _sendTest,
-              child: Text(l10n.settingsReminderTest),
-            ),
-            if (_sent)
-              Text(
-                l10n.settingsReminderTestSent,
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: ink.muted),
-              ),
-          ],
+        const SizedBox(height: 8),
+        SettingsSwitchRow(
+          title: l10n.settingsReminderVibrate,
+          value: reminders.vibrate,
+          onChanged: (on) => _save(reminders.copyWith(vibrate: on)),
+        ),
+        SettingsSwitchRow(
+          title: l10n.alertRingInSilent,
+          hint: reminders.sound == ReminderSound.silent
+              ? l10n.alertRingInSilentNeedsSound
+              : l10n.alertRingInSilentHint,
+          value:
+              reminders.ringInSilent && reminders.sound != ReminderSound.silent,
+          divider: false,
+          onChanged: reminders.sound == ReminderSound.silent
+              ? null
+              : (on) => _save(reminders.copyWith(ringInSilent: on)),
+        ),
+        const SizedBox(height: 8),
+        SettingsButton(label: l10n.settingsReminderTest, onPressed: _sendTest),
+        if (_sent)
+          Semantics(
+            liveRegion: true,
+            child: SettingsNote(l10n.settingsReminderTestSent),
+          ),
+        const SizedBox(height: 14),
+        SettingsSwitchRow(
+          title: l10n.settingsPauseAllIqama,
+          hint: l10n.settingsPauseAllIqamaHint,
+          value: travel.pauseAllIqamaReminders,
+          divider: false,
+          onChanged: (on) => ref
+              .read(settingsRepositoryProvider)
+              .saveTravel(travel.copyWith(pauseAllIqamaReminders: on)),
         ),
       ],
     );

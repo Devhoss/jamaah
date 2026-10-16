@@ -71,6 +71,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
     await tester.pumpAndSettle();
+    // Settings → Prayer times (Horizon, 2026-10-16).
+    await tester.tap(find.text(t.settingsPrayerTimesSection));
+    await tester.pumpAndSettle();
   }
 
   Future<void> tapText(WidgetTester tester, String text) async {
@@ -168,7 +171,6 @@ void main() {
   testApp('Hanafi gives the later Asr', (tester) async {
     await open(tester);
     final standard = timeOf(tester, Prayer.asr);
-    await tapText(tester, t.settingsAsr);
     await tapText(tester, t.asrHanafi);
 
     expect((await settings.read()).madhab, Madhab.hanafi);
@@ -186,13 +188,13 @@ void main() {
       adjustDays: -1,
     );
     expect(base, isNot(earlier));
-    expect(find.text(base), findsOneWidget, reason: 'the row shows today');
-
-    await tapText(tester, t.settingsHijri);
+    expect(find.text(base), findsOneWidget, reason: 'the list shows today');
     expect(find.text(t.hijriAsCalculated), findsOneWidget);
     await tapText(tester, t.hijriEarlier(1));
 
     expect((await settings.read()).hijriAdjustDays, -1);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(BottomNav.tabKey(0)));
     await tester.pumpAndSettle();
     expect(find.textContaining(earlier), findsOneWidget);
@@ -202,6 +204,7 @@ void main() {
     tester,
   ) async {
     await open(tester);
+    await tapText(tester, t.settingsAdvanced);
     await tapText(tester, t.settingsHighLatitude);
     expect(find.text(t.highLatitudeSettingsNote), findsOneWidget);
     await tapText(tester, t.ruleSeventhOfTheNightTitle);
@@ -216,6 +219,7 @@ void main() {
   ) async {
     await open(tester);
     final before = timeOf(tester, Prayer.maghrib);
+    await tapText(tester, t.settingsAdvanced);
     await tapText(tester, t.settingsAdjustments);
 
     final later = find.byTooltip(t.adjustmentsPlus(t.prayerMaghrib));
@@ -240,6 +244,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pageBack();
     await tester.pumpAndSettle();
+    await tapText(tester, t.settingsAdvanced);
     await tapText(tester, t.settingsAdjustments);
     expect(tester.takeException(), isNull);
   });

@@ -2181,13 +2181,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsHighLatitude.
   ///
   /// In en, this message translates to:
-  /// **'Higher latitudes'**
+  /// **'Far north or south'**
   String get settingsHighLatitude;
 
   /// No description provided for @settingsAdjustments.
   ///
   /// In en, this message translates to:
-  /// **'Manual adjustments'**
+  /// **'Adjust times by minutes'**
   String get settingsAdjustments;
 
   /// No description provided for @settingsHijri.
@@ -3009,7 +3009,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPauseAllIqamaHint.
   ///
   /// In en, this message translates to:
-  /// **'No Jama’ah reminders from any mosque until you turn this off. Your Iqama times are kept. Adhan alerts are not affected.'**
+  /// **'From every mosque. Iqama times are kept, and Adhan alerts carry on.'**
   String get settingsPauseAllIqamaHint;
 
   /// No description provided for @mosquePauseReminders.
@@ -3945,6 +3945,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes, plural, =1{1 minute later} other{{minutes} minutes later}}'**
   String iqamaLater(int minutes);
+
+  /// No description provided for @settingsBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get settingsBack;
+
+  /// No description provided for @settingsGroupEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get settingsGroupEveryDay;
+
+  /// No description provided for @settingsGroupPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get settingsGroupPreferences;
+
+  /// No description provided for @settingsGroupHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get settingsGroupHelp;
+
+  /// No description provided for @settingsLanguageLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Language and look'**
+  String get settingsLanguageLook;
+
+  /// No description provided for @settingsHelpAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'Help and about'**
+  String get settingsHelpAbout;
+
+  /// No description provided for @settingsHubFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama times live on each mosque, in the Mosques tab, not here.'**
+  String get settingsHubFooter;
+
+  /// No description provided for @settingsPrayerTimesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} · Asr {asr}'**
+  String settingsPrayerTimesSummary(String method, String asr);
+
+  /// No description provided for @settingsAlertsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{sound} · {on} of {total} on'**
+  String settingsAlertsSummary(String sound, int on, int total);
+
+  /// No description provided for @settingsSummaryPair.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} · {second}'**
+  String settingsSummaryPair(String first, String second);
+
+  /// No description provided for @settingsRemindersPausedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'All paused'**
+  String get settingsRemindersPausedShort;
+
+  /// No description provided for @settingsNoActiveMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'No active mosque'**
+  String get settingsNoActiveMosque;
+
+  /// No description provided for @travelSummaryOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get travelSummaryOff;
+
+  /// No description provided for @travelSummaryOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get travelSummaryOn;
+
+  /// No description provided for @travelSummaryFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'On · following your location'**
+  String get travelSummaryFollowing;
+
+  /// No description provided for @settingsHelpSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Introduction, late alerts, about'**
+  String get settingsHelpSummary;
+
+  /// No description provided for @settingsPrayerTimesLead.
+  ///
+  /// In en, this message translates to:
+  /// **'How the times on Today are worked out.'**
+  String get settingsPrayerTimesLead;
+
+  /// No description provided for @settingsAlertsLead.
+  ///
+  /// In en, this message translates to:
+  /// **'What you hear at each Adhan.'**
+  String get settingsAlertsLead;
+
+  /// No description provided for @settingsRemindersLead.
+  ///
+  /// In en, this message translates to:
+  /// **'How the reminder before your mosque’s Iqama sounds.'**
+  String get settingsRemindersLead;
+
+  /// No description provided for @settingsTravelLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Times that follow you on a journey.'**
+  String get settingsTravelLead;
+
+  /// No description provided for @settingsLanguageLookLead.
+  ///
+  /// In en, this message translates to:
+  /// **'The app’s language and theme.'**
+  String get settingsLanguageLookLead;
+
+  /// No description provided for @settingsHelpLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started, late alerts, and this build.'**
+  String get settingsHelpLead;
+
+  /// No description provided for @extraOnTodaySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra times on Today'**
+  String get extraOnTodaySection;
+
+  /// No description provided for @extraAlertsAndTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts and timing'**
+  String get extraAlertsAndTiming;
+
+  /// No description provided for @extraNoAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts'**
+  String get extraNoAlerts;
+
+  /// No description provided for @extraAlertsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts: {names}'**
+  String extraAlertsFor(String names);
+
+  /// No description provided for @settingsAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get settingsAdvanced;
+
+  /// No description provided for @highLatitudeLead.
+  ///
+  /// In en, this message translates to:
+  /// **'When the night is short, Fajr and Isha need a rule.'**
+  String get highLatitudeLead;
+
+  /// No description provided for @alertsEachPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Each prayer'**
+  String get alertsEachPrayer;
+
+  /// No description provided for @alertsAlsoFromToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Also from Today: tap the sound beside any prayer.'**
+  String get alertsAlsoFromToday;
+
+  /// No description provided for @alertsRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Recordings'**
+  String get alertsRecordings;
+
+  /// No description provided for @alertsSilentSection.
+  ///
+  /// In en, this message translates to:
+  /// **'When the phone is on silent'**
+  String get alertsSilentSection;
+
+  /// No description provided for @settingsRemindersOnMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama times and which prayers remind you are set on each mosque.'**
+  String get settingsRemindersOnMosque;
+
+  /// No description provided for @followNeedsTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Available while travel mode is on.'**
+  String get followNeedsTravel;
+
+  /// No description provided for @travelInFlightValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times and the Qibla on a plane'**
+  String get travelInFlightValue;
+
+  /// No description provided for @themeSkyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The sky always follows the time of day. Dark keeps it dimmer.'**
+  String get themeSkyNote;
+
+  /// No description provided for @helpLateAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts arriving late?'**
+  String get helpLateAlerts;
+
+  /// No description provided for @helpLateAlertsLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Most often the phone is saving battery.'**
+  String get helpLateAlertsLead;
+
+  /// No description provided for @helpBatteryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery use'**
+  String get helpBatteryTitle;
+
+  /// No description provided for @helpCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check what is scheduled'**
+  String get helpCheckTitle;
+
+  /// No description provided for @helpCheckBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The list shows every alert and reminder waiting on this phone, and says if a permission is missing.'**
+  String get helpCheckBody;
+
+  /// No description provided for @helpAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get helpAbout;
 }
 
 class _AppLocalizationsDelegate
