@@ -4197,6 +4197,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get helpAbout;
+
+  /// No description provided for @methodListLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Each method\'s angles, and where it is used.'**
+  String get methodListLead;
 }
 
 class _AppLocalizationsDelegate

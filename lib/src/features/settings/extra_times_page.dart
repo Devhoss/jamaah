@@ -5,11 +5,9 @@ import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/extra_times.dart';
-import '../components/app_widgets.dart';
+import 'settings_kit.dart';
 
 Future<void> openExtraTimes(BuildContext context) =>
     Navigator.of(context)
@@ -46,17 +44,15 @@ String extraAlertsSummary(AppLocalizations l10n, ExtraTimesSettings extra) {
       : l10n.extraAlertsFor(names.join(l10n.listSeparator));
 }
 
-/// Settings → Extra times (2026-10-14): Imsak, Duha and the last third of
-/// the night. For each, whether Today shows it and whether it alerts; for
-/// Imsak and Duha, their minutes.
+/// Settings → Prayer times → Alerts and timing (2026-10-14): Imsak, Duha and
+/// the last third of the night. For each, whether Today shows it and whether
+/// it alerts; for Imsak and Duha, their minutes.
 class ExtraTimesPage extends ConsumerWidget {
   const ExtraTimesPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final extra =
         ref.watch(appSettingsProvider).value?.extraTimes ??
         SettingsRepository.defaults.extraTimes;
@@ -73,101 +69,79 @@ class ExtraTimesPage extends ConsumerWidget {
     }
 
     Widget rule(ExtraTime t) => switch (t) {
-      ExtraTime.imsak => AppRow(
-        leading: null,
+      ExtraTime.imsak => SettingsLinkRow(
+        title: l10n.extraImsakRule(extra.imsakMinutes),
         onTap: () async {
           final m = await _chooseMinutes(
             context,
+            title: l10n.extraImsak,
             current: extra.imsakMinutes,
             choices: const [0, 5, 10, 15, 20],
             label: l10n.extraImsakRule,
           );
           if (m != null) await save(extra.copyWith(imsakMinutes: m));
         },
-        title: Text(l10n.extraImsakRule(extra.imsakMinutes)),
-        trailing: Icon(Icons.chevron_right, color: ink.muted),
       ),
-      ExtraTime.duha => AppRow(
-        leading: null,
+      ExtraTime.duha => SettingsLinkRow(
+        title: l10n.extraDuhaRule(extra.duhaMinutes),
         onTap: () async {
           final m = await _chooseMinutes(
             context,
+            title: l10n.extraDuha,
             current: extra.duhaMinutes,
             choices: const [10, 15, 20, 25, 30],
             label: l10n.extraDuhaRule,
           );
           if (m != null) await save(extra.copyWith(duhaMinutes: m));
         },
-        title: Text(l10n.extraDuhaRule(extra.duhaMinutes)),
-        trailing: Icon(Icons.chevron_right, color: ink.muted),
       ),
-      ExtraTime.qiyam => AppRow(
-        leading: null,
-        title: Text(l10n.extraQiyamRule),
-      ),
+      ExtraTime.qiyam => SettingsNote(l10n.extraQiyamRule, top: 0),
     };
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsExtraTimes)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          AppSpace.md,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: [
-          Text(l10n.extraTimesIntro, style: theme.textTheme.bodyMedium),
-          for (final t in ExtraTime.values) ...[
-            AppSectionHeader(extraTimeName(l10n, t)),
-            AppRows(
-              children: [
-                rule(t),
-                SwitchListTile(
-                  key: ValueKey('show-${t.name}'),
-                  title: Text(l10n.extraShowOnToday),
-                  value: extra.shown.contains(t),
-                  onChanged: (on) => setShown(t, on),
-                ),
-                SwitchListTile(
-                  key: ValueKey('alert-${t.name}'),
-                  title: Text(l10n.extraAlert),
-                  subtitle: Text(l10n.extraAlertHint),
-                  value: extra.alerts.contains(t),
-                  onChanged: (on) => setAlert(t, on),
-                ),
-              ],
-            ),
-          ],
+    return SettingsScaffold(
+      title: l10n.settingsExtraTimes,
+      lead: l10n.extraTimesIntro,
+      children: [
+        for (final (i, t) in ExtraTime.values.indexed) ...[
+          SettingsHeading(extraTimeName(l10n, t), top: i == 0 ? 4 : 22),
+          rule(t),
+          SettingsSwitchRow(
+            key: ValueKey('show-${t.name}'),
+            title: l10n.extraShowOnToday,
+            value: extra.shown.contains(t),
+            onChanged: (on) => setShown(t, on),
+          ),
+          SettingsSwitchRow(
+            key: ValueKey('alert-${t.name}'),
+            title: l10n.extraAlert,
+            hint: l10n.extraAlertHint,
+            value: extra.alerts.contains(t),
+            divider: false,
+            onChanged: (on) => setAlert(t, on),
+          ),
         ],
-      ),
+      ],
     );
   }
 }
 
 Future<int?> _chooseMinutes(
   BuildContext context, {
+  required String title,
   required int current,
   required List<int> choices,
   required String Function(int) label,
-}) => showModalBottomSheet<int>(
-  context: context,
-  showDragHandle: true,
-  isScrollControlled: true,
-  builder: (sheetContext) => SafeArea(
-    child: SingleChildScrollView(
-      child: RadioGroup<int>(
-        groupValue: current,
+}) => showSettingsSheet<int>(
+  context,
+  builder: (sheetContext) => SettingsSheetBody(
+    title: title,
+    children: [
+      RadioList<int>(
+        options: [for (final m in choices) RadioOption(m, label(m))],
+        selected: current,
         onChanged: (m) => Navigator.of(sheetContext).pop(m),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final m in choices)
-              RadioListTile<int>(value: m, title: Text(label(m))),
-          ],
-        ),
       ),
-    ),
+    ],
   ),
 );
 

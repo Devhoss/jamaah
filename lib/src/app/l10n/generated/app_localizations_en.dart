@@ -2575,4 +2575,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpAbout => 'About';
+
+  @override
+  String get methodListLead => 'Each method\'s angles, and where it is used.';
 }

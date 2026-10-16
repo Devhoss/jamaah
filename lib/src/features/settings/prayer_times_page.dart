@@ -16,11 +16,13 @@ import 'prayer_time_settings.dart';
 import 'settings_kit.dart';
 
 /// "Prayer times · Kuwait · Asr Standard": what the hub row says.
-String prayerTimesSummary(AppLocalizations l10n, AppSettingsSnapshot settings) =>
-    l10n.settingsPrayerTimesSummary(
-      methodName(l10n, settings.calculationMethod),
-      asrName(l10n, settings.madhab),
-    );
+String prayerTimesSummary(
+  AppLocalizations l10n,
+  AppSettingsSnapshot settings,
+) => l10n.settingsPrayerTimesSummary(
+  methodName(l10n, settings.calculationMethod),
+  asrName(l10n, settings.madhab),
+);
 
 /// How the day's times are worked out (spec §4.9): the method, Asr, the
 /// Hijri date, the extra times on Today, and, folded away, the rules for far
@@ -161,7 +163,11 @@ class HighLatitudePage extends ConsumerWidget {
         RadioList<HighLatitudeRule>(
           options: [
             for (final r in HighLatitudeRule.values)
-              RadioOption(r, ruleTitle(l10n, r), description: ruleHint(l10n, r)),
+              RadioOption(
+                r,
+                ruleTitle(l10n, r),
+                description: ruleHint(l10n, r),
+              ),
           ],
           selected: settings.highLatitudeRule,
           onChanged: (r) => ref

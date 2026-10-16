@@ -1568,6 +1568,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get helpAbout => arabicDigits(super.helpAbout);
 
   @override
+  String get methodListLead => arabicDigits(super.methodListLead);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 

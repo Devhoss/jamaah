@@ -692,3 +692,4 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 679 | `helpCheckTitle` | Check what is scheduled | تحقّق ممّا هو مجدول |
 | 680 | `helpCheckBody` | The list shows every alert and reminder waiting on this phone, and says if a permission is missing. | تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص. |
 | 681 | `helpAbout` | About | عن التطبيق |
+| 682 | `methodListLead` | Each method's angles, and where it is used. | زوايا كل طريقة، وأين تُستعمل. |

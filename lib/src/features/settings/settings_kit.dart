@@ -368,7 +368,9 @@ class RadioList<T> extends StatelessWidget {
                     checked: o.value == selected,
                     button: true,
                     child: InkWell(
-                      onTap: onChanged == null ? null : () => onChanged!(o.value),
+                      onTap: onChanged == null
+                          ? null
+                          : () => onChanged!(o.value),
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(minHeight: 56),
                         child: Padding(
@@ -586,9 +588,7 @@ class _RowFrame extends StatelessWidget {
     final s = HorizonTheme.of(context).surfaces;
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: divider
-            ? Border(bottom: BorderSide(color: s.divider))
-            : null,
+        border: divider ? Border(bottom: BorderSide(color: s.divider)) : null,
       ),
       child: child,
     );
@@ -613,11 +613,7 @@ Future<T?> showSettingsSheet<T>(
 /// A sheet's title and, under it, its choices or fields, scrolling when the
 /// text is large.
 class SettingsSheetBody extends StatelessWidget {
-  const SettingsSheetBody({
-    required this.children,
-    this.title,
-    super.key,
-  });
+  const SettingsSheetBody({required this.children, this.title, super.key});
 
   final String? title;
   final List<Widget> children;
@@ -629,7 +625,9 @@ class SettingsSheetBody extends StatelessWidget {
     return SafeArea(
       child: Padding(
         // Lift the sheet above the keyboard while a number is typed.
-        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(

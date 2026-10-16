@@ -242,7 +242,7 @@ void main() {
     await open(tester, textScale: 2.0);
     await tapText(tester, t.settingsMethod);
     expect(tester.takeException(), isNull);
-    await tester.pageBack();
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     await tapText(tester, t.settingsAdvanced);
     await tapText(tester, t.settingsAdjustments);

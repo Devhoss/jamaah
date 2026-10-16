@@ -2743,4 +2743,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get helpAbout => 'عن التطبيق';
+
+  @override
+  String get methodListLead => 'زوايا كل طريقة، وأين تُستعمل.';
 }

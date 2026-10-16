@@ -1204,5 +1204,6 @@
   "helpBatteryTitle": "Battery use",
   "helpCheckTitle": "Check what is scheduled",
   "helpCheckBody": "The list shows every alert and reminder waiting on this phone, and says if a permission is missing.",
-  "helpAbout": "About"
+  "helpAbout": "About",
+  "methodListLead": "Each method's angles, and where it is used."
 }

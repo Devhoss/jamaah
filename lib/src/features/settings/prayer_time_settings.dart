@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/prayer.dart';
 import '../../domain/prayer_times_parameters.dart';
-import '../components/app_widgets.dart';
+import '../components/line_icon.dart';
+import 'settings_kit.dart';
 
 String methodName(AppLocalizations l10n, CalculationMethod m) => switch (m) {
   CalculationMethod.auto => l10n.methodAuto,
@@ -116,13 +116,9 @@ class MethodListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final settings =
         ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
     final place = ref.watch(currentPlaceProvider);
-    final selected = settings.calculationMethod;
-    final small = TextStyle(fontSize: 13, color: ink.muted);
 
     List<String> details(CalculationMethod m) => switch (m) {
       CalculationMethod.auto => [
@@ -166,50 +162,19 @@ class MethodListPage extends ConsumerWidget {
       if (context.mounted) Navigator.of(context).pop();
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsMethod)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.lg,
-          0,
-          AppSpace.lg,
-          AppSpace.xxl,
+    return SettingsScaffold(
+      title: l10n.settingsMethod,
+      lead: l10n.methodListLead,
+      children: [
+        RadioList<CalculationMethod>(
+          options: [
+            for (final m in CalculationMethod.values)
+              RadioOption(m, methodName(l10n, m), more: details(m)),
+          ],
+          selected: settings.calculationMethod,
+          onChanged: choose,
         ),
-        children: [
-          AppRows(
-            children: [
-              for (final m in CalculationMethod.values)
-                Semantics(
-                  selected: m == selected,
-                  child: AppRow(
-                    selected: m == selected,
-                    leading: Icon(
-                      Icons.check,
-                      size: 20,
-                      color: m == selected
-                          ? theme.colorScheme.primary
-                          : Colors.transparent,
-                    ),
-                    onTap: () => choose(m),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          methodName(l10n, m),
-                          style: const TextStyle(
-                            fontSize: AppType.bodySize + 2,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        for (final line in details(m)) Text(line, style: small),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -218,10 +183,8 @@ class MethodListPage extends ConsumerWidget {
 Future<CustomAngles?> showCustomAnglesSheet(
   BuildContext context,
   CustomAngles current,
-) => showModalBottomSheet<CustomAngles>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
+) => showSettingsSheet<CustomAngles>(
+  context,
   builder: (_) => _CustomAnglesSheet(current: current),
 );
 
@@ -270,102 +233,63 @@ class _CustomAnglesSheetState extends State<_CustomAnglesSheet> {
     String? angleError(TextEditingController c) =>
         c.text.isEmpty || _angle(c) != null ? null : l10n.customAngleError;
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpace.xxl,
-            0,
-            AppSpace.xxl,
-            AppSpace.xxl,
+    return SettingsSheetBody(
+      title: l10n.customTitle,
+      children: [
+        TextField(
+          controller: _fajr,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: l10n.customFajr,
+            errorText: angleError(_fajr),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.customTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpace.lg),
-              TextField(
-                controller: _fajr,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: l10n.customFajr,
-                  errorText: angleError(_fajr),
-                ),
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: AppSpace.md),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.customIshaByMinutes),
-                value: _byMinutes,
-                onChanged: (on) => setState(() => _byMinutes = on),
-              ),
-              if (_byMinutes)
-                TextField(
-                  controller: _minutes,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: l10n.customIshaMinutes,
-                    errorText: _minutes.text.isEmpty || _ishaMinutes() != null
-                        ? null
-                        : l10n.customMinutesError,
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 8),
+        SettingsSwitchRow(
+          title: l10n.customIshaByMinutes,
+          value: _byMinutes,
+          divider: false,
+          onChanged: (on) => setState(() => _byMinutes = on),
+        ),
+        if (_byMinutes)
+          TextField(
+            controller: _minutes,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.customIshaMinutes,
+              errorText: _minutes.text.isEmpty || _ishaMinutes() != null
+                  ? null
+                  : l10n.customMinutesError,
+            ),
+            onChanged: (_) => setState(() {}),
+          )
+        else
+          TextField(
+            controller: _isha,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: l10n.customIsha,
+              errorText: angleError(_isha),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        const SizedBox(height: 20),
+        SheetActions(
+          cancelLabel: l10n.cancel,
+          saveLabel: l10n.save,
+          onCancel: () => Navigator.of(context).pop(),
+          onSave: _valid
+              ? () => Navigator.of(context).pop(
+                  CustomAngles(
+                    fajrAngle: _angle(_fajr)!,
+                    ishaAngle: _angle(_isha) ?? widget.current.ishaAngle,
+                    ishaMinutesAfterMaghrib: _byMinutes ? _ishaMinutes() : null,
                   ),
-                  onChanged: (_) => setState(() {}),
                 )
-              else
-                TextField(
-                  controller: _isha,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: l10n.customIsha,
-                    errorText: angleError(_isha),
-                  ),
-                  onChanged: (_) => setState(() {}),
-                ),
-              const SizedBox(height: AppSpace.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(l10n.cancel),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpace.md),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _valid
-                          ? () => Navigator.of(context).pop(
-                              CustomAngles(
-                                fajrAngle: _angle(_fajr)!,
-                                ishaAngle:
-                                    _angle(_isha) ?? widget.current.ishaAngle,
-                                ishaMinutesAfterMaghrib: _byMinutes
-                                    ? _ishaMinutes()
-                                    : null,
-                              ),
-                            )
-                          : null,
-                      child: Text(l10n.save),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+              : null,
         ),
-      ),
+      ],
     );
   }
 }
@@ -379,7 +303,8 @@ class AdjustmentsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final ink = AppInk.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
     final offsets =
         (ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults)
             .minuteOffsets;
@@ -390,75 +315,79 @@ class AdjustmentsPage extends ConsumerWidget {
           minuteOffsets: {...offsets, p: minutes.clamp(-limit, limit)},
         );
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsAdjustments)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: [
-          Text(
-            l10n.adjustmentsHint,
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: ink.muted),
+    Widget step(String tooltip, LineIconData icon, VoidCallback? onTap) =>
+        IconButton(
+          tooltip: tooltip,
+          onPressed: onTap,
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          icon: LineIcon(
+            icon,
+            size: 20,
+            strokeWidth: 2,
+            color: onTap == null ? s.divider : s.onSurface,
           ),
-          const SizedBox(height: AppSpace.md),
-          AppRows(
-            children: [
-              for (final p in Prayer.adhanPrayers)
-                AppRow(
-                  leading: null,
-                  title: Text(
-                    prayerName(l10n, p),
-                    style: const TextStyle(fontSize: AppType.rowSize),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: l10n.adjustmentsMinus(prayerName(l10n, p)),
-                        onPressed: (offsets[p] ?? 0) > -limit
-                            ? () => set(p, (offsets[p] ?? 0) - 1)
-                            : null,
-                        icon: const Icon(Icons.remove),
-                      ),
-                      SizedBox(
-                        width: 64,
-                        child: Text(
-                          l10n.adjustmentsValue(offsets[p] ?? 0),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: l10n.adjustmentsPlus(prayerName(l10n, p)),
-                        onPressed: (offsets[p] ?? 0) < limit
-                            ? () => set(p, (offsets[p] ?? 0) + 1)
-                            : null,
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.md),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
-              onPressed: offsets.values.any((m) => m != 0)
-                  ? () => ref
-                        .read(settingsRepositoryProvider)
-                        .setPrayerTimesPreferences(minuteOffsets: const {})
+        );
+
+    return SettingsScaffold(
+      title: l10n.settingsAdjustments,
+      lead: l10n.adjustmentsHint,
+      children: [
+        for (final (i, p) in Prayer.adhanPrayers.indexed)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: i < Prayer.adhanPrayers.length - 1
+                  ? Border(bottom: BorderSide(color: s.divider))
                   : null,
-              child: Text(l10n.adjustmentsReset),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      prayerName(l10n, p),
+                      style: type.row.copyWith(color: s.onSurface),
+                    ),
+                  ),
+                  step(
+                    l10n.adjustmentsMinus(prayerName(l10n, p)),
+                    LineIcons.minus,
+                    (offsets[p] ?? 0) > -limit
+                        ? () => set(p, (offsets[p] ?? 0) - 1)
+                        : null,
+                  ),
+                  SizedBox(
+                    width: 72,
+                    child: Text(
+                      l10n.adjustmentsValue(offsets[p] ?? 0),
+                      textAlign: TextAlign.center,
+                      style: type.row.copyWith(
+                        color: s.onSurface,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ),
+                  step(
+                    l10n.adjustmentsPlus(prayerName(l10n, p)),
+                    LineIcons.plus,
+                    (offsets[p] ?? 0) < limit
+                        ? () => set(p, (offsets[p] ?? 0) + 1)
+                        : null,
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        const SizedBox(height: 14),
+        SettingsButton(
+          label: l10n.adjustmentsReset,
+          onPressed: offsets.values.any((m) => m != 0)
+              ? () => ref
+                    .read(settingsRepositoryProvider)
+                    .setPrayerTimesPreferences(minuteOffsets: const {})
+              : null,
+        ),
+      ],
     );
   }
 }
