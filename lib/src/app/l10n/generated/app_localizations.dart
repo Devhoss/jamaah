@@ -4611,6 +4611,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop the {prayer} Adhan'**
   String adhanScreenStopLabel(String prayer);
+
+  /// No description provided for @onbExactNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For alerts at the very minute, Android also asks you to let Jama’ah set alarms. Without it, an alert can come a few minutes late.'**
+  String get onbExactNote;
+
+  /// No description provided for @onbExactAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow on-time alerts'**
+  String get onbExactAllow;
+
+  /// No description provided for @onbExactHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the switch on the next screen, then come back.'**
+  String get onbExactHow;
+
+  /// No description provided for @onbExactAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'On-time alerts allowed'**
+  String get onbExactAllowed;
 }
 
 class _AppLocalizationsDelegate

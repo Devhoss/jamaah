@@ -2992,4 +2992,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String adhanScreenStopLabel(String prayer) {
     return 'أوقف أذان $prayer';
   }
+
+  @override
+  String get onbExactNote =>
+      'لتصل التنبيهات في دقيقتها تمامًا، يطلب أندرويد أيضًا أن تسمح لتطبيق «جماعة» بضبط المنبّهات. ومن دون ذلك قد يتأخّر التنبيه بضع دقائق.';
+
+  @override
+  String get onbExactAllow => 'اسمح بالتنبيهات في وقتها';
+
+  @override
+  String get onbExactHow => 'فعّل المفتاح في الشاشة التالية، ثم عُد.';
+
+  @override
+  String get onbExactAllowed => 'التنبيهات في وقتها مسموح بها';
 }

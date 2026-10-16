@@ -1290,5 +1290,9 @@
   "adhanScreenStopped": "Adhan stopped",
   "adhanScreenDismiss": "Dismiss",
   "adhanScreenStopLabel": "Stop the {prayer} Adhan",
-  "@adhanScreenStopLabel": {"placeholders": {"prayer": {"type": "String"}}}
+  "@adhanScreenStopLabel": {"placeholders": {"prayer": {"type": "String"}}},
+  "onbExactNote": "For alerts at the very minute, Android also asks you to let Jama’ah set alarms. Without it, an alert can come a few minutes late.",
+  "onbExactAllow": "Allow on-time alerts",
+  "onbExactHow": "Turn on the switch on the next screen, then come back.",
+  "onbExactAllowed": "On-time alerts allowed"
 }

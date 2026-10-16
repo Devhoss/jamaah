@@ -749,5 +749,9 @@
   "adhanScreenHint": "أزرار الصوت أو قلب الهاتف على وجهه توقفه أيضًا.",
   "adhanScreenStopped": "توقّف الأذان",
   "adhanScreenDismiss": "إغلاق",
-  "adhanScreenStopLabel": "أوقف أذان {prayer}"
+  "adhanScreenStopLabel": "أوقف أذان {prayer}",
+  "onbExactNote": "لتصل التنبيهات في دقيقتها تمامًا، يطلب أندرويد أيضًا أن تسمح لتطبيق «جماعة» بضبط المنبّهات. ومن دون ذلك قد يتأخّر التنبيه بضع دقائق.",
+  "onbExactAllow": "اسمح بالتنبيهات في وقتها",
+  "onbExactHow": "فعّل المفتاح في الشاشة التالية، ثم عُد.",
+  "onbExactAllowed": "التنبيهات في وقتها مسموح بها"
 }

@@ -84,6 +84,28 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   bool? _notificationsAllowed;
   bool _askedNotifications = false;
 
+  /// Android 12+'s "Alarms & reminders": without it alerts can come a few
+  /// minutes late. It has no pop-up; Allow opens Android's own switch, and
+  /// the answer is read again when the user comes back (2026-10-16).
+  bool? _exactAllowed;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        if (_step == 3) unawaited(_checkNotifications());
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
   /// On a first run alerts start on; replayed, the switch shows whether the
   /// five are already on, so walking through again changes nothing.
   bool _alertsDefault() {
@@ -103,11 +125,20 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   void _back() => _go(_step - 1);
 
   Future<void> _checkNotifications() async {
-    final allowed = await ref
-        .read(notificationGatewayProvider)
-        .notificationsEnabled();
-    if (mounted) setState(() => _notificationsAllowed = allowed);
+    final gateway = ref.read(notificationGatewayProvider);
+    final allowed = await gateway.notificationsEnabled();
+    final exact = await gateway.canScheduleExact();
+    if (mounted) {
+      setState(() {
+        _notificationsAllowed = allowed;
+        _exactAllowed = exact;
+      });
+    }
   }
+
+  void _allowExact() => unawaited(
+    ref.read(notificationPermissionActionsProvider).requestExactAlarms(),
+  );
 
   Future<void> _askNotifications() async {
     _askedNotifications = true;
@@ -588,6 +619,64 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               Flexible(
                 child: Text(
                   l10n.onbNotificationsAllowed,
+                  style: type.body.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: p.ink,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+      if (on && _exactAllowed == false) ...[
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: p.halo,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.onbExactNote,
+                style: type.body.copyWith(
+                  fontSize: 14,
+                  height: 1.45,
+                  color: p.ink,
+                ),
+              ),
+              const SizedBox(height: 10),
+              PillButton(
+                label: l10n.onbExactAllow,
+                filled: true,
+                ink: p.fill,
+                onInk: p.deep,
+                line: p.line,
+                onPressed: _allowExact,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.onbExactHow,
+                style: type.meta.copyWith(fontSize: 13, color: p.mute),
+              ),
+            ],
+          ),
+        ),
+      ] else if (on && _exactAllowed == true) ...[
+        const SizedBox(height: 8),
+        Semantics(
+          liveRegion: true,
+          child: Row(
+            children: [
+              LineIcon(LineIcons.check, size: 16, strokeWidth: 3, color: p.ink),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  l10n.onbExactAllowed,
                   style: type.body.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

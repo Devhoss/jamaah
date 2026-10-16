@@ -33,6 +33,8 @@ void main() {
   late AppDatabase db;
   late SettingsRepository settings;
   late int permissionAsks;
+  late int exactAsks;
+  late FakeNotificationGateway gateway;
 
   setUpAll(loadTimeZoneDatabase);
 
@@ -40,6 +42,8 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     settings = SettingsRepository(db);
     permissionAsks = 0;
+    exactAsks = 0;
+    gateway = FakeNotificationGateway();
     addTearDown(db.close);
   });
 
@@ -60,11 +64,15 @@ void main() {
           ),
           phoneUtcOffsetProvider.overrideWithValue(null),
           placeSourceProvider.overrideWithValue(FakePlaceSource(reading)),
-          notificationGatewayProvider.overrideWithValue(
-            FakeNotificationGateway(),
-          ),
+          notificationGatewayProvider.overrideWithValue(gateway),
           notificationPermissionRequestProvider.overrideWithValue(
             () async => permissionAsks++,
+          ),
+          notificationPermissionActionsProvider.overrideWithValue(
+            NotificationPermissionActions(
+              requestNotifications: () async => permissionAsks++,
+              requestExactAlarms: () async => exactAsks++,
+            ),
           ),
         ],
         child: Builder(
@@ -228,6 +236,36 @@ void main() {
       RingCoverage.all,
     );
     expect(s.jamaahReminders.ringInSilent, isTrue);
+  });
+
+  testApp('on-time alerts open the Android switch, then a tick on return', (
+    tester,
+  ) async {
+    gateway.exact = false;
+    await open(tester);
+    await tapText(tester, t.onbContinue);
+    await chooseCity(tester, t.locationChooseCity);
+    await tapText(tester, t.onbContinue);
+    await tapText(tester, t.onbNotNow);
+    expect(find.text(t.onbExactNote), findsOneWidget);
+    await tapText(tester, t.onbExactAllow);
+    expect(exactAsks, 1, reason: 'opens the Alarms & reminders switch');
+
+    // The user turns it on there and comes back.
+    gateway.exact = true;
+    for (final state in const [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await tester.pumpAndSettle();
+    expect(find.text(t.onbExactAllowed), findsOneWidget);
+    expect(find.text(t.onbExactAllow), findsNothing);
   });
 
   testApp('left alone, nothing rings on silent', (tester) async {

@@ -1724,6 +1724,18 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get adhanScreenDismiss => arabicDigits(super.adhanScreenDismiss);
 
   @override
+  String get onbExactNote => arabicDigits(super.onbExactNote);
+
+  @override
+  String get onbExactAllow => arabicDigits(super.onbExactAllow);
+
+  @override
+  String get onbExactHow => arabicDigits(super.onbExactHow);
+
+  @override
+  String get onbExactAllowed => arabicDigits(super.onbExactAllowed);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 

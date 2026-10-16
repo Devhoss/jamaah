@@ -761,3 +761,7 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 748 | `adhanScreenStopped` | Adhan stopped | توقّف الأذان |
 | 749 | `adhanScreenDismiss` | Dismiss | إغلاق |
 | 750 | `adhanScreenStopLabel` | Stop the {prayer} Adhan | أوقف أذان {prayer} |
+| 751 | `onbExactNote` | For alerts at the very minute, Android also asks you to let Jama’ah set alarms. Without it, an alert can come a few minutes late. | لتصل التنبيهات في دقيقتها تمامًا، يطلب أندرويد أيضًا أن تسمح لتطبيق «جماعة» بضبط المنبّهات. ومن دون ذلك قد يتأخّر التنبيه بضع دقائق. |
+| 752 | `onbExactAllow` | Allow on-time alerts | اسمح بالتنبيهات في وقتها |
+| 753 | `onbExactHow` | Turn on the switch on the next screen, then come back. | فعّل المفتاح في الشاشة التالية، ثم عُد. |
+| 754 | `onbExactAllowed` | On-time alerts allowed | التنبيهات في وقتها مسموح بها |

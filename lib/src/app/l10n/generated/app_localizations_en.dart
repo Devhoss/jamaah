@@ -2824,4 +2824,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String adhanScreenStopLabel(String prayer) {
     return 'Stop the $prayer Adhan';
   }
+
+  @override
+  String get onbExactNote =>
+      'For alerts at the very minute, Android also asks you to let Jama’ah set alarms. Without it, an alert can come a few minutes late.';
+
+  @override
+  String get onbExactAllow => 'Allow on-time alerts';
+
+  @override
+  String get onbExactHow =>
+      'Turn on the switch on the next screen, then come back.';
+
+  @override
+  String get onbExactAllowed => 'On-time alerts allowed';
 }
