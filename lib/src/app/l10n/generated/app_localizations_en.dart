@@ -2541,7 +2541,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertsRecordings => 'Recordings';
 
   @override
-  String get alertsSilentSection => 'When the phone is on silent';
+  String get alertsSilentSection => 'On the lock screen and on silent';
 
   @override
   String get settingsRemindersOnMosque =>

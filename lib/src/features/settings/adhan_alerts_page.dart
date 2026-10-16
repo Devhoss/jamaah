@@ -83,9 +83,8 @@ class AdhanAlertsPage extends ConsumerWidget {
           onTap: () => _chooseShortAdhan(context, ref, alerts),
           divider: false,
         ),
-        SettingsHeading(l10n.settingsFullScreen),
-        _FullScreenRow(alerts: alerts),
         SettingsHeading(l10n.alertsSilentSection),
+        _FullScreenRow(alerts: alerts),
         for (final (i, (target, title)) in [
           (RingTarget.adhan, l10n.settingsAdhanRingInSilent),
           (RingTarget.preAdhan, l10n.settingsPreAdhanRingInSilent),
@@ -186,7 +185,6 @@ class _FullScreenRowState extends ConsumerState<_FullScreenRow> {
           title: l10n.settingsFullScreen,
           hint: l10n.settingsFullScreenHint,
           value: on,
-          divider: false,
           onChanged: (value) async {
             await updateAdhanAlerts(ref, (a) => a.copyWith(fullScreen: value));
             if (value) {

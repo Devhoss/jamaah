@@ -2709,7 +2709,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get alertsRecordings => 'التسجيلات';
 
   @override
-  String get alertsSilentSection => 'حين يكون الهاتف على الوضع الصامت';
+  String get alertsSilentSection => 'على شاشة القفل وفي الوضع الصامت';
 
   @override
   String get settingsRemindersOnMosque =>

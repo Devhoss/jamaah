@@ -4135,7 +4135,7 @@ abstract class AppLocalizations {
   /// No description provided for @alertsSilentSection.
   ///
   /// In en, this message translates to:
-  /// **'When the phone is on silent'**
+  /// **'On the lock screen and on silent'**
   String get alertsSilentSection;
 
   /// No description provided for @settingsRemindersOnMosque.

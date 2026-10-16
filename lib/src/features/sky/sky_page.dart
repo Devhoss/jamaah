@@ -48,20 +48,35 @@ class SkyPage extends ConsumerWidget {
         frame: frame,
         dark: dark,
         shades: [SkyShade(headerBand.top, headerBand.bottom, ink.shade)],
-        child: CustomScrollView(
-          slivers: [
-            SliverSafeArea(
-              bottom: false,
-              sliver: SliverToBoxAdapter(child: header(context, palette)),
-            ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: SurfacePanel(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: panel,
+        child: Stack(
+          children: [
+            CustomScrollView(
+              slivers: [
+                SliverSafeArea(
+                  bottom: false,
+                  sliver: SliverToBoxAdapter(child: header(context, palette)),
                 ),
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: SurfacePanel(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: panel,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // The status bar keeps the sky's top colour, so the panel never
+            // scrolls up under the clock and icons.
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.paddingOf(context).top,
+              child: IgnorePointer(
+                child: ColoredBox(color: skyColor(frame.colorAt(0))),
               ),
             ),
           ],

@@ -681,7 +681,7 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 668 | `alertsEachPrayer` | Each prayer | كل صلاة |
 | 669 | `alertsAlsoFromToday` | Also from Today: tap the sound beside any prayer. | ومن «اليوم» أيضًا: انقر الصوت بجانب أي صلاة. |
 | 670 | `alertsRecordings` | Recordings | التسجيلات |
-| 671 | `alertsSilentSection` | When the phone is on silent | حين يكون الهاتف على الوضع الصامت |
+| 671 | `alertsSilentSection` | On the lock screen and on silent | على شاشة القفل وفي الوضع الصامت |
 | 672 | `settingsRemindersOnMosque` | Iqama times and which prayers remind you are set on each mosque. | أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد. |
 | 673 | `followNeedsTravel` | Available while travel mode is on. | متاح أثناء تفعيل وضع السفر. |
 | 674 | `travelInFlightValue` | Prayer times and the Qibla on a plane | أوقات الصلاة والقبلة على متن الطائرة |

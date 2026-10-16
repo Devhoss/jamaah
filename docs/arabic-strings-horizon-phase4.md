@@ -38,7 +38,7 @@ then run it, `flutter gen-l10n` and `tool/gen_arabic_digits.py`.
 | 29 | `alertsEachPrayer` | Each prayer | كل صلاة |
 | 30 | `alertsAlsoFromToday` | Also from Today: tap the sound beside any prayer. | ومن «اليوم» أيضًا: انقر الصوت بجانب أي صلاة. |
 | 31 | `alertsRecordings` | Recordings | التسجيلات |
-| 32 | `alertsSilentSection` | When the phone is on silent | حين يكون الهاتف على الوضع الصامت |
+| 32 | `alertsSilentSection` | On the lock screen and on silent | على شاشة القفل وفي الوضع الصامت |
 | 33 | `settingsRemindersOnMosque` | Iqama times and which prayers remind you are set on each mosque. | أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد. |
 | 34 | `followNeedsTravel` | Available while travel mode is on. | متاح أثناء تفعيل وضع السفر. |
 | 35 | `travelInFlightValue` | Prayer times and the Qibla on a plane | أوقات الصلاة والقبلة على متن الطائرة |
