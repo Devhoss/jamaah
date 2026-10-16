@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../app/app.dart';
-import '../../app/branding.g.dart';
 import '../../app/clock_format.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
@@ -22,6 +21,7 @@ import '../../domain/prayer.dart';
 import '../../domain/sky/ink_rule.dart';
 import '../../domain/sky/sky_model.dart';
 import '../../domain/sky/sun_path_geometry.dart';
+import '../components/brand_mark.dart';
 import '../components/horizon_controls.dart';
 import '../components/line_icon.dart';
 import '../components/travel_switch.dart';
@@ -328,8 +328,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         ? AppLanguage.ar
         : AppLanguage.en;
     return [
-      Text(kWordmark, style: type.section.copyWith(color: p.mute)),
-      const SizedBox(height: 6),
+      // The mark and the name (brand README lockup).
+      BrandLockup(fontSize: 22, ink: p.ink),
+      const SizedBox(height: 14),
       _title(context, l10n.onbWelcomeTagline, p),
       _body(context, l10n.onbWelcomeBody, p),
       const SizedBox(height: 26),

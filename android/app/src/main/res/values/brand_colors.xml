@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash background (top of the icon's sky) and the mark's colours. -->
+    <color name="brand_splash">#1F2A5E</color>
+    <color name="brand_cream">#FFF4EA</color>
+    <color name="brand_amber">#FFC979</color>
+</resources>

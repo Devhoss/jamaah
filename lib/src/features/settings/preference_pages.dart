@@ -9,6 +9,7 @@ import '../../app/providers.dart';
 import '../../app/theme/horizon_tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
+import '../components/brand_mark.dart';
 import '../components/travel_switch.dart';
 import '../flight/in_flight_page.dart';
 import '../onboarding/onboarding_page.dart';
@@ -206,6 +207,16 @@ class HelpAboutPage extends StatelessWidget {
           divider: false,
         ),
         SettingsHeading(l10n.helpAbout),
+        Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 10),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: BrandLockup(
+              fontSize: 22,
+              ink: HorizonTheme.of(context).surfaces.onSurface,
+            ),
+          ),
+        ),
         SettingsNote(l10n.aboutBody, top: 0),
         // Which build this is, for testers' reports; left to right in
         // either language.

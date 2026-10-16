@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72" width="512" height="512">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.0" stop-color="#1F2A5E"/>
+      <stop offset="0.35" stop-color="#3A3470"/>
+      <stop offset="0.55" stop-color="#9A4C78"/>
+      <stop offset="0.72" stop-color="#E0805E"/>
+      <stop offset="0.8" stop-color="#8A3E5A"/>
+      <stop offset="1.0" stop-color="#2A1630"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="71.0" cy="62.0" r="12.0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD9A0" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#sky)"/>
+  <circle cx="71.0" cy="62.0" r="12.0" fill="url(#glow)"/>
+  <path d="M30,76 V52 C30,40 44,31 54,26 C64,31 78,40 78,52 V76" fill="none" stroke="#FFF4EA" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M33.9,52 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z M33.3,60.7 A3.7,3.7 0 0,1 40.7,60.7 V68.3 A3.7,3.7 0 0,1 33.3,68.3 Z" fill="#FFF4EA"/>
+  <path d="M42.4,52 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z M41.8,60.7 A3.7,3.7 0 0,1 49.2,60.7 V68.3 A3.7,3.7 0 0,1 41.8,68.3 Z" fill="#FFF4EA"/>
+  <path d="M50.9,52 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z M50.3,60.7 A3.7,3.7 0 0,1 57.7,60.7 V68.3 A3.7,3.7 0 0,1 50.3,68.3 Z" fill="#FFF4EA"/>
+  <path d="M59.4,52 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z M58.8,60.7 A3.7,3.7 0 0,1 66.2,60.7 V68.3 A3.7,3.7 0 0,1 58.8,68.3 Z" fill="#FFF4EA"/>
+  <path d="M67.9,52 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z M67.3,60.7 A3.7,3.7 0 0,1 74.7,60.7 V68.3 A3.7,3.7 0 0,1 67.3,68.3 Z" fill="#FFC979"/>
+</svg>

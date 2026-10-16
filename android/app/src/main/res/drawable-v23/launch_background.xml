@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Before Android 12: the brand's evening sky with the Saff + Mihrab mark
+     centred (Android 12+ uses values-v31). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/brand_splash" />
+    <item android:drawable="@drawable/splash_icon" android:gravity="center" />
+</layer-list>
