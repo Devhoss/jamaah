@@ -183,7 +183,9 @@ class _MosqueRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
       decoration: BoxDecoration(
         color: isActive ? s.well : Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        // Only the active row is a rounded well; the others end in a
+        // straight hairline (a radius would curl its ends).
+        borderRadius: isActive ? BorderRadius.circular(16) : null,
         border: isActive ? null : Border(bottom: BorderSide(color: s.divider)),
       ),
       child: Column(
