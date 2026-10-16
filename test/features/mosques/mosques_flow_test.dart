@@ -141,10 +141,13 @@ void main() {
 
   /// The quick reminder switches on the schedule rows, without the page's
   /// "Pause this mosque's reminders" switch.
-  Finder rowSwitches() => find.byElementPredicate(
-    (e) =>
-        e.widget is Switch &&
-        e.findAncestorWidgetOfExactType<SwitchListTile>() == null,
+  Finder rowSwitches() => find.byWidgetPredicate(
+    (w) => w is AppSwitch && w.semanticLabel != t.mosquePauseTitle,
+  );
+
+  /// The page's own "Pause Jama'ah reminders" switch.
+  Finder pauseSwitch() => find.byWidgetPredicate(
+    (w) => w is AppSwitch && w.semanticLabel == t.mosquePauseTitle,
   );
 
   Finder buttonWith(String label) => find.ancestor(
@@ -205,7 +208,7 @@ void main() {
       matching: find.byIcon(Icons.schedule),
     );
     if (pickerField.evaluate().isEmpty) {
-      await tester.tap(find.text(t.iqamaModeFixed));
+      await tester.tap(find.text(t.iqamaModeFixed).last);
       await tester.pumpAndSettle();
     }
   }
@@ -276,6 +279,54 @@ void main() {
     });
   });
 
+  group('the mosque page (Horizon)', () {
+    testApp('says the next Jamaah and how each Iqama is set', (tester) async {
+      final handle = tester.ensureSemantics();
+      await open(tester);
+      await addThroughSheet(tester);
+      final mosque = await savedMosque('Masjid al-Nour');
+      // 10:00 in Cairo: Dhuhr (12:43) is next; 20 minutes after it.
+      await mosques.setIqama(
+        mosque.id,
+        Prayer.dhuhr,
+        null,
+        afterAdhanMinutes: 20,
+        reminderEnabled: true,
+      );
+      await mosques.setIqama(mosque.id, Prayer.asr, LocalTime.of(16, 15));
+      await tester.pumpAndSettle();
+      expect(find.text(t.rowAdhanPlus(20)), findsOneWidget);
+      expect(find.text(t.rowFixedTime), findsOneWidget);
+      expect(find.textContaining('Next Jama’ah · Dhuhr'), findsOneWidget);
+      expect(find.text(t.iqamaStatusPartial(2, 6)), findsOneWidget);
+      // A switch with no Iqama behind it says why it cannot be used.
+      expect(
+        find.bySemanticsLabel(t.reminderSwitchNeedsIqama(t.prayerFajr)),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testApp('paused reminders say so on each row', (tester) async {
+      await open(tester);
+      await addThroughSheet(tester);
+      final mosque = await savedMosque('Masjid al-Nour');
+      await mosques.setIqama(
+        mosque.id,
+        Prayer.asr,
+        LocalTime.of(16, 15),
+        reminderEnabled: true,
+      );
+      await mosques.setRemindersPaused(mosque.id, paused: true);
+      await tester.pumpAndSettle();
+      final at = clockOn(tester).time;
+      expect(
+        find.text(t.rowPausedReminder(at(LocalTime.of(16, 5)))),
+        findsOneWidget,
+      );
+    });
+  });
+
   group('adding a mosque by hand', () {
     testApp('Add stays disabled until there is a name', (tester) async {
       await open(tester);
@@ -336,9 +387,9 @@ void main() {
       await addThroughSheet(tester);
 
       expect(find.text(t.tagActive), findsOneWidget);
-      expect(find.text(t.setAsActive), findsNothing);
+      expect(find.text(t.mosqueMakeActive), findsNothing);
 
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
       expect(find.byType(MosquesScreen), findsOneWidget);
@@ -510,8 +561,8 @@ void main() {
         findsOneWidget,
       );
       expect(find.text(t.notConfigured), findsNWidgets(5));
-      await reveal(tester, find.text(t.scheduleSetByYou('12 Oct 2026')));
-      expect(find.text(t.scheduleSetByYou('12 Oct 2026')), findsOneWidget);
+      await reveal(tester, find.text(t.scheduleFooter('12 Oct 2026')));
+      expect(find.text(t.scheduleFooter('12 Oct 2026')), findsOneWidget);
     });
 
     testApp('Cancel discards the edit', (tester) async {
@@ -643,7 +694,7 @@ void main() {
         RegExp(RegExp.escape(t.reminderSwitchLabel(t.prayerFajr))),
       );
       expect(fajrSwitch, findsOneWidget);
-      final switches = tester.widgetList<Switch>(rowSwitches());
+      final switches = tester.widgetList<AppSwitch>(rowSwitches());
       expect(
         switches.every((s) => s.onChanged == null),
         isTrue,
@@ -695,11 +746,8 @@ void main() {
       await tester.tap(buttonWith(t.save));
       await tester.pumpAndSettle();
 
-      expect(find.text('Al-Nour Mosque'), findsOneWidget);
-      expect(
-        find.text(t.iqamaScheduleHeader('Al-Nour Mosque').toUpperCase()),
-        findsOneWidget,
-      );
+      // The page's title is the mosque's name.
+      expect(find.text('Al-Nour Mosque'), findsWidgets);
       expect((await mosques.saved()).single.name, 'Al-Nour Mosque');
     });
   });
@@ -708,7 +756,7 @@ void main() {
     testApp('Set as active moves the Active tag', (tester) async {
       await open(tester);
       await addThroughSheet(tester, name: 'First');
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await tapAddOnTab(tester);
       await tester.enterText(
@@ -719,19 +767,19 @@ void main() {
       await tester.tap(buttonWith(t.add));
       await tester.pumpAndSettle();
 
-      expect(find.text(t.setAsActive), findsOneWidget);
-      await tapText(tester, t.setAsActive);
+      expect(find.text(t.mosqueMakeActive), findsOneWidget);
+      await tapText(tester, t.mosqueMakeActive);
 
       final second = await savedMosque('Second');
       expect((await settings.read()).activeMosqueId, second.id);
-      expect(find.text(t.setAsActive), findsNothing);
+      expect(find.text(t.mosqueMakeActive), findsNothing);
       expect(find.text(t.tagActive), findsOneWidget);
     });
 
     testApp('removing asks first, and Cancel keeps the mosque', (tester) async {
       await open(tester);
       await addThroughSheet(tester);
-      await tapText(tester, t.removeMosque);
+      await tapText(tester, t.removeThisMosque);
 
       expect(find.text(t.removeMosqueTitle('Masjid al-Nour')), findsOneWidget);
       expect(find.text(t.removeMosqueBodyActive), findsOneWidget);
@@ -746,7 +794,7 @@ void main() {
     ) async {
       await open(tester);
       await addThroughSheet(tester);
-      await tapText(tester, t.removeMosque);
+      await tapText(tester, t.removeThisMosque);
       await tapText(tester, t.remove);
 
       expect(await mosques.saved(), isEmpty);
@@ -765,14 +813,14 @@ void main() {
     ) async {
       await open(tester);
       await addThroughSheet(tester);
-      final pause = find.widgetWithText(SwitchListTile, t.mosquePauseReminders);
+      final pause = pauseSwitch();
       await reveal(tester, pause);
       await tester.tap(pause);
       await tester.pumpAndSettle();
 
       expect((await savedMosque('Masjid al-Nour')).remindersPaused, isTrue);
 
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.text(t.tagRemindersPaused), findsOneWidget);
 
@@ -805,7 +853,7 @@ void main() {
       await tester.pumpAndSettle();
       final at = clockOn(tester).time;
 
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await tapText(tester, t.tabToday);
 
@@ -847,8 +895,8 @@ void main() {
 
       await goToMosques(tester);
       await tapText(tester, 'Second');
-      await tapText(tester, t.setAsActive);
-      await tester.pageBack();
+      await tapText(tester, t.mosqueMakeActive);
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await tapText(tester, t.tabToday);
 
@@ -912,7 +960,7 @@ void main() {
       expect(tester.takeException(), isNull);
 
       await tapText(tester, t.cancel);
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.byType(MosquesScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -931,7 +979,7 @@ void main() {
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
 
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));

@@ -175,7 +175,7 @@ void main() {
     final e = stored((await mosques.byId(m.id))!).iqamaFor(Prayer.fajr);
     expect(e.afterAdhanMinutes, 22);
     expect(e.iqama, isNull);
-    expect(find.text(t.rowAfterAdhan(22)), findsOneWidget);
+    expect(find.text(t.rowAdhanPlus(22)), findsOneWidget);
     expect(find.text(hhmm(fajr + 22)), findsWidgets);
   });
 
@@ -261,7 +261,7 @@ void main() {
     expect(s.iqamaFor(Prayer.isha).isConfigured, isFalse);
 
     // Today adds them to the day's Adhan.
-    await tester.pageBack();
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     await tapText(tester, t.tabToday);
     await reveal(tester, find.text(t.rowIqama(hhmm(dhuhr + 20))));

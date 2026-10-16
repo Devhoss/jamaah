@@ -606,5 +606,22 @@
   "mosquesEmptyFind": "ابحث عن مساجد قريبة",
   "mosquesEmptyAdd": "أضف مسجدًا بنفسك",
   "mosquesEmptyNote": "أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك.",
-  "mosqueRowSemantics": "{mosque}. {source}. {count}"
+  "mosqueRowSemantics": "{mosque}. {source}. {count}",
+  "mosqueKicker": "مسجدك",
+  "mosqueNextJamaah": "الجماعة القادمة · {prayer} {time} · {relative}",
+  "mosqueNoNextJamaah": "لا جماعة أخرى محدّدة لليوم",
+  "mosquePauseTitle": "إيقاف تذكيرات الجماعة مؤقتًا",
+  "mosquePauseHint": "تبقى أوقات الإقامة وإعداداتك محفوظة.",
+  "scheduleSection": "جدول الإقامة",
+  "scheduleTapHint": "اضغط على صلاة لتحديدها",
+  "rowAdhanPlus": "{minutes, plural, =1{الأذان + دقيقة} =2{الأذان + دقيقتين} few{الأذان + {minutes} دقائق} many{الأذان + {minutes} دقيقة} other{الأذان + {minutes} دقيقة}}",
+  "rowFixedTime": "وقت ثابت",
+  "rowPausedReminder": "متوقف مؤقتًا · التذكير {time}",
+  "reminderSwitchNeedsIqama": "تذكير جماعة {prayer}، متاح بعد تحديد وقت الإقامة",
+  "scheduleNeverFills": "التطبيق لا يملأ أي إقامة من عنده.",
+  "removeThisMosque": "إزالة هذا المسجد",
+  "mosqueBack": "العودة إلى المساجد",
+  "iqamaRowSet": "تعديل إقامة {prayer}",
+  "iqamaRowUnset": "تحديد إقامة {prayer}",
+  "scheduleFooter": "حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده."
 }

@@ -2455,4 +2455,78 @@ class AppLocalizationsAr extends AppLocalizations {
   String mosqueRowSemantics(String mosque, String source, String count) {
     return '$mosque. $source. $count';
   }
+
+  @override
+  String get mosqueKicker => 'مسجدك';
+
+  @override
+  String mosqueNextJamaah(String prayer, String time, String relative) {
+    return 'الجماعة القادمة · $prayer $time · $relative';
+  }
+
+  @override
+  String get mosqueNoNextJamaah => 'لا جماعة أخرى محدّدة لليوم';
+
+  @override
+  String get mosquePauseTitle => 'إيقاف تذكيرات الجماعة مؤقتًا';
+
+  @override
+  String get mosquePauseHint => 'تبقى أوقات الإقامة وإعداداتك محفوظة.';
+
+  @override
+  String get scheduleSection => 'جدول الإقامة';
+
+  @override
+  String get scheduleTapHint => 'اضغط على صلاة لتحديدها';
+
+  @override
+  String rowAdhanPlus(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'الأذان + $minutes دقيقة',
+      many: 'الأذان + $minutes دقيقة',
+      few: 'الأذان + $minutes دقائق',
+      two: 'الأذان + دقيقتين',
+      one: 'الأذان + دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rowFixedTime => 'وقت ثابت';
+
+  @override
+  String rowPausedReminder(String time) {
+    return 'متوقف مؤقتًا · التذكير $time';
+  }
+
+  @override
+  String reminderSwitchNeedsIqama(String prayer) {
+    return 'تذكير جماعة $prayer، متاح بعد تحديد وقت الإقامة';
+  }
+
+  @override
+  String get scheduleNeverFills => 'التطبيق لا يملأ أي إقامة من عنده.';
+
+  @override
+  String get removeThisMosque => 'إزالة هذا المسجد';
+
+  @override
+  String get mosqueBack => 'العودة إلى المساجد';
+
+  @override
+  String iqamaRowSet(String prayer) {
+    return 'تعديل إقامة $prayer';
+  }
+
+  @override
+  String iqamaRowUnset(String prayer) {
+    return 'تحديد إقامة $prayer';
+  }
+
+  @override
+  String scheduleFooter(String date) {
+    return 'حدّدتها أنت · آخر تحديث $date. التطبيق لا يملأ أي إقامة من عنده.';
+  }
 }

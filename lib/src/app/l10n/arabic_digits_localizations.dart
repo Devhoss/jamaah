@@ -1394,6 +1394,36 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get mosquesEmptyNote => arabicDigits(super.mosquesEmptyNote);
 
   @override
+  String get mosqueKicker => arabicDigits(super.mosqueKicker);
+
+  @override
+  String get mosqueNoNextJamaah => arabicDigits(super.mosqueNoNextJamaah);
+
+  @override
+  String get mosquePauseTitle => arabicDigits(super.mosquePauseTitle);
+
+  @override
+  String get mosquePauseHint => arabicDigits(super.mosquePauseHint);
+
+  @override
+  String get scheduleSection => arabicDigits(super.scheduleSection);
+
+  @override
+  String get scheduleTapHint => arabicDigits(super.scheduleTapHint);
+
+  @override
+  String get rowFixedTime => arabicDigits(super.rowFixedTime);
+
+  @override
+  String get scheduleNeverFills => arabicDigits(super.scheduleNeverFills);
+
+  @override
+  String get removeThisMosque => arabicDigits(super.removeThisMosque);
+
+  @override
+  String get mosqueBack => arabicDigits(super.mosqueBack);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -1986,4 +2016,32 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String mosqueRowSemantics(String mosque, String source, String count) =>
       arabicDigits(super.mosqueRowSemantics(mosque, source, count));
+
+  @override
+  String mosqueNextJamaah(String prayer, String time, String relative) =>
+      arabicDigits(super.mosqueNextJamaah(prayer, time, relative));
+
+  @override
+  String rowAdhanPlus(int minutes) =>
+      arabicDigits(super.rowAdhanPlus(minutes));
+
+  @override
+  String rowPausedReminder(String time) =>
+      arabicDigits(super.rowPausedReminder(time));
+
+  @override
+  String reminderSwitchNeedsIqama(String prayer) =>
+      arabicDigits(super.reminderSwitchNeedsIqama(prayer));
+
+  @override
+  String iqamaRowSet(String prayer) =>
+      arabicDigits(super.iqamaRowSet(prayer));
+
+  @override
+  String iqamaRowUnset(String prayer) =>
+      arabicDigits(super.iqamaRowUnset(prayer));
+
+  @override
+  String scheduleFooter(String date) =>
+      arabicDigits(super.scheduleFooter(date));
 }

@@ -3753,6 +3753,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{mosque}. {source}. {count}'**
   String mosqueRowSemantics(String mosque, String source, String count);
+
+  /// No description provided for @mosqueKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mosque'**
+  String get mosqueKicker;
+
+  /// No description provided for @mosqueNextJamaah.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Jama’ah · {prayer} {time} · {relative}'**
+  String mosqueNextJamaah(String prayer, String time, String relative);
+
+  /// No description provided for @mosqueNoNextJamaah.
+  ///
+  /// In en, this message translates to:
+  /// **'No more Jama’ah set for today'**
+  String get mosqueNoNextJamaah;
+
+  /// No description provided for @mosquePauseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause Jama’ah reminders'**
+  String get mosquePauseTitle;
+
+  /// No description provided for @mosquePauseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Iqama times and settings are kept.'**
+  String get mosquePauseHint;
+
+  /// No description provided for @scheduleSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama schedule'**
+  String get scheduleSection;
+
+  /// No description provided for @scheduleTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a prayer to set it'**
+  String get scheduleTapHint;
+
+  /// No description provided for @rowAdhanPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{Adhan + 1 min} other{Adhan + {minutes} min}}'**
+  String rowAdhanPlus(int minutes);
+
+  /// No description provided for @rowFixedTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed time'**
+  String get rowFixedTime;
+
+  /// No description provided for @rowPausedReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused · Reminder at {time}'**
+  String rowPausedReminder(String time);
+
+  /// No description provided for @reminderSwitchNeedsIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Jama’ah reminder, available once an Iqama time is set'**
+  String reminderSwitchNeedsIqama(String prayer);
+
+  /// No description provided for @scheduleNeverFills.
+  ///
+  /// In en, this message translates to:
+  /// **'The app never fills in an Iqama.'**
+  String get scheduleNeverFills;
+
+  /// No description provided for @removeThisMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this mosque'**
+  String get removeThisMosque;
+
+  /// No description provided for @mosqueBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Mosques'**
+  String get mosqueBack;
+
+  /// No description provided for @iqamaRowSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {prayer} Iqama'**
+  String iqamaRowSet(String prayer);
+
+  /// No description provided for @iqamaRowUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {prayer} Iqama'**
+  String iqamaRowUnset(String prayer);
+
+  /// No description provided for @scheduleFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Set by you · last updated {date}. The app never fills in an Iqama.'**
+  String scheduleFooter(String date);
 }
 
 class _AppLocalizationsDelegate

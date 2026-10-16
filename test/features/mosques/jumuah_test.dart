@@ -17,7 +17,7 @@ import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
-import 'package:jamaah/src/features/components/app_widgets.dart';
+import 'package:jamaah/src/features/components/horizon_controls.dart';
 import 'package:jamaah/src/features/mosques/iqama_editor_sheet.dart';
 
 import '../../helpers/fake_clock.dart';
@@ -204,7 +204,7 @@ void main() {
       await tapText(tester, t.jumuahRowHint);
       expect(find.byType(IqamaEditorSheet), findsOneWidget);
       expect(find.text(t.iqamaEditorTitle(t.prayerJumuah)), findsOneWidget);
-      await tester.tap(find.text(t.iqamaModeFixed));
+      await tester.tap(find.text(t.iqamaModeFixed).last);
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
@@ -227,16 +227,16 @@ void main() {
     testApp("its reminder switch is Jumu'ah's own", (tester) async {
       final m = await activeMosque(jumuah: const LocalTime(12 * 60 + 15));
       await openMosque(tester);
-      final row = find.ancestor(
-        of: find.text(t.jumuahRowHint),
-        matching: find.byType(AppRow),
-      );
       await tester.scrollUntilVisible(
         find.text(t.jumuahRowHint),
         200,
         scrollable: find.byType(Scrollable).last,
       );
-      final toggle = find.descendant(of: row, matching: find.byType(Switch));
+      final toggle = find.byWidgetPredicate(
+        (w) =>
+            w is AppSwitch &&
+            w.semanticLabel == t.reminderSwitchLabel(t.prayerJumuah),
+      );
       await tester.ensureVisible(toggle);
       await tester.pumpAndSettle();
       await tester.tap(toggle);

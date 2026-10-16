@@ -618,3 +618,20 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 605 | `mosquesEmptyAdd` | Add one yourself | أضف مسجدًا بنفسك |
 | 606 | `mosquesEmptyNote` | You enter its Iqama times. Nothing is guessed, and nothing leaves your phone. | أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك. |
 | 607 | `mosqueRowSemantics` | {mosque}. {source}. {count} | {mosque}. {source}. {count} |
+| 608 | `mosqueKicker` | Your mosque | مسجدك |
+| 609 | `mosqueNextJamaah` | Next Jama’ah · {prayer} {time} · {relative} | الجماعة القادمة · {prayer} {time} · {relative} |
+| 610 | `mosqueNoNextJamaah` | No more Jama’ah set for today | لا جماعة أخرى محدّدة لليوم |
+| 611 | `mosquePauseTitle` | Pause Jama’ah reminders | إيقاف تذكيرات الجماعة مؤقتًا |
+| 612 | `mosquePauseHint` | Your Iqama times and settings are kept. | تبقى أوقات الإقامة وإعداداتك محفوظة. |
+| 613 | `scheduleSection` | Iqama schedule | جدول الإقامة |
+| 614 | `scheduleTapHint` | Tap a prayer to set it | اضغط على صلاة لتحديدها |
+| 615 | `rowAdhanPlus` | {minutes, plural, =1{Adhan + 1 min} other{Adhan + {minutes} min}} | {minutes, plural, =1{الأذان + دقيقة} =2{الأذان + دقيقتين} few{الأذان + {minutes} دقائق} many{الأذان + {minutes} دقيقة} other{الأذان + {minutes} دقيقة}} |
+| 616 | `rowFixedTime` | Fixed time | وقت ثابت |
+| 617 | `rowPausedReminder` | Paused · Reminder at {time} | متوقف مؤقتًا · التذكير {time} |
+| 618 | `reminderSwitchNeedsIqama` | {prayer} Jama’ah reminder, available once an Iqama time is set | تذكير جماعة {prayer}، متاح بعد تحديد وقت الإقامة |
+| 619 | `scheduleNeverFills` | The app never fills in an Iqama. | التطبيق لا يملأ أي إقامة من عنده. |
+| 620 | `removeThisMosque` | Remove this mosque | إزالة هذا المسجد |
+| 621 | `mosqueBack` | Back to Mosques | العودة إلى المساجد |
+| 622 | `iqamaRowSet` | Edit {prayer} Iqama | تعديل إقامة {prayer} |
+| 623 | `iqamaRowUnset` | Set {prayer} Iqama | تحديد إقامة {prayer} |
+| 624 | `scheduleFooter` | Set by you · last updated {date}. The app never fills in an Iqama. | حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده. |

@@ -2293,4 +2293,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String mosqueRowSemantics(String mosque, String source, String count) {
     return '$mosque. $source. $count';
   }
+
+  @override
+  String get mosqueKicker => 'Your mosque';
+
+  @override
+  String mosqueNextJamaah(String prayer, String time, String relative) {
+    return 'Next Jama’ah · $prayer $time · $relative';
+  }
+
+  @override
+  String get mosqueNoNextJamaah => 'No more Jama’ah set for today';
+
+  @override
+  String get mosquePauseTitle => 'Pause Jama’ah reminders';
+
+  @override
+  String get mosquePauseHint => 'Your Iqama times and settings are kept.';
+
+  @override
+  String get scheduleSection => 'Iqama schedule';
+
+  @override
+  String get scheduleTapHint => 'Tap a prayer to set it';
+
+  @override
+  String rowAdhanPlus(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Adhan + $minutes min',
+      one: 'Adhan + 1 min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rowFixedTime => 'Fixed time';
+
+  @override
+  String rowPausedReminder(String time) {
+    return 'Paused · Reminder at $time';
+  }
+
+  @override
+  String reminderSwitchNeedsIqama(String prayer) {
+    return '$prayer Jama’ah reminder, available once an Iqama time is set';
+  }
+
+  @override
+  String get scheduleNeverFills => 'The app never fills in an Iqama.';
+
+  @override
+  String get removeThisMosque => 'Remove this mosque';
+
+  @override
+  String get mosqueBack => 'Back to Mosques';
+
+  @override
+  String iqamaRowSet(String prayer) {
+    return 'Edit $prayer Iqama';
+  }
+
+  @override
+  String iqamaRowUnset(String prayer) {
+    return 'Set $prayer Iqama';
+  }
+
+  @override
+  String scheduleFooter(String date) {
+    return 'Set by you · last updated $date. The app never fills in an Iqama.';
+  }
 }
