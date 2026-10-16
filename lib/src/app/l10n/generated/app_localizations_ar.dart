@@ -2529,4 +2529,78 @@ class AppLocalizationsAr extends AppLocalizations {
   String scheduleFooter(String date) {
     return 'حدّدتها أنت · آخر تحديث $date. التطبيق لا يملأ أي إقامة من عنده.';
   }
+
+  @override
+  String iqamaEditorSub(String mosque, String time) {
+    return '$mosque · الأذان $time اليوم';
+  }
+
+  @override
+  String iqamaEditorSubFriday(String mosque) {
+    return '$mosque · أيام الجمعة، بدل الظهر';
+  }
+
+  @override
+  String get iqamaModeAfterDesc => 'يتحرّك مع الأذان';
+
+  @override
+  String get iqamaModeFixedDesc => 'الوقت نفسه كل يوم';
+
+  @override
+  String get iqamaMinutesEmpty =>
+      'اختر كم دقيقة بعد الأذان تبدأ الإقامة في هذا المسجد. لا يُحفظ شيء حتى تختار.';
+
+  @override
+  String get iqamaFixedEmptyNote => 'لا يُحفظ شيء حتى تختار وقتًا.';
+
+  @override
+  String get iqamaFixedNote => 'الوقت نفسه كل يوم، أيًّا كان وقت الأذان.';
+
+  @override
+  String get iqamaReminderTitle => 'تذكير الجماعة';
+
+  @override
+  String get iqamaReminderHint => 'تنبيه قبل أن تبدأ صلاة الجماعة';
+
+  @override
+  String iqamaSaved(String prayer) {
+    return 'حُفظت إقامة $prayer';
+  }
+
+  @override
+  String get clearThisIqama => 'مسح هذه الإقامة';
+
+  @override
+  String get iqamaFewerMinutes => 'دقيقة أقل';
+
+  @override
+  String get iqamaMoreMinutes => 'دقيقة أكثر';
+
+  @override
+  String iqamaEarlier(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'تقديم $minutes دقيقة',
+      many: 'تقديم $minutes دقيقة',
+      few: 'تقديم $minutes دقائق',
+      two: 'تقديم دقيقتين',
+      one: 'تقديم دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String iqamaLater(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'تأخير $minutes دقيقة',
+      many: 'تأخير $minutes دقيقة',
+      few: 'تأخير $minutes دقائق',
+      two: 'تأخير دقيقتين',
+      one: 'تأخير دقيقة',
+    );
+    return '$_temp0';
+  }
 }

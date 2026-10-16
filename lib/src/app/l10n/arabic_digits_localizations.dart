@@ -1424,6 +1424,36 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get mosqueBack => arabicDigits(super.mosqueBack);
 
   @override
+  String get iqamaModeAfterDesc => arabicDigits(super.iqamaModeAfterDesc);
+
+  @override
+  String get iqamaModeFixedDesc => arabicDigits(super.iqamaModeFixedDesc);
+
+  @override
+  String get iqamaMinutesEmpty => arabicDigits(super.iqamaMinutesEmpty);
+
+  @override
+  String get iqamaFixedEmptyNote => arabicDigits(super.iqamaFixedEmptyNote);
+
+  @override
+  String get iqamaFixedNote => arabicDigits(super.iqamaFixedNote);
+
+  @override
+  String get iqamaReminderTitle => arabicDigits(super.iqamaReminderTitle);
+
+  @override
+  String get iqamaReminderHint => arabicDigits(super.iqamaReminderHint);
+
+  @override
+  String get clearThisIqama => arabicDigits(super.clearThisIqama);
+
+  @override
+  String get iqamaFewerMinutes => arabicDigits(super.iqamaFewerMinutes);
+
+  @override
+  String get iqamaMoreMinutes => arabicDigits(super.iqamaMoreMinutes);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -2044,4 +2074,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String scheduleFooter(String date) =>
       arabicDigits(super.scheduleFooter(date));
+
+  @override
+  String iqamaEditorSub(String mosque, String time) =>
+      arabicDigits(super.iqamaEditorSub(mosque, time));
+
+  @override
+  String iqamaEditorSubFriday(String mosque) =>
+      arabicDigits(super.iqamaEditorSubFriday(mosque));
+
+  @override
+  String iqamaSaved(String prayer) =>
+      arabicDigits(super.iqamaSaved(prayer));
+
+  @override
+  String iqamaEarlier(int minutes) =>
+      arabicDigits(super.iqamaEarlier(minutes));
+
+  @override
+  String iqamaLater(int minutes) =>
+      arabicDigits(super.iqamaLater(minutes));
 }

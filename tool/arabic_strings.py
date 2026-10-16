@@ -686,6 +686,21 @@ AR = {
     "iqamaRowSet": 'تعديل إقامة {prayer}',
     "iqamaRowUnset": 'تحديد إقامة {prayer}',
     "scheduleFooter": 'حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده.',
+    "iqamaEditorSub": '{mosque} · الأذان {time} اليوم',
+    "iqamaEditorSubFriday": '{mosque} · أيام الجمعة، بدل الظهر',
+    "iqamaModeAfterDesc": 'يتحرّك مع الأذان',
+    "iqamaModeFixedDesc": 'الوقت نفسه كل يوم',
+    "iqamaMinutesEmpty": 'اختر كم دقيقة بعد الأذان تبدأ الإقامة في هذا المسجد. لا يُحفظ شيء حتى تختار.',
+    "iqamaFixedEmptyNote": 'لا يُحفظ شيء حتى تختار وقتًا.',
+    "iqamaFixedNote": 'الوقت نفسه كل يوم، أيًّا كان وقت الأذان.',
+    "iqamaReminderTitle": 'تذكير الجماعة',
+    "iqamaReminderHint": 'تنبيه قبل أن تبدأ صلاة الجماعة',
+    "iqamaSaved": 'حُفظت إقامة {prayer}',
+    "clearThisIqama": 'مسح هذه الإقامة',
+    "iqamaFewerMinutes": 'دقيقة أقل',
+    "iqamaMoreMinutes": 'دقيقة أكثر',
+    "iqamaEarlier": minutes('minutes', before='تقديم '),
+    "iqamaLater": minutes('minutes', before='تأخير '),
 }
 
 

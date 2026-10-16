@@ -137,7 +137,7 @@ void main() {
 
   /// The reminder switch on the Iqama editor, which opens over the mosque page
   /// and so comes after that page's own "Pause" switch.
-  Finder editorSwitch() => find.byType(SwitchListTile).last;
+  Finder editorSwitch() => find.byType(AppSwitch).last;
 
   /// The quick reminder switches on the schedule rows, without the page's
   /// "Pause this mosque's reminders" switch.
@@ -205,7 +205,7 @@ void main() {
     // Adhan" (2026-10-14), so switch to a fixed time first.
     final pickerField = find.descendant(
       of: find.byType(IqamaEditorSheet),
-      matching: find.byIcon(Icons.schedule),
+      matching: find.byKey(IqamaEditorSheet.timeFieldKey),
     );
     if (pickerField.evaluate().isEmpty) {
       await tester.tap(find.text(t.iqamaModeFixed).last);
@@ -217,9 +217,93 @@ void main() {
     pickerAnswer = time;
     // The field's wording depends on whether there is an Adhan time to start
     // from, so tap it by its clock icon rather than by its text.
-    await tester.tap(find.byIcon(Icons.schedule));
+    await tester.tap(find.byKey(IqamaEditorSheet.timeFieldKey));
     await tester.pumpAndSettle();
   }
+
+  group('the Iqama editor (Horizon)', () {
+    Future<void> openMinutes(WidgetTester tester, Prayer prayer) async {
+      final name = prayer == Prayer.asr ? t.prayerAsr : t.prayerIsha;
+      await tapText(tester, name);
+    }
+
+    testApp('minutes: chips and steppers set the number; nothing until then', (
+      tester,
+    ) async {
+      await open(tester);
+      await addThroughSheet(tester);
+      await openMinutes(tester, Prayer.asr);
+      expect(find.text(t.iqamaModeAfterDesc), findsOneWidget);
+      expect(find.text(t.iqamaModeFixedDesc), findsOneWidget);
+      expect(find.text(t.iqamaMinutesEmpty), findsOneWidget);
+      expect(isEnabled(tester, t.save), isFalse);
+      await tapText(tester, t.reminderMinutesChip(20));
+      final field = find.widgetWithText(TextField, t.iqamaMinutesLabel);
+      expect(tester.widget<TextField>(field).controller!.text, '20');
+      await tester.tap(find.bySemanticsLabel(t.iqamaMoreMinutes));
+      await tester.pump();
+      expect(tester.widget<TextField>(field).controller!.text, '21');
+      await tester.tap(find.bySemanticsLabel(t.iqamaFewerMinutes));
+      await tester.tap(find.bySemanticsLabel(t.iqamaFewerMinutes));
+      await tester.pump();
+      expect(tester.widget<TextField>(field).controller!.text, '19');
+      expect(isEnabled(tester, t.save), isTrue);
+    });
+
+    testApp('a new prayer starts with its reminder on; save says so', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await open(tester);
+      await addThroughSheet(tester);
+      await openMinutes(tester, Prayer.isha);
+      await tapText(tester, t.reminderMinutesChip(10));
+      expect(tester.widget<AppSwitch>(editorSwitch()).value, isTrue);
+      await tester.ensureVisible(buttonWith(t.save).last);
+      await tester.pumpAndSettle();
+      await tester.tap(buttonWith(t.save).last);
+      await tester.pump();
+      expect(find.text(t.iqamaSaved(t.prayerIsha)), findsOneWidget);
+      await tester.pumpAndSettle();
+      final isha = storedEntry(await savedMosque('Masjid al-Nour'), Prayer.isha);
+      expect(isha.afterAdhanMinutes, 10);
+      expect(isha.reminderEnabled, isTrue);
+      expect(isha.reminderMinutesBefore, 10);
+      handle.dispose();
+    });
+
+    testApp('a prayer set with its reminder off keeps it off', (tester) async {
+      await open(tester);
+      await addThroughSheet(tester);
+      final mosque = await savedMosque('Masjid al-Nour');
+      await mosques.setIqama(mosque.id, Prayer.asr, null, afterAdhanMinutes: 15);
+      await tester.pumpAndSettle();
+      await openMinutes(tester, Prayer.asr);
+      expect(tester.widget<AppSwitch>(editorSwitch()).value, isFalse);
+    });
+
+    testApp('fixed: the time nudges by 1 and 5 minutes', (tester) async {
+      final handle = tester.ensureSemantics();
+      await open(tester);
+      await addThroughSheet(tester);
+      await openEditor(tester, Prayer.fajr);
+      await chooseTime(tester, LocalTime.of(5, 40));
+      expect(find.text(t.iqamaFixedNote), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(t.iqamaLater(5)));
+      await tester.pump();
+      await tester.tap(find.bySemanticsLabel(t.iqamaEarlier(1)));
+      await tester.pump();
+      final at = clockOn(tester).time;
+      expect(
+        find.descendant(
+          of: find.byKey(IqamaEditorSheet.timeFieldKey),
+          matching: find.text(at(LocalTime.of(5, 44))),
+        ),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+  });
 
   group('the Mosques tab (Horizon)', () {
     testApp('empty: there is a place for you, and nothing is guessed', (
@@ -441,7 +525,7 @@ void main() {
 
       // Backing out of the picker leaves nothing chosen.
       pickerAnswer = null;
-      await tester.tap(find.byIcon(Icons.schedule));
+      await tester.tap(find.byKey(IqamaEditorSheet.timeFieldKey));
       await tester.pumpAndSettle();
       expect(pickerOpened, isTrue);
       expect(pickerOpenedAt, adhan);
@@ -465,7 +549,7 @@ void main() {
       await tester.pumpAndSettle();
       await openEditor(tester, Prayer.fajr);
 
-      await tester.tap(find.byIcon(Icons.schedule));
+      await tester.tap(find.byKey(IqamaEditorSheet.timeFieldKey));
       await tester.pumpAndSettle();
       expect(pickerOpenedAt, LocalTime.of(5, 50));
     });
@@ -478,7 +562,7 @@ void main() {
       await openEditor(tester, Prayer.fajr);
 
       expect(find.text(t.iqamaChooseTime), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.schedule));
+      await tester.tap(find.byKey(IqamaEditorSheet.timeFieldKey));
       await tester.pumpAndSettle();
       expect(pickerOpened, isTrue);
       expect(pickerOpenedAt, isNull);
@@ -492,16 +576,23 @@ void main() {
       await openEditor(tester, Prayer.fajr);
 
       expect(find.text(t.iqamaEditorTitle(t.prayerFajr)), findsOneWidget);
-      expect(find.text(t.iqamaEditorEditing('Masjid al-Nour')), findsOneWidget);
+      // The sheet names the mosque under the prayer.
+      expect(
+        find.descendant(
+          of: find.byType(IqamaEditorSheet),
+          matching: find.textContaining('Masjid al-Nour'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text(t.summaryNoTime), findsOneWidget);
       expect(isEnabled(tester, t.save), isFalse);
       expect(
-        tester.widget<SwitchListTile>(editorSwitch()).onChanged,
+        tester.widget<AppSwitch>(editorSwitch()).onChanged,
         isNull,
         reason: 'no Iqama time, no reminder (AGENTS.md)',
       );
       expect(find.text(t.reminderNeedsTime), findsOneWidget);
-      expect(find.text(t.clearIqamaTime), findsNothing);
+      expect(find.text(t.clearThisIqama), findsNothing);
     });
 
     testApp('saving a time and a reminder lands on the mosque', (tester) async {
@@ -512,13 +603,8 @@ void main() {
       final at = clockFormat.time;
 
       await chooseTime(tester, LocalTime.of(5, 40));
-      expect(
-        find.text(t.summaryReminderOff(t.prayerFajr, at(LocalTime.of(5, 40)))),
-        findsOneWidget,
-      );
-
-      await tester.tap(editorSwitch());
-      await tester.pumpAndSettle();
+      // A prayer set for the first time starts with its reminder on, 10 min
+      // before (spec §4.5).
       expect(
         find.text(
           t.summaryReminderAt(
@@ -543,7 +629,11 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(buttonWith(t.save));
+      await tester.ensureVisible(buttonWith(t.save).last);
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(buttonWith(t.save).last);
       await tester.pumpAndSettle();
 
       final fajr = storedEntry(
@@ -594,7 +684,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       await openEditor(tester, Prayer.asr);
-      await tapText(tester, t.clearIqamaTime);
+      await tapText(tester, t.clearThisIqama);
 
       final asr = storedEntry(await savedMosque('Masjid al-Nour'), Prayer.asr);
       expect(asr.isConfigured, isFalse);
@@ -609,8 +699,7 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.maghrib);
       await chooseTime(tester, LocalTime.of(18, 30));
-      await tester.tap(editorSwitch());
-      await tester.pumpAndSettle();
+      // The reminder is already on for a newly set prayer.
       await tapText(tester, t.reminderCustom);
 
       final field = find.widgetWithText(TextField, t.reminderCustomLabel);
@@ -639,7 +728,9 @@ void main() {
         findsOneWidget,
       );
       expect(isEnabled(tester, t.save), isTrue);
-      await tester.tap(buttonWith(t.save));
+      await tester.ensureVisible(buttonWith(t.save).last);
+      await tester.pumpAndSettle();
+      await tester.tap(buttonWith(t.save).last);
       await tester.pumpAndSettle();
 
       expect(
@@ -658,8 +749,6 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.isha);
       await chooseTime(tester, LocalTime.of(0, 5));
-      await tester.tap(editorSwitch());
-      await tester.pumpAndSettle();
 
       final at = clockOn(tester).time;
       expect(
@@ -673,7 +762,11 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(buttonWith(t.save));
+      await tester.ensureVisible(buttonWith(t.save).last);
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(buttonWith(t.save).last);
       await tester.pumpAndSettle();
       expect(
         find.text(t.rowReminderBeforeMidnight(at(LocalTime.of(23, 55)))),
@@ -743,7 +836,9 @@ void main() {
         'Al-Nour Mosque',
       );
       await tester.pump();
-      await tester.tap(buttonWith(t.save));
+      await tester.ensureVisible(buttonWith(t.save).last);
+      await tester.pumpAndSettle();
+      await tester.tap(buttonWith(t.save).last);
       await tester.pumpAndSettle();
 
       // The page's title is the mosque's name.
@@ -849,7 +944,9 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.dhuhr);
       await chooseTime(tester, LocalTime.of(12, 15));
-      await tester.tap(buttonWith(t.save));
+      await tester.ensureVisible(buttonWith(t.save).last);
+      await tester.pumpAndSettle();
+      await tester.tap(buttonWith(t.save).last);
       await tester.pumpAndSettle();
       final at = clockOn(tester).time;
 
@@ -994,8 +1091,7 @@ void main() {
       await addThroughSheet(tester);
       await openEditor(tester, Prayer.fajr);
       await chooseTime(tester, LocalTime.of(5, 40));
-      await tester.tap(editorSwitch());
-      await tester.pumpAndSettle();
+      // The reminder starts on, so its chips are showing too.
 
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));

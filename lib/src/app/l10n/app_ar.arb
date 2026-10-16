@@ -623,5 +623,20 @@
   "mosqueBack": "العودة إلى المساجد",
   "iqamaRowSet": "تعديل إقامة {prayer}",
   "iqamaRowUnset": "تحديد إقامة {prayer}",
-  "scheduleFooter": "حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده."
+  "scheduleFooter": "حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده.",
+  "iqamaEditorSub": "{mosque} · الأذان {time} اليوم",
+  "iqamaEditorSubFriday": "{mosque} · أيام الجمعة، بدل الظهر",
+  "iqamaModeAfterDesc": "يتحرّك مع الأذان",
+  "iqamaModeFixedDesc": "الوقت نفسه كل يوم",
+  "iqamaMinutesEmpty": "اختر كم دقيقة بعد الأذان تبدأ الإقامة في هذا المسجد. لا يُحفظ شيء حتى تختار.",
+  "iqamaFixedEmptyNote": "لا يُحفظ شيء حتى تختار وقتًا.",
+  "iqamaFixedNote": "الوقت نفسه كل يوم، أيًّا كان وقت الأذان.",
+  "iqamaReminderTitle": "تذكير الجماعة",
+  "iqamaReminderHint": "تنبيه قبل أن تبدأ صلاة الجماعة",
+  "iqamaSaved": "حُفظت إقامة {prayer}",
+  "clearThisIqama": "مسح هذه الإقامة",
+  "iqamaFewerMinutes": "دقيقة أقل",
+  "iqamaMoreMinutes": "دقيقة أكثر",
+  "iqamaEarlier": "{minutes, plural, =1{تقديم دقيقة} =2{تقديم دقيقتين} few{تقديم {minutes} دقائق} many{تقديم {minutes} دقيقة} other{تقديم {minutes} دقيقة}}",
+  "iqamaLater": "{minutes, plural, =1{تأخير دقيقة} =2{تأخير دقيقتين} few{تأخير {minutes} دقائق} many{تأخير {minutes} دقيقة} other{تأخير {minutes} دقيقة}}"
 }

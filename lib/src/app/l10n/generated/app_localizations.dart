@@ -3855,6 +3855,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set by you · last updated {date}. The app never fills in an Iqama.'**
   String scheduleFooter(String date);
+
+  /// No description provided for @iqamaEditorSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque} · Adhan {time} today'**
+  String iqamaEditorSub(String mosque, String time);
+
+  /// No description provided for @iqamaEditorSubFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'{mosque} · Fridays, in place of Dhuhr'**
+  String iqamaEditorSubFriday(String mosque);
+
+  /// No description provided for @iqamaModeAfterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Moves with the Adhan'**
+  String get iqamaModeAfterDesc;
+
+  /// No description provided for @iqamaModeFixedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Same time every day'**
+  String get iqamaModeFixedDesc;
+
+  /// No description provided for @iqamaMinutesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how many minutes after the Adhan this mosque starts. Nothing is saved until you do.'**
+  String get iqamaMinutesEmpty;
+
+  /// No description provided for @iqamaFixedEmptyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is saved until you choose a time.'**
+  String get iqamaFixedEmptyNote;
+
+  /// No description provided for @iqamaFixedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The same time every day, whatever the Adhan.'**
+  String get iqamaFixedNote;
+
+  /// No description provided for @iqamaReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jama’ah reminder'**
+  String get iqamaReminderTitle;
+
+  /// No description provided for @iqamaReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A nudge before the congregation starts'**
+  String get iqamaReminderHint;
+
+  /// No description provided for @iqamaSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Iqama saved'**
+  String iqamaSaved(String prayer);
+
+  /// No description provided for @clearThisIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear this Iqama'**
+  String get clearThisIqama;
+
+  /// No description provided for @iqamaFewerMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'One minute less'**
+  String get iqamaFewerMinutes;
+
+  /// No description provided for @iqamaMoreMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'One minute more'**
+  String get iqamaMoreMinutes;
+
+  /// No description provided for @iqamaEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{1 minute earlier} other{{minutes} minutes earlier}}'**
+  String iqamaEarlier(int minutes);
+
+  /// No description provided for @iqamaLater.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{1 minute later} other{{minutes} minutes later}}'**
+  String iqamaLater(int minutes);
 }
 
 class _AppLocalizationsDelegate

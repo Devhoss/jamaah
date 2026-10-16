@@ -113,6 +113,12 @@ abstract final class LineIcons {
     CircleShape(12, 12, 9),
     PathShape('M12 16v-4M12 8h.01'),
   ]);
+  static const clock = LineIconData([
+    CircleShape(12, 12, 9),
+    PathShape('M12 7v5l3 2'),
+  ]);
+  static const minus = LineIconData([PathShape('M5 12h14')]);
+  static const plus = LineIconData([PathShape('M5 12h14M12 5v14')]);
   static const globe = LineIconData([
     CircleShape(12, 12, 9),
     PathShape('M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'),

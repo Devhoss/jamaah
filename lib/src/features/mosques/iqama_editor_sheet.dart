@@ -6,12 +6,13 @@ import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../domain/iqama_editing.dart';
 import '../../domain/mosque.dart';
 import '../../domain/prayer.dart';
 import '../../domain/time_model.dart';
+import '../components/horizon_controls.dart';
+import '../components/line_icon.dart';
 
 /// Asks the user for a time of day, starting the dial at [initial] when given.
 /// Null means they backed out.
@@ -55,10 +56,18 @@ Future<void> showIqamaEditor(
   bool jumuah = false,
 }) {
   assert(prayer.canHaveIqama, 'Sunrise has no Iqama (AGENTS.md)');
+  final s = HorizonTheme.of(context).surfaces;
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
+    backgroundColor: s.surface,
+    barrierColor: s.scrim,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(HorizonShape.sheetRadius),
+      ),
+    ),
     builder: (_) => IqamaEditorSheet(
       mosque: mosque,
       prayer: prayer,
@@ -109,6 +118,9 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
   /// time is saved as Jumu'ah's, never Dhuhr's.
   final bool jumuah;
 
+  /// The fixed-time field, which opens the picker.
+  static const timeFieldKey = ValueKey('iqama-time-field');
+
   @override
   ConsumerState<IqamaEditorSheet> createState() => _IqamaEditorSheetState();
 }
@@ -123,7 +135,12 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   late final _afterField = TextEditingController(
     text: widget.current.afterAdhanMinutes?.toString() ?? '',
   );
-  late bool _reminderOn = widget.current.hasReminder;
+  // A prayer set for the first time starts with its reminder on, at the
+  // stored interval (10 min unless changed): spec §4.5. One already set keeps
+  // what the user chose.
+  late bool _reminderOn = widget.current.isConfigured
+      ? widget.current.hasReminder
+      : true;
   late int _presetMinutes = widget.current.reminderMinutesBefore;
   late bool _custom = !ReminderInterval.presets.contains(
     widget.current.reminderMinutesBefore,
@@ -211,7 +228,7 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
         reminderMinutesBefore: minutes,
       );
       if (_reminderOn) await ref.read(notificationPermissionRequestProvider)();
-      if (mounted) Navigator.of(context).pop();
+      _done();
       return;
     }
     await repository
@@ -227,7 +244,20 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
               _minutes ?? widget.current.reminderMinutesBefore,
         );
     if (_reminderOn) await ref.read(notificationPermissionRequestProvider)();
-    if (mounted) Navigator.of(context).pop();
+    _done();
+  }
+
+  /// Closes the sheet and says what was saved.
+  void _done() {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+    showHorizonSnackBar(
+      context,
+      l10n.iqamaSaved(
+        widget.jumuah ? l10n.prayerJumuah : prayerName(l10n, widget.prayer),
+      ),
+    );
+    Navigator.of(context).pop();
   }
 
   Future<void> _clear() async {
@@ -257,135 +287,122 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final clock = ClockFormat.of(context);
+    final s = HorizonTheme.of(context).surfaces;
+    final type = HorizonTheme.typeOf(context);
     final prayerLabel = widget.jumuah
         ? l10n.prayerJumuah
         : prayerName(l10n, widget.prayer);
+    final muted = type.meta.copyWith(color: s.onSurfaceMuted, height: 1.45);
+    final adhan = widget.adhan;
+    final sub = widget.jumuah
+        ? l10n.iqamaEditorSubFriday(widget.mosque.name)
+        : adhan == null
+        ? l10n.iqamaEditorEditing(widget.mosque.name)
+        : l10n.iqamaEditorSub(widget.mosque.name, clock.time(adhan));
 
     return SafeArea(
       child: Padding(
-        // Lift the sheet above the keyboard while the Custom field is focused.
+        // Lift the sheet above the keyboard while a number is being typed.
         padding: EdgeInsets.only(
           bottom: MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpace.xxl,
-            0,
-            AppSpace.xxl,
-            AppSpace.xxl,
-          ),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                l10n.iqamaEditorTitle(prayerLabel),
-                style: theme.textTheme.headlineSmall,
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.iqamaEditorTitle(prayerLabel),
+                  style: type.prayerName.copyWith(color: s.onSurface),
+                ),
               ),
-              const SizedBox(height: AppSpace.xs),
-              Text(
-                l10n.iqamaEditorEditing(widget.mosque.name),
-                style: theme.textTheme.bodyMedium?.copyWith(color: ink.muted),
-              ),
-              const SizedBox(height: AppSpace.lg),
-              SegmentedButton<_Mode>(
-                segments: [
-                  ButtonSegment(
-                    value: _Mode.afterAdhan,
-                    label: Text(l10n.iqamaModeAfterAdhan),
+              const SizedBox(height: 2),
+              Text(sub, style: type.body.copyWith(color: s.onSurfaceMuted)),
+              const SizedBox(height: 16),
+              Segmented<_Mode>(
+                options: [
+                  SegmentOption(
+                    _Mode.afterAdhan,
+                    l10n.iqamaModeAfterAdhan,
+                    description: l10n.iqamaModeAfterDesc,
                   ),
-                  ButtonSegment(
-                    value: _Mode.fixed,
-                    label: Text(l10n.iqamaModeFixed),
+                  SegmentOption(
+                    _Mode.fixed,
+                    l10n.iqamaModeFixed,
+                    description: l10n.iqamaModeFixedDesc,
                   ),
                 ],
-                selected: {_mode},
-                showSelectedIcon: false,
-                onSelectionChanged: _saving
-                    ? null
-                    : (s) => setState(() => _mode = s.single),
+                selected: _mode,
+                onChanged: _saving ? null : (m) => setState(() => _mode = m),
               ),
-              const SizedBox(height: AppSpace.md),
+              const SizedBox(height: 18),
               if (_mode == _Mode.fixed)
-                _TimeField(
-                  label: l10n.iqamaTimeLabel,
-                  value: _time == null ? null : clock.time(_time!),
-                  placeholder: widget.adhan == null
-                      ? l10n.iqamaChooseTime
-                      : l10n.iqamaStartsAtAdhan(clock.time(widget.adhan!)),
-                  onTap: _saving ? null : _pickTime,
-                )
-              else ...[
-                TextField(
-                  controller: _afterField,
-                  autofocus: _afterField.text.isEmpty,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: l10n.iqamaMinutesLabel,
-                    errorText:
-                        _afterField.text.isNotEmpty && _afterMinutes == null
-                        ? l10n.iqamaMinutesInvalid
-                        : null,
+                ..._fixedInputs(l10n, clock, s, type, muted)
+              else
+                ..._minutesInputs(l10n, clock, s, type, muted),
+              const SizedBox(height: 18),
+              Divider(color: s.divider, height: 1),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.iqamaReminderTitle,
+                          style: type.row.copyWith(color: s.onSurface),
+                        ),
+                        Text(
+                          _hasEntry
+                              ? l10n.iqamaReminderHint
+                              : l10n.reminderNeedsTime,
+                          style: type.meta.copyWith(color: s.onSurfaceMuted),
+                        ),
+                      ],
+                    ),
                   ),
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: AppSpace.xs),
-                Text(
-                  switch ((_next, _afterMinutes)) {
-                    (final next?, final after?) => next.tomorrow
-                        ? l10n.iqamaAfterAdhanPreviewTomorrow(
-                            clock.time(next.adhan),
-                            after,
-                            clock.time(next.iqama),
-                          )
-                        : l10n.iqamaAfterAdhanPreview(
-                            clock.time(next.adhan),
-                            after,
-                            clock.time(next.iqama),
-                          ),
-                    _ when widget.adhan == null => l10n.iqamaNeedsAdhan,
-                    _ => '',
-                  },
-                  style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-                ),
-              ],
-              const SizedBox(height: AppSpace.md),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.remindMeBefore),
-                subtitle: !_hasEntry ? Text(l10n.reminderNeedsTime) : null,
-                value: _hasEntry && _reminderOn,
-                // A reminder can only exist alongside an Iqama time (AGENTS.md).
-                onChanged: !_hasEntry || _saving
-                    ? null
-                    : (on) => setState(() => _reminderOn = on),
+                  AppSwitch(
+                    value: _hasEntry && _reminderOn,
+                    // A reminder can only exist alongside an Iqama time
+                    // (AGENTS.md).
+                    onChanged: !_hasEntry || _saving
+                        ? null
+                        : (on) => setState(() => _reminderOn = on),
+                    semanticLabel: _hasEntry
+                        ? l10n.iqamaReminderTitle
+                        : l10n.reminderSwitchNeedsIqama(prayerLabel),
+                  ),
+                ],
               ),
               if (_hasEntry && _reminderOn) ...[
+                const SizedBox(height: 10),
                 Wrap(
-                  spacing: AppSpace.sm,
-                  runSpacing: AppSpace.sm,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     for (final minutes in ReminderInterval.presets)
-                      ChoiceChip(
-                        label: Text(l10n.reminderMinutesChip(minutes)),
+                      _Chip(
+                        label: l10n.reminderMinutesChip(minutes),
                         selected: !_custom && _presetMinutes == minutes,
-                        onSelected: (_) => setState(() {
+                        onTap: () => setState(() {
                           _custom = false;
                           _presetMinutes = minutes;
                         }),
                       ),
-                    ChoiceChip(
-                      label: Text(l10n.reminderCustom),
+                    _Chip(
+                      label: l10n.reminderCustom,
                       selected: _custom,
-                      onSelected: (_) => setState(() => _custom = true),
+                      onTap: () => setState(() => _custom = true),
                     ),
                   ],
                 ),
                 if (_custom) ...[
-                  const SizedBox(height: AppSpace.md),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _customField,
                     autofocus: _customField.text.isEmpty,
@@ -398,33 +415,53 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
                   ),
                 ],
               ],
-              const SizedBox(height: AppSpace.lg),
-              _Summary(text: _summary(l10n, clock, prayerLabel), ink: ink),
-              const SizedBox(height: AppSpace.lg),
+              const SizedBox(height: 14),
+              Semantics(
+                liveRegion: true,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: s.well,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    _summary(l10n, clock, prayerLabel),
+                    style: type.body.copyWith(fontSize: 14, color: s.onSurface),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: _SheetButton(
+                      label: l10n.cancel,
                       onPressed: _saving
                           ? null
                           : () => Navigator.of(context).pop(),
-                      child: Text(l10n.cancel),
                     ),
                   ),
-                  const SizedBox(width: AppSpace.md),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: FilledButton(
+                    child: _SheetButton(
+                      label: l10n.save,
+                      filled: true,
                       onPressed: _canSave ? _save : null,
-                      child: Text(l10n.save),
                     ),
                   ),
                 ],
               ),
               if (widget.current.isConfigured) ...[
-                const SizedBox(height: AppSpace.sm),
-                TextButton(
-                  onPressed: _saving ? null : _clear,
-                  child: Text(l10n.clearIqamaTime),
+                const SizedBox(height: 6),
+                Center(
+                  child: PillButton(
+                    label: l10n.clearThisIqama,
+                    ink: s.danger,
+                    onInk: s.surface,
+                    line: s.divider,
+                    danger: s.danger,
+                    onPressed: _saving ? null : _clear,
+                  ),
                 ),
               ],
             ],
@@ -432,6 +469,159 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
         ),
       ),
     );
+  }
+
+  /// "Minutes after Adhan": a big number with − and +, quick chips, and what
+  /// it means today. Empty shows "—" until the user chooses.
+  List<Widget> _minutesInputs(
+    AppLocalizations l10n,
+    ClockFormat clock,
+    HorizonSurfaces s,
+    HorizonType type,
+    TextStyle muted,
+  ) {
+    void step(int by) {
+      final now = _afterMinutes ?? (by > 0 ? 9 : 11);
+      final next = (now + by).clamp(
+        kMinAfterAdhanMinutes,
+        kMaxAfterAdhanMinutes,
+      );
+      setState(() => _afterField.text = '$next');
+    }
+
+    final preview = switch ((_next, _afterMinutes)) {
+      (final next?, final after?) =>
+        widget.jumuah
+            ? null
+            : next.tomorrow
+            ? l10n.iqamaAfterAdhanPreviewTomorrow(
+                clock.time(next.adhan),
+                after,
+                clock.time(next.iqama),
+              )
+            : l10n.iqamaAfterAdhanPreview(
+                clock.time(next.adhan),
+                after,
+                clock.time(next.iqama),
+              ),
+      (_, null) => l10n.iqamaMinutesEmpty,
+      _ when widget.adhan == null => l10n.iqamaNeedsAdhan,
+      _ => null,
+    };
+
+    return [
+      Row(
+        children: [
+          _RoundStep(
+            icon: LineIcons.minus,
+            label: l10n.iqamaFewerMinutes,
+            onTap: _saving ? null : () => step(-1),
+          ),
+          Expanded(
+            child: TextField(
+              controller: _afterField,
+              autofocus: false,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: type.display.copyWith(
+                fontSize: 44,
+                color: s.onSurface,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+              decoration: InputDecoration(
+                labelText: l10n.iqamaMinutesLabel,
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+                hintText: '—',
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorText: _afterField.text.isNotEmpty && _afterMinutes == null
+                    ? l10n.iqamaMinutesInvalid
+                    : null,
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          _RoundStep(
+            icon: LineIcons.plus,
+            label: l10n.iqamaMoreMinutes,
+            onTap: _saving ? null : () => step(1),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: [
+          for (final n in const [5, 10, 15, 20, 25, 30])
+            _Chip(
+              label: l10n.reminderMinutesChip(n),
+              selected: _afterMinutes == n,
+              onTap: _saving
+                  ? null
+                  : () => setState(() => _afterField.text = '$n'),
+            ),
+        ],
+      ),
+      if (preview != null) ...[
+        const SizedBox(height: 10),
+        Text(preview, style: muted),
+      ],
+    ];
+  }
+
+  /// "Fixed time": empty, a dashed button that opens the picker at the Adhan
+  /// (nothing saved until a time is chosen); set, the time with steppers.
+  List<Widget> _fixedInputs(
+    AppLocalizations l10n,
+    ClockFormat clock,
+    HorizonSurfaces s,
+    HorizonType type,
+    TextStyle muted,
+  ) {
+    final time = _time;
+    final adhan = widget.adhan;
+    void nudge(int by) => setState(() => _time = _time!.plusMinutes(by));
+
+    return [
+      _TimeField(
+        key: IqamaEditorSheet.timeFieldKey,
+        label: l10n.iqamaTimeLabel,
+        value: time == null ? null : clock.time(time),
+        placeholder: adhan == null
+            ? l10n.iqamaChooseTime
+            : l10n.iqamaStartsAtAdhan(clock.time(adhan)),
+        onTap: _saving ? null : _pickTime,
+      ),
+      if (time != null) ...[
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          children: [
+            for (final by in const [-5, -1, 1, 5])
+              Semantics(
+                label: by < 0 ? l10n.iqamaEarlier(-by) : l10n.iqamaLater(by),
+                excludeSemantics: true,
+                child: _Chip(
+                  label: by < 0 ? '−${-by}' : '+$by',
+                  selected: false,
+                  onTap: _saving ? null : () => nudge(by),
+                ),
+              ),
+          ],
+        ),
+      ],
+      const SizedBox(height: 10),
+      Text(
+        time == null ? l10n.iqamaFixedEmptyNote : l10n.iqamaFixedNote,
+        style: muted,
+      ),
+    ];
   }
 
   /// Shown only once the user has typed something, so an empty field that has just
@@ -475,13 +665,15 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   }
 }
 
-/// The prototype's large time input: one tap opens the device's picker.
+/// The time of a fixed Iqama: one tap opens the device's picker. Empty, it is
+/// a dashed button that names the Adhan it will start at.
 class _TimeField extends StatelessWidget {
   const _TimeField({
     required this.label,
     required this.value,
     required this.placeholder,
     required this.onTap,
+    super.key,
   });
 
   final String label;
@@ -491,8 +683,40 @@ class _TimeField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
+    final s = HorizonTheme.of(context).surfaces;
+    final type = HorizonTheme.typeOf(context);
+    final empty = value == null;
+    final field = Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: empty
+          ? null
+          : BoxDecoration(
+              color: s.well,
+              borderRadius: BorderRadius.circular(14),
+            ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              value ?? placeholder,
+              textAlign: empty ? TextAlign.start : TextAlign.center,
+              style: empty
+                  ? type.row.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: s.onSurface,
+                    )
+                  : type.display.copyWith(
+                      fontSize: 34,
+                      color: s.onSurface,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+            ),
+          ),
+          LineIcon(LineIcons.clock, size: 20, color: s.onSurfaceMuted),
+        ],
+      ),
+    );
     return Semantics(
       button: true,
       label: label,
@@ -500,32 +724,61 @@ class _TimeField extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.input),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: AppSpace.touchTarget),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.lg,
-            vertical: AppSpace.md,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(color: theme.dividerColor),
-            borderRadius: BorderRadius.circular(AppRadius.input),
-          ),
-          child: Row(
-            children: [
-              Expanded(
+        borderRadius: BorderRadius.circular(14),
+        child: empty
+            ? CustomPaint(
+                painter: DashedOutline(color: s.onSurfaceMuted, radius: 14),
+                child: field,
+              )
+            : field,
+      ),
+    );
+  }
+}
+
+/// A choice chip on the surface: `accent` when selected, outlined otherwise.
+class _Chip extends StatelessWidget {
+  const _Chip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
+    final type = HorizonTheme.typeOf(context);
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? s.accent : Colors.transparent,
+        shape: StadiumBorder(
+          side: selected ? BorderSide.none : BorderSide(color: s.divider),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 56, minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Center(
+                widthFactor: 1,
                 child: Text(
-                  value ?? placeholder,
-                  style: value == null
-                      ? theme.textTheme.bodyLarge?.copyWith(color: ink.muted)
-                      : theme.textTheme.headlineMedium?.copyWith(
-                          fontSize: AppType.timeInputSize,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  label,
+                  style: type.body.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: selected ? s.onAccent : s.onSurface,
+                  ),
                 ),
               ),
-              Icon(Icons.schedule, color: ink.muted),
-            ],
+            ),
           ),
         ),
       ),
@@ -533,25 +786,97 @@ class _TimeField extends StatelessWidget {
   }
 }
 
-/// The live line under the controls, in the prototype's sage summary box.
-class _Summary extends StatelessWidget {
-  const _Summary({required this.text, required this.ink});
+/// − or + beside the minutes.
+class _RoundStep extends StatelessWidget {
+  const _RoundStep({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
-  final String text;
-  final AppInk ink;
+  final LineIconData icon;
+  final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
     return Semantics(
-      liveRegion: true,
-      child: Container(
-        padding: const EdgeInsets.all(AppSpace.md),
-        decoration: BoxDecoration(
-          color: ink.sage,
-          borderRadius: BorderRadius.circular(AppRadius.input),
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: Colors.transparent,
+        shape: CircleBorder(side: BorderSide(color: s.divider, width: 1.5)),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox.square(
+            dimension: 52,
+            child: Center(
+              child: LineIcon(
+                icon,
+                size: 22,
+                strokeWidth: 2,
+                color: s.onSurface,
+              ),
+            ),
+          ),
         ),
-        child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
       ),
+    );
+  }
+}
+
+/// Cancel and Save: 52 tall, rounded 14. Save waits for a value.
+class _SheetButton extends StatelessWidget {
+  const _SheetButton({
+    required this.label,
+    required this.onPressed,
+    this.filled = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
+    final type = HorizonTheme.typeOf(context);
+    final enabled = onPressed != null;
+    final bg = filled ? (enabled ? s.accent : s.well) : Colors.transparent;
+    final fg = filled ? (enabled ? s.onAccent : s.onSurfaceMuted) : s.onSurface;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(14),
+      side: filled ? BorderSide.none : BorderSide(color: s.divider, width: 1.5),
+    );
+    return SizedBox(
+      height: 52,
+      child: filled
+          ? FilledButton(
+              onPressed: onPressed,
+              style: FilledButton.styleFrom(
+                backgroundColor: bg,
+                foregroundColor: fg,
+                disabledBackgroundColor: s.well,
+                disabledForegroundColor: s.onSurfaceMuted,
+                shape: shape,
+                textStyle: type.row.copyWith(fontWeight: FontWeight.w500),
+              ),
+              child: Text(label),
+            )
+          : OutlinedButton(
+              onPressed: onPressed,
+              style: OutlinedButton.styleFrom(
+                backgroundColor: bg,
+                foregroundColor: fg,
+                side: BorderSide(color: s.divider, width: 1.5),
+                shape: shape,
+                textStyle: type.row.copyWith(fontWeight: FontWeight.w500),
+              ),
+              child: Text(label),
+            ),
     );
   }
 }

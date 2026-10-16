@@ -635,3 +635,18 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 622 | `iqamaRowSet` | Edit {prayer} Iqama | تعديل إقامة {prayer} |
 | 623 | `iqamaRowUnset` | Set {prayer} Iqama | تحديد إقامة {prayer} |
 | 624 | `scheduleFooter` | Set by you · last updated {date}. The app never fills in an Iqama. | حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده. |
+| 625 | `iqamaEditorSub` | {mosque} · Adhan {time} today | {mosque} · الأذان {time} اليوم |
+| 626 | `iqamaEditorSubFriday` | {mosque} · Fridays, in place of Dhuhr | {mosque} · أيام الجمعة، بدل الظهر |
+| 627 | `iqamaModeAfterDesc` | Moves with the Adhan | يتحرّك مع الأذان |
+| 628 | `iqamaModeFixedDesc` | Same time every day | الوقت نفسه كل يوم |
+| 629 | `iqamaMinutesEmpty` | Choose how many minutes after the Adhan this mosque starts. Nothing is saved until you do. | اختر كم دقيقة بعد الأذان تبدأ الإقامة في هذا المسجد. لا يُحفظ شيء حتى تختار. |
+| 630 | `iqamaFixedEmptyNote` | Nothing is saved until you choose a time. | لا يُحفظ شيء حتى تختار وقتًا. |
+| 631 | `iqamaFixedNote` | The same time every day, whatever the Adhan. | الوقت نفسه كل يوم، أيًّا كان وقت الأذان. |
+| 632 | `iqamaReminderTitle` | Jama’ah reminder | تذكير الجماعة |
+| 633 | `iqamaReminderHint` | A nudge before the congregation starts | تنبيه قبل أن تبدأ صلاة الجماعة |
+| 634 | `iqamaSaved` | {prayer} Iqama saved | حُفظت إقامة {prayer} |
+| 635 | `clearThisIqama` | Clear this Iqama | مسح هذه الإقامة |
+| 636 | `iqamaFewerMinutes` | One minute less | دقيقة أقل |
+| 637 | `iqamaMoreMinutes` | One minute more | دقيقة أكثر |
+| 638 | `iqamaEarlier` | {minutes, plural, =1{1 minute earlier} other{{minutes} minutes earlier}} | {minutes, plural, =1{تقديم دقيقة} =2{تقديم دقيقتين} few{تقديم {minutes} دقائق} many{تقديم {minutes} دقيقة} other{تقديم {minutes} دقيقة}} |
+| 639 | `iqamaLater` | {minutes, plural, =1{1 minute later} other{{minutes} minutes later}} | {minutes, plural, =1{تأخير دقيقة} =2{تأخير دقيقتين} few{تأخير {minutes} دقائق} many{تأخير {minutes} دقيقة} other{تأخير {minutes} دقيقة}} |

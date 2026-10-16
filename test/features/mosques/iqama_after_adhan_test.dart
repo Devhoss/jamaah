@@ -211,7 +211,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byType(IqamaEditorSheet),
-        matching: find.byIcon(Icons.schedule),
+        matching: find.byKey(IqamaEditorSheet.timeFieldKey),
       ),
     );
     await tester.pumpAndSettle();
