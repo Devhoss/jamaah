@@ -17,6 +17,7 @@ import '../domain/prayer_times_calculator.dart';
 import '../domain/time_model.dart';
 import '../domain/today.dart';
 import '../domain/zone_offsets.dart';
+import 'adhan_screen.dart';
 import 'clock.dart';
 import '../data/settings_repository.dart';
 import 'l10n/app_locale.dart';
@@ -362,6 +363,23 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
                   languageCode: l10n.localeName,
                 );
               },
+        // The full-screen page's sky, sun path and words (spec §4.2).
+        screenFor: calculator == null || zone == null
+            ? null
+            : (n) => adhanScreenPayload(
+                planned: n,
+                calculator: calculator,
+                zone: zone,
+                l10n: l10n,
+                mosque: active,
+                theme: settings.themeMode.name,
+                hijriAdjustDays: settings.hijriAdjustDays,
+                clockTime: (t) => plainClockTime(
+                  t,
+                  use24Hour: PlatformDispatcher.instance.alwaysUse24HourFormat,
+                  languageCode: l10n.localeName,
+                ),
+              ),
       );
       debugPrint('Notifications: $report');
       // The app (or a test) may have closed while the platform was answering.

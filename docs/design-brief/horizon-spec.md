@@ -319,6 +319,13 @@ FOR”, the prayer name in 76 px italic, “Adhan · 5:15 PM”, a 136 px round 
 5:20 PM, in 5 min” or “No Iqama set at Test Mosque”), and “Volume keys or turning the phone
 face down also stop it.” After Stop: “Adhan stopped” + “Dismiss”.
 
+As built (Phase 5, 2026-10-16): the page stays native, so it shows at once over the lock
+screen (owner). Dart works out each full-screen Adhan's page when it schedules the alarm
+(lib/src/app/adhan_screen.dart): both themes' sky at the prayer's minute, the ink, the sun path
+points and every line of text; the native page (AdhanPage.kt) only draws them, with the bundled
+fonts. The sky is a still picture of that minute. An alarm stored before this keeps the plain
+page. When the Adhan ends or is stopped any other way, the page turns to “Adhan stopped”.
+
 ### 4.3 Mosques tab
 
 - Sky header: “Mosques”, lead “Today and your Jama’ah reminders follow your active mosque,

@@ -317,7 +317,7 @@ class AdhanService : Service(), SensorEventListener {
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.notify(alarm.id, buildNotification(alarm, playing = false))
         }
-        AdhanActivity.closeAll()
+        AdhanActivity.endAll()
         stopSelf()
     }
 

@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
@@ -22,9 +23,12 @@ import java.lang.ref.WeakReference
 /**
  * The full-screen Adhan: shown over the lock screen when the phone is idle, with
  * one large Stop. The volume keys stop it too. Plain native views, so it appears
- * at once without starting the Flutter engine.
+ * at once without starting the Flutter engine: the Horizon page ([AdhanPage])
+ * when the alarm carries what to draw, else the plain one.
  */
 class AdhanActivity : Activity() {
+    private var page: AdhanPage? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         showOverLockScreen()
@@ -36,7 +40,40 @@ class AdhanActivity : Activity() {
             finish()
             return
         }
-        setContentView(layout(alarm))
+        val screen = alarm.screen
+        if (screen != null) {
+            val horizon = AdhanPage(
+                activity = this,
+                screen = screen,
+                stopLabel = alarm.stopLabel,
+                onStop = { stop() },
+                onDismiss = { finish() },
+            )
+            page = horizon
+            drawUnderSystemBars(lightInk = horizon.lightInk)
+            setContentView(horizon.root)
+        } else {
+            setContentView(layout(alarm))
+        }
+    }
+
+    /** The sky runs under the status and navigation bars, as in the app. */
+    @Suppress("DEPRECATION")
+    private fun drawUnderSystemBars(lightInk: Boolean) {
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // No scrim behind the bars: the sky shows through.
+            window.isNavigationBarContrastEnforced = false
+            window.isStatusBarContrastEnforced = false
+        }
+        var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        if (!lightInk && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+        window.decorView.systemUiVisibility = flags
     }
 
     private fun showOverLockScreen() {
@@ -106,7 +143,14 @@ class AdhanActivity : Activity() {
 
     private fun stop() {
         AdhanService.stop(this)
-        finish()
+        ended()
+    }
+
+    /** Playing has stopped: the Horizon page says so and waits for Dismiss;
+     * the plain page simply closes. */
+    private fun ended() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        page?.showStopped() ?: finish()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -130,10 +174,10 @@ class AdhanActivity : Activity() {
                 .putExtra(AdhanService.EXTRA_ALARM, alarm.toJson().toString())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION)
 
-        /** The recording ended or was stopped elsewhere: close the page too. */
-        fun closeAll() {
-            open.mapNotNull { it.get() }.forEach { it.finish() }
-            open.clear()
+        /** The recording ended or was stopped elsewhere (face down, the
+         * notification): the page says so, or closes. */
+        fun endAll() {
+            open.mapNotNull { it.get() }.forEach { it.ended() }
         }
     }
 }

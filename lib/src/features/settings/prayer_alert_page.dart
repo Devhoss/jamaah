@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/adhan_screen.dart';
 import '../../app/audio_preview.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
@@ -120,12 +121,34 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
       shortAdhan: alerts.shortAdhan,
     );
     await ref.read(notificationPermissionRequestProvider)();
+    final calculator = ref.read(prayerTimesCalculatorProvider);
+    final zone = ref.read(placeZoneProvider);
+    final settings =
+        ref.read(appSettingsProvider).value ?? SettingsRepository.defaults;
+    final use24Hour = mounted && MediaQuery.alwaysUse24HourFormatOf(context);
     final item = ScheduledItem(
       planned: planned,
       channel: channelFor(planned),
       title: l10n.notifTestTitle(prayerName(l10n, _prayer)),
       body: l10n.notifTestBody,
       stopLabel: l10n.adhanStop,
+      // The test full-screen page looks like the real one: this prayer's sky.
+      screen: planned.fullScreen && calculator != null && zone != null
+          ? adhanScreenPayload(
+              planned: planned,
+              calculator: calculator,
+              zone: zone,
+              l10n: l10n,
+              mosque: ref.read(activeMosqueProvider),
+              theme: settings.themeMode.name,
+              hijriAdjustDays: settings.hijriAdjustDays,
+              clockTime: (t) => plainClockTime(
+                t,
+                use24Hour: use24Hour,
+                languageCode: l10n.localeName,
+              ),
+            )
+          : null,
     );
     final gateway = ref.read(notificationGatewayProvider);
     // The full Adhan and the full-screen Adhan are played by the app itself, so

@@ -803,6 +803,15 @@ AR = {
     "qiblaDirBehindLeft": 'خلفك، إلى اليسار',
     "qiblaDirLeft": 'إلى يسارك',
     "qiblaDirAheadLeft": 'أمامك، إلى يسارك',
+    "adhanScreenKicker": 'حان وقت',
+    "adhanScreenAdhanAt": 'الأذان · {time}',
+    "adhanScreenIqamaIn": 'الإقامة في {mosque} · {time}، {countdown}',
+    "adhanScreenIqamaAt": 'الإقامة في {mosque} · {time}',
+    "adhanScreenNoIqama": 'لا وقت إقامة محدّد في {mosque}',
+    "adhanScreenHint": 'أزرار الصوت أو قلب الهاتف على وجهه توقفه أيضًا.',
+    "adhanScreenStopped": 'توقّف الأذان',
+    "adhanScreenDismiss": 'إغلاق',
+    "adhanScreenStopLabel": 'أوقف أذان {prayer}',
 }
 
 

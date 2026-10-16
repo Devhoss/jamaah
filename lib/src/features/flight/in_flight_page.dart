@@ -745,17 +745,19 @@ class _Header extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
-              Flexible(
-                flex: 8,
-                child: Tooltip(
-                  message: l10n.inFlightHelp,
-                  child: PillButton(
-                    label: l10n.inFlightHelp,
-                    ink: p.ink,
-                    onInk: p.deep,
-                    line: p.line,
-                    onPressed: () => openInFlightHelp(context),
+              // At the end of the bar, and free to wrap at a large text size.
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Tooltip(
+                    message: l10n.inFlightHelp,
+                    child: PillButton(
+                      label: l10n.inFlightHelp,
+                      ink: p.ink,
+                      onInk: p.deep,
+                      line: p.line,
+                      onPressed: () => openInFlightHelp(context),
+                    ),
                   ),
                 ),
               ),

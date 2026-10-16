@@ -2786,4 +2786,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qiblaDirAheadLeft => 'Ahead, to your left';
+
+  @override
+  String get adhanScreenKicker => 'It’s time for';
+
+  @override
+  String adhanScreenAdhanAt(String time) {
+    return 'Adhan · $time';
+  }
+
+  @override
+  String adhanScreenIqamaIn(String mosque, String time, String countdown) {
+    return 'Iqama at $mosque · $time, $countdown';
+  }
+
+  @override
+  String adhanScreenIqamaAt(String mosque, String time) {
+    return 'Iqama at $mosque · $time';
+  }
+
+  @override
+  String adhanScreenNoIqama(String mosque) {
+    return 'No Iqama set at $mosque';
+  }
+
+  @override
+  String get adhanScreenHint =>
+      'Volume keys or turning the phone face down also stop it.';
+
+  @override
+  String get adhanScreenStopped => 'Adhan stopped';
+
+  @override
+  String get adhanScreenDismiss => 'Dismiss';
+
+  @override
+  String adhanScreenStopLabel(String prayer) {
+    return 'Stop the $prayer Adhan';
+  }
 }

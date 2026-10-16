@@ -10,6 +10,7 @@ class ScheduledItem {
     required this.body,
     this.stopLabel = 'Stop',
     this.timeLabel = '',
+    this.screen,
   });
 
   final PlannedNotification planned;
@@ -21,6 +22,10 @@ class ScheduledItem {
   /// the user's clock shows it, for the full-screen page.
   final String stopLabel;
   final String timeLabel;
+
+  /// For a full-screen Adhan: what its page shows (the sky, the sun path and
+  /// the words), worked out when scheduling (app/adhan_screen.dart).
+  final Map<String, Object?>? screen;
 
   int get id => planned.id;
   DateTime get at => planned.at;
@@ -117,6 +122,7 @@ class NotificationSync {
     textFor,
     String stopLabel = 'Stop',
     String Function(DateTime at)? timeLabel,
+    Map<String, Object?>? Function(PlannedNotification n)? screenFor,
   }) async {
     final future = [
       for (final n in plan)
@@ -133,6 +139,10 @@ class NotificationSync {
             body: text.body,
             stopLabel: stopLabel,
             timeLabel: timeLabel?.call(n.at) ?? '',
+            // Only an Adhan that fills the screen has a page to draw.
+            screen: n.fullScreen && n.kind == NotificationKind.adhan
+                ? screenFor?.call(n)
+                : null,
           );
         }(),
     ];

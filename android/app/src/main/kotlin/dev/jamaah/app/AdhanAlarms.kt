@@ -36,6 +36,9 @@ data class AdhanAlarm(
     /** "adhan", or a reminder's kind: decides which one keeps the sound when
      * two fire at once (2026-10-15). */
     val kind: String = "adhan",
+    /** The full-screen page's sky, sun path and words, worked out in Dart
+     * (lib/src/app/adhan_screen.dart); null for an alarm stored before it. */
+    val screen: JSONObject? = null,
 ) {
     fun toJson(): JSONObject = JSONObject()
         .put("id", id)
@@ -52,6 +55,7 @@ data class AdhanAlarm(
         .put("stopLabel", stopLabel)
         .put("timeLabel", timeLabel)
         .put("kind", kind)
+        .also { o -> screen?.let { o.put("screen", it) } }
 
     companion object {
         fun fromJson(o: JSONObject) = AdhanAlarm(
@@ -69,6 +73,7 @@ data class AdhanAlarm(
             stopLabel = o.optString("stopLabel", "Stop"),
             timeLabel = o.optString("timeLabel", ""),
             kind = o.optString("kind", "adhan"),
+            screen = o.optJSONObject("screen"),
         )
 
         fun fromMap(m: Map<*, *>) = AdhanAlarm(
@@ -86,6 +91,7 @@ data class AdhanAlarm(
             stopLabel = m["stopLabel"] as? String ?: "Stop",
             timeLabel = m["timeLabel"] as? String ?: "",
             kind = m["kind"] as? String ?: "adhan",
+            screen = (m["screen"] as? Map<*, *>)?.let { JSONObject(it) },
         )
     }
 }

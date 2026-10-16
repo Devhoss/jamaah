@@ -176,6 +176,7 @@ class LocalNotificationsGateway implements NotificationGateway {
     'vibrate': item.planned.vibrate,
     'stopLabel': item.stopLabel,
     'timeLabel': item.timeLabel,
+    'screen': ?item.screen,
   };
 
   @override

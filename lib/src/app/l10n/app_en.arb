@@ -1276,5 +1276,19 @@
   "qiblaDirBehind": "Behind you",
   "qiblaDirBehindLeft": "Behind you, to the left",
   "qiblaDirLeft": "To your left",
-  "qiblaDirAheadLeft": "Ahead, to your left"
+  "qiblaDirAheadLeft": "Ahead, to your left",
+  "adhanScreenKicker": "It’s time for",
+  "adhanScreenAdhanAt": "Adhan · {time}",
+  "@adhanScreenAdhanAt": {"placeholders": {"time": {"type": "String"}}},
+  "adhanScreenIqamaIn": "Iqama at {mosque} · {time}, {countdown}",
+  "@adhanScreenIqamaIn": {"placeholders": {"mosque": {"type": "String"}, "time": {"type": "String"}, "countdown": {"type": "String"}}},
+  "adhanScreenIqamaAt": "Iqama at {mosque} · {time}",
+  "@adhanScreenIqamaAt": {"placeholders": {"mosque": {"type": "String"}, "time": {"type": "String"}}},
+  "adhanScreenNoIqama": "No Iqama set at {mosque}",
+  "@adhanScreenNoIqama": {"placeholders": {"mosque": {"type": "String"}}},
+  "adhanScreenHint": "Volume keys or turning the phone face down also stop it.",
+  "adhanScreenStopped": "Adhan stopped",
+  "adhanScreenDismiss": "Dismiss",
+  "adhanScreenStopLabel": "Stop the {prayer} Adhan",
+  "@adhanScreenStopLabel": {"placeholders": {"prayer": {"type": "String"}}}
 }

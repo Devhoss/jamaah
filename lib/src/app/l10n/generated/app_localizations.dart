@@ -4557,6 +4557,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ahead, to your left'**
   String get qiblaDirAheadLeft;
+
+  /// No description provided for @adhanScreenKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'It’s time for'**
+  String get adhanScreenKicker;
+
+  /// No description provided for @adhanScreenAdhanAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan · {time}'**
+  String adhanScreenAdhanAt(String time);
+
+  /// No description provided for @adhanScreenIqamaIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama at {mosque} · {time}, {countdown}'**
+  String adhanScreenIqamaIn(String mosque, String time, String countdown);
+
+  /// No description provided for @adhanScreenIqamaAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Iqama at {mosque} · {time}'**
+  String adhanScreenIqamaAt(String mosque, String time);
+
+  /// No description provided for @adhanScreenNoIqama.
+  ///
+  /// In en, this message translates to:
+  /// **'No Iqama set at {mosque}'**
+  String adhanScreenNoIqama(String mosque);
+
+  /// No description provided for @adhanScreenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume keys or turning the phone face down also stop it.'**
+  String get adhanScreenHint;
+
+  /// No description provided for @adhanScreenStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan stopped'**
+  String get adhanScreenStopped;
+
+  /// No description provided for @adhanScreenDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get adhanScreenDismiss;
+
+  /// No description provided for @adhanScreenStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the {prayer} Adhan'**
+  String adhanScreenStopLabel(String prayer);
 }
 
 class _AppLocalizationsDelegate

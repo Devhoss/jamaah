@@ -752,3 +752,12 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 739 | `qiblaDirBehindLeft` | Behind you, to the left | خلفك، إلى اليسار |
 | 740 | `qiblaDirLeft` | To your left | إلى يسارك |
 | 741 | `qiblaDirAheadLeft` | Ahead, to your left | أمامك، إلى يسارك |
+| 742 | `adhanScreenKicker` | It’s time for | حان وقت |
+| 743 | `adhanScreenAdhanAt` | Adhan · {time} | الأذان · {time} |
+| 744 | `adhanScreenIqamaIn` | Iqama at {mosque} · {time}, {countdown} | الإقامة في {mosque} · {time}، {countdown} |
+| 745 | `adhanScreenIqamaAt` | Iqama at {mosque} · {time} | الإقامة في {mosque} · {time} |
+| 746 | `adhanScreenNoIqama` | No Iqama set at {mosque} | لا وقت إقامة محدّد في {mosque} |
+| 747 | `adhanScreenHint` | Volume keys or turning the phone face down also stop it. | أزرار الصوت أو قلب الهاتف على وجهه توقفه أيضًا. |
+| 748 | `adhanScreenStopped` | Adhan stopped | توقّف الأذان |
+| 749 | `adhanScreenDismiss` | Dismiss | إغلاق |
+| 750 | `adhanScreenStopLabel` | Stop the {prayer} Adhan | أوقف أذان {prayer} |

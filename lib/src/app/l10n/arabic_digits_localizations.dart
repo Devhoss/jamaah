@@ -1712,6 +1712,18 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get qiblaDirAheadLeft => arabicDigits(super.qiblaDirAheadLeft);
 
   @override
+  String get adhanScreenKicker => arabicDigits(super.adhanScreenKicker);
+
+  @override
+  String get adhanScreenHint => arabicDigits(super.adhanScreenHint);
+
+  @override
+  String get adhanScreenStopped => arabicDigits(super.adhanScreenStopped);
+
+  @override
+  String get adhanScreenDismiss => arabicDigits(super.adhanScreenDismiss);
+
+  @override
   String prayerAtTime(String prayer, String time) =>
       arabicDigits(super.prayerAtTime(prayer, time));
 
@@ -2416,4 +2428,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String inFlightQiblaWords(String words, String degrees) =>
       arabicDigits(super.inFlightQiblaWords(words, degrees));
+
+  @override
+  String adhanScreenAdhanAt(String time) =>
+      arabicDigits(super.adhanScreenAdhanAt(time));
+
+  @override
+  String adhanScreenIqamaIn(String mosque, String time, String countdown) =>
+      arabicDigits(super.adhanScreenIqamaIn(mosque, time, countdown));
+
+  @override
+  String adhanScreenIqamaAt(String mosque, String time) =>
+      arabicDigits(super.adhanScreenIqamaAt(mosque, time));
+
+  @override
+  String adhanScreenNoIqama(String mosque) =>
+      arabicDigits(super.adhanScreenNoIqama(mosque));
+
+  @override
+  String adhanScreenStopLabel(String prayer) =>
+      arabicDigits(super.adhanScreenStopLabel(prayer));
 }
