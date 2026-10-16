@@ -5,12 +5,11 @@ import '../../app/clock_format.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
 import '../../domain/iqama_editing.dart';
 import '../../domain/mosque.dart';
 import '../../domain/prayer.dart';
 import '../../domain/time_model.dart';
+import '../settings/settings_kit.dart';
 
 /// Opens the sheet for entering all five Iqama times at once, as minutes after
 /// the Adhan, the way Kuwaiti mosques publish them (2026-10-14).
@@ -21,10 +20,8 @@ Future<void> showEnterAllFive(
   required Map<Prayer, int> adhanToday,
   Map<Prayer, int> adhanTomorrow = const {},
   int nowMinutes = 0,
-}) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
+}) => showSettingsSheet<void>(
+  context,
   builder: (_) => EnterAllFiveSheet(
     mosque: mosque,
     schedule: schedule,
@@ -120,82 +117,46 @@ class _EnterAllFiveSheetState extends ConsumerState<EnterAllFiveSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final clock = ClockFormat.of(context);
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpace.xxl,
-            0,
-            AppSpace.xxl,
-            AppSpace.xxl,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.enterAllFiveTitle,
-                style: theme.textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpace.xs),
-              Text(
-                l10n.enterAllFiveHint,
-                style: theme.textTheme.bodyMedium?.copyWith(color: ink.muted),
-              ),
-              const SizedBox(height: AppSpace.lg),
-              for (final p in Prayer.iqamaPrayers) ...[
-                _Field(
-                  name: prayerName(l10n, p),
-                  controller: _fields[p]!,
-                  error: _valid(p) ? null : l10n.iqamaMinutesInvalid,
-                  result: switch ((widget.adhanToday[p], _next(p))) {
-                    (_, (:final adhan, :final iqama, :final tomorrow)?) =>
-                      (tomorrow
-                      ? l10n.iqamaAfterAdhanPreviewTomorrow
-                      : l10n.iqamaAfterAdhanPreview)(
-                        clock.time(adhan),
-                        _valueOf(p)!,
-                        clock.time(iqama),
-                      ),
-                    (final adhan?, _) => l10n.rowAdhanTime(
-                      clock.time(LocalTime(adhan)),
-                    ),
-                    _ => null,
-                  },
-                  onChanged: () => setState(() {}),
+    return SettingsSheetBody(
+      title: l10n.enterAllFiveTitle,
+      children: [
+        SettingsNote(l10n.enterAllFiveHint, top: 0),
+        const SizedBox(height: 16),
+        for (final p in Prayer.iqamaPrayers) ...[
+          _Field(
+            name: prayerName(l10n, p),
+            controller: _fields[p]!,
+            error: _valid(p) ? null : l10n.iqamaMinutesInvalid,
+            result: switch ((widget.adhanToday[p], _next(p))) {
+              (_, (:final adhan, :final iqama, :final tomorrow)?) =>
+                (tomorrow
+                ? l10n.iqamaAfterAdhanPreviewTomorrow
+                : l10n.iqamaAfterAdhanPreview)(
+                  clock.time(adhan),
+                  _valueOf(p)!,
+                  clock.time(iqama),
                 ),
-                const SizedBox(height: AppSpace.md),
-              ],
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _saving
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      child: Text(l10n.cancel),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpace.md),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _canSave ? _save : null,
-                      child: Text(l10n.save),
-                    ),
-                  ),
-                ],
+              (final adhan?, _) => l10n.rowAdhanTime(
+                clock.time(LocalTime(adhan)),
               ),
-            ],
+              _ => null,
+            },
+            onChanged: () => setState(() {}),
           ),
+          const SizedBox(height: 12),
+        ],
+        const SizedBox(height: 8),
+        SheetActions(
+          cancelLabel: l10n.cancel,
+          saveLabel: l10n.save,
+          onCancel: () {
+            if (!_saving) Navigator.of(context).pop();
+          },
+          onSave: _canSave ? _save : null,
         ),
-      ),
+      ],
     );
   }
 }

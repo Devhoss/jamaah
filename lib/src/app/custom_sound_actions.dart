@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../domain/custom_sounds.dart';
+import '../features/settings/settings_kit.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'providers.dart';
 
@@ -52,27 +53,27 @@ Future<void> renameSound(
   WidgetRef ref,
   CustomSound sound,
 ) async {
-  final name = await showDialog<String>(
-    context: context,
-    builder: (_) => _RenameDialog(initial: sound.name),
+  final name = await showSettingsSheet<String>(
+    context,
+    builder: (_) => _RenameSheet(initial: sound.name),
   );
   if (name == null || name.trim().isEmpty) return;
   await ref.read(settingsRepositoryProvider).renameCustomSound(sound.id, name);
 }
 
-/// Owns its text controller, so it is disposed only when the dialog is gone:
-/// disposing it as soon as the dialog closed broke the closing animation,
+/// Owns its text controller, so it is disposed only when the sheet is gone:
+/// disposing it as soon as the sheet closed broke the closing animation,
 /// which still shows the field (2026-10-15).
-class _RenameDialog extends StatefulWidget {
-  const _RenameDialog({required this.initial});
+class _RenameSheet extends StatefulWidget {
+  const _RenameSheet({required this.initial});
 
   final String initial;
 
   @override
-  State<_RenameDialog> createState() => _RenameDialogState();
+  State<_RenameSheet> createState() => _RenameSheetState();
 }
 
-class _RenameDialogState extends State<_RenameDialog> {
+class _RenameSheetState extends State<_RenameSheet> {
   late final _controller = TextEditingController(text: widget.initial);
 
   @override
@@ -84,22 +85,21 @@ class _RenameDialogState extends State<_RenameDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.soundRename),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        decoration: InputDecoration(labelText: l10n.soundName),
-        onSubmitted: (v) => Navigator.of(context).pop(v),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.cancel),
+    return SettingsSheetBody(
+      title: l10n.soundRename,
+      children: [
+        TextField(
+          controller: _controller,
+          autofocus: true,
+          decoration: InputDecoration(labelText: l10n.soundName),
+          onSubmitted: (v) => Navigator.of(context).pop(v),
         ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: Text(l10n.save),
+        const SizedBox(height: 20),
+        SheetActions(
+          cancelLabel: l10n.cancel,
+          saveLabel: l10n.save,
+          onCancel: () => Navigator.of(context).pop(),
+          onSave: () => Navigator.of(context).pop(_controller.text),
         ),
       ],
     );
@@ -114,23 +114,14 @@ Future<void> deleteSound(
   CustomSound sound,
 ) async {
   final l10n = AppLocalizations.of(context);
-  final yes = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      content: Text(l10n.soundDeleteConfirm(sound.name)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(l10n.cancel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(l10n.soundDelete),
-        ),
-      ],
-    ),
+  final yes = await showConfirmSheet(
+    context,
+    title: l10n.soundDeleteConfirm(sound.name),
+    confirmLabel: l10n.soundDelete,
+    cancelLabel: l10n.cancel,
+    danger: true,
   );
-  if (yes != true) return;
+  if (!yes) return;
   await ref.read(settingsRepositoryProvider).deleteCustomSound(sound.id);
   try {
     await File(sound.path).delete();

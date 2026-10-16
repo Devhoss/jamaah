@@ -15,7 +15,6 @@ import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
-import 'package:jamaah/src/features/components/app_widgets.dart';
 import 'package:jamaah/src/features/settings/settings_page.dart';
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_place_source.dart';
@@ -123,7 +122,7 @@ void main() {
 
     expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
     expect(
-      find.byType(AppRow),
+      find.text(t.mosqueMakeActive),
       findsNothing,
       reason: 'no mosque exists yet, so no row may look like one',
     );

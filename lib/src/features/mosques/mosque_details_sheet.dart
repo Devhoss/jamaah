@@ -3,18 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
 import '../../domain/discovery.dart';
 import '../../domain/iqama_editing.dart';
 import '../../domain/mosque.dart';
+import '../settings/settings_kit.dart';
 
 /// Adds a mosque by hand. Resolves to the new mosque, or null when cancelled.
 Future<Mosque?> showAddMosqueSheet(BuildContext context) =>
-    showModalBottomSheet<Mosque>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+    showSettingsSheet<Mosque>(
+      context,
       builder: (_) => const MosqueDetailsSheet(),
     );
 
@@ -23,19 +20,15 @@ Future<Mosque?> showAddMosqueSheet(BuildContext context) =>
 Future<Mosque?> showSaveDiscoveredSheet(
   BuildContext context,
   DiscoveredMosque discovered,
-) => showModalBottomSheet<Mosque>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
+) => showSettingsSheet<Mosque>(
+  context,
   builder: (_) => MosqueDetailsSheet(discovered: discovered),
 );
 
 /// Changes a saved mosque's name and address.
 Future<void> showEditMosqueSheet(BuildContext context, Mosque mosque) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+    showSettingsSheet<void>(
+      context,
       builder: (_) => MosqueDetailsSheet(editing: mosque),
     );
 
@@ -117,89 +110,52 @@ class _MosqueDetailsSheetState extends ConsumerState<MosqueDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final adding = widget.editing == null && widget.discovered == null;
     final discovered = widget.discovered;
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpace.xxl,
-            0,
-            AppSpace.xxl,
-            AppSpace.xxl,
+    return SettingsSheetBody(
+      title: discovered != null
+          ? l10n.saveMosqueTitle
+          : adding
+          ? l10n.addMosqueSheetTitle
+          : l10n.editMosqueTitle,
+      children: [
+        if (adding || discovered != null) ...[
+          SettingsNote(
+            discovered != null
+                ? l10n.saveMosqueBody(providerName(l10n, discovered.source))
+                : l10n.addMosqueSheetBody,
+            top: 0,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                discovered != null
-                    ? l10n.saveMosqueTitle
-                    : adding
-                    ? l10n.addMosqueSheetTitle
-                    : l10n.editMosqueTitle,
-                style: theme.textTheme.headlineSmall,
-              ),
-              if (adding || discovered != null) ...[
-                const SizedBox(height: AppSpace.xs),
-                Text(
-                  discovered != null
-                      ? l10n.saveMosqueBody(
-                          providerName(l10n, discovered.source),
-                        )
-                      : l10n.addMosqueSheetBody,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppInk.of(context).muted,
-                  ),
-                ),
-              ],
-              const SizedBox(height: AppSpace.lg),
-              TextField(
-                controller: _name,
-                // A search result with no name needs one typed before saving.
-                autofocus: adding || (discovered != null && discovered.name == null),
-                textCapitalization: TextCapitalization.words,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(labelText: l10n.mosqueNameLabel),
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: AppSpace.md),
-              TextField(
-                controller: _address,
-                textCapitalization: TextCapitalization.words,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(labelText: l10n.mosqueAddressLabel),
-                onSubmitted: (_) => _submit(),
-              ),
-              const SizedBox(height: AppSpace.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _saving
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      child: Text(l10n.cancel),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpace.md),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _canSave ? _submit : null,
-                      child: Text(adding ? l10n.add : l10n.save),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          const SizedBox(height: 16),
+        ],
+        TextField(
+          controller: _name,
+          // A search result with no name needs one typed before saving.
+          autofocus: adding || (discovered != null && discovered.name == null),
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(labelText: l10n.mosqueNameLabel),
+          onChanged: (_) => setState(() {}),
         ),
-      ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _address,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(labelText: l10n.mosqueAddressLabel),
+          onSubmitted: (_) => _submit(),
+        ),
+        const SizedBox(height: 20),
+        SheetActions(
+          cancelLabel: l10n.cancel,
+          saveLabel: adding ? l10n.add : l10n.save,
+          onCancel: () {
+            if (!_saving) Navigator.of(context).pop();
+          },
+          onSave: _canSave ? _submit : null,
+        ),
+      ],
     );
   }
 }

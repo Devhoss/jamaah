@@ -11,7 +11,7 @@ import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/placeholder_places.dart';
-import 'package:jamaah/src/features/components/app_widgets.dart';
+import 'package:jamaah/src/features/settings/settings_kit.dart';
 import 'package:jamaah/src/features/location/city_list_page.dart';
 import 'package:jamaah/src/features/today/today_screen.dart';
 import 'package:jamaah/src/features/location/place_copy.dart';
@@ -256,7 +256,7 @@ void main() {
           .widgetList(
             find.descendant(
               of: find.byType(CityListPage),
-              matching: find.byType(AppRow),
+              matching: find.byType(SettingsLinkRow),
             ),
           )
           .length;

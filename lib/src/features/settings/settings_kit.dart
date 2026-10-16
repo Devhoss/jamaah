@@ -486,6 +486,8 @@ class SettingsButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.filled = false,
+    this.wide = false,
+    this.icon,
     super.key,
   });
 
@@ -493,20 +495,25 @@ class SettingsButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool filled;
 
+  /// Across the whole panel, for a sheet's main actions.
+  final bool wide;
+  final LineIconData? icon;
+
   @override
   Widget build(BuildContext context) {
     final s = HorizonTheme.of(context).surfaces;
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: PillButton(
-        label: label,
-        filled: filled,
-        ink: filled ? s.accent : s.onSurface,
-        onInk: filled ? s.onAccent : s.surface,
-        line: s.divider,
-        onPressed: onPressed,
-      ),
+    final button = PillButton(
+      label: label,
+      filled: filled,
+      icon: icon,
+      ink: filled ? s.accent : s.onSurface,
+      onInk: filled ? s.onAccent : s.surface,
+      line: s.divider,
+      onPressed: onPressed,
     );
+    return wide
+        ? SizedBox(width: double.infinity, child: button)
+        : Align(alignment: AlignmentDirectional.centerStart, child: button);
   }
 }
 
@@ -661,6 +668,7 @@ class SheetActions extends StatelessWidget {
     required this.saveLabel,
     required this.onCancel,
     required this.onSave,
+    this.danger = false,
     super.key,
   });
 
@@ -668,6 +676,9 @@ class SheetActions extends StatelessWidget {
   final String saveLabel;
   final VoidCallback onCancel;
   final VoidCallback? onSave;
+
+  /// Delete and Remove: the main button in the danger colour.
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
@@ -701,8 +712,8 @@ class SheetActions extends StatelessWidget {
             child: FilledButton(
               onPressed: onSave,
               style: FilledButton.styleFrom(
-                backgroundColor: s.accent,
-                foregroundColor: s.onAccent,
+                backgroundColor: danger ? s.danger : s.accent,
+                foregroundColor: danger ? s.surface : s.onAccent,
                 disabledBackgroundColor: s.well,
                 disabledForegroundColor: s.onSurfaceMuted,
                 shape: shape,
@@ -766,4 +777,34 @@ class SettingsChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Asks to confirm, on a surface sheet: [title], an optional [body], Cancel
+/// and [confirmLabel]. True only when confirmed.
+Future<bool> showConfirmSheet(
+  BuildContext context, {
+  required String title,
+  required String confirmLabel,
+  required String cancelLabel,
+  String? body,
+  bool danger = false,
+}) async {
+  final yes = await showSettingsSheet<bool>(
+    context,
+    builder: (sheetContext) => SettingsSheetBody(
+      title: title,
+      children: [
+        if (body != null) SettingsNote(body, top: 0),
+        const SizedBox(height: 20),
+        SheetActions(
+          cancelLabel: cancelLabel,
+          saveLabel: confirmLabel,
+          danger: danger,
+          onCancel: () => Navigator.of(sheetContext).pop(false),
+          onSave: () => Navigator.of(sheetContext).pop(true),
+        ),
+      ],
+    ),
+  );
+  return yes ?? false;
 }

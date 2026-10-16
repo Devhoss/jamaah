@@ -159,13 +159,18 @@ class _NoteLine extends StatelessWidget {
             ),
           ),
           if (action != null && note.actionLabel != null)
-            TextButton(
-              onPressed: action,
-              style: TextButton.styleFrom(
-                foregroundColor: palette.ink,
-                minimumSize: const Size(48, 48),
+            // In the note's own size, and free to wrap beside a long note.
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: TextButton(
+                onPressed: action,
+                style: TextButton.styleFrom(
+                  foregroundColor: palette.ink,
+                  minimumSize: const Size(48, 48),
+                  textStyle: style.copyWith(fontWeight: FontWeight.w600),
+                ),
+                child: Text(note.actionLabel!, textAlign: TextAlign.end),
               ),
-              child: Text(note.actionLabel!),
             ),
         ],
       ),

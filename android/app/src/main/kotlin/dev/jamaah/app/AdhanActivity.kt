@@ -96,17 +96,18 @@ class AdhanActivity : Activity() {
     private fun dp(value: Float) =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
 
-    /** Calm and plain, in the app's palette: dark forest, light ink, one green button. */
+    /** Calm and plain, in the Horizon dark surface colours: for an alarm stored
+     * before the Horizon page existed. */
     private fun layout(alarm: AdhanAlarm) = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER
-        setBackgroundColor(Color.parseColor("#0F1713"))
+        setBackgroundColor(Color.parseColor("#14151C"))
         val pad = dp(32f).toInt()
         setPadding(pad, pad, pad, pad)
 
         addView(TextView(context).apply {
             text = alarm.title
-            setTextColor(Color.parseColor("#E8EFE9"))
+            setTextColor(Color.parseColor("#ECEDF2"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 40f)
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -114,14 +115,14 @@ class AdhanActivity : Activity() {
         if (alarm.timeLabel.isNotEmpty()) {
             addView(TextView(context).apply {
                 text = alarm.timeLabel
-                setTextColor(Color.parseColor("#E8EFE9"))
+                setTextColor(Color.parseColor("#ECEDF2"))
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f)
                 gravity = Gravity.CENTER
             })
         }
         addView(TextView(context).apply {
             text = alarm.body
-            setTextColor(Color.parseColor("#93A398"))
+            setTextColor(Color.parseColor("#A3A6B3"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             gravity = Gravity.CENTER
             setPadding(0, dp(16f).toInt(), 0, dp(48f).toInt())
@@ -129,10 +130,10 @@ class AdhanActivity : Activity() {
         addView(Button(context).apply {
             text = alarm.stopLabel
             isAllCaps = false
-            setTextColor(Color.WHITE)
+            setTextColor(Color.parseColor("#14151C"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#3F8F69"))
+                setColor(Color.parseColor("#ECEDF2"))
                 cornerRadius = dp(28f)
             }
             minHeight = dp(72f).toInt()

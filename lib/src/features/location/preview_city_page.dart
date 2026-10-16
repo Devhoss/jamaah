@@ -7,8 +7,7 @@ import '../../app/date_labels.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/place.dart';
 import '../../domain/prayer.dart';
@@ -16,7 +15,7 @@ import '../../domain/prayer_times_calculator.dart';
 import '../../domain/time_model.dart';
 import '../../domain/today.dart';
 import '../../domain/zone_offsets.dart';
-import '../components/app_widgets.dart';
+import '../settings/settings_kit.dart';
 import 'city_list_page.dart';
 import 'place_copy.dart';
 
@@ -41,8 +40,6 @@ class PreviewCityPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final settings =
         ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
     final zone = zoneOffsetsFor(city.ianaZone);
@@ -69,58 +66,68 @@ class PreviewCityPage extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final day = today.day.day;
     final current = ref.watch(currentPlaceProvider);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
+    final date = DateLabels.gregorian(
+      DateTime(day.year, day.month, day.day),
+      locale,
+    );
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.previewTitle(city.displayName))),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: [
-          Text(
-            DateLabels.gregorian(
-              DateTime(day.year, day.month, day.day),
-              locale,
-            ),
-            style: theme.textTheme.titleLarge,
-          ),
-          if (current != null) ...[
-            const SizedBox(height: AppSpace.xs),
-            Text(
+    return SettingsScaffold(
+      title: l10n.previewTitle(city.displayName),
+      lead: current == null
+          ? date
+          : [
+              date,
               l10n.previewNote(city.displayName, placeLabel(l10n, current)),
-              style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+            ].join('\n'),
+      children: [
+        SettingsHeading(l10n.todaySectionTimes, top: 4),
+        for (final (i, prayer) in Prayer.adhanPrayers.indexed)
+          Container(
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              // The prayer in force sits in a well, as on Today.
+              color: prayer == today.inForce?.prayer ? s.well : null,
+              borderRadius: BorderRadius.circular(14),
+              border:
+                  prayer != today.inForce?.prayer &&
+                      i < Prayer.adhanPrayers.length - 1
+                  ? Border(bottom: BorderSide(color: s.divider))
+                  : null,
             ),
-          ],
-          AppSectionHeader(l10n.todaySectionTimes),
-          AppRows(
-            children: [
-              for (final prayer in Prayer.adhanPrayers)
-                AppRow(
-                  muted: prayer == Prayer.sunrise,
-                  selected: prayer == today.inForce?.prayer,
-                  leading: Icon(
-                    Icons.circle,
-                    size: 8,
-                    color: prayer == today.next?.prayer
-                        ? theme.colorScheme.primary
-                        : Colors.transparent,
+            child: MergeSemantics(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      prayerName(l10n, prayer),
+                      style: type.row.copyWith(
+                        color: prayer == Prayer.sunrise
+                            ? s.onSurfaceMuted
+                            : s.onSurface,
+                        fontWeight: prayer == today.next?.prayer
+                            ? FontWeight.w700
+                            : null,
+                      ),
+                    ),
                   ),
-                  title: Text(
-                    prayerName(l10n, prayer),
-                    style: const TextStyle(fontSize: AppType.rowSize),
+                  Text(
+                    switch (today.day.timeOf(prayer)) {
+                      final m? => clock.time(LocalTime(m)),
+                      null => l10n.noTimeToday,
+                    },
+                    style: type.row.copyWith(
+                      color: s.onSurface,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
-                  trailing: Text(switch (today.day.timeOf(prayer)) {
-                    final m? => clock.time(LocalTime(m)),
-                    null => l10n.noTimeToday,
-                  }, style: const TextStyle(fontSize: AppType.rowSize)),
-                ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }

@@ -31,12 +31,33 @@ void main() {
       );
     });
 
-    test('the prototype palette still drives the colour scheme', () {
-      // Horizon tokens sit beside it until each screen is rebuilt.
-      expect(
-        AppTheme.light().colorScheme.primary,
-        isNot(HorizonSurfaces.light.accent),
-      );
+    test('the Horizon surfaces drive the colour scheme, with no green', () {
+      // 2026-10-16: the prototype palette is retired; stock widgets, ripples
+      // and dialogs read the same ink as the pages.
+      for (final (theme, s) in [
+        (AppTheme.light(), HorizonSurfaces.light),
+        (AppTheme.dark(), HorizonSurfaces.dark),
+      ]) {
+        final scheme = theme.colorScheme;
+        expect(scheme.primary, s.accent);
+        expect(scheme.onPrimary, s.onAccent);
+        expect(scheme.surface, s.surface);
+        expect(scheme.secondaryContainer, s.well);
+        expect(scheme.error, s.danger);
+        for (final c in [
+          scheme.primary,
+          scheme.secondary,
+          scheme.tertiary,
+          scheme.primaryContainer,
+          scheme.secondaryContainer,
+          theme.splashColor,
+          theme.highlightColor,
+        ]) {
+          // Green dominates: the old forest and sage, or Material's teal.
+          final green = (c.g > c.r * 1.08) && (c.g > c.b * 1.08);
+          expect(green, isFalse, reason: '$c in ${theme.brightness}');
+        }
+      }
     });
 
     test('the default text font is the Horizon UI font', () {

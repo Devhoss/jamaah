@@ -4,13 +4,13 @@ import 'package:intl/intl.dart';
 
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../domain/discovery.dart';
 import '../../domain/mosque.dart';
 import '../../domain/place.dart';
-import '../components/app_widgets.dart';
+import '../components/line_icon.dart';
 import '../location/city_list_page.dart';
+import '../settings/settings_kit.dart';
 import 'mosque_detail_page.dart';
 import 'mosque_details_sheet.dart';
 
@@ -136,101 +136,97 @@ class _NearbyMosquesPageState extends ConsumerState<NearbyMosquesPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.nearbyTitle)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          AppSpace.sm,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: switch (_stage) {
-          _Stage.explain => _explain(l10n),
-          _Stage.locating => _working(l10n.nearbyLocating),
-          _Stage.searching => _working(l10n.nearbySearching),
-          _Stage.done => _answer(l10n),
-        },
-      ),
+    return SettingsScaffold(
+      title: l10n.nearbyTitle,
+      lead: l10n.nearbyExplainTitle,
+      children: switch (_stage) {
+        _Stage.explain => _explain(l10n),
+        _Stage.locating => _working(l10n.nearbyLocating),
+        _Stage.searching => _working(l10n.nearbySearching),
+        _Stage.done => _answer(l10n),
+      },
     );
   }
 
   List<Widget> _explain(AppLocalizations l10n) {
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
     final failure = _locationFailure;
     return [
-      Text(l10n.nearbyExplainTitle, style: theme.textTheme.headlineSmall),
-      const SizedBox(height: AppSpace.sm),
-      Text(l10n.nearbyExplainBody, style: theme.textTheme.bodyLarge),
-      const SizedBox(height: AppSpace.sm),
       Text(
-        l10n.nearbyExplainSent(providerName(l10n, _source)),
-        style: theme.textTheme.bodyMedium?.copyWith(color: ink.muted),
+        l10n.nearbyExplainBody,
+        style: type.body.copyWith(fontSize: 16, color: s.onSurface),
       ),
+      SettingsNote(l10n.nearbyExplainSent(providerName(l10n, _source))),
       if (failure != null) ...[
-        const SizedBox(height: AppSpace.lg),
-        AppPrompt(
-          children: [
-            Text(
-              _locationMessage(l10n, failure),
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
+        const SizedBox(height: 14),
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            _locationMessage(l10n, failure),
+            style: type.body.copyWith(color: s.onSurface),
+          ),
         ),
-        if (failure == PlaceFailure.permanentlyDenied) ...[
-          const SizedBox(height: AppSpace.sm),
-          TextButton(
+        if (failure == PlaceFailure.permanentlyDenied)
+          SettingsTextButton(
+            label: l10n.locationOpenSettings,
             onPressed: () =>
                 ref.read(nearbyLocationSourceProvider).openSystemSettings(),
-            child: Text(l10n.locationOpenSettings),
           ),
-        ],
       ],
-      const SizedBox(height: AppSpace.lg),
-      FilledButton.icon(
+      const SizedBox(height: 18),
+      SettingsButton(
+        label: failure == PlaceFailure.timeout
+            ? l10n.locationTryAgain
+            : l10n.nearbyUseLocation,
+        icon: LineIcons.pin,
+        filled: true,
+        wide: true,
         onPressed: _useMyLocation,
-        icon: const Icon(Icons.my_location),
-        label: Text(
-          failure == PlaceFailure.timeout
-              ? l10n.locationTryAgain
-              : l10n.nearbyUseLocation,
-        ),
       ),
-      const SizedBox(height: AppSpace.md),
-      OutlinedButton.icon(
+      const SizedBox(height: 10),
+      SettingsButton(
+        label: l10n.nearbySearchCity,
+        wide: true,
         onPressed: _searchAroundCity,
-        icon: const Icon(Icons.location_city),
-        label: Text(l10n.nearbySearchCity),
       ),
     ];
   }
 
   List<Widget> _working(String label) => [
-    const SizedBox(height: AppSpace.xxl),
+    const SizedBox(height: 24),
     const Center(child: CircularProgressIndicator()),
-    const SizedBox(height: AppSpace.lg),
-    Center(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+    const SizedBox(height: 16),
+    Semantics(
+      liveRegion: true,
+      child: Center(
+        child: Text(
+          label,
+          style: HorizonTheme.typeOf(context).body.copyWith(
+            color: HorizonTheme.of(context).surfaces.onSurfaceMuted,
+          ),
+        ),
+      ),
+    ),
   ];
 
   List<Widget> _answer(AppLocalizations l10n) {
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
     final query = _query!;
     final km = query.radiusMeters ~/ 1000;
     final source = _source;
 
-    final header = Text(
+    final header = SettingsHeading(
       _cityName == null
           ? l10n.nearbyHeaderHere(km)
           : l10n.nearbyHeaderCity(km, _cityName!),
-      style: theme.textTheme.titleMedium,
+      top: 4,
     );
 
-    final addByHand = OutlinedButton.icon(
+    final addByHand = SettingsButton(
+      label: l10n.nearbyAddManually,
       onPressed: _addByHand,
-      icon: const Icon(Icons.add),
-      label: Text(l10n.nearbyAddManually),
     );
 
     final result = _result;
@@ -247,25 +243,28 @@ class _NearbyMosquesPageState extends ConsumerState<NearbyMosquesPage> {
           result.reason != DiscoveryFailure.keyRejected;
       return [
         header,
-        AppPrompt(
-          children: [
-            Text(
-              _failureMessage(l10n, result, source),
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            _failureMessage(l10n, result, source),
+            style: type.body.copyWith(color: s.onSurface),
+          ),
         ),
-        const SizedBox(height: AppSpace.lg),
+        const SizedBox(height: 16),
         if (canTryOsm) ...[
-          FilledButton(onPressed: _switchToOsm, child: Text(l10n.nearbyTryOsm)),
-          const SizedBox(height: AppSpace.md),
+          SettingsButton(
+            label: l10n.nearbyTryOsm,
+            filled: true,
+            onPressed: _switchToOsm,
+          ),
+          const SizedBox(height: 10),
         ],
         if (canRetry) ...[
-          OutlinedButton(
+          SettingsButton(
+            label: l10n.locationTryAgain,
             onPressed: () => _search(query),
-            child: Text(l10n.locationTryAgain),
           ),
-          const SizedBox(height: AppSpace.md),
+          const SizedBox(height: 10),
         ],
         addByHand,
       ];
@@ -283,57 +282,36 @@ class _NearbyMosquesPageState extends ConsumerState<NearbyMosquesPage> {
 
     return [
       header,
-      if (!_precise) ...[
-        const SizedBox(height: AppSpace.sm),
-        Text(
-          l10n.nearbyApproximateNote,
-          style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-        ),
-      ],
-      const SizedBox(height: AppSpace.md),
+      if (!_precise) SettingsNote(l10n.nearbyApproximateNote, top: 0),
+      const SizedBox(height: 10),
       if (result.mosques.isEmpty)
-        AppPrompt(
-          children: [
-            Text(l10n.nearbyEmpty(km), style: theme.textTheme.bodyMedium),
-          ],
-        )
+        SettingsNote(l10n.nearbyEmpty(km), top: 0)
       else ...[
         TextField(
           controller: _filter,
-          decoration: InputDecoration(
-            hintText: l10n.nearbyFilterHint,
-            prefixIcon: const Icon(Icons.search),
-          ),
+          decoration: InputDecoration(hintText: l10n.nearbyFilterHint),
           onChanged: (_) => setState(() {}),
         ),
-        const SizedBox(height: AppSpace.md),
+        const SizedBox(height: 8),
         if (shown.isEmpty)
-          AppPrompt(
-            children: [
-              Text(l10n.nearbyNoMatches, style: theme.textTheme.bodyMedium),
-            ],
-          )
+          SettingsNote(l10n.nearbyNoMatches, top: 8)
         else
-          AppRows(
-            children: [
-              for (final m in shown)
-                _ResultRow(
-                  mosque: m,
-                  distance: _distance(l10n, m.distanceFrom(query)),
-                  saved: saved[m.placeId],
-                  onTap: () => _open(m, saved[m.placeId]),
-                ),
-            ],
-          ),
+          for (final (i, m) in shown.indexed)
+            _ResultRow(
+              mosque: m,
+              distance: _distance(l10n, m.distanceFrom(query)),
+              saved: saved[m.placeId],
+              divider: i < shown.length - 1,
+              onTap: () => _open(m, saved[m.placeId]),
+            ),
       ],
-      const SizedBox(height: AppSpace.md),
-      Text(
+      SettingsNote(
         result.source == MosqueSource.google
             ? l10n.nearbyAttributionGoogle
             : l10n.nearbyAttributionOsm,
-        style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
+        top: 14,
       ),
-      const SizedBox(height: AppSpace.lg),
+      const SizedBox(height: 16),
       addByHand,
     ];
   }
@@ -386,51 +364,95 @@ class _ResultRow extends StatelessWidget {
     required this.mosque,
     required this.distance,
     required this.saved,
+    required this.divider,
     required this.onTap,
   });
 
   final DiscoveredMosque mosque;
   final String distance;
   final Mosque? saved;
+  final bool divider;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ink = AppInk.of(context);
-    final small = TextStyle(fontSize: 13, color: ink.muted);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
+    final small = type.meta.copyWith(color: s.onSurfaceMuted);
 
-    return AppRow(
-      leading: null,
-      onTap: onTap,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: AppSpace.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                mosque.name ?? l10n.nearbyUnnamed,
-                style: TextStyle(
-                  fontSize: AppType.rowSize,
-                  fontWeight: FontWeight.w600,
-                  fontStyle: mosque.name == null ? FontStyle.italic : null,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: divider ? Border(bottom: BorderSide(color: s.divider)) : null,
+      ),
+      child: MergeSemantics(
+        child: Semantics(
+          button: true,
+          child: InkWell(
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 64),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                mosque.name ?? l10n.nearbyUnnamed,
+                                style: type.row.copyWith(
+                                  color: s.onSurface,
+                                  fontStyle: mosque.name == null
+                                      ? FontStyle.italic
+                                      : null,
+                                ),
+                              ),
+                              if (saved != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: s.well,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    l10n.tagSaved,
+                                    style: small.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: s.onSurface,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            mosque.address.isEmpty
+                                ? l10n.nearbyNoAddress
+                                : mosque.address,
+                            style: small,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(distance, style: small),
+                  ],
                 ),
               ),
-              if (saved != null) AppTag(l10n.tagSaved),
-            ],
+            ),
           ),
-          Text(
-            mosque.address.isEmpty ? l10n.nearbyNoAddress : mosque.address,
-            style: small,
-          ),
-        ],
-      ),
-      trailing: Padding(
-        padding: const EdgeInsetsDirectional.only(start: AppSpace.sm),
-        child: Text(distance, style: small),
+        ),
       ),
     );
   }

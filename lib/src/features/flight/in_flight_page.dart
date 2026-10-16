@@ -198,45 +198,9 @@ class _InFlightPageState extends ConsumerState<InFlightPage> {
   }
 
   Future<void> _enterHeading() async {
-    final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController(
-      text: _manualHeading?.round().toString() ?? '',
-    );
-    final value = await showDialog<double>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialog) {
-          final parsed = int.tryParse(controller.text.trim());
-          final valid = parsed != null && parsed >= 0 && parsed <= 359;
-          return AlertDialog(
-            title: Text(l10n.inFlightEnterHeading),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: l10n.inFlightHeadingLabel,
-                errorText: controller.text.isEmpty || valid
-                    ? null
-                    : l10n.inFlightHeadingError,
-              ),
-              onChanged: (_) => setDialog(() {}),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(l10n.cancel),
-              ),
-              FilledButton(
-                onPressed: valid
-                    ? () => Navigator.of(dialogContext).pop(parsed.toDouble())
-                    : null,
-                child: Text(l10n.save),
-              ),
-            ],
-          );
-        },
-      ),
+    final value = await showSettingsSheet<double>(
+      context,
+      builder: (_) => _HeadingSheet(initial: _manualHeading),
     );
     if (value != null && mounted) setState(() => _manualHeading = value);
   }
@@ -1075,4 +1039,61 @@ class _SeatRingPainter extends CustomPainter {
       old.ring != ring ||
       old.body != body ||
       old.mark != mark;
+}
+
+/// The aircraft's heading from the seat-back map, 0–359°.
+class _HeadingSheet extends StatefulWidget {
+  const _HeadingSheet({required this.initial});
+
+  final double? initial;
+
+  @override
+  State<_HeadingSheet> createState() => _HeadingSheetState();
+}
+
+class _HeadingSheetState extends State<_HeadingSheet> {
+  late final _controller = TextEditingController(
+    text: widget.initial?.round().toString() ?? '',
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final parsed = int.tryParse(_controller.text.trim());
+    final valid = parsed != null && parsed >= 0 && parsed <= 359;
+    return SettingsSheetBody(
+      title: l10n.inFlightEnterHeading,
+      children: [
+        SettingsNote(l10n.inFlightHeadingHint, top: 0),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: l10n.inFlightHeadingLabel,
+            errorText: _controller.text.isEmpty || valid
+                ? null
+                : l10n.inFlightHeadingError,
+          ),
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 20),
+        SheetActions(
+          cancelLabel: l10n.cancel,
+          saveLabel: l10n.save,
+          onCancel: () => Navigator.of(context).pop(),
+          onSave: valid
+              ? () => Navigator.of(context).pop(parsed.toDouble())
+              : null,
+        ),
+      ],
+    );
+  }
 }

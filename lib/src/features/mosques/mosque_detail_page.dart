@@ -15,6 +15,7 @@ import '../../domain/time_model.dart';
 import '../../domain/today.dart';
 import '../components/horizon_controls.dart';
 import '../components/line_icon.dart';
+import '../settings/settings_kit.dart';
 import '../sky/sky_page.dart';
 import '../sky/sky_palette.dart';
 import '../today/today_text.dart';
@@ -200,29 +201,15 @@ class MosqueDetailPage extends ConsumerWidget {
     bool isActive,
   ) async {
     final l10n = AppLocalizations.of(context);
-    final s = HorizonTheme.of(context).surfaces;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: s.surface,
-        title: Text(l10n.removeMosqueTitle(mosque.name)),
-        content: Text(
-          isActive ? l10n.removeMosqueBodyActive : l10n.removeMosqueBody,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: s.danger),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.remove),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmSheet(
+      context,
+      title: l10n.removeMosqueTitle(mosque.name),
+      body: isActive ? l10n.removeMosqueBodyActive : l10n.removeMosqueBody,
+      confirmLabel: l10n.remove,
+      cancelLabel: l10n.cancel,
+      danger: true,
     );
-    if (confirmed != true || !context.mounted) return;
+    if (!confirmed || !context.mounted) return;
     // Leave first, so the page never renders a mosque that no longer exists.
     Navigator.of(context).pop();
     await ref.read(mosqueRepositoryProvider).delete(mosque.id);

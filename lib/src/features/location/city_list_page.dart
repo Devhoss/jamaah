@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/l10n/generated/app_localizations.dart';
-import '../../app/theme/tokens.dart';
 import '../../domain/place.dart';
 import '../../domain/placeholder_places.dart';
-import '../components/app_widgets.dart';
+import '../settings/settings_kit.dart';
 
 /// The bundled city list — the offline answer to "where are you?".
 ///
@@ -36,63 +35,32 @@ class _CityListPageState extends ConsumerState<CityListPage> {
     final l10n = AppLocalizations.of(context);
     final matches = _matches;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.cityListTitle)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          AppSpace.sm,
-          AppSpace.xxl,
-          AppSpace.xxl,
+    return SettingsScaffold(
+      title: l10n.cityListTitle,
+      lead: l10n.cityListPlaceholderNote,
+      children: [
+        TextField(
+          decoration: InputDecoration(hintText: l10n.cityListSearchHint),
+          textCapitalization: TextCapitalization.words,
+          onChanged: (value) => setState(() => _query = value),
         ),
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              hintText: l10n.cityListSearchHint,
-              prefixIcon: const Icon(Icons.search),
+        const SizedBox(height: 8),
+        if (matches.isEmpty)
+          SettingsNote(l10n.cityListNoMatches, top: 12)
+        else
+          for (final (i, place) in matches.indexed)
+            SettingsLinkRow(
+              title: place.displayName,
+              // `Africa/Cairo` reads as `Cairo`: the zone is already inside
+              // the choice, and the full name is never useful at this size.
+              value: _shortZone(place.ianaZone),
+              divider: i < matches.length - 1,
+              onTap: () => Navigator.of(context).pop(place),
             ),
-            textCapitalization: TextCapitalization.words,
-            onChanged: (value) => setState(() => _query = value),
-          ),
-          const SizedBox(height: AppSpace.lg),
-          Text(
-            l10n.cityListPlaceholderNote,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpace.lg),
-          if (matches.isEmpty)
-            AppPrompt(children: [Text(l10n.cityListNoMatches)])
-          else
-            AppRows(
-              children: [
-                for (final place in matches)
-                  AppRow(
-                    leading: const Icon(Icons.location_city_outlined, size: 20),
-                    title: Text(
-                      place.displayName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    // Capped, so a long zone at a large text size wraps
-                    // instead of pushing the row past the screen.
-                    trailing: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 104),
-                      child: Text(
-                        _shortZone(place.ianaZone),
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
-                    onTap: () => Navigator.of(context).pop(place),
-                  ),
-              ],
-            ),
-        ],
-      ),
+      ],
     );
   }
 
-  /// `Africa/Cairo` reads as `Cairo` in the trailing slot; the full name is never
-  /// useful at that size and the zone is already inside the choice.
   static String _shortZone(String ianaZone) =>
       ianaZone.split('/').last.replaceAll('_', ' ');
 }

@@ -80,6 +80,15 @@ void main() {
   }
 
   Future<void> tapText(WidgetTester tester, String text) async {
+    // Lists under a tall sky header (the city list at 2x text) start below
+    // the screen.
+    if (find.text(text).evaluate().isEmpty) {
+      await tester.scrollUntilVisible(
+        find.text(text),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+    }
     final finder = find.text(text).last;
     await tester.ensureVisible(finder);
     await tester.pumpAndSettle();
