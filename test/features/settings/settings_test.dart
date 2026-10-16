@@ -156,8 +156,6 @@ void main() {
   Future<AdhanAlertSettings> stored() async =>
       (await settings.read()).adhanAlerts;
 
-  Finder switchTile(String title) => find.widgetWithText(SwitchListTile, title);
-
   /// A switch on the Horizon Settings pages.
   Finder switchRow(String title) =>
       find.widgetWithText(SettingsSwitchRow, title);
@@ -216,13 +214,12 @@ void main() {
       (tester) async {
         await open(tester);
         await openPrayer(tester, Prayer.fajr);
-        await tap(tester, switchTile(t.alertAdhanSwitch));
+        await tap(tester, switchRow(t.alertAdhanSwitch));
 
         expect((await stored()).alertFor(Prayer.fajr).enabled, isTrue);
         expect(permissionRequests, 1);
 
-        await tester.pageBack();
-        await tester.pumpAndSettle();
+        await back(tester);
         expect(
           find.text(
             t.settingsAlertOn(t.alertDefaultSuffix(t.soundModeStandard)),
@@ -250,7 +247,7 @@ void main() {
     testApp('silent and off stay different things', (tester) async {
       await open(tester);
       await openPrayer(tester, Prayer.dhuhr);
-      await tap(tester, switchTile(t.alertAdhanSwitch));
+      await tap(tester, switchRow(t.alertAdhanSwitch));
       await tapText(tester, t.soundModeSilent);
 
       final alert = (await stored()).alertFor(Prayer.dhuhr);
@@ -285,7 +282,7 @@ void main() {
       await open(tester);
       await openPrayer(tester, Prayer.isha);
 
-      final ring = switchTile(t.alertRingInSilent);
+      final ring = switchRow(t.alertRingInSilent);
       await tap(tester, ring);
       expect(
         (await stored()).alertFor(Prayer.isha).ringInSilent,
@@ -300,7 +297,7 @@ void main() {
       );
       await tapText(tester, t.soundModeSilent);
       await reveal(tester, ring);
-      expect(tester.widget<SwitchListTile>(ring).onChanged, isNull);
+      expect(tester.widget<SettingsSwitchRow>(ring).onChanged, isNull);
       expect(find.text(t.alertRingInSilentNeedsSound), findsOneWidget);
     });
 
@@ -310,7 +307,7 @@ void main() {
       await open(tester);
       await openPrayer(tester, Prayer.maghrib);
       await tapText(tester, t.reminderMinutesChip(10));
-      await tap(tester, switchTile(t.alertPreAdhanRingInSilent));
+      await tap(tester, switchRow(t.alertPreAdhanRingInSilent));
       final alert = (await stored()).alertFor(Prayer.maghrib);
       expect(alert.preAdhanRingInSilent, isTrue);
       expect(alert.ringInSilent, isFalse);
@@ -389,7 +386,7 @@ void main() {
     testApp('vibration can be turned off', (tester) async {
       await open(tester);
       await openPrayer(tester, Prayer.asr);
-      await tap(tester, switchTile(t.alertVibrate));
+      await tap(tester, switchRow(t.alertVibrate));
       expect((await stored()).alertFor(Prayer.asr).vibrate, isFalse);
     });
 
@@ -420,8 +417,7 @@ void main() {
         await tapText(tester, t.save);
         expect((await stored()).alertFor(Prayer.fajr).preAdhanMinutes, 20);
 
-        await tester.pageBack();
-        await tester.pumpAndSettle();
+        await back(tester);
         expect(find.text(t.settingsAlertReminderOnly(20)), findsOneWidget);
       },
     );
@@ -438,7 +434,7 @@ void main() {
       await open(tester);
       await openPrayer(tester, Prayer.maghrib);
       await tapText(tester, t.soundModeShort);
-      await tap(tester, switchTile(t.alertVibrate));
+      await tap(tester, switchRow(t.alertVibrate));
       await tapText(tester, t.alertTryIt);
 
       final shown = gateway.shownNow.single;
@@ -491,7 +487,7 @@ void main() {
     ) async {
       await open(tester);
       await openPrayer(tester, Prayer.fajr);
-      await tap(tester, switchTile(t.alertAdhanSwitch));
+      await tap(tester, switchRow(t.alertAdhanSwitch));
       await tapText(tester, t.soundModeFull);
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
@@ -602,6 +598,8 @@ void main() {
       await tapText(tester, ar.settingsAdhanSection);
       await tapText(tester, ar.settingsFullRecording);
       expect(tester.takeException(), isNull);
+      // At twice the text size the list starts below the sky's header.
+      await reveal(tester, find.text(ar.recordingsYours));
       expect(find.text(ar.recordingsYours), findsOneWidget);
       expect(find.text('My Fajr'), findsOneWidget);
     });
@@ -634,8 +632,7 @@ void main() {
       expect((await settings.read()).adhanAlerts.fullRecording, 'makkah');
 
       final stopsBefore = preview.stops;
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await back(tester);
       expect(preview.stops, greaterThan(stopsBefore),
           reason: 'leaving the page stops a recording it started');
       expect(find.text('Makkah'), findsOneWidget,

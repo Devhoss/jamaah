@@ -9,12 +9,11 @@ import 'package:intl/intl.dart';
 import '../../app/clock_format.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/notification_scheduler.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../data/notifications/notification_sync.dart';
 import '../../domain/notification_plan.dart';
 import '../../domain/time_model.dart';
-import '../components/app_widgets.dart';
+import 'settings_kit.dart';
 
 Future<void> openScheduledNotifications(BuildContext context) =>
     Navigator.of(context).push(
@@ -142,8 +141,6 @@ class _ScheduledNotificationsPageState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final data = _data;
     // A sync that finishes while the screen is open (a setting changed, the app
     // came back) changes the list, so it is read again.
@@ -151,98 +148,71 @@ class _ScheduledNotificationsPageState
       if (before?.report != after.report) _reload();
     });
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.scheduledTitle)),
-      body: data == null
-          ? const Center(child: CircularProgressIndicator())
-          : _body(context, data, l10n, theme, ink),
+    return SettingsScaffold(
+      title: l10n.scheduledTitle,
+      children: data == null
+          ? const [
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ]
+          : _body(context, data, l10n),
     );
   }
 
-  Widget _body(
+  List<Widget> _body(
     BuildContext context,
     _Snapshot data,
     AppLocalizations l10n,
-    ThemeData theme,
-    AppInk ink,
   ) {
     final items = [...data.pending]..sort((a, b) => _at(a).compareTo(_at(b)));
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.xxl,
-        AppSpace.sm,
-        AppSpace.xxl,
-        AppSpace.xxl,
-      ),
-      children: [
-        if (!data.enabled) ...[
-          AppPrompt(
-            children: [
-              Text(
-                l10n.scheduledNotificationsOff,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.sm),
-          FilledButton(
-            onPressed: _allowNotifications,
-            child: Text(l10n.scheduledAllowNotifications),
-          ),
-          const SizedBox(height: AppSpace.md),
-        ],
-        if (!data.exact) ...[
-          AppPrompt(
-            children: [
-              Text(l10n.scheduledExactOff, style: theme.textTheme.bodyMedium),
-            ],
-          ),
-          const SizedBox(height: AppSpace.sm),
-          OutlinedButton(
-            onPressed: _allowExact,
-            child: Text(l10n.scheduledAllowExact),
-          ),
-          const SizedBox(height: AppSpace.md),
-        ],
-        Text(
-          l10n.scheduledCount(items.length),
-          style: theme.textTheme.titleMedium,
+    return [
+      // A missing permission is one quiet line and the next useful action
+      // (spec §4.10), never a red banner.
+      if (!data.enabled) ...[
+        SettingsNote(l10n.scheduledNotificationsOff, top: 4),
+        const SizedBox(height: 8),
+        SettingsButton(
+          label: l10n.scheduledAllowNotifications,
+          filled: true,
+          onPressed: _allowNotifications,
         ),
-        const SizedBox(height: AppSpace.md),
-        if (items.isEmpty)
-          AppPrompt(
-            children: [
-              Text(l10n.scheduledNothing, style: theme.textTheme.bodyMedium),
-            ],
-          )
-        else
-          AppRows(
-            children: [
-              for (final item in items) _PendingRow(item: item, at: _at(item)),
-            ],
-          ),
-        const SizedBox(height: AppSpace.lg),
-        Text(
-          l10n.scheduledBatteryHint,
-          style: theme.textTheme.bodySmall?.copyWith(color: ink.muted),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        Wrap(
-          spacing: AppSpace.md,
-          runSpacing: AppSpace.sm,
-          children: [
-            OutlinedButton(
-              onPressed: () => Geolocator.openAppSettings(),
-              child: Text(l10n.scheduledOpenAppSettings),
-            ),
-            TextButton(
-              onPressed: _rescheduleNow,
-              child: Text(l10n.scheduledRescheduleNow),
-            ),
-          ],
-        ),
+        const SizedBox(height: 12),
       ],
-    );
+      if (!data.exact) ...[
+        SettingsNote(l10n.scheduledExactOff, top: 4),
+        const SizedBox(height: 8),
+        SettingsButton(
+          label: l10n.scheduledAllowExact,
+          onPressed: _allowExact,
+        ),
+        const SizedBox(height: 12),
+      ],
+      SettingsHeading(l10n.scheduledCount(items.length), top: 4),
+      if (items.isEmpty)
+        SettingsNote(l10n.scheduledNothing, top: 0)
+      else
+        for (final (i, item) in items.indexed)
+          _PendingRow(item: item, at: _at(item), divider: i < items.length - 1),
+      const SizedBox(height: 18),
+      SettingsNote(l10n.scheduledBatteryHint, top: 0),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          SettingsButton(
+            label: l10n.scheduledOpenAppSettings,
+            onPressed: () => Geolocator.openAppSettings(),
+          ),
+          SettingsButton(
+            label: l10n.scheduledRescheduleNow,
+            onPressed: _rescheduleNow,
+          ),
+        ],
+      ),
+    ];
   }
 
   /// The instant the app wrote into the payload when it scheduled the item.
@@ -257,15 +227,21 @@ class _ScheduledNotificationsPageState
 }
 
 class _PendingRow extends StatelessWidget {
-  const _PendingRow({required this.item, required this.at});
+  const _PendingRow({
+    required this.item,
+    required this.at,
+    required this.divider,
+  });
 
   final PendingItem item;
   final DateTime at;
+  final bool divider;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ink = AppInk.of(context);
+    final type = HorizonTheme.typeOf(context);
+    final s = HorizonTheme.of(context).surfaces;
     final clock = ClockFormat.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final when =
@@ -273,34 +249,47 @@ class _PendingRow extends StatelessWidget {
         '${clock.time(LocalTime.of(at.hour, at.minute))}';
     final kind = _kind(item);
 
-    return AppRow(
-      leading: null,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            item.title ?? '',
-            style: const TextStyle(
-              fontSize: AppType.bodySize + 1,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            [
-              if (kind != null)
-                switch (kind) {
-                  NotificationKind.adhan => l10n.kindAdhan,
-                  NotificationKind.preAdhan => l10n.kindPreAdhan,
-                  NotificationKind.iqama => l10n.kindIqama,
-                  NotificationKind.extra => l10n.kindExtra,
-                },
-              ?item.body,
-            ].join(' · '),
-            style: TextStyle(fontSize: 12, color: ink.muted),
-          ),
-        ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: divider ? Border(bottom: BorderSide(color: s.divider)) : null,
       ),
-      trailing: Text(when, style: TextStyle(fontSize: 13, color: ink.muted)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title ?? '',
+                    style: type.row.copyWith(color: s.onSurface),
+                  ),
+                  Text(
+                    [
+                      if (kind != null)
+                        switch (kind) {
+                          NotificationKind.adhan => l10n.kindAdhan,
+                          NotificationKind.preAdhan => l10n.kindPreAdhan,
+                          NotificationKind.iqama => l10n.kindIqama,
+                          NotificationKind.extra => l10n.kindExtra,
+                        },
+                      ?item.body,
+                    ].join(' · '),
+                    style: type.meta.copyWith(color: s.onSurfaceMuted),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              when,
+              style: type.meta.copyWith(color: s.onSurfaceMuted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

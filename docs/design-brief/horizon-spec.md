@@ -448,6 +448,17 @@ Hub footer: “Iqama times live on each mosque, in the Mosques tab, not here.”
 
 Settings pages use a sky header (back, title, one-line lead) and a `SurfacePanel`.
 
+As built (Phase 4, 2026-10-16), beyond the table above:
+- Hijri date keeps −2 … +2 days as a `RadioList`, each choice showing the date it gives (owner).
+- Extra times: the three show-on-Today switches sit inline; **Alerts and timing** opens their
+  page (alerts and minutes) (owner).
+- Adhan alerts also holds the two "ring on silent" switches (every Adhan, every reminder before
+  it); Jama’ah reminders keeps "Your own sound" beside the four sounds, and its own ring-on-silent.
+- Help → **Alerts arriving late?** is a page: battery guidance, then the scheduled list, which
+  states any missing permission with one line and the action.
+- Sub-pages (method list, far north or south, minutes, extra times, each prayer, recordings,
+  scheduled list) use the same sky header and surface; sheets are on `surface`.
+
 ### 4.10 Not designed: build from the system
 
 Location sheet and city search, Find nearby (explainer, results labelled by source and

@@ -716,3 +716,54 @@ class SheetActions extends StatelessWidget {
     );
   }
 }
+
+/// A choice chip on the surface: `accent` when chosen, outlined otherwise.
+class SettingsChip extends StatelessWidget {
+  const SettingsChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = HorizonTheme.of(context).surfaces;
+    final type = HorizonTheme.typeOf(context);
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? s.accent : Colors.transparent,
+        shape: StadiumBorder(
+          side: selected ? BorderSide.none : BorderSide(color: s.divider),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 56, minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  label,
+                  style: type.body.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: selected ? s.onAccent : s.onSurface,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

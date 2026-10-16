@@ -8,8 +8,6 @@ import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
 import '../../data/notifications/notification_sync.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
@@ -18,8 +16,8 @@ import '../../domain/iqama_editing.dart';
 import '../../domain/notification_channels.dart';
 import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
-import '../components/app_widgets.dart';
 import 'adhan_recordings_page.dart';
+import 'settings_kit.dart';
 import 'settings_page.dart';
 
 Future<void> openPrayerAlert(BuildContext context, Prayer prayer) =>
@@ -143,8 +141,6 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final ink = AppInk.of(context);
     final alerts =
         ref.watch(appSettingsProvider).value?.adhanAlerts ??
         SettingsRepository.defaults.adhanAlerts;
@@ -152,215 +148,162 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
     final effective = alerts.soundModeFor(_prayer);
     // Any sound can ring on silent; only Silent has nothing to ring.
     final plays = effective != AdhanSoundMode.silent;
-    final small = theme.textTheme.bodySmall?.copyWith(color: ink.muted);
     final before = alert.preAdhanMinutes;
     final customSelected =
         _customOpen || (before != null && !_reminderPresets.contains(before));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.alertPageTitle(prayerName(l10n, _prayer))),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.xxl,
+    return SettingsScaffold(
+      title: l10n.alertPageTitle(prayerName(l10n, _prayer)),
+      lead: _prayer == Prayer.sunrise ? l10n.alertSunriseHint : null,
+      children: [
+        SettingsSwitchRow(
+          title: l10n.alertAdhanSwitch,
+          hint: l10n.alertAdhanSwitchHint,
+          value: alert.enabled,
+          divider: false,
+          onChanged: (on) async {
+            await _change((a) => a.copyWith(enabled: on));
+            if (on) {
+              await ref.read(notificationPermissionRequestProvider)();
+            }
+          },
         ),
-        children: [
-          if (_prayer == Prayer.sunrise) ...[
-            Text(l10n.alertSunriseHint, style: small),
-            const SizedBox(height: AppSpace.sm),
+        SettingsHeading(l10n.alertSoundHeader),
+        // This prayer's own Full Adhan recording (2026-10-15).
+        SettingsLinkRow(
+          title: l10n.prayerRecording,
+          value: alert.recording == null
+              ? l10n.prayerRecordingSame(recordingName(alerts))
+              : alerts.recordingSourceFor(_prayer).name,
+          onTap: () => openAdhanRecordings(context, prayer: _prayer),
+        ),
+        RadioList<AdhanSoundMode?>(
+          options: [
+            RadioOption(
+              null,
+              l10n.alertUseDefault(
+                soundModeName(l10n, alerts.defaultSoundMode),
+              ),
+            ),
+            for (final mode in AdhanSoundMode.values)
+              RadioOption(
+                mode,
+                soundModeName(l10n, mode),
+                description: soundModeHint(l10n, mode),
+                trailing: previewAssetFor(mode) == null
+                    ? null
+                    : SettingsTextButton(
+                        label: _previewing == mode
+                            ? l10n.alertStopPreview
+                            : l10n.alertPreview,
+                        onPressed: () => _togglePreview(mode),
+                      ),
+              ),
           ],
-          AppRows(
-            children: [
-              SwitchListTile(
-                title: Text(l10n.alertAdhanSwitch),
-                subtitle: Text(l10n.alertAdhanSwitchHint),
-                value: alert.enabled,
-                onChanged: (on) async {
-                  await _change((a) => a.copyWith(enabled: on));
-                  if (on) {
-                    await ref.read(notificationPermissionRequestProvider)();
-                  }
-                },
-              ),
-            ],
+          selected: alert.soundModeOverride,
+          onChanged: (mode) => _change(
+            (a) => mode == null
+                ? a.copyWith(clearOverride: true)
+                : a.copyWith(soundModeOverride: mode),
           ),
-          AppSectionHeader(l10n.alertSoundHeader),
-          // This prayer's own Full Adhan recording (2026-10-15).
-          AppRows(
-            children: [
-              AppRow(
-                leading: null,
-                onTap: () => openAdhanRecordings(context, prayer: _prayer),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(l10n.prayerRecording),
-                    Text(
-                      alert.recording == null
-                          ? l10n.prayerRecordingSame(recordingName(alerts))
-                          : alerts.recordingSourceFor(_prayer).name,
-                      style: small,
-                    ),
-                  ],
-                ),
-                trailing: Icon(Icons.chevron_right, color: ink.muted),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.md),
-          AppRows(
-            children: [
-              RadioGroup<AdhanSoundMode?>(
-                groupValue: alert.soundModeOverride,
-                onChanged: (mode) => _change(
-                  (a) => mode == null
-                      ? a.copyWith(clearOverride: true)
-                      : a.copyWith(soundModeOverride: mode),
-                ),
-                child: Column(
-                  children: [
-                    RadioListTile<AdhanSoundMode?>(
-                      value: null,
-                      title: Text(
-                        l10n.alertUseDefault(
-                          soundModeName(l10n, alerts.defaultSoundMode),
-                        ),
-                      ),
-                    ),
-                    for (final mode in AdhanSoundMode.values)
-                      RadioListTile<AdhanSoundMode?>(
-                        value: mode,
-                        title: Text(soundModeName(l10n, mode)),
-                        subtitle: Text(soundModeHint(l10n, mode)),
-                        secondary: previewAssetFor(mode) == null
-                            ? null
-                            : TextButton(
-                                onPressed: () => _togglePreview(mode),
-                                child: Text(
-                                  _previewing == mode
-                                      ? l10n.alertStopPreview
-                                      : l10n.alertPreview,
-                                ),
-                              ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.md),
-          AppRows(
-            children: [
-              SwitchListTile(
-                title: Text(l10n.alertVibrate),
-                value: alert.vibrate,
-                onChanged: (on) => _change((a) => a.copyWith(vibrate: on)),
-              ),
-              SwitchListTile(
-                title: Text(l10n.alertRingInSilent),
-                subtitle: Text(
-                  plays
-                      ? l10n.alertRingInSilentHint
-                      : l10n.alertRingInSilentNeedsSound,
-                ),
-                value: plays && alert.ringInSilent,
-                onChanged: plays
-                    ? (on) => _change((a) => a.copyWith(ringInSilent: on))
-                    : null,
-              ),
-            ],
-          ),
-          AppSectionHeader(l10n.alertReminderHeader),
-          Text(l10n.alertReminderHint, style: small),
-          const SizedBox(height: AppSpace.sm),
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: AppSpace.sm,
-            children: [
-              ChoiceChip(
-                label: Text(l10n.alertReminderNone),
-                selected: before == null && !_customOpen,
-                onSelected: (_) {
+        ),
+        const SizedBox(height: 8),
+        SettingsSwitchRow(
+          title: l10n.alertVibrate,
+          value: alert.vibrate,
+          onChanged: (on) => _change((a) => a.copyWith(vibrate: on)),
+        ),
+        SettingsSwitchRow(
+          title: l10n.alertRingInSilent,
+          hint: plays
+              ? l10n.alertRingInSilentHint
+              : l10n.alertRingInSilentNeedsSound,
+          value: plays && alert.ringInSilent,
+          divider: false,
+          onChanged: plays
+              ? (on) => _change((a) => a.copyWith(ringInSilent: on))
+              : null,
+        ),
+        SettingsHeading(l10n.alertReminderHeader),
+        SettingsNote(l10n.alertReminderHint, top: 0),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            SettingsChip(
+              label: l10n.alertReminderNone,
+              selected: before == null && !_customOpen,
+              onTap: () {
+                setState(() => _customOpen = false);
+                _change((a) => a.copyWith(clearPreAdhan: true));
+              },
+            ),
+            for (final minutes in _reminderPresets)
+              SettingsChip(
+                label: l10n.reminderMinutesChip(minutes),
+                selected: !_customOpen && before == minutes,
+                onTap: () async {
                   setState(() => _customOpen = false);
-                  _change((a) => a.copyWith(clearPreAdhan: true));
+                  await _change((a) => a.copyWith(preAdhanMinutes: minutes));
+                  await ref.read(notificationPermissionRequestProvider)();
                 },
               ),
-              for (final minutes in _reminderPresets)
-                ChoiceChip(
-                  label: Text(l10n.reminderMinutesChip(minutes)),
-                  selected: !_customOpen && before == minutes,
-                  onSelected: (_) async {
-                    setState(() => _customOpen = false);
-                    await _change((a) => a.copyWith(preAdhanMinutes: minutes));
-                    await ref.read(notificationPermissionRequestProvider)();
-                  },
-                ),
-              ChoiceChip(
-                label: Text(l10n.reminderCustom),
-                selected: customSelected,
-                onSelected: (_) => setState(() {
-                  _customOpen = true;
-                  _custom.text = before?.toString() ?? '';
-                }),
-              ),
-            ],
+            SettingsChip(
+              label: l10n.reminderCustom,
+              selected: customSelected,
+              onTap: () => setState(() {
+                _customOpen = true;
+                _custom.text = before?.toString() ?? '';
+              }),
+            ),
+          ],
+        ),
+        if (before != null) ...[
+          const SizedBox(height: 8),
+          SettingsSwitchRow(
+            title: l10n.alertPreAdhanRingInSilent,
+            hint: l10n.alertRingInSilentHint,
+            value: alert.preAdhanRingInSilent,
+            divider: false,
+            onChanged: (on) =>
+                _change((a) => a.copyWith(preAdhanRingInSilent: on)),
           ),
-          if (before != null) ...[
-            const SizedBox(height: AppSpace.md),
-            AppRows(
-              children: [
-                SwitchListTile(
-                  title: Text(l10n.alertPreAdhanRingInSilent),
-                  subtitle: Text(l10n.alertRingInSilentHint),
-                  value: alert.preAdhanRingInSilent,
-                  onChanged: (on) =>
-                      _change((a) => a.copyWith(preAdhanRingInSilent: on)),
-                ),
-              ],
-            ),
-          ],
-          if (customSelected) ...[
-            const SizedBox(height: AppSpace.md),
-            TextField(
-              controller: _custom,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: l10n.reminderCustomLabel,
-                errorText: _customError(l10n),
-              ),
-              onChanged: (_) => setState(() {}),
-              onSubmitted: (_) => _saveCustom(),
-            ),
-            const SizedBox(height: AppSpace.sm),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed:
-                    ReminderInterval.parseCustom(_custom.text)
-                        is ReminderMinutesValid
-                    ? _saveCustom
-                    : null,
-                child: Text(l10n.save),
-              ),
-            ),
-          ],
-          const SizedBox(height: AppSpace.xxl),
-          OutlinedButton.icon(
-            onPressed: () => _sendTest(alerts),
-            icon: const Icon(Icons.notifications_active_outlined),
-            label: Text(l10n.alertTryIt),
-          ),
-          if (_sent) ...[
-            const SizedBox(height: AppSpace.xs),
-            Text(l10n.alertTrySent, style: small),
-          ],
         ],
-      ),
+        if (customSelected) ...[
+          const SizedBox(height: 12),
+          TextField(
+            controller: _custom,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.reminderCustomLabel,
+              errorText: _customError(l10n),
+            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) => _saveCustom(),
+          ),
+          const SizedBox(height: 8),
+          SettingsButton(
+            label: l10n.save,
+            filled: true,
+            onPressed:
+                ReminderInterval.parseCustom(_custom.text)
+                    is ReminderMinutesValid
+                ? _saveCustom
+                : null,
+          ),
+        ],
+        const SizedBox(height: 24),
+        SettingsButton(
+          label: l10n.alertTryIt,
+          onPressed: () => _sendTest(alerts),
+        ),
+        if (_sent)
+          Semantics(
+            liveRegion: true,
+            child: SettingsNote(l10n.alertTrySent),
+          ),
+      ],
     );
   }
 

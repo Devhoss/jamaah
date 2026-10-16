@@ -287,10 +287,8 @@ Future<T?> showSoundChoiceSheet<T>(
   required T current,
   required List<SoundChoice<T>> choices,
   required AudioPreview preview,
-}) => showModalBottomSheet<T>(
-  context: context,
-  showDragHandle: true,
-  isScrollControlled: true,
+}) => showSettingsSheet<T>(
+  context,
   builder: (_) => _SoundChoiceSheet<T>(
     current: current,
     choices: choices,
@@ -333,35 +331,30 @@ class _SoundChoiceSheetState<T> extends State<_SoundChoiceSheet<T>> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: RadioGroup<T>(
-          groupValue: widget.current,
+    return SettingsSheetBody(
+      children: [
+        RadioList<T>(
+          options: [
+            for (final c in widget.choices)
+              RadioOption(
+                c.value,
+                c.title,
+                description: c.hint,
+                trailing: switch (c.asset) {
+                  final asset? => SettingsTextButton(
+                    label: _playing == asset
+                        ? l10n.alertStopPreview
+                        : l10n.alertPreview,
+                    onPressed: () => _toggle(asset),
+                  ),
+                  null => null,
+                },
+              ),
+          ],
+          selected: widget.current,
           onChanged: (v) => Navigator.of(context).pop(v),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final c in widget.choices)
-                RadioListTile<T>(
-                  value: c.value,
-                  title: Text(c.title),
-                  subtitle: Text(c.hint),
-                  secondary: switch (c.asset) {
-                    final asset? => TextButton(
-                      onPressed: () => _toggle(asset),
-                      child: Text(
-                        _playing == asset
-                            ? l10n.alertStopPreview
-                            : l10n.alertPreview,
-                      ),
-                    ),
-                    null => null,
-                  },
-                ),
-            ],
-          ),
         ),
-      ),
+      ],
     );
   }
 }

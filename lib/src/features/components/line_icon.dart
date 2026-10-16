@@ -119,6 +119,13 @@ abstract final class LineIcons {
   ]);
   static const minus = LineIconData([PathShape('M5 12h14')]);
   static const plus = LineIconData([PathShape('M5 12h14M12 5v14')]);
+  static const play = LineIconData([PathShape('M6 3L20 12L6 21z')]);
+  static const stop = LineIconData([RectShape(5, 5, 14, 14, radius: 2)]);
+  static const more = LineIconData([
+    CircleShape(12, 5, 1),
+    CircleShape(12, 12, 1),
+    CircleShape(12, 19, 1),
+  ]);
   static const globe = LineIconData([
     CircleShape(12, 12, 9),
     PathShape('M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'),

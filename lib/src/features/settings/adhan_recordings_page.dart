@@ -8,14 +8,14 @@ import '../../app/custom_sound_actions.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/providers.dart';
-import '../../app/theme/theme.dart';
-import '../../app/theme/tokens.dart';
+import '../../app/theme/horizon_tokens.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
 import '../../domain/adhan_recordings.dart';
 import '../../domain/custom_sounds.dart';
 import '../../domain/prayer.dart';
-import '../components/app_widgets.dart';
+import '../components/line_icon.dart';
+import 'settings_kit.dart';
 import 'settings_page.dart';
 
 /// Opens the recording list: for every prayer, or ([prayer]) for one prayer's
@@ -91,7 +91,7 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
+    final s = HorizonTheme.of(context).surfaces;
     final settings =
         ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults;
     final alerts = settings.adhanAlerts;
@@ -102,8 +102,11 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
         : (alerts.alertFor(prayer).recording ?? _same);
 
     Widget playButton(String id, String name, String source) => IconButton(
-      icon: Icon(
-        _playing == id ? Icons.stop_circle_outlined : Icons.play_circle_outline,
+      icon: LineIcon(
+        _playing == id ? LineIcons.stop : LineIcons.play,
+        size: 20,
+        strokeWidth: 2,
+        color: s.onSurface,
       ),
       tooltip: _playing == id
           ? l10n.recordingStopLabel(name)
@@ -111,96 +114,66 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
       onPressed: () => _toggle(id, source),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          prayer == null
-              ? l10n.recordingsTitle
-              : l10n.recordingsForPrayer(prayerName(l10n, prayer)),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpace.xxl,
-          0,
-          AppSpace.xxl,
-          AppSpace.xxl,
-        ),
-        children: [
-          Text(
-            prayer == null ? l10n.recordingsBody : l10n.prayerRecordingHint,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppInk.of(context).muted,
-            ),
+    return SettingsScaffold(
+      title: prayer == null
+          ? l10n.recordingsTitle
+          : l10n.recordingsForPrayer(prayerName(l10n, prayer)),
+      lead: prayer == null ? l10n.recordingsBody : l10n.prayerRecordingHint,
+      children: [
+        if (prayer != null)
+          RadioList<String>(
+            options: [
+              RadioOption(
+                _same,
+                l10n.prayerRecordingSame(
+                  resolveRecording(alerts.fullRecording, mine).name,
+                ),
+              ),
+            ],
+            selected: chosen,
+            onChanged: _choose,
           ),
-          const SizedBox(height: AppSpace.md),
-          RadioGroup<String>(
-            groupValue: chosen,
-            onChanged: (id) {
-              if (id != null) _choose(id);
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (prayer != null) ...[
-                  AppRows(
+        SettingsHeading(l10n.recordingsYours, top: prayer == null ? 4 : 22),
+        if (mine.isNotEmpty) ...[
+          RadioList<String>(
+            options: [
+              for (final m in mine)
+                RadioOption(
+                  m.id,
+                  m.name,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      RadioListTile<String>(
-                        value: _same,
-                        title: Text(
-                          l10n.prayerRecordingSame(
-                            resolveRecording(alerts.fullRecording, mine).name,
-                          ),
-                        ),
-                      ),
+                      playButton(m.id, m.name, m.path),
+                      _SoundMenu(sound: m),
                     ],
                   ),
-                ],
-                AppSectionHeader(l10n.recordingsYours),
-                if (mine.isNotEmpty) ...[
-                  AppRows(
-                    children: [
-                      for (final s in mine)
-                        RadioListTile<String>(
-                          value: s.id,
-                          title: Text(s.name),
-                          secondary: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              playButton(s.id, s.name, s.path),
-                              _SoundMenu(sound: s),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpace.sm),
-                ],
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: OutlinedButton.icon(
-                    onPressed: () => addSoundFromPhone(context, ref),
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.soundAddFromPhone),
-                  ),
                 ),
-                AppSectionHeader(l10n.recordingsTitle),
-                AppRows(
-                  children: [
-                    for (final r in adhanRecordings)
-                      RadioListTile<String>(
-                        value: r.id,
-                        title: Text(r.name),
-                        subtitle: Text(_length(l10n, r.seconds)),
-                        secondary: playButton(r.id, r.name, r.asset),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+            ],
+            selected: chosen,
+            onChanged: _choose,
           ),
+          const SizedBox(height: 8),
         ],
-      ),
+        SettingsButton(
+          label: l10n.soundAddFromPhone,
+          onPressed: () => addSoundFromPhone(context, ref),
+        ),
+        SettingsHeading(l10n.recordingsTitle),
+        RadioList<String>(
+          options: [
+            for (final r in adhanRecordings)
+              RadioOption(
+                r.id,
+                r.name,
+                description: _length(l10n, r.seconds),
+                trailing: playButton(r.id, r.name, r.asset),
+              ),
+          ],
+          selected: chosen,
+          onChanged: _choose,
+        ),
+      ],
     );
   }
 }
@@ -214,8 +187,11 @@ class _SoundMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final s = HorizonTheme.of(context).surfaces;
     return PopupMenuButton<String>(
       tooltip: l10n.soundOptions(sound.name),
+      color: s.surface,
+      icon: LineIcon(LineIcons.more, size: 20, strokeWidth: 2, color: s.onSurface),
       onSelected: (action) => switch (action) {
         'rename' => renameSound(context, ref, sound),
         _ => deleteSound(context, ref, sound),
