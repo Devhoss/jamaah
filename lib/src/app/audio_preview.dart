@@ -17,7 +17,7 @@ abstract interface class AudioPreview {
 String? previewAssetFor(
   AdhanSoundMode mode, {
   String? fullSource,
-  ShortAdhan shortAdhan = ShortAdhan.naghshbandi,
+  ShortAdhan shortAdhan = ShortAdhan.azanShort,
 }) => switch (mode) {
   AdhanSoundMode.full =>
     fullSource ?? adhanRecordingById(kDefaultAdhanRecording).asset,

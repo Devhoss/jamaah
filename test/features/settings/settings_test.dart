@@ -80,8 +80,11 @@ void main() {
             FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable)),
           ),
           notificationGatewayProvider.overrideWithValue(gateway),
-          notificationPermissionRequestProvider.overrideWithValue(
-            () async => permissionRequests++,
+          notificationPermissionRequestProvider.overrideWith(
+            (ref) => () async {
+              permissionRequests++;
+              ref.read(notificationSchedulerProvider.notifier).requestSync();
+            },
           ),
           audioPreviewProvider.overrideWithValue(preview),
           soundPickerProvider.overrideWithValue(() async => picked),
@@ -370,19 +373,6 @@ void main() {
       expect((await settings.read()).jamaahReminders.ringInSilent, isTrue);
     });
 
-    testApp('a test reminder that rings on silent is played by the app', (
-      tester,
-    ) async {
-      await settings.saveJamaahReminders(
-        const JamaahReminderSettings(ringInSilent: true),
-      );
-      await open(tester);
-      await openReminders(tester);
-      await tapText(tester, t.settingsReminderTest);
-      expect(gateway.playedNow, hasLength(1));
-      expect(gateway.shownNow, isEmpty);
-    });
-
     testApp('vibration can be turned off', (tester) async {
       await open(tester);
       await openPrayer(tester, Prayer.asr);
@@ -427,22 +417,6 @@ void main() {
       await openPrayer(tester, Prayer.sunrise);
       expect(find.text(t.alertSunriseHint), findsOneWidget);
     });
-
-    testApp('a test notification sounds the way the alert is set up', (
-      tester,
-    ) async {
-      await open(tester);
-      await openPrayer(tester, Prayer.maghrib);
-      await tapText(tester, t.soundModeShort);
-      await tap(tester, switchRow(t.alertVibrate));
-      await tapText(tester, t.alertTryIt);
-
-      final shown = gateway.shownNow.single;
-      expect(shown.channel.sound, ChannelSound.adhanShort);
-      expect(shown.channel.vibrate, isFalse);
-      expect(shown.title, t.notifTestTitle(t.prayerMaghrib));
-      expect(find.text(t.alertTrySent), findsOneWidget);
-    });
   });
 
   group('full screen and the full Adhan', () {
@@ -468,20 +442,6 @@ void main() {
       expect(find.text(t.settingsFullScreenAllow), findsOneWidget);
     });
 
-    testApp(
-      'testing a full Adhan plays it through the app, not a notification',
-      (tester) async {
-        await open(tester);
-        await openPrayer(tester, Prayer.fajr);
-        await tapText(tester, t.soundModeFull);
-        await tapText(tester, t.alertTryIt);
-
-        expect(gateway.playedNow.single.planned.soundMode, AdhanSoundMode.full);
-        expect(gateway.playedNow.single.stopLabel, t.adhanStop);
-        expect(gateway.shownNow, isEmpty);
-      },
-    );
-
     testApp('a full Adhan is handed to the app, and the list shows it', (
       tester,
     ) async {
@@ -491,7 +451,6 @@ void main() {
       await tapText(tester, t.soundModeFull);
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-
       expect(gateway.adhanAlarmsById, isNotEmpty);
       expect(gateway.scheduled, isEmpty);
     });
@@ -549,7 +508,7 @@ void main() {
       expect((await stored()).alertFor(Prayer.fajr).recording, mine.id);
       expect((await stored()).alertFor(Prayer.dhuhr).recording, isNull);
 
-      await tapText(tester, t.prayerRecordingSame('Naghshbandi'));
+      await tapText(tester, t.prayerRecordingSame('Muezzin'));
       expect((await stored()).alertFor(Prayer.fajr).recording, isNull);
     });
 
@@ -583,10 +542,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Fajr – Makkah');
       await tapText(tester, t.save);
       expect(tester.takeException(), isNull);
-      expect(
-        (await settings.read()).customSounds.single.name,
-        'Fajr – Makkah',
-      );
+      expect((await settings.read()).customSounds.single.name, 'Fajr – Makkah');
     });
 
     testApp('Arabic at a large text size', (tester) async {
@@ -624,19 +580,34 @@ void main() {
       await tapText(tester, t.settingsFullRecording);
       expect(find.byType(AdhanRecordingsPage), findsOneWidget);
 
-      await tap(tester, find.byTooltip(t.recordingPlayLabel('Makkah')));
-      expect(preview.played.last, adhanRecordingById('makkah').asset);
-      expect(find.byTooltip(t.recordingStopLabel('Makkah')), findsOneWidget);
+      await tap(
+        tester,
+        find.byTooltip(t.recordingPlayLabel('Ahmed El Haddad')),
+      );
+      expect(preview.played.last, adhanRecordingById('ahmed_el_haddad').asset);
+      expect(
+        find.byTooltip(t.recordingStopLabel('Ahmed El Haddad')),
+        findsOneWidget,
+      );
 
-      await tapText(tester, 'Makkah');
-      expect((await settings.read()).adhanAlerts.fullRecording, 'makkah');
+      await tapText(tester, 'Ahmed El Haddad');
+      expect(
+        (await settings.read()).adhanAlerts.fullRecording,
+        'ahmed_el_haddad',
+      );
 
       final stopsBefore = preview.stops;
       await back(tester);
-      expect(preview.stops, greaterThan(stopsBefore),
-          reason: 'leaving the page stops a recording it started');
-      expect(find.text('Makkah'), findsOneWidget,
-          reason: 'Settings names the chosen recording');
+      expect(
+        preview.stops,
+        greaterThan(stopsBefore),
+        reason: 'leaving the page stops a recording it started',
+      );
+      expect(
+        find.text('Ahmed El Haddad'),
+        findsOneWidget,
+        reason: 'Settings names the chosen recording',
+      );
     });
 
     testApp('the full Adhan preview plays the chosen recording', (
@@ -650,9 +621,39 @@ void main() {
       await tap(tester, find.text(t.alertPreview).first);
       expect(preview.played.single, adhanRecordingById('saber').asset);
     });
+
+    testApp(
+      'a failed preview is reported in the page, not as an uncaught error',
+      (tester) async {
+        preview.failure = StateError('decoder failed');
+        await open(tester);
+        await openAlerts(tester);
+        await tapText(tester, t.settingsFullRecording);
+        await tap(tester, find.byTooltip(t.recordingPlayLabel('Muezzin')));
+        await tester.pumpAndSettle();
+
+        expect(find.text(t.recordingPreviewFailed), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 
   group('Jama’ah reminder sound', () {
+    testApp('sound previews remain and test-send actions are absent', (
+      tester,
+    ) async {
+      await open(tester);
+      await openPrayer(tester, Prayer.maghrib);
+      expect(find.text(t.alertPreview), findsWidgets);
+      expect(find.text('Send a test notification'), findsNothing);
+
+      await back(tester);
+      await back(tester);
+      await openReminders(tester);
+      expect(find.text(t.alertPreview), findsWidgets);
+      expect(find.text('Send a test reminder'), findsNothing);
+    });
+
     testApp('the chime is the default, previewed, and can be changed', (
       tester,
     ) async {
@@ -663,73 +664,60 @@ void main() {
 
       await tap(tester, find.text(t.alertPreview).first);
       expect(preview.played.last, 'assets/audio/chime/reminder_chime.wav');
-      await tap(tester, find.text(t.alertPreview).last);
-      expect(preview.played.last, kHayyaAsset);
-
       await tapText(tester, t.soundModeStandard);
       expect(
         (await settings.read()).jamaahReminders.sound,
         ReminderSound.standard,
       );
-      expect(preview.stops, greaterThan(0),
-          reason: 'choosing a sound stops the preview');
+      expect(
+        preview.stops,
+        greaterThan(0),
+        reason: 'choosing a sound stops the preview',
+      );
 
       final vibrate = switchRow(t.settingsReminderVibrate);
       await reveal(tester, vibrate);
       await tap(tester, vibrate);
       expect((await settings.read()).jamaahReminders.vibrate, isFalse);
     });
-
-    testApp('a test reminder says حيّ على الصلاة, on the chosen channel', (
-      tester,
-    ) async {
-      await settings.saveJamaahReminders(
-        const JamaahReminderSettings(sound: ReminderSound.silent),
-      );
-      await open(tester);
-      await openReminders(tester);
-      await tapText(tester, t.settingsReminderTest);
-
-      final shown = gateway.shownNow.single;
-      expect(shown.title, 'حيّ على الصلاة');
-      expect(shown.channel.sound, ChannelSound.none);
-      expect(find.text(t.settingsReminderTestSent), findsOneWidget);
-    });
   });
 
   group('short Adhan', () {
-    testApp('حيّ على الصلاة can be chosen, previewed, and reaches the channel', (
-      tester,
-    ) async {
-      await settings.saveAdhanAlerts(
-        AdhanAlertSettings.defaults().withAlert(
-          Prayer.fajr,
-          const AdhanAlert(
-            enabled: true,
-            soundModeOverride: AdhanSoundMode.short,
+    testApp(
+      'حيّ على الصلاة can be chosen, previewed, and reaches the channel',
+      (tester) async {
+        await settings.saveAdhanAlerts(
+          AdhanAlertSettings.defaults().withAlert(
+            Prayer.fajr,
+            const AdhanAlert(
+              enabled: true,
+              soundModeOverride: AdhanSoundMode.short,
+            ),
           ),
-        ),
-      );
-      await open(tester);
-      await openAlerts(tester);
-      expect(find.text(t.shortAdhanNaghshbandi), findsOneWidget);
+        );
+        await open(tester);
+        await openAlerts(tester);
+        expect(find.text(ShortAdhan.azanShort.label), findsOneWidget);
 
-      await tapText(tester, t.settingsShortAdhan);
-      await tap(tester, find.text(t.alertPreview).last);
-      expect(preview.played.last, kHayyaAsset);
-      await tapText(tester, t.soundHayya);
+        await tapText(tester, t.settingsShortAdhan);
+        await tap(tester, find.text(t.alertPreview).at(1));
+        expect(preview.played.last, ShortAdhan.azanAllahAkbar.asset);
+        await tapText(tester, ShortAdhan.azanAllahAkbar.label);
 
-      expect(
-        (await settings.read()).adhanAlerts.shortAdhan,
-        ShortAdhan.hayya,
-      );
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pumpAndSettle();
-      final channels = {
-        for (final item in gateway.scheduled.values) item.channel,
-      };
-      expect(channels.map((c) => c.sound).toSet(), {ChannelSound.hayya});
-    });
+        expect(
+          (await settings.read()).adhanAlerts.shortAdhan,
+          ShortAdhan.azanAllahAkbar,
+        );
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+        final channels = {
+          for (final item in gateway.scheduled.values) item.channel,
+        };
+        expect(channels.map((c) => c.sound).toSet(), {
+          ChannelSound.azanAllahAkbar,
+        });
+      },
+    );
   });
 
   group('appearance', () {
@@ -742,7 +730,8 @@ void main() {
       await open(tester);
       expect(applied(), ThemeMode.system);
       expect(
-        tester.widget<MaterialApp>(find.byType(MaterialApp))
+        tester
+            .widget<MaterialApp>(find.byType(MaterialApp))
             .themeAnimationDuration,
         Duration.zero,
         reason: 'the switch is instant, not a 200 ms blend of every colour',
@@ -764,9 +753,7 @@ void main() {
   });
 
   group('pausing Iqama reminders', () {
-    testApp('pause all is one switch, and Today says it is on', (
-      tester,
-    ) async {
+    testApp('pause all is one switch, and Today says it is on', (tester) async {
       await mosques.add(
         name: 'Masjid al-Nour',
         address: '',
@@ -809,12 +796,14 @@ void main() {
 class _FakePreview implements AudioPreview {
   final played = <String>[];
   int stops = 0;
+  Object? failure;
   Completer<void>? _playing;
 
   /// Plays until stopped, like a long recording.
   @override
   Future<void> play(String asset) {
     played.add(asset);
+    if (failure case final error?) return Future<void>.error(error);
     return (_playing = Completer<void>()).future;
   }
 

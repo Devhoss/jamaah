@@ -20,7 +20,7 @@ class ExtraTimesSettings {
   const ExtraTimesSettings({
     this.imsakMinutes = 10,
     this.duhaMinutes = 15,
-    this.shown = const {ExtraTime.imsak},
+    this.shown = const {},
     this.alerts = const {},
   });
 

@@ -126,10 +126,7 @@ void main() {
     await tapText(tester, t.extraAlertsAndTiming);
 
     await tapSwitch(tester, const ValueKey('show-duha'));
-    expect((await settings.read()).extraTimes.shown, {
-      ExtraTime.imsak,
-      ExtraTime.duha,
-    });
+    expect((await settings.read()).extraTimes.shown, {ExtraTime.duha});
 
     await tapSwitch(tester, const ValueKey('alert-qiyam'));
     expect((await settings.read()).extraTimes.alerts, {ExtraTime.qiyam});

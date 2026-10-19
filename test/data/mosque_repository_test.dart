@@ -7,6 +7,7 @@ import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
+
 import '../helpers/fake_clock.dart';
 
 void main() {
@@ -36,7 +37,8 @@ void main() {
       expect(stored.schedules.single.configuredCount, 0);
       for (final prayer in Prayer.iqamaPrayers) {
         expect(
-          stored.scheduleFor(LocalDay.fromDateTime(DateTime.now()))!
+          stored
+              .scheduleFor(LocalDay.fromDateTime(DateTime.now()))!
               .iqamaFor(prayer)
               .isConfigured,
           isFalse,
@@ -98,29 +100,35 @@ void main() {
       )).id;
     });
 
-    test('a configured time reads back as the same local time of day', () async {
-      await mosques.setIqama(mosqueId, Prayer.fajr, LocalTime.of(5, 40));
+    test(
+      'a configured time reads back as the same local time of day',
+      () async {
+        await mosques.setIqama(mosqueId, Prayer.fajr, LocalTime.of(5, 40));
 
-      final stored = await mosques.byId(mosqueId);
-      final entry = stored!.scheduleFor(LocalDay.fromDateTime(DateTime.now()))!
-          .iqamaFor(Prayer.fajr);
-      expect(entry.iqama, LocalTime.of(5, 40));
-      expect(entry.isConfigured, isTrue);
-      expect(stored.schedules.single.configuredCount, 1);
-    });
+        final stored = await mosques.byId(mosqueId);
+        final entry = stored!
+            .scheduleFor(LocalDay.fromDateTime(DateTime.now()))!
+            .iqamaFor(Prayer.fajr);
+        expect(entry.iqama, LocalTime.of(5, 40));
+        expect(entry.isConfigured, isTrue);
+        expect(stored.schedules.single.configuredCount, 1);
+      },
+    );
 
-    test('saving stamps the schedule so the UI can say when it was set',
-        () async {
-      final before = DateTime.now().subtract(const Duration(seconds: 1));
-      await mosques.setIqama(mosqueId, Prayer.dhuhr, LocalTime.of(13, 15));
+    test(
+      'saving stamps the schedule so the UI can say when it was set',
+      () async {
+        final before = DateTime.now().subtract(const Duration(seconds: 1));
+        await mosques.setIqama(mosqueId, Prayer.dhuhr, LocalTime.of(13, 15));
 
-      final stored = await mosques.byId(mosqueId);
-      expect(
-        stored!.schedules.single.updatedAt.isAfter(before),
-        isTrue,
-        reason: 'AGENTS.md: "Set by you · last updated <date>"',
-      );
-    });
+        final stored = await mosques.byId(mosqueId);
+        expect(
+          stored!.schedules.single.updatedAt.isAfter(before),
+          isTrue,
+          reason: 'AGENTS.md: "Set by you · last updated <date>"',
+        );
+      },
+    );
 
     test('a reminder only exists alongside a configured time', () async {
       await mosques.setIqama(
@@ -131,9 +139,7 @@ void main() {
         reminderMinutesBefore: 15,
       );
 
-      final entry = (await mosques.byId(mosqueId))!
-          .schedules
-          .single
+      final entry = (await mosques.byId(mosqueId))!.schedules.single
           .iqamaFor(Prayer.asr);
       expect(entry.hasReminder, isTrue);
       expect(entry.reminderMinutesBefore, 15);
@@ -148,9 +154,7 @@ void main() {
       );
       await mosques.setIqama(mosqueId, Prayer.maghrib, null);
 
-      final entry = (await mosques.byId(mosqueId))!
-          .schedules
-          .single
+      final entry = (await mosques.byId(mosqueId))!.schedules.single
           .iqamaFor(Prayer.maghrib);
       expect(entry.isConfigured, isFalse);
       expect(entry.reminderEnabled, isFalse);
@@ -181,15 +185,13 @@ void main() {
         source: MosqueSource.manual,
       );
       final current = mosque.schedules.single;
-      final winter = Schedule.empty(
-        mosqueId: mosque.id,
-        effectiveFrom: LocalDay(2026, 12, 1),
-      ).withPrayer(
-        const PrayerIqama(
-          prayer: Prayer.fajr,
-          iqama: LocalTime(360),
-        ),
-      );
+      final winter =
+          Schedule.empty(
+            mosqueId: mosque.id,
+            effectiveFrom: LocalDay(2026, 12, 1),
+          ).withPrayer(
+            const PrayerIqama(prayer: Prayer.fajr, iqama: LocalTime(360)),
+          );
       await mosques.save(mosque.copyWith(schedules: [current, winter]));
 
       expect(
@@ -222,14 +224,14 @@ void main() {
         address: '1 Example Road',
         source: MosqueSource.manual,
       );
-      final updated = await onClock(
-        instant,
-      ).setIqama(added.id, Prayer.fajr, LocalTime.of(5, 40));
+      final updated = await onClock(instant)
+          .setIqama(added.id, Prayer.fajr, LocalTime.of(5, 40));
 
       expect(
         updated.updatedAt,
         instant,
-        reason: 'AGENTS.md: "Set by you · last updated <date>" must be readable '
+        reason:
+            'AGENTS.md: "Set by you · last updated <date>" must be readable '
             'and reproducible, which a wall-clock read of the test machine is not',
       );
 
@@ -241,43 +243,46 @@ void main() {
       );
     });
 
-    test('the write lands on the schedule in force on the clock\'s day', () async {
-      final seeded = await mosques.add(
-        name: 'Masjid al-Nasr',
-        address: '1 Example Road',
-        source: MosqueSource.manual,
-      );
-      final ramadan = Schedule.empty(
-        mosqueId: seeded.id,
-        effectiveFrom: const LocalDay(2027, 1, 1),
-      );
-      await mosques.save(
-        seeded.copyWith(schedules: [seeded.schedules.single, ramadan]),
-      );
+    test(
+      'the write lands on the schedule in force on the clock\'s day',
+      () async {
+        final seeded = await mosques.add(
+          name: 'Masjid al-Nasr',
+          address: '1 Example Road',
+          source: MosqueSource.manual,
+        );
+        final ramadan = Schedule.empty(
+          mosqueId: seeded.id,
+          effectiveFrom: const LocalDay(2027, 1, 1),
+        );
+        await mosques.save(
+          seeded.copyWith(schedules: [seeded.schedules.single, ramadan]),
+        );
 
-      // Editing on a June 2027 day: the dated schedule is the one in force then, so
-      // that is the one the entry belongs to — not whatever the device's own date
-      // happened to be when the suite ran.
-      final future = onClock(DateTime.utc(2027, 6, 1, 12, 0));
-      await future.setIqama(seeded.id, Prayer.fajr, LocalTime.of(5, 5));
+        // Editing on a June 2027 day: the dated schedule is the one in force then, so
+        // that is the one the entry belongs to — not whatever the device's own date
+        // happened to be when the suite ran.
+        final future = onClock(DateTime.utc(2027, 6, 1, 12, 0));
+        await future.setIqama(seeded.id, Prayer.fajr, LocalTime.of(5, 5));
 
-      final stored = await future.byId(seeded.id);
-      expect(
-        stored!
-            .scheduleFor(const LocalDay(2027, 6, 1))!
-            .iqamaFor(Prayer.fajr)
-            .iqama,
-        const LocalTime(5 * 60 + 5),
-      );
-      expect(
-        stored
-            .scheduleFor(const LocalDay(2026, 10, 12))!
-            .iqamaFor(Prayer.fajr)
-            .isConfigured,
-        isFalse,
-        reason: 'the schedule before Ramadan was left alone',
-      );
-    });
+        final stored = await future.byId(seeded.id);
+        expect(
+          stored!
+              .scheduleFor(const LocalDay(2027, 6, 1))!
+              .iqamaFor(Prayer.fajr)
+              .iqama,
+          const LocalTime(5 * 60 + 5),
+        );
+        expect(
+          stored
+              .scheduleFor(const LocalDay(2026, 10, 12))!
+              .iqamaFor(Prayer.fajr)
+              .isConfigured,
+          isFalse,
+          reason: 'the schedule before Ramadan was left alone',
+        );
+      },
+    );
   });
 
   group('deleting', () {
@@ -403,7 +408,11 @@ void main() {
       );
 
       final afterSecond = await emissionsDuring(
-        () => mosques.add(name: 'Second', address: '', source: MosqueSource.manual),
+        () => mosques.add(
+          name: 'Second',
+          address: '',
+          source: MosqueSource.manual,
+        ),
       );
       expect(afterSecond.last, hasLength(2));
 
@@ -426,9 +435,17 @@ void main() {
       final sub = mosques.watchSaved().listen(seen.add);
       await pumpEventQueue();
 
-      await mosques.add(name: 'First', address: '', source: MosqueSource.manual);
+      await mosques.add(
+        name: 'First',
+        address: '',
+        source: MosqueSource.manual,
+      );
       await pumpEventQueue();
-      await mosques.add(name: 'Second', address: '', source: MosqueSource.manual);
+      await mosques.add(
+        name: 'Second',
+        address: '',
+        source: MosqueSource.manual,
+      );
       await pumpEventQueue();
       await sub.cancel();
 
@@ -545,27 +562,29 @@ void main() {
       expect(await mosques.saved(), isEmpty);
     });
 
-    test('the created and schedule stamps come from the injected clock',
-        () async {
-      final instant = DateTime.utc(2026, 10, 13, 8, 15);
-      final repo = MosqueRepository(db, clock: FixedClock(instant));
+    test(
+      'the created and schedule stamps come from the injected clock',
+      () async {
+        final instant = DateTime.utc(2026, 10, 13, 8, 15);
+        final repo = MosqueRepository(db, clock: FixedClock(instant));
 
-      final added = await repo.add(
-        name: 'Masjid al-Nasr',
-        address: '',
-        source: MosqueSource.manual,
-      );
+        final added = await repo.add(
+          name: 'Masjid al-Nasr',
+          address: '',
+          source: MosqueSource.manual,
+        );
 
-      final stored = await repo.byId(added.id);
-      expect(
-        stored!.createdAt.millisecondsSinceEpoch,
-        instant.millisecondsSinceEpoch,
-      );
-      expect(
-        stored.schedules.single.updatedAt.millisecondsSinceEpoch,
-        instant.millisecondsSinceEpoch,
-      );
-    });
+        final stored = await repo.byId(added.id);
+        expect(
+          stored!.createdAt.millisecondsSinceEpoch,
+          instant.millisecondsSinceEpoch,
+        );
+        expect(
+          stored.schedules.single.updatedAt.millisecondsSinceEpoch,
+          instant.millisecondsSinceEpoch,
+        );
+      },
+    );
 
     test('the first mosque saved becomes the active one', () async {
       final added = await mosques.add(
@@ -577,7 +596,8 @@ void main() {
       expect(
         (await settings.read()).activeMosqueId,
         added.id,
-        reason: 'the prototype makes the first saved mosque active, so Today '
+        reason:
+            'the prototype makes the first saved mosque active, so Today '
             'has a mosque to read without an extra step',
       );
     });
@@ -684,9 +704,7 @@ void main() {
 
       await mosques.setReminderEnabled(mosqueId, Prayer.maghrib, enabled: true);
 
-      final entry = (await mosques.byId(mosqueId))!
-          .schedules
-          .single
+      final entry = (await mosques.byId(mosqueId))!.schedules.single
           .iqamaFor(Prayer.maghrib);
       expect(entry.iqama, LocalTime.of(18, 30));
       expect(entry.reminderEnabled, isTrue);
@@ -707,9 +725,7 @@ void main() {
         enabled: false,
       );
 
-      final entry = (await mosques.byId(mosqueId))!
-          .schedules
-          .single
+      final entry = (await mosques.byId(mosqueId))!.schedules.single
           .iqamaFor(Prayer.maghrib);
       expect(entry.iqama, LocalTime.of(18, 30));
       expect(entry.reminderEnabled, isFalse);
@@ -721,9 +737,7 @@ void main() {
         throwsA(isA<ReminderWithoutIqamaException>()),
       );
       expect(
-        (await mosques.byId(mosqueId))!
-            .schedules
-            .single
+        (await mosques.byId(mosqueId))!.schedules.single
             .iqamaFor(Prayer.isha)
             .reminderEnabled,
         isFalse,
@@ -800,9 +814,7 @@ void main() {
         );
       }
       expect(
-        (await mosques.byId(mosqueId))!
-            .schedules
-            .single
+        (await mosques.byId(mosqueId))!.schedules.single
             .iqamaFor(Prayer.fajr)
             .isConfigured,
         isFalse,
@@ -886,14 +898,10 @@ void main() {
       expect(cleared.iqamaFor(Prayer.dhuhr).iqama, const LocalTime(735));
     });
 
-    test('its reminder switches, but never without a time', () async {
+    test('a configured Khutbah always has an arrival reminder', () async {
       final m = await add();
-      expect(
-        () => mosques.setJumuahReminderEnabled(m.id, enabled: true),
-        throwsA(isA<ReminderWithoutIqamaException>()),
-      );
       await mosques.setJumuah(m.id, const LocalTime(705));
-      await mosques.setJumuahReminderEnabled(m.id, enabled: true);
+      await mosques.setJumuahReminderEnabled(m.id, enabled: false);
       expect(current((await mosques.byId(m.id))!).jumuah.hasReminder, isTrue);
     });
   });
@@ -923,10 +931,10 @@ void main() {
       expect(e.hasReminder, isTrue);
     });
 
-    test('Jumu’ah can count from the Adhan too', () async {
+    test('legacy Jumu’ah Adhan offset is not a Khutbah time', () async {
       final m = await add();
       await mosques.setJumuah(m.id, null, afterAdhanMinutes: 30);
-      expect(current((await mosques.byId(m.id))!).jumuah.afterAdhanMinutes, 30);
+      expect(current((await mosques.byId(m.id))!).jumuah.isConfigured, isFalse);
     });
 
     test('all five at once, leaving out the empty ones', () async {

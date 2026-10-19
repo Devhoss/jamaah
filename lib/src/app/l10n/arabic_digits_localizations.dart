@@ -305,6 +305,30 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get removeMosqueBodyActive => arabicDigits(super.removeMosqueBodyActive);
 
   @override
+  String get jumuahEditorTitle => arabicDigits(super.jumuahEditorTitle);
+
+  @override
+  String get jumuahKhutbahTime => arabicDigits(super.jumuahKhutbahTime);
+
+  @override
+  String get jumuahChooseKhutbahTime => arabicDigits(super.jumuahChooseKhutbahTime);
+
+  @override
+  String get jumuahKhutbahTimeNote => arabicDigits(super.jumuahKhutbahTimeNote);
+
+  @override
+  String get jumuahArrivalLeadTitle => arabicDigits(super.jumuahArrivalLeadTitle);
+
+  @override
+  String get jumuahSaved => arabicDigits(super.jumuahSaved);
+
+  @override
+  String get jumuahReminderNeedsTime => arabicDigits(super.jumuahReminderNeedsTime);
+
+  @override
+  String get jumuahReminderCustomEmpty => arabicDigits(super.jumuahReminderCustomEmpty);
+
+  @override
   String get iqamaChooseTime => arabicDigits(super.iqamaChooseTime);
 
   @override
@@ -570,15 +594,6 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
 
   @override
   String get alertReminderNone => arabicDigits(super.alertReminderNone);
-
-  @override
-  String get alertTryIt => arabicDigits(super.alertTryIt);
-
-  @override
-  String get alertTrySent => arabicDigits(super.alertTrySent);
-
-  @override
-  String get notifTestBody => arabicDigits(super.notifTestBody);
 
   @override
   String get adhanStop => arabicDigits(super.adhanStop);
@@ -1097,22 +1112,10 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get reminderSoundChime => arabicDigits(super.reminderSoundChime);
 
   @override
-  String get soundHayya => arabicDigits(super.soundHayya);
-
-  @override
-  String get reminderSoundHayyaHint => arabicDigits(super.reminderSoundHayyaHint);
+  String get shortAdhanClipHint => arabicDigits(super.shortAdhanClipHint);
 
   @override
   String get settingsShortAdhan => arabicDigits(super.settingsShortAdhan);
-
-  @override
-  String get shortAdhanNaghshbandi => arabicDigits(super.shortAdhanNaghshbandi);
-
-  @override
-  String get shortAdhanNaghshbandiHint => arabicDigits(super.shortAdhanNaghshbandiHint);
-
-  @override
-  String get shortAdhanHayyaHint => arabicDigits(super.shortAdhanHayyaHint);
 
   @override
   String get settingsReminderSound => arabicDigits(super.settingsReminderSound);
@@ -1128,12 +1131,6 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
 
   @override
   String get settingsReminderVibrate => arabicDigits(super.settingsReminderVibrate);
-
-  @override
-  String get settingsReminderTest => arabicDigits(super.settingsReminderTest);
-
-  @override
-  String get settingsReminderTestSent => arabicDigits(super.settingsReminderTestSent);
 
   @override
   String get settingsPauseAllIqama => arabicDigits(super.settingsPauseAllIqama);
@@ -1278,6 +1275,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
 
   @override
   String get soundCouldNotAdd => arabicDigits(super.soundCouldNotAdd);
+
+  @override
+  String get recordingPreviewFailed => arabicDigits(super.recordingPreviewFailed);
 
   @override
   String get prayerRecording => arabicDigits(super.prayerRecording);
@@ -1568,6 +1568,60 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get helpAbout => arabicDigits(super.helpAbout);
 
   @override
+  String get diagnosticsTitle => arabicDigits(super.diagnosticsTitle);
+
+  @override
+  String get diagnosticsLead => arabicDigits(super.diagnosticsLead);
+
+  @override
+  String get diagnosticsPrivacy => arabicDigits(super.diagnosticsPrivacy);
+
+  @override
+  String get diagnosticsSentry => arabicDigits(super.diagnosticsSentry);
+
+  @override
+  String get diagnosticsSentryHint => arabicDigits(super.diagnosticsSentryHint);
+
+  @override
+  String get diagnosticsSentryUnavailable => arabicDigits(super.diagnosticsSentryUnavailable);
+
+  @override
+  String get diagnosticsHistory => arabicDigits(super.diagnosticsHistory);
+
+  @override
+  String get diagnosticsEmpty => arabicDigits(super.diagnosticsEmpty);
+
+  @override
+  String get diagnosticsSend => arabicDigits(super.diagnosticsSend);
+
+  @override
+  String get diagnosticsSending => arabicDigits(super.diagnosticsSending);
+
+  @override
+  String get diagnosticsConfirmTitle => arabicDigits(super.diagnosticsConfirmTitle);
+
+  @override
+  String get diagnosticsConfirmBody => arabicDigits(super.diagnosticsConfirmBody);
+
+  @override
+  String get diagnosticsUpload => arabicDigits(super.diagnosticsUpload);
+
+  @override
+  String get diagnosticsShare => arabicDigits(super.diagnosticsShare);
+
+  @override
+  String get diagnosticsReportTitle => arabicDigits(super.diagnosticsReportTitle);
+
+  @override
+  String get diagnosticsUploaded => arabicDigits(super.diagnosticsUploaded);
+
+  @override
+  String get diagnosticsShareOpened => arabicDigits(super.diagnosticsShareOpened);
+
+  @override
+  String get diagnosticsSendFailed => arabicDigits(super.diagnosticsSendFailed);
+
+  @override
   String get methodListLead => arabicDigits(super.methodListLead);
 
   @override
@@ -1852,6 +1906,18 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
       arabicDigits(super.iqamaEditorTitle(prayer));
 
   @override
+  String jumuahReminderLead(int minutes) =>
+      arabicDigits(super.jumuahReminderLead(minutes));
+
+  @override
+  String jumuahArriveBy(String time) =>
+      arabicDigits(super.jumuahArriveBy(time));
+
+  @override
+  String jumuahReminderPreview(String khutbah, int minutes, String arrival) =>
+      arabicDigits(super.jumuahReminderPreview(khutbah, minutes, arrival));
+
+  @override
   String iqamaEditorEditing(String mosque) =>
       arabicDigits(super.iqamaEditorEditing(mosque));
 
@@ -1978,10 +2044,6 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String alertUseDefault(String sound) =>
       arabicDigits(super.alertUseDefault(sound));
-
-  @override
-  String notifTestTitle(String prayer) =>
-      arabicDigits(super.notifTestTitle(prayer));
 
   @override
   String recordingPlayLabel(String name) =>
@@ -2258,6 +2320,24 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String ticketKicker(String mosque) =>
       arabicDigits(super.ticketKicker(mosque));
+
+  @override
+  String jumuahTicketKicker(String mosque) =>
+      arabicDigits(super.jumuahTicketKicker(mosque));
+
+  @override
+  String jumuahTicketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  ) =>
+      arabicDigits(super.jumuahTicketSemantics(mosque, time, relative, rule, reminder));
+
+  @override
+  String jumuahTicketUnsetSemantics(String mosque) =>
+      arabicDigits(super.jumuahTicketUnsetSemantics(mosque));
 
   @override
   String ticketWhen(String relative) =>

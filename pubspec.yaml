@@ -51,6 +51,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   lat_lng_to_timezone: 0.2.0
+  sentry_flutter: 9.30.1
+  shared_preferences: ^2.5.6
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
@@ -78,11 +82,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # The Adhan recordings and the short Adhan, played by the app for preview and
-  # the full Adhan. Source and licence: docs/audio-licence.md.
+  # Owner-supplied full, Fajr and short Adhan recordings; source/licence status
+  # is documented in docs/audio-licence.md.
   assets:
-    - assets/audio/
-    - assets/audio/short/
+    - audio/full/
+    - audio/fajr/
+    - audio/short/
     - assets/audio/chime/
 
   # Horizon type (spec §2.1): static weights cut by tool/make_font_instances.py.

@@ -131,16 +131,18 @@ enum _Mode { afterAdhan, fixed }
 
 class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   late LocalTime? _time = widget.current.iqama;
-  late _Mode _mode = widget.current.iqama != null ? _Mode.fixed : _Mode.afterAdhan;
+  late _Mode _mode = widget.jumuah || widget.current.iqama != null
+      ? _Mode.fixed
+      : _Mode.afterAdhan;
   late final _afterField = TextEditingController(
     text: widget.current.afterAdhanMinutes?.toString() ?? '',
   );
   // A prayer set for the first time starts with its reminder on, at the
   // stored interval (10 min unless changed): spec §4.5. One already set keeps
   // what the user chose.
-  late bool _reminderOn = widget.current.isConfigured
-      ? widget.current.hasReminder
-      : true;
+  late bool _reminderOn =
+      widget.jumuah ||
+      (widget.current.isConfigured ? widget.current.hasReminder : true);
   late int _presetMinutes = widget.current.reminderMinutesBefore;
   late bool _custom = !ReminderInterval.presets.contains(
     widget.current.reminderMinutesBefore,
@@ -166,8 +168,9 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   }
 
   /// Something to save: a picked time, or valid minutes.
-  bool get _hasEntry =>
-      _mode == _Mode.fixed ? _time != null : _afterMinutes != null;
+  bool get _hasEntry => widget.jumuah || _mode == _Mode.fixed
+      ? _time != null
+      : _afterMinutes != null;
 
   /// The next Iqama the minutes give: today's while it is still ahead,
   /// otherwise tomorrow's (null without an Adhan to count from).
@@ -205,6 +208,8 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   Future<void> _pickTime() async {
     final picked = await ref.read(iqamaTimePickerProvider)(
       context,
+      // The day's Dhuhr Adhan is only a starting point for a new Jumu'ah
+      // Khutbah time. It is not saved unless the user confirms the picker.
       _time ?? widget.adhan,
     );
     if (picked != null && mounted) setState(() => _time = picked);
@@ -223,26 +228,22 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
       await repository.setJumuah(
         widget.mosque.id,
         fixed,
-        afterAdhanMinutes: after,
-        reminderEnabled: _reminderOn,
         reminderMinutesBefore: minutes,
       );
-      if (_reminderOn) await ref.read(notificationPermissionRequestProvider)();
+      await ref.read(notificationPermissionRequestProvider)();
       _done();
       return;
     }
-    await repository
-        .setIqama(
-          widget.mosque.id,
-          widget.prayer,
-          fixed,
-          afterAdhanMinutes: after,
-          reminderEnabled: _reminderOn,
-          // A reminder that is off keeps the last interval the user chose, so
-          // switching it back on later does not reset their choice.
-          reminderMinutesBefore:
-              _minutes ?? widget.current.reminderMinutesBefore,
-        );
+    await repository.setIqama(
+      widget.mosque.id,
+      widget.prayer,
+      fixed,
+      afterAdhanMinutes: after,
+      reminderEnabled: _reminderOn,
+      // A reminder that is off keeps the last interval the user chose, so
+      // switching it back on later does not reset their choice.
+      reminderMinutesBefore: _minutes ?? widget.current.reminderMinutesBefore,
+    );
     if (_reminderOn) await ref.read(notificationPermissionRequestProvider)();
     _done();
   }
@@ -253,9 +254,9 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
     final l10n = AppLocalizations.of(context);
     showHorizonSnackBar(
       context,
-      l10n.iqamaSaved(
-        widget.jumuah ? l10n.prayerJumuah : prayerName(l10n, widget.prayer),
-      ),
+      widget.jumuah
+          ? l10n.jumuahSaved
+          : l10n.iqamaSaved(prayerName(l10n, widget.prayer)),
     );
     Navigator.of(context).pop();
   }
@@ -316,103 +317,117 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
               Semantics(
                 header: true,
                 child: Text(
-                  l10n.iqamaEditorTitle(prayerLabel),
+                  widget.jumuah
+                      ? l10n.jumuahEditorTitle
+                      : l10n.iqamaEditorTitle(prayerLabel),
                   style: type.prayerName.copyWith(color: s.onSurface),
                 ),
               ),
               const SizedBox(height: 2),
               Text(sub, style: type.body.copyWith(color: s.onSurfaceMuted)),
               const SizedBox(height: 16),
-              Segmented<_Mode>(
-                options: [
-                  SegmentOption(
-                    _Mode.afterAdhan,
-                    l10n.iqamaModeAfterAdhan,
-                    description: l10n.iqamaModeAfterDesc,
-                  ),
-                  SegmentOption(
-                    _Mode.fixed,
-                    l10n.iqamaModeFixed,
-                    description: l10n.iqamaModeFixedDesc,
-                  ),
-                ],
-                selected: _mode,
-                onChanged: _saving ? null : (m) => setState(() => _mode = m),
-              ),
+              if (!widget.jumuah)
+                Segmented<_Mode>(
+                  options: [
+                    SegmentOption(
+                      _Mode.afterAdhan,
+                      l10n.iqamaModeAfterAdhan,
+                      description: l10n.iqamaModeAfterDesc,
+                    ),
+                    SegmentOption(
+                      _Mode.fixed,
+                      l10n.iqamaModeFixed,
+                      description: l10n.iqamaModeFixedDesc,
+                    ),
+                  ],
+                  selected: _mode,
+                  onChanged: _saving ? null : (m) => setState(() => _mode = m),
+                ),
               const SizedBox(height: 18),
-              if (_mode == _Mode.fixed)
+              if (widget.jumuah || _mode == _Mode.fixed)
                 ..._fixedInputs(l10n, clock, s, type, muted)
               else
                 ..._minutesInputs(l10n, clock, s, type, muted),
+              if (widget.jumuah) ...[
+                const SizedBox(height: 18),
+                Text(
+                  l10n.jumuahArrivalLeadTitle,
+                  style: type.row.copyWith(color: s.onSurface),
+                ),
+                const SizedBox(height: 8),
+                _leadMinutesInputs(l10n),
+              ],
               const SizedBox(height: 18),
               Divider(color: s.divider, height: 1),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.iqamaReminderTitle,
-                          style: type.row.copyWith(color: s.onSurface),
-                        ),
-                        Text(
-                          _hasEntry
-                              ? l10n.iqamaReminderHint
-                              : l10n.reminderNeedsTime,
-                          style: type.meta.copyWith(color: s.onSurfaceMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppSwitch(
-                    value: _hasEntry && _reminderOn,
-                    // A reminder can only exist alongside an Iqama time
-                    // (AGENTS.md).
-                    onChanged: !_hasEntry || _saving
-                        ? null
-                        : (on) => setState(() => _reminderOn = on),
-                    semanticLabel: _hasEntry
-                        ? l10n.iqamaReminderTitle
-                        : l10n.reminderSwitchNeedsIqama(prayerLabel),
-                  ),
-                ],
-              ),
-              if (_hasEntry && _reminderOn) ...[
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+              if (!widget.jumuah) ...[
+                Row(
                   children: [
-                    for (final minutes in ReminderInterval.presets)
-                      _Chip(
-                        label: l10n.reminderMinutesChip(minutes),
-                        selected: !_custom && _presetMinutes == minutes,
-                        onTap: () => setState(() {
-                          _custom = false;
-                          _presetMinutes = minutes;
-                        }),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.iqamaReminderTitle,
+                            style: type.row.copyWith(color: s.onSurface),
+                          ),
+                          Text(
+                            _hasEntry
+                                ? l10n.iqamaReminderHint
+                                : l10n.reminderNeedsTime,
+                            style: type.meta.copyWith(color: s.onSurfaceMuted),
+                          ),
+                        ],
                       ),
-                    _Chip(
-                      label: l10n.reminderCustom,
-                      selected: _custom,
-                      onTap: () => setState(() => _custom = true),
+                    ),
+                    AppSwitch(
+                      value: _hasEntry && _reminderOn,
+                      // A reminder can only exist alongside an Iqama time
+                      // (AGENTS.md).
+                      onChanged: !_hasEntry || _saving
+                          ? null
+                          : (on) => setState(() => _reminderOn = on),
+                      semanticLabel: _hasEntry
+                          ? l10n.iqamaReminderTitle
+                          : l10n.reminderSwitchNeedsIqama(prayerLabel),
                     ),
                   ],
                 ),
-                if (_custom) ...[
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _customField,
-                    autofocus: _customField.text.isEmpty,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: l10n.reminderCustomLabel,
-                      errorText: _customError(l10n),
-                    ),
-                    onChanged: (_) => setState(() {}),
+                if (_hasEntry && _reminderOn) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final minutes in ReminderInterval.presets)
+                        _Chip(
+                          label: l10n.reminderMinutesChip(minutes),
+                          selected: !_custom && _presetMinutes == minutes,
+                          onTap: () => setState(() {
+                            _custom = false;
+                            _presetMinutes = minutes;
+                          }),
+                        ),
+                      _Chip(
+                        label: l10n.reminderCustom,
+                        selected: _custom,
+                        onTap: () => setState(() => _custom = true),
+                      ),
+                    ],
                   ),
+                  if (_custom) ...[
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _customField,
+                      autofocus: _customField.text.isEmpty,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: l10n.reminderCustomLabel,
+                        errorText: _customError(l10n),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ],
                 ],
               ],
               const SizedBox(height: 14),
@@ -573,6 +588,49 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
     ];
   }
 
+  Widget _leadMinutesInputs(AppLocalizations l10n) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final minutes in ReminderInterval.presets)
+            _Chip(
+              label: l10n.reminderMinutesChip(minutes),
+              selected: !_custom && _presetMinutes == minutes,
+              onTap: _saving
+                  ? null
+                  : () => setState(() {
+                      _custom = false;
+                      _presetMinutes = minutes;
+                    }),
+            ),
+          _Chip(
+            label: l10n.reminderCustom,
+            selected: _custom,
+            onTap: _saving ? null : () => setState(() => _custom = true),
+          ),
+        ],
+      ),
+      if (_custom) ...[
+        const SizedBox(height: 12),
+        SizedBox(
+          width: 180,
+          child: TextField(
+            controller: _customField,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.jumuahArrivalLeadTitle,
+              errorText: _customError(l10n),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        ),
+      ],
+    ],
+  );
+
   /// "Fixed time": empty, a dashed button that opens the picker at the Adhan
   /// (nothing saved until a time is chosen); set, the time with steppers.
   List<Widget> _fixedInputs(
@@ -589,9 +647,11 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
     return [
       _TimeField(
         key: IqamaEditorSheet.timeFieldKey,
-        label: l10n.iqamaTimeLabel,
+        label: widget.jumuah ? l10n.jumuahKhutbahTime : l10n.iqamaTimeLabel,
         value: time == null ? null : clock.time(time),
-        placeholder: adhan == null
+        placeholder: widget.jumuah
+            ? l10n.jumuahChooseKhutbahTime
+            : adhan == null
             ? l10n.iqamaChooseTime
             : l10n.iqamaStartsAtAdhan(clock.time(adhan)),
         onTap: _saving ? null : _pickTime,
@@ -618,7 +678,11 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
       ],
       const SizedBox(height: 10),
       Text(
-        time == null ? l10n.iqamaFixedEmptyNote : l10n.iqamaFixedNote,
+        widget.jumuah
+            ? l10n.jumuahKhutbahTimeNote
+            : time == null
+            ? l10n.iqamaFixedEmptyNote
+            : l10n.iqamaFixedNote,
         style: muted,
       ),
     ];
@@ -630,7 +694,10 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
     if (_customField.text.isEmpty) return null;
     return switch (_customInput) {
       ReminderMinutesValid() => null,
-      ReminderMinutesEmpty() => l10n.reminderCustomEmpty,
+      ReminderMinutesEmpty() =>
+        widget.jumuah
+            ? l10n.jumuahReminderCustomEmpty
+            : l10n.reminderCustomEmpty,
       ReminderMinutesNotWhole() => l10n.reminderCustomNotWhole,
       ReminderMinutesOutOfRange() => l10n.reminderCustomOutOfRange,
     };
@@ -638,6 +705,16 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
 
   String _summary(AppLocalizations l10n, ClockFormat clock, String prayer) {
     final time = _iqamaToday;
+    if (widget.jumuah) {
+      if (time == null) return l10n.summaryNoTime;
+      final minutes = _minutes;
+      if (minutes == null) return l10n.jumuahReminderCustomEmpty;
+      return l10n.jumuahReminderPreview(
+        clock.time(time),
+        minutes,
+        clock.time(time.plusMinutes(-minutes)),
+      );
+    }
     if (time == null) {
       return _hasEntry ? l10n.iqamaNeedsAdhan : l10n.summaryNoTime;
     }

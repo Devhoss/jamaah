@@ -541,7 +541,13 @@ class _IqamaRow extends ConsumerWidget {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                _reminderLine(l10n),
+                                jumuah
+                                    ? entry.isConfigured
+                                          ? l10n.jumuahReminderLead(
+                                              entry.reminderMinutesBefore,
+                                            )
+                                          : l10n.jumuahReminderNeedsTime
+                                    : _reminderLine(l10n),
                                 style: type.meta.copyWith(
                                   color: s.onSurfaceMuted,
                                 ),
@@ -568,7 +574,9 @@ class _IqamaRow extends ConsumerWidget {
                                     ),
                                   ),
                                 Text(
-                                  entry.afterAdhanMinutes != null
+                                  jumuah
+                                      ? l10n.jumuahKhutbahTime
+                                      : entry.afterAdhanMinutes != null
                                       ? l10n.rowAdhanPlus(
                                           entry.afterAdhanMinutes!,
                                         )
@@ -591,34 +599,35 @@ class _IqamaRow extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 10),
-          AppSwitch(
-            value: entry.hasReminder,
-            // No Iqama time, no reminder (AGENTS.md); the line under the
-            // name says what to do instead.
-            onChanged: entry.isConfigured
-                ? (on) async {
-                    final repository = ref.read(mosqueRepositoryProvider);
-                    if (jumuah) {
-                      await repository.setJumuahReminderEnabled(
-                        mosque.id,
-                        enabled: on,
-                      );
-                    } else {
-                      await repository.setReminderEnabled(
-                        mosque.id,
-                        prayer,
-                        enabled: on,
-                      );
+          if (!jumuah)
+            AppSwitch(
+              value: entry.hasReminder,
+              // No Iqama time, no reminder (AGENTS.md); the line under the
+              // name says what to do instead.
+              onChanged: entry.isConfigured
+                  ? (on) async {
+                      final repository = ref.read(mosqueRepositoryProvider);
+                      if (jumuah) {
+                        await repository.setJumuahReminderEnabled(
+                          mosque.id,
+                          enabled: on,
+                        );
+                      } else {
+                        await repository.setReminderEnabled(
+                          mosque.id,
+                          prayer,
+                          enabled: on,
+                        );
+                      }
+                      if (on) {
+                        await ref.read(notificationPermissionRequestProvider)();
+                      }
                     }
-                    if (on) {
-                      await ref.read(notificationPermissionRequestProvider)();
-                    }
-                  }
-                : null,
-            semanticLabel: entry.isConfigured
-                ? l10n.reminderSwitchLabel(name)
-                : l10n.reminderSwitchNeedsIqama(name),
-          ),
+                  : null,
+              semanticLabel: entry.isConfigured
+                  ? l10n.reminderSwitchLabel(name)
+                  : l10n.reminderSwitchNeedsIqama(name),
+            ),
         ],
       ),
     );

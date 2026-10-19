@@ -3,19 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/adhan_screen.dart';
 import '../../app/audio_preview.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../data/notifications/notification_sync.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
 import '../../domain/adhan_recordings.dart';
 import '../../domain/iqama_editing.dart';
-import '../../domain/notification_channels.dart';
-import '../../domain/notification_plan.dart';
 import '../../domain/prayer.dart';
 import 'adhan_recordings_page.dart';
 import 'settings_kit.dart';
@@ -47,7 +43,6 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
   AdhanSoundMode? _previewing;
   bool _customOpen = false;
   final _custom = TextEditingController();
-  bool _sent = false;
 
   // Kept from initState: dispose must not read providers (the page is
   // already unmounted by then).
@@ -85,7 +80,7 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
     final asset = previewAssetFor(
       mode,
       fullSource: alerts?.recordingSourceFor(_prayer).source,
-      shortAdhan: alerts?.shortAdhan ?? ShortAdhan.naghshbandi,
+      shortAdhan: alerts?.shortAdhan ?? ShortAdhan.azanShort,
     );
     if (asset == null) return;
     setState(() => _previewing = mode);
@@ -96,69 +91,6 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
         if (mounted && _previewing == mode) setState(() => _previewing = null);
       }),
     );
-  }
-
-  Future<void> _sendTest(AdhanAlertSettings alerts) async {
-    final l10n = ref.read(notificationL10nProvider);
-    final alert = alerts.alertFor(_prayer);
-    final mode = alerts.soundModeFor(_prayer);
-    final planned = PlannedNotification(
-      // Outside every id the planner can produce for centuries.
-      id: 999990 + _prayer.index,
-      kind: NotificationKind.adhan,
-      prayer: _prayer,
-      at: DateTime.now().toUtc(),
-      soundMode: mode,
-      mosqueId: '',
-      vibrate: alert.vibrate,
-      ringInSilent: alert.ringInSilent && mode != AdhanSoundMode.silent,
-      fullScreen: alerts.fullScreen,
-      recordingAsset: switch (mode) {
-        AdhanSoundMode.full => adhanRecordingById(alerts.fullRecording).asset,
-        AdhanSoundMode.short => alerts.shortAdhan.asset,
-        _ => null,
-      },
-      shortAdhan: alerts.shortAdhan,
-    );
-    await ref.read(notificationPermissionRequestProvider)();
-    final calculator = ref.read(prayerTimesCalculatorProvider);
-    final zone = ref.read(placeZoneProvider);
-    final settings =
-        ref.read(appSettingsProvider).value ?? SettingsRepository.defaults;
-    final use24Hour = mounted && MediaQuery.alwaysUse24HourFormatOf(context);
-    final item = ScheduledItem(
-      planned: planned,
-      channel: channelFor(planned),
-      title: l10n.notifTestTitle(prayerName(l10n, _prayer)),
-      body: l10n.notifTestBody,
-      stopLabel: l10n.adhanStop,
-      // The test full-screen page looks like the real one: this prayer's sky.
-      screen: planned.fullScreen && calculator != null && zone != null
-          ? adhanScreenPayload(
-              planned: planned,
-              calculator: calculator,
-              zone: zone,
-              l10n: l10n,
-              mosque: ref.read(activeMosqueProvider),
-              theme: settings.themeMode.name,
-              hijriAdjustDays: settings.hijriAdjustDays,
-              clockTime: (t) => plainClockTime(
-                t,
-                use24Hour: use24Hour,
-                languageCode: l10n.localeName,
-              ),
-            )
-          : null,
-    );
-    final gateway = ref.read(notificationGatewayProvider);
-    // The full Adhan and the full-screen Adhan are played by the app itself, so
-    // the test goes the same way the real one will.
-    if (playsInApp(planned)) {
-      await gateway.playAdhanNow(item);
-    } else {
-      await gateway.showNow(item);
-    }
-    if (mounted) setState(() => _sent = true);
   }
 
   @override
@@ -316,16 +248,6 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
                 : null,
           ),
         ],
-        const SizedBox(height: 24),
-        SettingsButton(
-          label: l10n.alertTryIt,
-          onPressed: () => _sendTest(alerts),
-        ),
-        if (_sent)
-          Semantics(
-            liveRegion: true,
-            child: SettingsNote(l10n.alertTrySent),
-          ),
       ],
     );
   }

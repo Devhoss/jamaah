@@ -1,166 +1,132 @@
-/// The Adhan recordings bundled with the app (added 2026-10-13), one of which
-/// plays for every alert set to "Full Adhan".
-///
-/// Source and licence are recorded in docs/audio-licence.md. The names are
-/// the reciters' and places' own, so they are data rather than strings to
-/// translate.
+import 'prayer.dart';
+
+/// The Adhan recordings bundled with the app. Source files were supplied by
+/// the project owner; their known provenance and licence status are recorded
+/// in docs/audio-licence.md.
 class AdhanRecording {
   const AdhanRecording({
     required this.id,
     required this.name,
     required this.asset,
     required this.seconds,
+    this.prayerOnly,
   });
 
-  /// Stored in the settings; never changes once shipped.
+  /// Stored in settings; ids must remain stable after release.
   final String id;
   final String name;
-
-  /// The Flutter asset path. The native Adhan player opens the same file.
   final String asset;
-
-  /// Length, for the list in Settings.
   final int seconds;
+
+  /// Fajr-specific recordings are offered only for Fajr alerts.
+  final Prayer? prayerOnly;
 }
 
-const _dir = 'assets/audio';
+const _full = 'audio/full';
+const _fajr = 'audio/fajr';
+const _short = 'audio/short';
 
 const List<AdhanRecording> adhanRecordings = [
   AdhanRecording(
-    id: 'abdul_basit',
-    name: 'Abdul Basit',
-    asset: '$_dir/Abdul-Basit.mp3',
-    seconds: 206,
+    id: 'ahmed_el_haddad',
+    name: 'Ahmed El Haddad',
+    asset: '$_full/Ahmed El Haddad.mp3',
+    seconds: 155,
   ),
   AdhanRecording(
-    id: 'abdul_ghaffar',
-    name: 'Abdul Ghaffar',
-    asset: '$_dir/Abdul-Ghaffar.mp3',
-    seconds: 186,
-  ),
-  AdhanRecording(
-    id: 'abdul_hakam',
-    name: 'Abdul Hakam',
-    asset: '$_dir/Abdul-Hakam.mp3',
-    seconds: 190,
-  ),
-  AdhanRecording(
-    id: 'al_aqsa',
-    name: 'Al-Aqsa',
-    asset: '$_dir/Adhan-Alaqsa.mp3',
-    seconds: 225,
-  ),
-  AdhanRecording(
-    id: 'al_hussaini',
-    name: 'Al-Hussaini',
-    asset: '$_dir/Al-Hussaini.mp3',
-    seconds: 196,
-  ),
-  AdhanRecording(
-    id: 'bakir_bash',
-    name: 'Bakir Bash',
-    asset: '$_dir/Bakir-Bash.mp3',
-    seconds: 347,
-  ),
-  AdhanRecording(
-    id: 'egypt',
-    name: 'Egypt',
-    asset: '$_dir/Adhan-Egypt.mp3',
-    seconds: 183,
-  ),
-  AdhanRecording(
-    id: 'hafez',
-    name: 'Hafez',
-    asset: '$_dir/Hafez.mp3',
-    seconds: 167,
-  ),
-  AdhanRecording(
-    id: 'hafiz_murad',
-    name: 'Hafiz Murad',
-    asset: '$_dir/Hafiz-Murad.mp3',
-    seconds: 102,
-  ),
-  AdhanRecording(
-    id: 'halab',
-    name: 'Halab',
-    asset: '$_dir/Adhan-Halab.mp3',
-    seconds: 223,
-  ),
-  AdhanRecording(
-    id: 'madinah',
-    name: 'Madinah',
-    asset: '$_dir/Adhan-Madinah.mp3',
-    seconds: 96,
-  ),
-  AdhanRecording(
-    id: 'makkah',
-    name: 'Makkah',
-    asset: '$_dir/Adhan-Makkah.mp3',
-    seconds: 201,
-  ),
-  AdhanRecording(
-    id: 'minshawi',
-    name: 'Minshawi',
-    asset: '$_dir/Minshawi.mp3',
-    seconds: 235,
-  ),
-  AdhanRecording(
-    id: 'naghshbandi',
-    name: 'Naghshbandi',
-    asset: '$_dir/Naghshbandi.mp3',
-    seconds: 162,
-  ),
-  AdhanRecording(
-    id: 'saber',
-    name: 'Saber',
-    asset: '$_dir/Saber.mp3',
+    id: 'mansour_al_salimi',
+    name: 'Mansour Al Salimi',
+    asset: '$_full/Mansour Al Salimi.mp3',
     seconds: 149,
   ),
   AdhanRecording(
-    id: 'sharif_doman',
-    name: 'Sharif Doman',
-    asset: '$_dir/Sharif-Doman.mp3',
-    seconds: 281,
+    id: 'mohammad_hmoud',
+    name: 'Mohammad Hmoud',
+    asset: '$_full/Mohammad Hmoud.mp3',
+    seconds: 174,
   ),
   AdhanRecording(
-    id: 'yusuf_islam',
-    name: 'Yusuf Islam',
-    asset: '$_dir/Yusuf-Islam.mp3',
-    seconds: 99,
+    id: 'muezzin',
+    name: 'Muezzin',
+    // Asset paths are case-sensitive on Android; preserve the supplied name.
+    asset: '$_full/muezzin.mp3',
+    seconds: 130,
+  ),
+  AdhanRecording(
+    id: 'muezzin_fajr',
+    name: 'Muezzin Fajr',
+    asset: '$_fajr/muezzin fajr.mp3',
+    seconds: 188,
+    prayerOnly: Prayer.fajr,
+  ),
+  AdhanRecording(
+    id: 'fajr_adhan_alarm',
+    name: 'Fajr Adhan Alarm',
+    asset: '$_fajr/fajr_adhan_alarm_v3.mp3',
+    seconds: 278,
+    prayerOnly: Prayer.fajr,
   ),
 ];
 
-/// The recording a fresh install plays; the short Adhan is its opening.
-const kDefaultAdhanRecording = 'naghshbandi';
+/// The full Adhan used for a fresh install.
+const kDefaultAdhanRecording = 'muezzin';
 
-/// "Short Adhan": the first 8 seconds of Naghshbandi, the opening phrase,
-/// faded out in the pause after it. The same file is the notification
-/// channel's sound (android/app/src/main/res/raw/adhan_short.ogg).
-const kShortAdhanAsset = 'assets/audio/short/adhan_short.ogg';
-
-/// «حيّ على الصلاة»: 1:09–1:19 of audio_sources/حي على الصلاه.mp3 (added
-/// 2026-10-13). A choice for the short Adhan and for Jama’ah reminders.
-const kHayyaAsset = 'assets/audio/short/hayya.ogg';
-
-/// The short clips the user can choose for "Short Adhan" (2026-10-13). Each
-/// is a notification channel sound, so each has a raw resource of its own.
+/// A short Adhan clip. Its same MP3 asset is copied to Android's `res/raw` so
+/// notification previews and notification-channel sounds use the same audio.
 enum ShortAdhan {
-  naghshbandi(asset: kShortAdhanAsset, raw: 'adhan_short'),
-  hayya(asset: kHayyaAsset, raw: 'adhan_short_hayya');
+  azanShort(
+    label: 'Azan Short',
+    asset: '$_short/azan_short.mp3',
+    raw: 'azan_short',
+  ),
+  azanAllahAkbar(
+    label: 'Azan Allah Akbar HD',
+    asset: '$_short/azan_allah_akbar_hd.mp3',
+    raw: 'azan_allah_akbar_hd',
+  ),
+  azanShortOne(
+    label: 'Azan Short 1',
+    asset: '$_short/azan_short1.mp3',
+    raw: 'azan_short_1',
+  ),
+  adhanVerseOne(
+    label: 'Adhan Verse 1',
+    asset: '$_short/adhan_verse1_clean.mp3',
+    raw: 'adhan_verse_1',
+  ),
+  adhanVerseTwo(
+    label: 'Adhan Verse 2',
+    asset: '$_short/adhan_verse2_clean.mp3',
+    raw: 'adhan_verse_2',
+  );
 
-  const ShortAdhan({required this.asset, required this.raw});
+  const ShortAdhan({
+    required this.label,
+    required this.asset,
+    required this.raw,
+  });
 
-  /// The Flutter asset: preview, and the app's own player.
+  /// Source filename rendered as a human-readable option label.
+  final String label;
+
+  /// Flutter asset used for the preview and app-owned playback.
   final String asset;
 
-  /// The Android raw resource the notification channel plays.
+  /// Android raw resource used by a notification channel.
   final String raw;
 }
 
-/// The recording stored as [id]; the default one for an id that is unknown
-/// (a recording removed in a later version).
+/// The recording stored as [id]; if a removed recording is still saved on a
+/// device, use the current default instead of leaving an alert without audio.
 AdhanRecording adhanRecordingById(String? id) => adhanRecordings.firstWhere(
   (r) => r.id == id,
   orElse: () =>
       adhanRecordings.firstWhere((r) => r.id == kDefaultAdhanRecording),
 );
+
+/// The recordings available for the shared setting or one prayer's setting.
+List<AdhanRecording> recordingsForPrayer(Prayer? prayer) => [
+  for (final recording in adhanRecordings)
+    if (recording.prayerOnly == null || recording.prayerOnly == prayer)
+      recording,
+];

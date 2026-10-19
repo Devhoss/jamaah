@@ -793,7 +793,7 @@ void main() {
         isTrue,
         reason: 'no prayer has a time yet, so no reminder can be switched on',
       );
-      expect(find.text(t.rowReminderNeedsIqama), findsNWidgets(6));
+      expect(find.text(t.rowReminderNeedsIqama), findsNWidgets(5));
 
       final mosque = await savedMosque('Masjid al-Nour');
       await mosques.setIqama(mosque.id, Prayer.fajr, LocalTime.of(5, 40));

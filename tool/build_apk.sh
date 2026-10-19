@@ -8,6 +8,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 version=$(grep -m1 '^version:' pubspec.yaml | awk '{print $2}')
+app_name=$(sed -n 's/^  name: //p' branding.yaml | head -n1)
+: "${app_name:?Missing app name in branding.yaml}"
 commit=$(git rev-parse --short HEAD)
 # A build from uncommitted changes says so.
 if ! git diff --quiet -- . ':!android/app/build.gradle.kts'; then
@@ -21,3 +23,11 @@ flutter build apk "$mode" \
   --dart-define=APP_VERSION="$version" \
   --dart-define=GIT_COMMIT="$commit" \
   --dart-define=BUILD_DATE="$date"
+
+if [[ "$mode" == "--release" ]]; then
+  apk="build/app/outputs/flutter-apk/app-release.apk"
+  release_version=${version%%+*}
+  named_apk="build/app/outputs/flutter-apk/$app_name-$release_version.apk"
+  mv -f "$apk" "$named_apk"
+  printf 'Release APK: %s\n' "$named_apk"
+fi

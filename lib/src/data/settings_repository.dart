@@ -223,12 +223,13 @@ class SettingsRepository {
         // Before the per-mosque pause there was a travel-mode pause; a user
         // who had it on keeps every reminder paused rather than suddenly
         // getting them again.
-        pauseAllIqamaReminders: switch (values[SettingKeys.pauseAllIqamaReminders]) {
-          final v? => v == 'true',
-          null =>
-            values[SettingKeys.travelMode] == 'true' &&
-                values[SettingKeys.pauseIqamaReminders] == 'true',
-        },
+        pauseAllIqamaReminders:
+            switch (values[SettingKeys.pauseAllIqamaReminders]) {
+              final v? => v == 'true',
+              null =>
+                values[SettingKeys.travelMode] == 'true' &&
+                    values[SettingKeys.pauseIqamaReminders] == 'true',
+            },
       ),
       jamaahReminders: JamaahReminderSettings(
         sound: _enumOrDefault(
@@ -251,9 +252,7 @@ class SettingsRepository {
         duhaMinutes: clampDuhaMinutes(
           int.tryParse(values[SettingKeys.extraDuhaMinutes] ?? '') ?? 15,
         ),
-        shown: _extraSet(values[SettingKeys.extraShown], const {
-          ExtraTime.imsak,
-        }),
+        shown: _extraSet(values[SettingKeys.extraShown], const {}),
         alerts: _extraSet(values[SettingKeys.extraAlerts], const {}),
       ),
       activeMosqueId: values[SettingKeys.activeMosqueId],
@@ -270,11 +269,11 @@ class SettingsRepository {
 
   /// Re-emits whenever any stored setting changes, including the per-prayer Adhan
   /// alerts and offsets that live in their own tables.
-  Stream<AppSettingsSnapshot> watch() => watchTables(
-    _db,
-    [_db.appSettings, _db.adhanAlertRows, _db.prayerOffsets],
-    read,
-  );
+  Stream<AppSettingsSnapshot> watch() => watchTables(_db, [
+    _db.appSettings,
+    _db.adhanAlertRows,
+    _db.prayerOffsets,
+  ], read);
 
   Future<void> setPrayerTimesPreferences({
     CalculationMethod? calculationMethod,
@@ -288,9 +287,9 @@ class SettingsRepository {
       await _put(SettingKeys.customIshaAngle, '${customAngles.ishaAngle}');
       final minutes = customAngles.ishaMinutesAfterMaghrib;
       if (minutes == null) {
-        await (_db.delete(_db.appSettings)
-              ..where((t) => t.key.equals(SettingKeys.customIshaMinutes)))
-            .go();
+        await (_db.delete(
+          _db.appSettings,
+        )..where((t) => t.key.equals(SettingKeys.customIshaMinutes))).go();
       } else {
         await _put(SettingKeys.customIshaMinutes, '$minutes');
       }
@@ -300,10 +299,7 @@ class SettingsRepository {
     }
     if (madhab != null) await _put(SettingKeys.madhab, madhab.name);
     if (highLatitudeRule != null) {
-      await _put(
-        SettingKeys.highLatitudeRule,
-        highLatitudeRule.storageKey,
-      );
+      await _put(SettingKeys.highLatitudeRule, highLatitudeRule.storageKey);
     }
     if (minuteOffsets != null) {
       await _db.delete(_db.prayerOffsets).go();
@@ -376,9 +372,9 @@ class SettingsRepository {
   /// reminder (AGENTS.md: switching the active mosque switches the schedule that
   /// drives reminders).
   Future<void> setActiveMosqueId(String? mosqueId) => mosqueId == null
-      ? (_db.delete(_db.appSettings)
-            ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
-          .go()
+      ? (_db.delete(
+          _db.appSettings,
+        )..where((t) => t.key.equals(SettingKeys.activeMosqueId))).go()
       : _put(SettingKeys.activeMosqueId, mosqueId);
 
   Future<void> saveAdhanAlerts(AdhanAlertSettings alerts) =>
@@ -428,10 +424,7 @@ class SettingsRepository {
   Future<void> saveJamaahReminders(JamaahReminderSettings reminders) =>
       _db.transaction(() async {
         await _put(SettingKeys.jamaahReminderSound, reminders.sound.name);
-        await _put(
-          SettingKeys.jamaahReminderVibrate,
-          '${reminders.vibrate}',
-        );
+        await _put(SettingKeys.jamaahReminderVibrate, '${reminders.vibrate}');
         await _put(
           SettingKeys.jamaahReminderRingInSilent,
           '${reminders.ringInSilent}',
@@ -460,31 +453,29 @@ class SettingsRepository {
   /// for every prayer goes back to the bundled default, a prayer's own goes
   /// back to "same as in Settings", and the reminder to the chime. Returns
   /// the sound, so the caller can delete its file.
-  Future<CustomSound?> deleteCustomSound(String id) =>
-      _db.transaction(() async {
-        final values = await _values();
-        final all = _customSounds(values);
-        final gone = _soundById(all, id);
-        await _putSounds([...all.where((s) => s.id != id)]);
-        if (values[SettingKeys.adhanFullRecording] == id) {
-          await _put(SettingKeys.adhanFullRecording, kDefaultAdhanRecording);
+  Future<CustomSound?> deleteCustomSound(String id) => _db.transaction(
+    () async {
+      final values = await _values();
+      final all = _customSounds(values);
+      final gone = _soundById(all, id);
+      await _putSounds([...all.where((s) => s.id != id)]);
+      if (values[SettingKeys.adhanFullRecording] == id) {
+        await _put(SettingKeys.adhanFullRecording, kDefaultAdhanRecording);
+      }
+      for (final prayer in Prayer.adhanPrayers) {
+        final key = '${SettingKeys.adhanRecordingPrefix}${prayer.name}';
+        if (values[key] == id) await _put(key, '');
+      }
+      if (values[SettingKeys.jamaahReminderCustomSound] == id) {
+        await _put(SettingKeys.jamaahReminderCustomSound, '');
+        if (values[SettingKeys.jamaahReminderSound] ==
+            ReminderSound.custom.name) {
+          await _put(SettingKeys.jamaahReminderSound, ReminderSound.chime.name);
         }
-        for (final prayer in Prayer.adhanPrayers) {
-          final key = '${SettingKeys.adhanRecordingPrefix}${prayer.name}';
-          if (values[key] == id) await _put(key, '');
-        }
-        if (values[SettingKeys.jamaahReminderCustomSound] == id) {
-          await _put(SettingKeys.jamaahReminderCustomSound, '');
-          if (values[SettingKeys.jamaahReminderSound] ==
-              ReminderSound.custom.name) {
-            await _put(
-              SettingKeys.jamaahReminderSound,
-              ReminderSound.chime.name,
-            );
-          }
-        }
-        return gone;
-      });
+      }
+      return gone;
+    },
+  );
 
   Future<Map<String, String?>> _values() async => {
     for (final row in await _db.select(_db.appSettings).get())
@@ -539,9 +530,9 @@ class SettingsRepository {
           SettingKeys.placeUserName,
           SettingKeys.usesGps,
         ]) {
-          await (_db.delete(_db.appSettings)
-                ..where((t) => t.key.equals(key)))
-              .go();
+          await (_db.delete(
+            _db.appSettings,
+          )..where((t) => t.key.equals(key))).go();
         }
         if (location == null) return;
         await _put(SettingKeys.latitude, location.latitude.toString());
@@ -610,7 +601,7 @@ class SettingsRepository {
       shortAdhan: _enumOrDefault(
         ShortAdhan.values,
         values[SettingKeys.adhanShortClip],
-        ShortAdhan.naghshbandi,
+        ShortAdhan.azanShort,
       ),
       alerts: {
         for (final prayer in Prayer.adhanPrayers)
@@ -628,11 +619,11 @@ class SettingsRepository {
                 _ => null,
               },
               ringInSilent: row.ringInSilent,
-              recording: switch (values[
-                  '${SettingKeys.adhanRecordingPrefix}${prayer.name}']) {
-                final id? when id.isNotEmpty => id,
-                _ => null,
-              },
+              recording:
+                  switch (values['${SettingKeys.adhanRecordingPrefix}${prayer.name}']) {
+                    final id? when id.isNotEmpty => id,
+                    _ => null,
+                  },
               preAdhanRingInSilent: row.preAdhanRingInSilent,
             ),
       },

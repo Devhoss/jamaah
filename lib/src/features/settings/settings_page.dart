@@ -16,11 +16,7 @@ import 'preference_pages.dart';
 import 'prayer_times_page.dart';
 import 'settings_kit.dart';
 
-String shortAdhanName(AppLocalizations l10n, ShortAdhan clip) =>
-    switch (clip) {
-      ShortAdhan.naghshbandi => l10n.shortAdhanNaghshbandi,
-      ShortAdhan.hayya => l10n.soundHayya,
-    };
+String shortAdhanName(ShortAdhan clip) => clip.label;
 
 /// Each language by its own name, so it can be found whatever the app is in.
 String languageName(AppLocalizations l10n, AppLanguage language) =>
@@ -45,11 +41,7 @@ String followFailure(AppLocalizations l10n, PlaceFailure failure) =>
 /// Travel mode on or off, from the top bar or Settings. The location dialog
 /// may show (following starts now); the outcome is said in a snack bar, since
 /// the top-bar button is only an icon.
-Future<void> setTravelMode(
-  BuildContext context,
-  WidgetRef ref,
-  bool on,
-) async {
+Future<void> setTravelMode(BuildContext context, WidgetRef ref, bool on) async {
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context);
   final failure = await ref.read(locationFollowerProvider).setTravelMode(on);
@@ -72,8 +64,8 @@ Future<void> openSettings(BuildContext context) =>
     Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (_) => const SettingsPage()));
 
-/// Changes the stored Adhan alerts with [change] and saves them; the scheduler
-/// picks the change up from the settings stream.
+/// Changes the stored Adhan alerts with [change] and asks the scheduler to
+/// update the platform schedule once the write has landed.
 Future<void> updateAdhanAlerts(
   WidgetRef ref,
   AdhanAlertSettings Function(AdhanAlertSettings current) change,
@@ -82,6 +74,7 @@ Future<void> updateAdhanAlerts(
       ref.read(appSettingsProvider).value?.adhanAlerts ??
       SettingsRepository.defaults.adhanAlerts;
   await ref.read(settingsRepositoryProvider).saveAdhanAlerts(change(current));
+  ref.read(notificationSchedulerProvider.notifier).requestSync();
 }
 
 /// Settings (Horizon spec §4.9): six rows in three groups, each saying what

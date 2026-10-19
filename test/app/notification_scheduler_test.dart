@@ -105,25 +105,28 @@ void main() {
               soundModeOverride: AdhanSoundMode.short,
             ),
           )
-          .copyWith(fullRecording: 'makkah');
+          .copyWith(fullRecording: 'ahmed_el_haddad');
 
       final plan = planFor(alerts);
       expect(
         plan.where((n) => n.prayer == Prayer.fajr).map((n) => n.recordingAsset),
-        everyElement(adhanRecordingById('makkah').asset),
+        everyElement(adhanRecordingById('ahmed_el_haddad').asset),
       );
       expect(
         plan
             .where((n) => n.prayer == Prayer.dhuhr)
             .map((n) => n.recordingAsset),
-        everyElement(ShortAdhan.naghshbandi.asset),
+        everyElement(ShortAdhan.azanShort.asset),
         reason: 'a short Adhan shown full screen plays the chosen clip',
       );
       expect(
-        planFor(alerts.copyWith(shortAdhan: ShortAdhan.hayya))
+        planFor(alerts.copyWith(shortAdhan: ShortAdhan.adhanVerseTwo))
             .where((n) => n.prayer == Prayer.dhuhr)
             .map((n) => (n.recordingAsset, n.shortAdhan)),
-        everyElement((kHayyaAsset, ShortAdhan.hayya)),
+        everyElement((
+          ShortAdhan.adhanVerseTwo.asset,
+          ShortAdhan.adhanVerseTwo,
+        )),
       );
     });
 
@@ -369,7 +372,10 @@ void main() {
         const TravelSettings(),
         active: mosque.copyWith(remindersPaused: true),
       );
-      expect(home.where((n) => n.kind == NotificationKind.iqama), hasLength(kPlanWindowDays));
+      expect(
+        home.where((n) => n.kind == NotificationKind.iqama),
+        hasLength(kPlanWindowDays),
+      );
       for (final paused in [all, thisMosque]) {
         expect(paused.where((n) => n.kind == NotificationKind.iqama), isEmpty);
         expect(

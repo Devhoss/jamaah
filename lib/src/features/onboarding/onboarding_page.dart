@@ -28,6 +28,7 @@ import '../components/travel_switch.dart';
 import '../location/city_list_page.dart';
 import '../location/location_controller.dart';
 import '../location/place_copy.dart';
+import '../mosques/mosque_copy.dart';
 import '../mosques/mosque_details_sheet.dart';
 import '../mosques/nearby_mosques_page.dart';
 import '../settings/prayer_time_settings.dart' show methodName;
@@ -516,6 +517,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   List<Widget> _mosque(BuildContext context, SkyPalette p) {
     final l10n = AppLocalizations.of(context);
     final active = ref.watch(activeMosqueProvider);
+    final scheduleDay = ref.watch(scheduleDayProvider);
     return [
       _title(context, l10n.onbMosqueTitle, p),
       _body(context, l10n.onbMosqueBody, p),
@@ -557,7 +559,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         _StatusCard(
           palette: p,
           title: l10n.onbMosqueAdded(active.name),
-          body: l10n.onbMosqueAddedBody,
+          body: iqamaCountLine(l10n, active.scheduleFor(scheduleDay)),
         ),
     ];
   }

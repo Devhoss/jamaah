@@ -69,11 +69,19 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
       return;
     }
     setState(() => _playing = id);
-    unawaited(
-      _preview.play(source).whenComplete(() {
-        if (mounted && _playing == id) setState(() => _playing = null);
-      }),
-    );
+    try {
+      await _preview.play(source);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).recordingPreviewFailed),
+          ),
+        );
+      }
+    } finally {
+      if (mounted && _playing == id) setState(() => _playing = null);
+    }
   }
 
   Future<void> _choose(String id) => updateAdhanAlerts(ref, (all) {
@@ -162,11 +170,13 @@ class _AdhanRecordingsPageState extends ConsumerState<AdhanRecordingsPage> {
         SettingsHeading(l10n.recordingsTitle),
         RadioList<String>(
           options: [
-            for (final r in adhanRecordings)
+            for (final r in recordingsForPrayer(prayer))
               RadioOption(
                 r.id,
                 r.name,
-                description: _length(l10n, r.seconds),
+                description: r.prayerOnly == null
+                    ? _length(l10n, r.seconds)
+                    : '${_length(l10n, r.seconds)} · ${l10n.prayerFajr}',
                 trailing: playButton(r.id, r.name, r.asset),
               ),
           ],
@@ -191,7 +201,12 @@ class _SoundMenu extends ConsumerWidget {
     return PopupMenuButton<String>(
       tooltip: l10n.soundOptions(sound.name),
       color: s.surface,
-      icon: LineIcon(LineIcons.more, size: 20, strokeWidth: 2, color: s.onSurface),
+      icon: LineIcon(
+        LineIcons.more,
+        size: 20,
+        strokeWidth: 2,
+        color: s.onSurface,
+      ),
       onSelected: (action) => switch (action) {
         'rename' => renameSound(context, ref, sound),
         _ => deleteSound(context, ref, sound),

@@ -45,6 +45,7 @@ class AdhanService : Service(), SensorEventListener {
     private var player: MediaPlayer? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var sensors: SensorManager? = null
+    private var faceDownStopArmed = false
     private var faceDownSince = 0L
     private var current: AdhanAlarm? = null
     private var session: MediaSession? = null
@@ -115,7 +116,7 @@ class AdhanService : Service(), SensorEventListener {
         // A full-screen page stays up for at least a minute, even when the sound
         // is short (or there is none), so it can be seen and dismissed.
         if (alarm.fullScreen) handler.postDelayed(minimumEnd, 60_000L)
-        val shortAdhan = Uri.parse("android.resource://$packageName/${R.raw.adhan_short}")
+        val shortAdhan = Uri.parse("android.resource://$packageName/${R.raw.azan_short}")
         val source: Uri? = when (alarm.sound) {
             // The chosen recording (full) or clip (short) is read from the
             // Flutter assets below; the short Adhan stands in if there is none.
@@ -251,7 +252,7 @@ class AdhanService : Service(), SensorEventListener {
         }
     }
 
-    /** Turning the phone face down stops it. */
+    /** Face-down stopping arms after the phone has been face up during playback. */
     private fun startFlipWatch() {
         sensors = (getSystemService(Context.SENSOR_SERVICE) as SensorManager).also { manager ->
             manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let {
@@ -291,7 +292,10 @@ class AdhanService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         val z = event.values[2]
         val now = SystemClock.elapsedRealtime()
-        if (z < -8.5f) {
+        if (z > 8.5f) {
+            faceDownStopArmed = true
+            faceDownSince = 0L
+        } else if (faceDownStopArmed && z < -8.5f) {
             if (faceDownSince == 0L) faceDownSince = now
             // Held face down for most of a second, not a phone jostled in a bag.
             if (now - faceDownSince > 700) finish()
@@ -342,6 +346,7 @@ class AdhanService : Service(), SensorEventListener {
         handler.removeCallbacks(capEnd)
         minimumPassed = false
         soundDone = false
+        faceDownStopArmed = false
         faceDownSince = 0L
         wakeLock?.let { if (it.isHeld) it.release() }
         wakeLock = null

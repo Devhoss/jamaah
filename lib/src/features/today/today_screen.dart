@@ -290,6 +290,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       muted: rows.mute,
       line: rows.line,
       background: Colors.transparent,
+      selectedBackground: rows.ink.withValues(alpha: 0.14),
       backdrop: backdrop,
     );
     final last = _lastNav;

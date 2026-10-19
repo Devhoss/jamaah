@@ -17,11 +17,8 @@ enum AdhanSoundMode { full, short, standard, silent }
 extension AdhanSoundModeX on AdhanSoundMode {
   String get storageKey => name;
 
-  static AdhanSoundMode fromStorageKey(String? key) =>
-      AdhanSoundMode.values.firstWhere(
-        (m) => m.name == key,
-        orElse: () => AdhanSoundMode.standard,
-      );
+  static AdhanSoundMode fromStorageKey(String? key) => AdhanSoundMode.values
+      .firstWhere((m) => m.name == key, orElse: () => AdhanSoundMode.standard);
 }
 
 /// Global, per-prayer Adhan alerts. Completely independent of Iqama reminders,
@@ -32,7 +29,7 @@ class AdhanAlertSettings {
     this.alerts = const {},
     this.fullScreen = false,
     this.fullRecording = kDefaultAdhanRecording,
-    this.shortAdhan = ShortAdhan.naghshbandi,
+    this.shortAdhan = ShortAdhan.azanShort,
     this.customRecordings = const [],
   });
 
@@ -127,13 +124,10 @@ class AdhanAlertSettings {
     var next = this;
     for (final p in Prayer.adhanPrayers) {
       final a = alertFor(p);
-      next = next.withAlert(
-        p,
-        switch (target) {
-          RingTarget.adhan => a.copyWith(ringInSilent: on),
-          RingTarget.preAdhan => a.copyWith(preAdhanRingInSilent: on),
-        },
-      );
+      next = next.withAlert(p, switch (target) {
+        RingTarget.adhan => a.copyWith(ringInSilent: on),
+        RingTarget.preAdhan => a.copyWith(preAdhanRingInSilent: on),
+      });
     }
     return next;
   }
@@ -154,14 +148,13 @@ class AdhanAlertSettings {
       _sameSounds(other.customRecordings, customRecordings);
 
   @override
-  int get hashCode =>
-      Object.hash(
-        defaultSoundMode,
-        fullScreen,
-        fullRecording,
-        shortAdhan,
-        alerts.length,
-      );
+  int get hashCode => Object.hash(
+    defaultSoundMode,
+    fullScreen,
+    fullRecording,
+    shortAdhan,
+    alerts.length,
+  );
 }
 
 /// What rings on silent: the Adhan, or the reminder before it.
@@ -333,7 +326,7 @@ class TravelSettings {
 /// What a Jama’ah (Iqama) reminder plays (2026-10-13). [chime] is the app's
 /// own two-note chime; [hayya] the «حيّ على الصلاة» clip; [standard] the
 /// phone's notification sound; [silent] shows the reminder without a sound.
-enum ReminderSound { chime, hayya, standard, silent, custom }
+enum ReminderSound { chime, standard, silent, custom }
 
 /// How every Jama’ah reminder sounds. One global setting: the reminders
 /// themselves (which prayers, how early) stay on each mosque.

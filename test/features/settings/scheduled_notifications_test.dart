@@ -142,6 +142,8 @@ void main() {
   testApp('granting exact alarms clears the warning and reschedules on time', (
     tester,
   ) async {
+    // This test isolates exact-alarm access; notifications are already allowed.
+    gateway.enabled = true;
     await open(tester);
     await tester.tap(find.text(t.scheduledAllowExact));
     await tester.pump(const Duration(milliseconds: 400));
@@ -159,6 +161,8 @@ void main() {
   });
 
   testApp('lists what is scheduled, in time order', (tester) async {
+    // The device must allow notifications for the platform to have a schedule.
+    gateway.enabled = true;
     await open(tester);
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();

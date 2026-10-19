@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:jamaah/src/features/components/bottom_nav.dart';
+import 'package:jamaah/src/features/components/line_icon.dart';
 import 'package:jamaah/src/features/components/travel_switch.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
@@ -16,6 +17,7 @@ import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/settings/settings_page.dart';
+
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_place_source.dart';
 import '../helpers/test_app.dart';
@@ -61,7 +63,13 @@ void main() {
 
   /// Tap a destination by the words under it, the way a user reads the bar.
   Future<void> goTo(WidgetTester tester, String label) async {
-    await tester.tap(find.text(label));
+    final index = [
+      t.tabToday,
+      t.tabMosques,
+      t.tabQibla,
+      t.settingsTitle,
+    ].indexOf(label);
+    await tester.tap(find.byKey(BottomNav.tabKey(index)));
     await tester.pumpAndSettle();
   }
 
@@ -86,14 +94,17 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text(t.tabMosques), findsOneWidget);
-    expect(find.text(t.tabQibla), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byType(BottomNav),
-        matching: find.text(t.settingsTitle),
-      ),
-      findsOneWidget,
+      tester.getSemantics(find.byKey(BottomNav.tabKey(1))).label,
+      t.tabMosques,
+    );
+    expect(
+      tester.getSemantics(find.byKey(BottomNav.tabKey(2))).label,
+      t.tabQibla,
+    );
+    expect(
+      tester.getSemantics(find.byKey(BottomNav.tabKey(3))).label,
+      t.settingsTitle,
     );
     expect(
       find.text(t.todayNeedsPlaceTitle),
@@ -112,6 +123,48 @@ void main() {
 
     await goTo(tester, t.tabToday);
     expect(selectedTab(tester), 0);
+  });
+
+  testApp('the selected destination shows an animated icon and label pill', (
+    tester,
+  ) async {
+    await open(tester);
+    final tab = find.byKey(BottomNav.tabKey(0));
+    final marker = tester.widget<AnimatedContainer>(
+      find.descendant(of: tab, matching: find.byType(AnimatedContainer)),
+    );
+    expect(marker.decoration, isA<BoxDecoration>());
+    expect(
+      (marker.decoration as BoxDecoration).borderRadius,
+      BorderRadius.circular(24),
+    );
+    expect(
+      find.descendant(of: tab, matching: find.text(t.tabToday)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(BottomNav),
+        matching: find.byType(LineIcon),
+      ),
+      findsNWidgets(4),
+      reason: 'all destinations keep an icon while the selected one expands',
+    );
+    expect(
+      tester
+          .widget<LineIcon>(
+            find.descendant(of: tab, matching: find.byType(LineIcon)),
+          )
+          .size,
+      24,
+    );
+    final interaction = tester.widget<InkResponse>(
+      find.descendant(of: tab, matching: find.byType(InkResponse)),
+    );
+    expect(
+      interaction.overlayColor?.resolve({WidgetState.hovered}),
+      Colors.transparent,
+    );
   });
 
   testApp('Mosques starts honestly empty, with the two ways to add one', (
@@ -149,21 +202,22 @@ void main() {
     );
   });
 
-  testApp('the Settings tab opens the hub, every day first, with no back arrow', (
-    tester,
-  ) async {
-    await open(tester);
+  testApp(
+    'the Settings tab opens the hub, every day first, with no back arrow',
+    (tester) async {
+      await open(tester);
 
-    await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsPage), findsOneWidget);
-    expect(find.text(t.settingsGroupEveryDay), findsOneWidget);
-    expect(find.text(t.settingsPrayerTimesSection), findsOneWidget);
-    expect(find.text(t.settingsHubFooter), findsOneWidget);
-    expect(find.byType(BackButton), findsNothing);
-    expect(selectedTab(tester), BottomNav.settingsIndex);
-  });
+      expect(find.byType(SettingsPage), findsOneWidget);
+      expect(find.text(t.settingsGroupEveryDay), findsOneWidget);
+      expect(find.text(t.settingsPrayerTimesSection), findsOneWidget);
+      expect(find.text(t.settingsHubFooter), findsOneWidget);
+      expect(find.byType(BackButton), findsNothing);
+      expect(selectedTab(tester), BottomNav.settingsIndex);
+    },
+  );
 
   testApp('every destination and the airplane are big enough to press', (
     tester,
@@ -190,7 +244,8 @@ void main() {
     expect(
       Theme.of(tester.element(find.byType(BottomNav))).brightness,
       Brightness.dark,
-      reason: 'the device already made this choice; a light answer to a dark phone '
+      reason:
+          'the device already made this choice; a light answer to a dark phone '
           'is exactly the hard-coded convention AGENTS.md rules out',
     );
   });
@@ -241,7 +296,8 @@ void main() {
 
 /// This SDK's `CommonFinders` has no regex finder, so match on the [Text] data.
 Finder textMatchingDegrees() => find.byWidgetPredicate(
-  (widget) => widget is Text && widget.data != null && _degree.hasMatch(widget.data!),
+  (widget) =>
+      widget is Text && widget.data != null && _degree.hasMatch(widget.data!),
 );
 
 final _degree = RegExp(r'\d{1,3}°');

@@ -197,7 +197,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutBody =>
-      'نسخة مبكرة. تُحسب مواقيت الصلاة على هذا الجهاز، وتُدخل أوقات الإقامة بنفسك لكل مسجد.';
+      'تُحسب مواقيت الصلاة على هذا الجهاز. تضبط أوقات الإقامة لكل مسجد، وتبقى محفوظة على هذا الهاتف.';
 
   @override
   String qiblaFrom(String place) {
@@ -491,6 +491,45 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String iqamaEditorTitle(String prayer) {
     return 'إقامة $prayer';
+  }
+
+  @override
+  String get jumuahEditorTitle => 'خطبة الجمعة';
+
+  @override
+  String get jumuahKhutbahTime => 'بداية الخطبة';
+
+  @override
+  String get jumuahChooseKhutbahTime => 'اختر وقت بدء الخطبة';
+
+  @override
+  String get jumuahKhutbahTimeNote => 'حدّد وقت بدء الخطبة في هذا المسجد.';
+
+  @override
+  String get jumuahArrivalLeadTitle => 'دقائق قبل الخطبة';
+
+  @override
+  String get jumuahSaved => 'حُفظ وقت خطبة الجمعة';
+
+  @override
+  String jumuahReminderLead(int minutes) {
+    return 'تذكير قبل الخطبة بـ $minutes دقيقة';
+  }
+
+  @override
+  String get jumuahReminderNeedsTime => 'حدّد وقت الخطبة لتفعيل التذكير.';
+
+  @override
+  String get jumuahReminderCustomEmpty => 'أدخل عدد الدقائق قبل الخطبة.';
+
+  @override
+  String jumuahArriveBy(String time) {
+    return 'احرص على الوصول بحلول $time';
+  }
+
+  @override
+  String jumuahReminderPreview(String khutbah, int minutes, String arrival) {
+    return 'تبدأ الخطبة $khutbah. تذكيرك قبلها بـ $minutes دقيقة، عند $arrival.';
   }
 
   @override
@@ -1007,20 +1046,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get alertReminderNone => 'بدون';
-
-  @override
-  String get alertTryIt => 'إرسال إشعار تجريبي';
-
-  @override
-  String get alertTrySent => 'أُرسل. تحقّق من إشعاراتك.';
-
-  @override
-  String notifTestTitle(String prayer) {
-    return '$prayer · تجربة';
-  }
-
-  @override
-  String get notifTestBody => 'هكذا سيبدو صوت هذا التنبيه.';
 
   @override
   String get adhanStop => 'إيقاف';
@@ -1881,22 +1906,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reminderSoundChime => 'نغمة';
 
   @override
-  String get soundHayya => 'حيّ على الصلاة';
-
-  @override
-  String get reminderSoundHayyaHint => 'نداء الصلاة من الأذان، نحو 10 ثوانٍ.';
+  String get shortAdhanClipHint => 'استمع إلى مقطع الأذان القصير هذا.';
 
   @override
   String get settingsShortAdhan => 'الأذان القصير';
-
-  @override
-  String get shortAdhanNaghshbandi => 'النقشبندي، المطلع';
-
-  @override
-  String get shortAdhanNaghshbandiHint => 'أول 8 ثوانٍ من أذان النقشبندي.';
-
-  @override
-  String get shortAdhanHayyaHint => '«حيّ على الصلاة» من الأذان، 10 ثوانٍ.';
 
   @override
   String get settingsReminderSound => 'صوت التذكير';
@@ -1913,12 +1926,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsReminderVibrate => 'اهتزاز';
-
-  @override
-  String get settingsReminderTest => 'إرسال تذكير تجريبي';
-
-  @override
-  String get settingsReminderTestSent => 'أُرسل التذكير التجريبي.';
 
   @override
   String get settingsPauseAllIqama => 'إيقاف جميع تذكيرات الجماعة مؤقتًا';
@@ -2169,6 +2176,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get soundCouldNotAdd => 'تعذّرت إضافة هذا الملف.';
 
   @override
+  String get recordingPreviewFailed => 'تعذّر تشغيل هذا التسجيل.';
+
+  @override
   String soundOptions(String name) {
     return 'خيارات $name';
   }
@@ -2265,6 +2275,27 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String ticketKicker(String mosque) {
     return 'الإقامة · $mosque';
+  }
+
+  @override
+  String jumuahTicketKicker(String mosque) {
+    return 'الخطبة · $mosque';
+  }
+
+  @override
+  String jumuahTicketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  ) {
+    return 'الخطبة في $mosque: $time، $relative. $rule. $reminder.';
+  }
+
+  @override
+  String jumuahTicketUnsetSemantics(String mosque) {
+    return 'الخطبة في $mosque: غير محدّدة. حدّد الوقت';
   }
 
   @override
@@ -2742,6 +2773,65 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get helpAbout => 'عن التطبيق';
+
+  @override
+  String get diagnosticsTitle => 'التشخيص';
+
+  @override
+  String get diagnosticsLead =>
+      'ساعدنا على فهم مشكلات التنبيهات على هذا الهاتف.';
+
+  @override
+  String get diagnosticsPrivacy =>
+      'يبقى سجل صغير للأحداث على هذا الهاتف. يتضمن التقرير إصدار التطبيق وأندرويد وحالة إذن التنبيهات ونتائج الجدولة الأخيرة. ولا يتضمن موقعك أو المسجد أو أوقات الصلاة أو نصوص التنبيهات أو هويتك.';
+
+  @override
+  String get diagnosticsSentry => 'إرسال تقارير الأخطاء إلى Sentry';
+
+  @override
+  String get diagnosticsSentryHint =>
+      'عند التفعيل، تُرسل أخطاء التطبيق تلقائيًا لمساعدتنا على معرفة سبب الأعطال.';
+
+  @override
+  String get diagnosticsSentryUnavailable =>
+      'تقارير الأخطاء غير مهيأة في هذا الإصدار.';
+
+  @override
+  String get diagnosticsHistory => 'نشاط التنبيهات الأخير';
+
+  @override
+  String get diagnosticsEmpty => 'لا توجد أحداث تشخيصية بعد.';
+
+  @override
+  String get diagnosticsSend => 'إعداد تقرير تشخيصي';
+
+  @override
+  String get diagnosticsSending => 'جارٍ الإعداد…';
+
+  @override
+  String get diagnosticsConfirmTitle => 'مشاركة التقرير التشخيصي؟';
+
+  @override
+  String get diagnosticsConfirmBody =>
+      'يتضمن التقرير إصداري التطبيق وأندرويد وأحداث جدولة التنبيهات والأذونات الأخيرة. ولا يتضمن الموقع أو المسجد أو أوقات الصلاة أو نص التنبيهات أو هوية الحساب. تابع فقط إذا كنت توافق على مشاركة هذه المعلومات.';
+
+  @override
+  String get diagnosticsUpload => 'إرسال إلى Sentry';
+
+  @override
+  String get diagnosticsShare => 'فتح قائمة المشاركة';
+
+  @override
+  String get diagnosticsReportTitle => 'تقرير تشخيص تطبيق جماعة';
+
+  @override
+  String get diagnosticsUploaded => 'أُرسل التقرير التشخيصي.';
+
+  @override
+  String get diagnosticsShareOpened => 'اختر تطبيقًا لمشاركة التقرير.';
+
+  @override
+  String get diagnosticsSendFailed => 'تعذر إعداد التقرير أو إرساله.';
 
   @override
   String get methodListLead => 'زوايا كل طريقة، وأين تُستعمل.';

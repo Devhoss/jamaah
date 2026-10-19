@@ -197,15 +197,13 @@ void main() {
       expect(find.text(t.jumuahRowHint), findsOneWidget);
     });
 
-    testApp("setting the Jumu'ah time starts at Dhuhr's Adhan", (tester) async {
+    testApp("setting the Jumu'ah Khutbah time", (tester) async {
       final m = await activeMosque();
       await openMosque(tester);
       pickerAnswer = const LocalTime(12 * 60 + 10);
       await tapText(tester, t.jumuahRowHint);
       expect(find.byType(IqamaEditorSheet), findsOneWidget);
-      expect(find.text(t.iqamaEditorTitle(t.prayerJumuah)), findsOneWidget);
-      await tester.tap(find.text(t.iqamaModeFixed).last);
-      await tester.pumpAndSettle();
+      expect(find.text(t.jumuahEditorTitle), findsOneWidget);
       await tester.tap(
         find.descendant(
           of: find.byType(IqamaEditorSheet),
@@ -213,7 +211,14 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(pickerOpenedAt, isNotNull, reason: "Dhuhr's Adhan, to start");
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(IqamaEditorSheet)),
+      );
+      expect(
+        pickerOpenedAt,
+        LocalTime(container.read(todayProvider)!.day.timeOf(Prayer.dhuhr)!),
+        reason: 'a new Khutbah starts from Dhuhr Adhan as a picker hint',
+      );
       await tapText(tester, t.save);
       final saved = (await mosques.byId(m.id))!.schedules.single;
       expect(saved.jumuah.iqama, const LocalTime(12 * 60 + 10));
@@ -224,7 +229,9 @@ void main() {
       );
     });
 
-    testApp("its reminder switch is Jumu'ah's own", (tester) async {
+    testApp("Jumu'ah has a lead time and no Jama'ah reminder switch", (
+      tester,
+    ) async {
       final m = await activeMosque(jumuah: const LocalTime(12 * 60 + 15));
       await openMosque(tester);
       await tester.scrollUntilVisible(
@@ -232,15 +239,13 @@ void main() {
         200,
         scrollable: find.byType(Scrollable).last,
       );
+      expect(find.text(t.jumuahReminderLead(10)), findsOneWidget);
       final toggle = find.byWidgetPredicate(
         (w) =>
             w is AppSwitch &&
             w.semanticLabel == t.reminderSwitchLabel(t.prayerJumuah),
       );
-      await tester.ensureVisible(toggle);
-      await tester.pumpAndSettle();
-      await tester.tap(toggle);
-      await tester.pumpAndSettle();
+      expect(toggle, findsNothing);
       final saved = (await mosques.byId(m.id))!.schedules.single;
       expect(saved.jumuah.hasReminder, isTrue);
       expect(saved.iqamaFor(Prayer.dhuhr).hasReminder, isTrue);

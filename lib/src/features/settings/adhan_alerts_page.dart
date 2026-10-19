@@ -79,7 +79,7 @@ class AdhanAlertsPage extends ConsumerWidget {
         ),
         SettingsLinkRow(
           title: l10n.settingsShortAdhan,
-          value: shortAdhanName(l10n, alerts.shortAdhan),
+          value: shortAdhanName(alerts.shortAdhan),
           onTap: () => _chooseShortAdhan(context, ref, alerts),
           divider: false,
         ),
@@ -118,18 +118,13 @@ class AdhanAlertsPage extends ConsumerWidget {
       current: alerts.shortAdhan,
       preview: preview,
       choices: [
-        SoundChoice(
-          value: ShortAdhan.naghshbandi,
-          title: l10n.shortAdhanNaghshbandi,
-          hint: l10n.shortAdhanNaghshbandiHint,
-          asset: ShortAdhan.naghshbandi.asset,
-        ),
-        SoundChoice(
-          value: ShortAdhan.hayya,
-          title: l10n.soundHayya,
-          hint: l10n.shortAdhanHayyaHint,
-          asset: ShortAdhan.hayya.asset,
-        ),
+        for (final clip in ShortAdhan.values)
+          SoundChoice(
+            value: clip,
+            title: clip.label,
+            hint: l10n.shortAdhanClipHint,
+            asset: clip.asset,
+          ),
       ],
     );
     unawaited(preview.stop());

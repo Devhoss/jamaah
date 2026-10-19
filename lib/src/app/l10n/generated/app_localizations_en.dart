@@ -179,7 +179,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutBody =>
-      'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.';
+      'Prayer times are calculated on this device. You set Iqama times for each mosque, and they stay on this phone.';
 
   @override
   String qiblaFrom(String place) {
@@ -473,6 +473,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String iqamaEditorTitle(String prayer) {
     return '$prayer Iqama';
+  }
+
+  @override
+  String get jumuahEditorTitle => 'Jumu’ah Khutbah';
+
+  @override
+  String get jumuahKhutbahTime => 'Khutbah starts';
+
+  @override
+  String get jumuahChooseKhutbahTime => 'Choose Khutbah start time';
+
+  @override
+  String get jumuahKhutbahTimeNote =>
+      'Set the time the Khutbah begins at this mosque.';
+
+  @override
+  String get jumuahArrivalLeadTitle => 'Minutes before Khutbah';
+
+  @override
+  String get jumuahSaved => 'Jumu’ah Khutbah saved';
+
+  @override
+  String jumuahReminderLead(int minutes) {
+    return 'Reminder $minutes min before Khutbah';
+  }
+
+  @override
+  String get jumuahReminderNeedsTime =>
+      'Set a Khutbah time to enable the reminder.';
+
+  @override
+  String get jumuahReminderCustomEmpty =>
+      'Enter how many minutes before the Khutbah.';
+
+  @override
+  String jumuahArriveBy(String time) {
+    return 'Arrive by $time';
+  }
+
+  @override
+  String jumuahReminderPreview(String khutbah, int minutes, String arrival) {
+    return 'Khutbah starts at $khutbah. Your $minutes min reminder is at $arrival.';
   }
 
   @override
@@ -927,20 +969,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertReminderNone => 'None';
-
-  @override
-  String get alertTryIt => 'Send a test notification';
-
-  @override
-  String get alertTrySent => 'Sent. Check your notifications.';
-
-  @override
-  String notifTestTitle(String prayer) {
-    return '$prayer · test';
-  }
-
-  @override
-  String get notifTestBody => 'This is how this alert will sound.';
 
   @override
   String get adhanStop => 'Stop';
@@ -1762,25 +1790,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderSoundChime => 'Chime';
 
   @override
-  String get soundHayya => 'حيّ على الصلاة';
-
-  @override
-  String get reminderSoundHayyaHint =>
-      'The call to prayer from the Adhan, about 10 seconds.';
+  String get shortAdhanClipHint =>
+      'Preview this supplied short Adhan recording.';
 
   @override
   String get settingsShortAdhan => 'Short Adhan';
-
-  @override
-  String get shortAdhanNaghshbandi => 'Naghshbandi, opening';
-
-  @override
-  String get shortAdhanNaghshbandiHint =>
-      'The first 8 seconds of Naghshbandi\'s Adhan.';
-
-  @override
-  String get shortAdhanHayyaHint =>
-      '«حيّ على الصلاة» from the Adhan, 10 seconds.';
 
   @override
   String get settingsReminderSound => 'Reminder sound';
@@ -1799,12 +1813,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsReminderVibrate => 'Vibrate';
-
-  @override
-  String get settingsReminderTest => 'Send a test reminder';
-
-  @override
-  String get settingsReminderTestSent => 'Test reminder sent.';
 
   @override
   String get settingsPauseAllIqama => 'Pause all Jama’ah reminders';
@@ -2010,6 +2018,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundCouldNotAdd => 'That file could not be added.';
 
   @override
+  String get recordingPreviewFailed => 'This recording could not be played.';
+
+  @override
   String soundOptions(String name) {
     return 'Options for $name';
   }
@@ -2103,6 +2114,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String ticketKicker(String mosque) {
     return 'Iqama · $mosque';
+  }
+
+  @override
+  String jumuahTicketKicker(String mosque) {
+    return 'Khutbah · $mosque';
+  }
+
+  @override
+  String jumuahTicketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  ) {
+    return 'Khutbah at $mosque: $time, $relative. $rule. $reminder.';
+  }
+
+  @override
+  String jumuahTicketUnsetSemantics(String mosque) {
+    return 'Khutbah at $mosque: not configured. Set time';
   }
 
   @override
@@ -2574,6 +2606,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpAbout => 'About';
+
+  @override
+  String get diagnosticsTitle => 'Diagnostics';
+
+  @override
+  String get diagnosticsLead =>
+      'Help us understand notification problems on this phone.';
+
+  @override
+  String get diagnosticsPrivacy =>
+      'A small event history stays on this phone. Reports include app build, Android version, notification permission status, and recent scheduling outcomes. They exclude your place, mosque, prayer times, notification text, and identity.';
+
+  @override
+  String get diagnosticsSentry => 'Send error reports to Sentry';
+
+  @override
+  String get diagnosticsSentryHint =>
+      'When enabled, app errors are sent automatically so we can investigate crashes.';
+
+  @override
+  String get diagnosticsSentryUnavailable =>
+      'Error reporting is not configured in this build.';
+
+  @override
+  String get diagnosticsHistory => 'Recent notification activity';
+
+  @override
+  String get diagnosticsEmpty => 'No diagnostic events yet.';
+
+  @override
+  String get diagnosticsSend => 'Prepare a diagnostic report';
+
+  @override
+  String get diagnosticsSending => 'Preparing…';
+
+  @override
+  String get diagnosticsConfirmTitle => 'Share diagnostic report?';
+
+  @override
+  String get diagnosticsConfirmBody =>
+      'The report contains app and Android versions plus recent notification scheduling and permission events. It contains no place, mosque, prayer times, notification text, or account identity. Continue only if you are comfortable sharing this information.';
+
+  @override
+  String get diagnosticsUpload => 'Send to Sentry';
+
+  @override
+  String get diagnosticsShare => 'Open share sheet';
+
+  @override
+  String get diagnosticsReportTitle => 'Jama’ah diagnostic report';
+
+  @override
+  String get diagnosticsUploaded => 'Diagnostic report sent.';
+
+  @override
+  String get diagnosticsShareOpened => 'Choose an app to share the report.';
+
+  @override
+  String get diagnosticsSendFailed => 'Could not prepare or send the report.';
 
   @override
   String get methodListLead => 'Each method\'s angles, and where it is used.';

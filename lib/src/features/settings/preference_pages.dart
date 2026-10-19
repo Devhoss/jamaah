@@ -14,6 +14,7 @@ import '../components/travel_switch.dart';
 import '../flight/in_flight_page.dart';
 import '../onboarding/onboarding_page.dart';
 import 'scheduled_notifications_page.dart';
+import 'diagnostics_page.dart';
 import 'settings_kit.dart';
 import 'settings_page.dart';
 
@@ -200,6 +201,10 @@ class HelpAboutPage extends StatelessWidget {
         SettingsLinkRow(
           title: l10n.helpLateAlerts,
           onTap: () => pushSettingsPage(context, const LateAlertsPage()),
+        ),
+        SettingsLinkRow(
+          title: l10n.diagnosticsTitle,
+          onTap: () => pushSettingsPage(context, const DiagnosticsPage()),
         ),
         SettingsLinkRow(
           title: l10n.scheduledTitle,

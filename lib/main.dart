@@ -5,14 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/app/app.dart';
+import 'src/app/diagnostics.dart';
 import 'src/app/notification_scheduler.dart';
 import 'src/domain/zone_offsets.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Prayer times are local wall-clock times, so the IANA database has to be loaded
   // before anything asks for an offset.
   loadTimeZoneDatabase();
+  await Diagnostics.initialize();
   runApp(const ProviderScope(child: JamaahApp()));
 }
 
@@ -23,6 +25,7 @@ Future<void> backgroundRefresh() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   loadTimeZoneDatabase();
+  await Diagnostics.initialize(enableSentry: false);
   final container = ProviderContainer();
   try {
     await refreshNotifications(container);

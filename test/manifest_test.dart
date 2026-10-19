@@ -133,14 +133,13 @@ void main() {
 
   test('the sounds and icon the code names exist, and are kept in release', () {
     for (final path in [
-      'android/app/src/main/res/raw/adhan_short.ogg',
       'android/app/src/main/res/raw/reminder_chime.wav',
-      'android/app/src/main/res/raw/adhan_short_hayya.ogg',
-      kHayyaAsset,
       'assets/audio/chime/reminder_chime.wav',
       'android/app/src/main/res/drawable/ic_stat_jamaah.xml',
-      kShortAdhanAsset,
       for (final r in adhanRecordings) r.asset,
+      for (final clip in ShortAdhan.values) clip.asset,
+      for (final clip in ShortAdhan.values)
+        'android/app/src/main/res/raw/${clip.raw}.mp3',
     ]) {
       expect(File(path).existsSync(), isTrue, reason: path);
     }
@@ -148,6 +147,7 @@ void main() {
       File('android/app/src/main/res/raw/keep.xml').readAsStringSync(),
       allOf(
         contains('@raw/adhan_*'),
+        contains('@raw/azan_*'),
         contains('@raw/reminder_*'),
         contains('@drawable/ic_stat_jamaah'),
       ),
@@ -156,29 +156,24 @@ void main() {
     expect(
       File('pubspec.yaml').readAsStringSync(),
       allOf(
-        contains(RegExp(r'- assets/audio/\s')),
-        contains('- assets/audio/short/'),
+        contains('- audio/full/'),
+        contains('- audio/fajr/'),
+        contains('- audio/short/'),
       ),
     );
     for (final clip in ShortAdhan.values) {
       final bytes = File(clip.asset).readAsBytesSync();
       expect(
-        File('android/app/src/main/res/raw/${clip.raw}.ogg').readAsBytesSync(),
+        File('android/app/src/main/res/raw/${clip.raw}.mp3').readAsBytesSync(),
         bytes,
         reason: 'the preview plays exactly what the notification plays',
       );
-      // An MP3's cover art, carried over by ffmpeg, becomes a Theora video
-      // track that Android's players refuse to read (cut with -vn).
-      expect(
-        String.fromCharCodes(bytes).contains('theora'),
-        isFalse,
-        reason: '${clip.asset} must be audio only',
-      );
     }
     expect(
-      Directory('assets/audio').listSync().whereType<File>().where(
-        (f) => !f.path.endsWith('.mp3') || f.path.contains('حي'),
-      ),
+      Directory('assets/audio')
+          .listSync()
+          .whereType<File>()
+          .where((f) => !f.path.endsWith('.mp3') || f.path.contains('حي')),
       isEmpty,
       reason: 'source files stay out of the bundled assets',
     );
@@ -204,9 +199,8 @@ void main() {
       expect(text, contains('android:name=".AdhanBootReceiver"'));
       // The full recording is read from the Flutter assets in place.
       expect(
-        File(
-          'android/app/src/main/kotlin/dev/jamaah/app/AdhanService.kt',
-        ).readAsStringSync(),
+        File('android/app/src/main/kotlin/dev/jamaah/app/AdhanService.kt')
+            .readAsStringSync(),
         contains('flutter_assets/'),
       );
     },

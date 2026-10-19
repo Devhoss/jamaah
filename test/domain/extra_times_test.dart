@@ -173,11 +173,11 @@ void main() {
     expect(clampDuhaMinutes(99), 30);
   });
 
-  test('defaults: Imsak 10 shown, Duha 15, no alerts', () {
+  test('defaults: Imsak hidden, Duha 15, no alerts', () {
     const d = ExtraTimesSettings();
     expect(d.imsakMinutes, 10);
     expect(d.duhaMinutes, 15);
-    expect(d.shown, {ExtraTime.imsak});
+    expect(d.shown, isEmpty);
     expect(d.alerts, isEmpty);
   });
 }

@@ -23,9 +23,9 @@ void main() {
 
   group('which recording plays', () {
     test('a bundled one by its asset', () {
-      final r = resolveRecording('makkah', const []);
-      expect(r.source, adhanRecordingById('makkah').asset);
-      expect(r.name, 'Makkah');
+      final r = resolveRecording('ahmed_el_haddad', const []);
+      expect(r.source, adhanRecordingById('ahmed_el_haddad').asset);
+      expect(r.name, 'Ahmed El Haddad');
       expect(r.fallback, isFalse);
     });
 
@@ -45,14 +45,14 @@ void main() {
     test('a prayer can have its own, else the one in Settings', () {
       final alerts =
           const AdhanAlertSettings(
-            fullRecording: 'makkah',
+            fullRecording: 'ahmed_el_haddad',
             customRecordings: [fajrAdhan],
           ).withAlert(
             Prayer.fajr,
             AdhanAlert(enabled: true, recording: fajrAdhan.id),
           );
       expect(alerts.recordingFor(Prayer.fajr), fajrAdhan.id);
-      expect(alerts.recordingFor(Prayer.dhuhr), 'makkah');
+      expect(alerts.recordingFor(Prayer.dhuhr), 'ahmed_el_haddad');
       expect(alerts.recordingSourceFor(Prayer.fajr).source, fajrAdhan.path);
     });
 

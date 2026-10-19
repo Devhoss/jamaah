@@ -18,7 +18,12 @@ val brandingApplicationId = brandingProps.getProperty("applicationId", "dev.jama
 android {
     namespace = brandingApplicationId
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // MACHINE WORKAROUND — keep this uncommitted (it never belongs in history).
+    // Pinned to the NDK that is actually installed on the development machine.
+    // flutter.ndkVersion (28.2.13676358) resolves to a broken stub here, and
+    // AGP's automatic download path needs a drive with free space. This app has
+    // no native C++ code, so any recent NDK is acceptable.
+    ndkVersion = "27.1.12297006"
 
     compileOptions {
         // flutter_local_notifications uses java.time APIs below API 26, which

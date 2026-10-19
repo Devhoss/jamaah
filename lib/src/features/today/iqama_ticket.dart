@@ -19,6 +19,7 @@ final class TicketSet extends TicketContent {
     required this.rule,
     required this.reminder,
     required this.reminderOn,
+    this.isJumuah = false,
     this.note,
   });
 
@@ -37,6 +38,9 @@ final class TicketSet extends TicketContent {
   final String reminder;
   final bool reminderOn;
 
+  /// This ticket is a Friday Khutbah time and arrival reminder.
+  final bool isJumuah;
+
   /// Fridays with no Jumu'ah time: "Jumu’ah time not set · Dhuhr Iqama 11:45".
   final String? note;
 }
@@ -44,10 +48,15 @@ final class TicketSet extends TicketContent {
 /// The mosque has no Iqama for this prayer: a dashed outline and "Set time".
 /// Calm, never error-coloured. The app never fills one in (AGENTS.md).
 final class TicketNotConfigured extends TicketContent {
-  const TicketNotConfigured({required this.mosque, required this.onSet});
+  const TicketNotConfigured({
+    required this.mosque,
+    required this.onSet,
+    this.isJumuah = false,
+  });
 
   final String mosque;
   final VoidCallback onSet;
+  final bool isJumuah;
 }
 
 /// Sunrise is not a prayer: it has no Iqama.
@@ -84,13 +93,21 @@ class IqamaTicket extends StatelessWidget {
         final soft = palette.deepSoft;
         return Semantics(
           container: true,
-          label: l10n.ticketSemantics(
-            set.mosque,
-            set.time,
-            set.relative,
-            set.rule,
-            set.reminder,
-          ),
+          label: set.isJumuah
+              ? l10n.jumuahTicketSemantics(
+                  set.mosque,
+                  set.time,
+                  set.relative,
+                  set.rule,
+                  set.reminder,
+                )
+              : l10n.ticketSemantics(
+                  set.mosque,
+                  set.time,
+                  set.relative,
+                  set.rule,
+                  set.reminder,
+                ),
           excludeSemantics: true,
           child: Container(
             constraints: const BoxConstraints(minHeight: minHeight),
@@ -139,7 +156,13 @@ class IqamaTicket extends StatelessWidget {
                 }
 
                 final kickerWidth = widthOf(
-                  _kickerSpan(context, l10n, set.mosque, kickerStyle),
+                  _kickerSpan(
+                    context,
+                    l10n,
+                    set.mosque,
+                    kickerStyle,
+                    isJumuah: set.isJumuah,
+                  ),
                 );
                 final reminderWidth =
                     widthOf(
@@ -153,7 +176,13 @@ class IqamaTicket extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _kicker(context, l10n, set.mosque, kickerStyle),
+                    _kicker(
+                      context,
+                      l10n,
+                      set.mosque,
+                      kickerStyle,
+                      isJumuah: set.isJumuah,
+                    ),
                     Text.rich(
                       TextSpan(
                         children: [
@@ -203,7 +232,9 @@ class IqamaTicket extends StatelessWidget {
       case final TicketNotConfigured unset:
         return Semantics(
           button: true,
-          label: l10n.ticketUnsetSemantics(unset.mosque),
+          label: unset.isJumuah
+              ? l10n.jumuahTicketUnsetSemantics(unset.mosque)
+              : l10n.ticketUnsetSemantics(unset.mosque),
           excludeSemantics: true,
           child: InkWell(
             onTap: unset.onSet,
@@ -228,6 +259,7 @@ class IqamaTicket extends StatelessWidget {
                             l10n,
                             unset.mosque,
                             type.kicker.copyWith(color: palette.mute),
+                            isJumuah: unset.isJumuah,
                           ),
                           Text(
                             l10n.notConfigured,
@@ -329,9 +361,10 @@ class IqamaTicket extends StatelessWidget {
     BuildContext context,
     AppLocalizations l10n,
     String mosque,
-    TextStyle style,
-  ) => Text.rich(
-    _kickerSpan(context, l10n, mosque, style),
+    TextStyle style, {
+    bool isJumuah = false,
+  }) => Text.rich(
+    _kickerSpan(context, l10n, mosque, style, isJumuah: isJumuah),
     maxLines: 2,
     overflow: TextOverflow.ellipsis,
   );
@@ -340,11 +373,14 @@ class IqamaTicket extends StatelessWidget {
     BuildContext context,
     AppLocalizations l10n,
     String mosque,
-    TextStyle style,
-  ) {
+    TextStyle style, {
+    bool isJumuah = false,
+  }) {
     const mark = '\u0000';
     final arabic = Localizations.localeOf(context).languageCode == 'ar';
-    final template = l10n.ticketKicker(mark);
+    final template = isJumuah
+        ? l10n.jumuahTicketKicker(mark)
+        : l10n.ticketKicker(mark);
     final parts = (arabic ? template : template.toUpperCase()).split(mark);
     return TextSpan(
       style: style,

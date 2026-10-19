@@ -31,8 +31,8 @@ void main() {
         mode: channelFor(adhan(mode: mode)),
     };
     expect(channels.values.map((c) => c.id).toSet(), hasLength(4));
-    expect(channels[AdhanSoundMode.full]!.sound, ChannelSound.adhanShort);
-    expect(channels[AdhanSoundMode.short]!.sound, ChannelSound.adhanShort);
+    expect(channels[AdhanSoundMode.full]!.sound, ChannelSound.azanShort);
+    expect(channels[AdhanSoundMode.short]!.sound, ChannelSound.azanShort);
     expect(
       channels[AdhanSoundMode.standard]!.sound,
       ChannelSound.platformDefault,
@@ -107,7 +107,7 @@ void main() {
     expect({pre.id, iqama.id, channelFor(adhan()).id}, hasLength(3));
   });
 
-  test('the short Adhan clip is part of the Adhan channel', () {
+  test('every supplied short Adhan clip has its own channel sound', () {
     PlannedNotification short(ShortAdhan clip, AdhanSoundMode mode) =>
         PlannedNotification(
           id: 1,
@@ -118,32 +118,49 @@ void main() {
           mosqueId: '',
           shortAdhan: clip,
         );
-    final naghshbandi = channelFor(
-      short(ShortAdhan.naghshbandi, AdhanSoundMode.short),
-    );
-    final hayya = channelFor(short(ShortAdhan.hayya, AdhanSoundMode.short));
-    expect(naghshbandi.sound, ChannelSound.adhanShort);
+    final channels = [
+      for (final clip in ShortAdhan.values)
+        channelFor(short(clip, AdhanSoundMode.short)),
+    ];
     expect(
-      naghshbandi.id,
-      channelFor(adhan()).id,
-      reason: 'the Naghshbandi channels keep the ids they had before',
-    );
-    expect(hayya.sound, ChannelSound.hayya);
-    expect(hayya.id, endsWith('_hayya_h$kHayyaVersion'));
-    expect(
-      channelFor(short(ShortAdhan.hayya, AdhanSoundMode.full)).sound,
-      ChannelSound.hayya,
-      reason: 'a full Adhan notification sounds the chosen short clip',
+      channels.map((c) => c.sound).toSet(),
+      hasLength(ShortAdhan.values.length),
     );
     expect(
-      channelFor(short(ShortAdhan.hayya, AdhanSoundMode.standard)).sound,
+      channels.map((c) => c.id).toSet(),
+      hasLength(ShortAdhan.values.length),
+    );
+    expect(channels.first.id, channelFor(adhan()).id);
+    for (final channel in channels) {
+      expect(channel.id, contains('_t$kAdhanToneVersion'));
+    }
+    expect(
+      channelFor(short(ShortAdhan.adhanVerseOne, AdhanSoundMode.full)).sound,
+      ChannelSound.adhanVerseOne,
+      reason: 'a full Adhan notification sounds the selected short clip',
+    );
+    expect(
+      channelFor(short(ShortAdhan.adhanVerseOne, AdhanSoundMode.standard))
+          .sound,
       ChannelSound.platformDefault,
     );
   });
 
   test('every sound file a channel names is a different raw resource', () {
-    expect(rawSoundFor(ChannelSound.adhanShort), 'adhan_short');
-    expect(rawSoundFor(ChannelSound.hayya), 'adhan_short_hayya');
+    expect(
+      ShortAdhan.values
+          .map(
+            (clip) => rawSoundFor(switch (clip) {
+              ShortAdhan.azanShort => ChannelSound.azanShort,
+              ShortAdhan.azanAllahAkbar => ChannelSound.azanAllahAkbar,
+              ShortAdhan.azanShortOne => ChannelSound.azanShortOne,
+              ShortAdhan.adhanVerseOne => ChannelSound.adhanVerseOne,
+              ShortAdhan.adhanVerseTwo => ChannelSound.adhanVerseTwo,
+            }),
+          )
+          .toSet(),
+      ShortAdhan.values.map((clip) => clip.raw).toSet(),
+    );
     expect(rawSoundFor(ChannelSound.chime), 'reminder_chime');
     expect(rawSoundFor(ChannelSound.none), isNull);
     expect(rawSoundFor(ChannelSound.platformDefault), isNull);
@@ -164,7 +181,6 @@ void main() {
       ),
     );
     expect(iqama(ReminderSound.standard).sound, ChannelSound.platformDefault);
-    expect(iqama(ReminderSound.hayya).sound, ChannelSound.hayya);
     expect(iqama(ReminderSound.silent).sound, ChannelSound.none);
     expect(iqama(ReminderSound.silent, vibrate: false).vibrate, isFalse);
     expect(
@@ -174,7 +190,8 @@ void main() {
           iqama(s, vibrate: false).id,
         ],
       },
-      hasLength(8),
+      hasLength(6),
+      reason: 'custom sounds use the chime channel as fallback',
     );
     expect(
       iqama(ReminderSound.chime).id,
@@ -304,14 +321,10 @@ void main() {
 
     test('the app is told which sound to play', () {
       expect(inAppSound(reminder()), (sound: 'raw', raw: 'reminder_chime'));
-      expect(
-        inAppSound(reminder(sound: ReminderSound.hayya)),
-        (sound: 'raw', raw: ShortAdhan.hayya.raw),
-      );
-      expect(
-        inAppSound(reminder(sound: ReminderSound.standard)),
-        (sound: 'standard', raw: ''),
-      );
+      expect(inAppSound(reminder(sound: ReminderSound.standard)), (
+        sound: 'standard',
+        raw: '',
+      ));
       final full = PlannedNotification(
         id: 1,
         kind: NotificationKind.adhan,

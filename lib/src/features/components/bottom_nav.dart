@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/horizon_tokens.dart';
+import 'line_icon.dart';
 
 /// The colours the bar is drawn in: sky ink on Today, surface tokens elsewhere.
 @immutable
@@ -10,6 +11,7 @@ class BottomNavColors {
     required this.muted,
     required this.line,
     required this.background,
+    this.selectedBackground,
     this.backdrop,
   });
 
@@ -19,12 +21,14 @@ class BottomNavColors {
     muted: s.onSurfaceMuted,
     line: s.divider,
     background: s.surface,
+    selectedBackground: s.well,
   );
 
   final Color ink;
   final Color muted;
   final Color line;
   final Color background;
+  final Color? selectedBackground;
 
   /// On the sky: the sky's own colours sampled right behind the bar, at the
   /// top of its fade, at its line and at the bottom. The bar draws them back
@@ -93,10 +97,12 @@ class BottomNav extends StatelessWidget {
               children: [
                 for (var i = 0; i < labels.length; i++)
                   Expanded(
+                    flex: i == current ? 6 : 4,
                     child: _Tab(
                       key: tabKey(i),
                       label: labels[i],
                       selected: i == current,
+                      icon: _tabIcons[i],
                       colors: c,
                       style: type.meta,
                       onTap: () => onSelect(i),
@@ -138,10 +144,18 @@ class BottomNav extends StatelessWidget {
   static const fadeHeight = 24.0;
 }
 
+const _tabIcons = <LineIconData>[
+  LineIcons.home,
+  LineIcons.mosque,
+  LineIcons.qibla,
+  LineIcons.settings,
+];
+
 class _Tab extends StatelessWidget {
   const _Tab({
     required this.label,
     required this.selected,
+    required this.icon,
     required this.colors,
     required this.style,
     required this.onTap,
@@ -150,6 +164,7 @@ class _Tab extends StatelessWidget {
 
   final String label;
   final bool selected;
+  final LineIconData icon;
   final BottomNavColors colors;
   final TextStyle style;
   final VoidCallback onTap;
@@ -157,6 +172,7 @@ class _Tab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      label: label,
       button: true,
       selected: selected,
       container: true,
@@ -164,34 +180,54 @@ class _Tab extends StatelessWidget {
         onTap: onTap,
         containedInkWell: true,
         highlightShape: BoxShape.rectangle,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 56),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: style.copyWith(
-                    color: selected ? colors.ink : colors.muted,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                ExcludeSemantics(
-                  child: Container(
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: selected ? colors.ink : Colors.transparent,
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+        child: SizedBox(
+          height: 48,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 240),
+              curve: Curves.easeInOutCubic,
+              constraints: BoxConstraints(
+                minWidth: selected ? 92 : 44,
+                minHeight: 40,
+                maxWidth: double.infinity,
+              ),
+              padding: EdgeInsets.symmetric(horizontal: selected ? 14 : 12),
+              decoration: BoxDecoration(
+                color: selected
+                    ? (colors.selectedBackground ??
+                          colors.ink.withValues(alpha: 0.14))
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ExcludeSemantics(
+                    child: LineIcon(
+                      icon,
+                      size: 24,
+                      color: selected ? colors.ink : colors.muted,
                     ),
                   ),
-                ),
-              ],
+                  if (selected) ...[
+                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: style.copyWith(
+                          color: colors.ink,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),

@@ -35,7 +35,8 @@ void main() {
       expect(
         snapshot.themeMode,
         AppThemeMode.system,
-        reason: 'a fresh install has no pick of its own, so the device decides. A '
+        reason:
+            'a fresh install has no pick of its own, so the device decides. A '
             'default of light here would overrule the phone the day Settings is wired.',
       );
       expect(snapshot.minuteOffsets, isEmpty);
@@ -71,21 +72,25 @@ void main() {
         minuteOffsets: {Prayer.fajr: 2, Prayer.isha: -3, Prayer.asr: 0},
       );
 
-      expect(
-        (await settings.read()).minuteOffsets,
-        {Prayer.fajr: 2, Prayer.isha: -3},
-      );
+      expect((await settings.read()).minuteOffsets, {
+        Prayer.fajr: 2,
+        Prayer.isha: -3,
+      });
     });
 
-    test('replacing the offsets map drops the prayers it no longer lists',
-        () async {
-      await settings.setPrayerTimesPreferences(
-        minuteOffsets: {Prayer.fajr: 5, Prayer.dhuhr: 1},
-      );
-      await settings.setPrayerTimesPreferences(minuteOffsets: {Prayer.fajr: 5});
+    test(
+      'replacing the offsets map drops the prayers it no longer lists',
+      () async {
+        await settings.setPrayerTimesPreferences(
+          minuteOffsets: {Prayer.fajr: 5, Prayer.dhuhr: 1},
+        );
+        await settings.setPrayerTimesPreferences(
+          minuteOffsets: {Prayer.fajr: 5},
+        );
 
-      expect((await settings.read()).minuteOffsets, {Prayer.fajr: 5});
-    });
+        expect((await settings.read()).minuteOffsets, {Prayer.fajr: 5});
+      },
+    );
 
     test('an unreadable stored value falls back to the default', () async {
       // A value written by a future version, or hand-edited storage, must not
@@ -279,27 +284,30 @@ void main() {
       );
     });
 
-    test('a name the user gives is stored, and the device stays the source', () async {
-      await settings.setLocation(
-        const StoredLocation(
-          latitude: 30.0444,
-          longitude: 31.2357,
-          ianaZone: 'Africa/Cairo',
-          placeLabel: 'Africa/Cairo',
-          usesGps: true,
-        ),
-      );
-      await settings.renamePlace('Home');
+    test(
+      'a name the user gives is stored, and the device stays the source',
+      () async {
+        await settings.setLocation(
+          const StoredLocation(
+            latitude: 30.0444,
+            longitude: 31.2357,
+            ianaZone: 'Africa/Cairo',
+            placeLabel: 'Africa/Cairo',
+            usesGps: true,
+          ),
+        );
+        await settings.renamePlace('Home');
 
-      final stored = (await settings.read()).location;
-      expect(stored?.userName, 'Home');
-      expect(stored?.ianaZone, 'Africa/Cairo');
-      expect(
-        stored?.usesGps,
-        isTrue,
-        reason: 'naming a place does not turn the device into a city list',
-      );
-    });
+        final stored = (await settings.read()).location;
+        expect(stored?.userName, 'Home');
+        expect(stored?.ianaZone, 'Africa/Cairo');
+        expect(
+          stored?.usesGps,
+          isTrue,
+          reason: 'naming a place does not turn the device into a city list',
+        );
+      },
+    );
 
     test('clearing the name goes back to what the app calls it', () async {
       await settings.setLocation(
@@ -351,9 +359,7 @@ void main() {
           alerts: {Prayer.fajr: AdhanAlert(enabled: true)},
         ),
       );
-      await settings.setPrayerTimesPreferences(
-        minuteOffsets: {Prayer.asr: 3},
-      );
+      await settings.setPrayerTimesPreferences(minuteOffsets: {Prayer.asr: 3});
       await Future<void>.delayed(Duration.zero);
       await sub.cancel();
 
@@ -361,53 +367,54 @@ void main() {
       // Drift coalesces rapid updates, so what matters is that the stream
       // reaches the state written by every change above.
       expect(emissions.last.themeMode, AppThemeMode.dark);
-      expect(
-        emissions.last.adhanAlerts.alertFor(Prayer.fajr).enabled,
-        isTrue,
-      );
+      expect(emissions.last.adhanAlerts.alertFor(Prayer.fajr).enabled, isTrue);
       expect(emissions.last.minuteOffsets, {Prayer.asr: 3});
     });
   });
 
   group('per-prayer notification settings (schema v2)', () {
-    test('vibrate, the reminder before the Adhan and ring in silent round-trip',
-        () async {
-      final alerts = AdhanAlertSettings.defaults()
-          .copyWith(fullScreen: true)
-          .withAlert(
-            Prayer.fajr,
-            const AdhanAlert(
-              enabled: true,
-              soundModeOverride: AdhanSoundMode.full,
-              vibrate: false,
-              preAdhanMinutes: 15,
-              ringInSilent: true,
-            ),
-          )
-          .withAlert(
-            Prayer.sunrise,
-            const AdhanAlert(enabled: false, preAdhanMinutes: 20),
-          );
-      await settings.saveAdhanAlerts(alerts);
+    test(
+      'vibrate, the reminder before the Adhan and ring in silent round-trip',
+      () async {
+        final alerts = AdhanAlertSettings.defaults()
+            .copyWith(fullScreen: true)
+            .withAlert(
+              Prayer.fajr,
+              const AdhanAlert(
+                enabled: true,
+                soundModeOverride: AdhanSoundMode.full,
+                vibrate: false,
+                preAdhanMinutes: 15,
+                ringInSilent: true,
+              ),
+            )
+            .withAlert(
+              Prayer.sunrise,
+              const AdhanAlert(enabled: false, preAdhanMinutes: 20),
+            );
+        await settings.saveAdhanAlerts(alerts);
 
-      final read = (await settings.read()).adhanAlerts;
-      expect(read.fullScreen, isTrue);
-      expect(read.alertFor(Prayer.fajr), alerts.alertFor(Prayer.fajr));
-      expect(read.alertFor(Prayer.sunrise).preAdhanMinutes, 20);
-      expect(read.alertFor(Prayer.sunrise).enabled, isFalse);
-    });
+        final read = (await settings.read()).adhanAlerts;
+        expect(read.fullScreen, isTrue);
+        expect(read.alertFor(Prayer.fajr), alerts.alertFor(Prayer.fajr));
+        expect(read.alertFor(Prayer.sunrise).preAdhanMinutes, 20);
+        expect(read.alertFor(Prayer.sunrise).enabled, isFalse);
+      },
+    );
 
-    test('a fresh install vibrates, has no early reminder, and is not full screen',
-        () async {
-      final read = (await settings.read()).adhanAlerts;
-      expect(read.fullScreen, isFalse);
-      for (final prayer in Prayer.adhanPrayers) {
-        final alert = read.alertFor(prayer);
-        expect(alert.vibrate, isTrue, reason: '$prayer');
-        expect(alert.preAdhanMinutes, isNull, reason: '$prayer');
-        expect(alert.ringInSilent, isFalse, reason: '$prayer');
-      }
-    });
+    test(
+      'a fresh install vibrates, has no early reminder, and is not full screen',
+      () async {
+        final read = (await settings.read()).adhanAlerts;
+        expect(read.fullScreen, isFalse);
+        for (final prayer in Prayer.adhanPrayers) {
+          final alert = read.alertFor(prayer);
+          expect(alert.vibrate, isTrue, reason: '$prayer');
+          expect(alert.preAdhanMinutes, isNull, reason: '$prayer');
+          expect(alert.ringInSilent, isFalse, reason: '$prayer');
+        }
+      },
+    );
 
     test('the database refuses an early reminder outside 1..120', () async {
       await expectLater(
@@ -435,16 +442,18 @@ void main() {
       expect((await settings.read()).travel, const TravelSettings());
     });
 
-    test('someone who followed their location before starts in travel mode',
-        () async {
-      await db.customStatement(
-        "INSERT INTO app_settings (key, value) VALUES "
-        "('${SettingKeys.followLocation}', 'true')",
-      );
-      final travel = (await settings.read()).travel;
-      expect(travel.travelMode, isTrue);
-      expect(travel.followsLocation, isTrue);
-    });
+    test(
+      'someone who followed their location before starts in travel mode',
+      () async {
+        await db.customStatement(
+          "INSERT INTO app_settings (key, value) VALUES "
+          "('${SettingKeys.followLocation}', 'true')",
+        );
+        final travel = (await settings.read()).travel;
+        expect(travel.travelMode, isTrue);
+        expect(travel.followsLocation, isTrue);
+      },
+    );
 
     test('someone who had turned following off keeps it off', () async {
       await db.customStatement(
@@ -456,14 +465,16 @@ void main() {
       expect(travel.followLocation, isFalse);
     });
 
-    test('the old Iqama-pause travel switch does not turn travel mode on',
-        () async {
-      await db.customStatement(
-        "INSERT INTO app_settings (key, value) VALUES "
-        "('${SettingKeys.travelMode}', 'true')",
-      );
-      expect((await settings.read()).travel.travelMode, isFalse);
-    });
+    test(
+      'the old Iqama-pause travel switch does not turn travel mode on',
+      () async {
+        await db.customStatement(
+          "INSERT INTO app_settings (key, value) VALUES "
+          "('${SettingKeys.travelMode}', 'true')",
+        );
+        expect((await settings.read()).travel.travelMode, isFalse);
+      },
+    );
 
     test('the full Adhan recording round-trips, and an unknown one is the '
         'default', () async {
@@ -472,9 +483,14 @@ void main() {
         kDefaultAdhanRecording,
       );
       await settings.saveAdhanAlerts(
-        AdhanAlertSettings.defaults().copyWith(fullRecording: 'minshawi'),
+        AdhanAlertSettings.defaults().copyWith(
+          fullRecording: 'ahmed_el_haddad',
+        ),
       );
-      expect((await settings.read()).adhanAlerts.fullRecording, 'minshawi');
+      expect(
+        (await settings.read()).adhanAlerts.fullRecording,
+        'ahmed_el_haddad',
+      );
 
       await db.customStatement(
         "UPDATE app_settings SET value = 'gone' "
@@ -489,12 +505,17 @@ void main() {
     test('the short Adhan clip round-trips', () async {
       expect(
         (await settings.read()).adhanAlerts.shortAdhan,
-        ShortAdhan.naghshbandi,
+        ShortAdhan.azanShort,
       );
       await settings.saveAdhanAlerts(
-        AdhanAlertSettings.defaults().copyWith(shortAdhan: ShortAdhan.hayya),
+        AdhanAlertSettings.defaults().copyWith(
+          shortAdhan: ShortAdhan.adhanVerseTwo,
+        ),
       );
-      expect((await settings.read()).adhanAlerts.shortAdhan, ShortAdhan.hayya);
+      expect(
+        (await settings.read()).adhanAlerts.shortAdhan,
+        ShortAdhan.adhanVerseTwo,
+      );
     });
 
     test('Jama’ah reminders chime and vibrate until changed', () async {
@@ -541,14 +562,16 @@ void main() {
       expect((await settings.read()).travel.pauseAllIqamaReminders, isTrue);
     });
 
-    test('an old pause choice without travel mode on was not a pause',
-        () async {
-      await db.customStatement(
-        "INSERT INTO app_settings (key, value) VALUES "
-        "('${SettingKeys.pauseIqamaReminders}', 'true')",
-      );
-      expect((await settings.read()).travel.pauseAllIqamaReminders, isFalse);
-    });
+    test(
+      'an old pause choice without travel mode on was not a pause',
+      () async {
+        await db.customStatement(
+          "INSERT INTO app_settings (key, value) VALUES "
+          "('${SettingKeys.pauseIqamaReminders}', 'true')",
+        );
+        expect((await settings.read()).travel.pauseAllIqamaReminders, isFalse);
+      },
+    );
 
     test('the new switch wins over the old keys once it is saved', () async {
       await db.customStatement(
@@ -568,7 +591,10 @@ void main() {
       await settings.saveTravel(const TravelSettings(followLocation: true));
       await pumpEventQueue();
       await settings.saveTravel(
-        const TravelSettings(followLocation: true, pauseAllIqamaReminders: true),
+        const TravelSettings(
+          followLocation: true,
+          pauseAllIqamaReminders: true,
+        ),
       );
       await pumpEventQueue();
       await sub.cancel();
@@ -578,7 +604,7 @@ void main() {
   });
 
   group('extra times (2026-10-14)', () {
-    test('default to Imsak shown and no alerts', () async {
+    test('default to Imsak hidden and no alerts', () async {
       expect((await settings.read()).extraTimes, const ExtraTimesSettings());
     });
 
@@ -640,26 +666,29 @@ void main() {
       expect(s.adhanAlerts.customRecordings, s.customSounds);
     });
 
-    test("a prayer's own recording and the reminder's sound are stored", () async {
-      await settings.addCustomSound(fajrAdhan);
-      await settings.addCustomSound(bell);
-      final alerts = (await settings.read()).adhanAlerts.withAlert(
-        Prayer.fajr,
-        AdhanAlert(enabled: true, recording: fajrAdhan.id),
-      );
-      await settings.saveAdhanAlerts(alerts);
-      await settings.saveJamaahReminders(
-        const JamaahReminderSettings(
-          sound: ReminderSound.custom,
-          customSound: bell,
-        ),
-      );
-      final s = await settings.read();
-      expect(s.adhanAlerts.alertFor(Prayer.fajr).recording, fajrAdhan.id);
-      expect(s.adhanAlerts.alertFor(Prayer.dhuhr).recording, isNull);
-      expect(s.jamaahReminders.customSound, bell);
-      expect(s.jamaahReminders.customSoundPath, bell.path);
-    });
+    test(
+      "a prayer's own recording and the reminder's sound are stored",
+      () async {
+        await settings.addCustomSound(fajrAdhan);
+        await settings.addCustomSound(bell);
+        final alerts = (await settings.read()).adhanAlerts.withAlert(
+          Prayer.fajr,
+          AdhanAlert(enabled: true, recording: fajrAdhan.id),
+        );
+        await settings.saveAdhanAlerts(alerts);
+        await settings.saveJamaahReminders(
+          const JamaahReminderSettings(
+            sound: ReminderSound.custom,
+            customSound: bell,
+          ),
+        );
+        final s = await settings.read();
+        expect(s.adhanAlerts.alertFor(Prayer.fajr).recording, fajrAdhan.id);
+        expect(s.adhanAlerts.alertFor(Prayer.dhuhr).recording, isNull);
+        expect(s.jamaahReminders.customSound, bell);
+        expect(s.jamaahReminders.customSoundPath, bell.path);
+      },
+    );
 
     test('deleting one takes it off everything that used it', () async {
       await settings.addCustomSound(fajrAdhan);

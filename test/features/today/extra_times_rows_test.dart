@@ -102,16 +102,11 @@ void main() {
   double top(WidgetTester tester, String text) =>
       tester.getTopLeft(find.text(text).last).dy;
 
-  testApp('by default Imsak alone, just above Fajr', (tester) async {
+  testApp('Imsak is hidden by default', (tester) async {
     await open(tester, now: cairoAt(day, 12, 0));
-    expect(find.text(t.extraImsak), findsOneWidget);
+    expect(find.text(t.extraImsak), findsNothing);
     expect(find.text(t.extraDuha), findsNothing);
     expect(find.text(t.extraQiyam), findsNothing);
-    expect(
-      find.text(hhmm(ExtraTime.imsak, day, const ExtraTimesSettings())),
-      findsOneWidget,
-    );
-    expect(top(tester, t.extraImsak), lessThan(top(tester, t.prayerFajr)));
   });
 
   testApp('Duha after Sunrise, the last third after Isha', (tester) async {
@@ -159,6 +154,6 @@ void main() {
       now: cairoAt(day, 12, 0),
       locale: const Locale('ar', 'EG'),
     );
-    expect(find.text(ar.extraImsak), findsOneWidget);
+    expect(find.text(ar.extraImsak), findsNothing);
   });
 }

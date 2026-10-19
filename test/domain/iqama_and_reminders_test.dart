@@ -82,15 +82,19 @@ void main() {
 
   group('reminder math', () {
     test('the reminder fires before the iqama by the configured minutes', () {
-      final asr = iqama(Prayer.asr, at: 15 * 60 + 30, reminder: true,
-          minutesBefore: 15);
+      final asr = iqama(
+        Prayer.asr,
+        at: 15 * 60 + 30,
+        reminder: true,
+        minutesBefore: 15,
+      );
       expect(asr.hasReminder, isTrue);
       expect(asr.reminderOffsetMinutes, -15);
 
       final resolver = const ReminderResolver(180);
-      final occurrence = resolver.resolve(
-        Schedule.empty(mosqueId: 'm1').withPrayer(asr),
-      ).firstWhere((o) => o.prayer == Prayer.asr);
+      final occurrence = resolver
+          .resolve(Schedule.empty(mosqueId: 'm1').withPrayer(asr))
+          .firstWhere((o) => o.prayer == Prayer.asr);
 
       expect(occurrence.atMinutes, 15 * 60 + 15);
     });
@@ -118,8 +122,16 @@ void main() {
     test('reminders are ordered by time and skip unconfigured prayers', () {
       final schedule = Schedule.empty(mosqueId: 'm1')
         ..prayers[Prayer.asr] = iqama(Prayer.asr, at: 15 * 60, reminder: true)
-        ..prayers[Prayer.isha] = iqama(Prayer.isha, at: 19 * 60 + 45, reminder: true)
-        ..prayers[Prayer.fajr] = iqama(Prayer.fajr, at: 5 * 60 + 45, reminder: true);
+        ..prayers[Prayer.isha] = iqama(
+          Prayer.isha,
+          at: 19 * 60 + 45,
+          reminder: true,
+        )
+        ..prayers[Prayer.fajr] = iqama(
+          Prayer.fajr,
+          at: 5 * 60 + 45,
+          reminder: true,
+        );
 
       final next = const ReminderResolver(180).nextReminder(schedule, 6 * 60);
 
@@ -142,7 +154,11 @@ void main() {
       // the day AFTER the 19:45 Isha Adhan.
       final resolver = const ReminderResolver(180);
       final schedule = Schedule.empty(mosqueId: 'm1');
-      schedule.prayers[Prayer.isha] = iqama(Prayer.isha, at: 30, reminder: true);
+      schedule.prayers[Prayer.isha] = iqama(
+        Prayer.isha,
+        at: 30,
+        reminder: true,
+      );
 
       final occurrence = resolver
           .resolve(schedule)
@@ -198,7 +214,10 @@ void main() {
 
     test('a single schedule applies to every day', () {
       final mosque = mosqueWith([Schedule.empty(mosqueId: 'm1')]);
-      expect(iqamaAt(mosque, const LocalDay(2026, 10, 12), Prayer.fajr), isNull);
+      expect(
+        iqamaAt(mosque, const LocalDay(2026, 10, 12), Prayer.fajr),
+        isNull,
+      );
       expect(iqamaAt(mosque, const LocalDay(2027, 3, 1), Prayer.fajr), isNull);
     });
 
@@ -461,16 +480,16 @@ void main() {
         input(
           alerts: AdhanAlertSettings.defaults()
               .withAlert(Prayer.fajr, const AdhanAlert(enabled: true))
-              .withAlert(
-                Prayer.maghrib,
-                const AdhanAlert(enabled: true),
-              ),
+              .withAlert(Prayer.maghrib, const AdhanAlert(enabled: true)),
           windowDays: 1,
         ),
       );
 
       expect(planned, hasLength(2));
-      expect(planned.map((p) => p.prayer), containsAll([Prayer.fajr, Prayer.maghrib]));
+      expect(
+        planned.map((p) => p.prayer),
+        containsAll([Prayer.fajr, Prayer.maghrib]),
+      );
       expect(planned.every((p) => p.kind == NotificationKind.adhan), isTrue);
       expect(
         planned.firstWhere((p) => p.prayer == Prayer.fajr).at,
@@ -504,11 +523,9 @@ void main() {
         ),
       );
 
-      expect(
-        planned.map((p) => p.prayer),
-        [Prayer.asr],
-        reason: 'disabled prayers never reach the scheduler',
-      );
+      expect(planned.map((p) => p.prayer), [
+        Prayer.asr,
+      ], reason: 'disabled prayers never reach the scheduler');
       expect(planned.single.soundMode, AdhanSoundMode.silent);
     });
 
@@ -710,10 +727,7 @@ void main() {
         input(mosque: mosque, windowDays: 1),
       );
       expect(planned, hasLength(1));
-      expect(
-        planned.single.isInPast(DateTime.utc(2026, 10, 12, 6, 0)),
-        isTrue,
-      );
+      expect(planned.single.isInPast(DateTime.utc(2026, 10, 12, 6, 0)), isTrue);
     });
   });
 
@@ -725,10 +739,22 @@ void main() {
     });
 
     test('local day arithmetic crosses months and years', () {
-      expect(const LocalDay(2026, 10, 12).addDays(20), const LocalDay(2026, 11, 1));
-      expect(const LocalDay(2026, 12, 31).addDays(1), const LocalDay(2027, 1, 1));
-      expect(const LocalDay(2027, 3, 1).addDays(-1), const LocalDay(2027, 2, 28));
-      expect(const LocalDay(2026, 1, 1).daysUntil(const LocalDay(2026, 12, 31)), 364);
+      expect(
+        const LocalDay(2026, 10, 12).addDays(20),
+        const LocalDay(2026, 11, 1),
+      );
+      expect(
+        const LocalDay(2026, 12, 31).addDays(1),
+        const LocalDay(2027, 1, 1),
+      );
+      expect(
+        const LocalDay(2027, 3, 1).addDays(-1),
+        const LocalDay(2027, 2, 28),
+      );
+      expect(
+        const LocalDay(2026, 1, 1).daysUntil(const LocalDay(2026, 12, 31)),
+        364,
+      );
     });
 
     test('zone offsets resolve through the injected resolver', () {
@@ -766,7 +792,10 @@ void main() {
       expect(r.isJumuah, isTrue);
       expect(r.jumuahNotSet, isFalse);
       expect(r.entry.iqama, const LocalTime(705));
-      expect(s.iqamaOn(thursday, Prayer.dhuhr).entry.iqama, const LocalTime(735));
+      expect(
+        s.iqamaOn(thursday, Prayer.dhuhr).entry.iqama,
+        const LocalTime(735),
+      );
       expect(s.iqamaOn(thursday, Prayer.dhuhr).isJumuah, isFalse);
       expect(s.iqamaOn(friday, Prayer.asr).isJumuah, isFalse);
     });
@@ -858,12 +887,12 @@ void main() {
             utc: at,
           ),
         ],
-        reminders: const JamaahReminderSettings(sound: ReminderSound.hayya),
+        reminders: const JamaahReminderSettings(sound: ReminderSound.chime),
       );
       final n = planned.singleWhere((n) => n.kind == NotificationKind.extra);
       expect(n.extraTime, ExtraTime.imsak);
       expect(n.at, at);
-      expect(n.reminderSound, ReminderSound.hayya);
+      expect(n.reminderSound, ReminderSound.chime);
       expect(n.id, extraNotificationId(ExtraTime.imsak, thursday));
     });
 
@@ -888,24 +917,27 @@ void main() {
           reminderMinutesBefore: 20,
         ),
       );
-      final fri = plan(friday, active: active)
-          .where((n) => n.kind == NotificationKind.iqama)
-          .single;
+      final fri = plan(
+        friday,
+        active: active,
+      ).where((n) => n.kind == NotificationKind.iqama).single;
       expect(fri.jumuah, isTrue);
       expect(fri.minutesBefore, 20);
       expect(fri.at, DateTime.utc(2026, 10, 16, 8, 25)); // 11:25 at +3
 
-      final thu = plan(thursday, active: active)
-          .where((n) => n.kind == NotificationKind.iqama)
-          .single;
+      final thu = plan(
+        thursday,
+        active: active,
+      ).where((n) => n.kind == NotificationKind.iqama).single;
       expect(thu.jumuah, isFalse);
       expect(thu.at, DateTime.utc(2026, 10, 15, 9, 5)); // 12:05 at +3
     });
 
     test("Friday without Jumu'ah still reminds at the Dhuhr Iqama", () {
-      final fri = plan(friday, active: mosque())
-          .where((n) => n.kind == NotificationKind.iqama)
-          .single;
+      final fri = plan(
+        friday,
+        active: mosque(),
+      ).where((n) => n.kind == NotificationKind.iqama).single;
       expect(
         fri.jumuah,
         isFalse,
@@ -923,9 +955,10 @@ void main() {
           reminderEnabled: true,
         ),
       );
-      final fri = plan(friday, active: active)
-          .where((n) => n.kind == NotificationKind.iqama)
-          .single;
+      final fri = plan(
+        friday,
+        active: active,
+      ).where((n) => n.kind == NotificationKind.iqama).single;
       expect(fri.at, DateTime.utc(2026, 10, 16, 8, 10)); // 11:10 at +3
     });
 
@@ -972,15 +1005,17 @@ void main() {
         );
 
     test('the reminder is the Adhan plus the minutes, less the lead time', () {
-      final n = plan(mosque(Prayer.fajr, 22), {Prayer.fajr: 4 * 60 + 29})
-          .single;
+      final n = plan(mosque(Prayer.fajr, 22), {
+        Prayer.fajr: 4 * 60 + 29,
+      }).single;
       // 04:29 + 22 = 04:51, less 10 = 04:41 at +3 = 01:41 UTC.
       expect(n.at, DateTime.utc(2026, 10, 15, 1, 41));
     });
 
     test('an Isha past midnight lands on the next date', () {
-      final n = plan(mosque(Prayer.isha, 20), {Prayer.isha: 23 * 60 + 50})
-          .single;
+      final n = plan(mosque(Prayer.isha, 20), {
+        Prayer.isha: 23 * 60 + 50,
+      }).single;
       // 23:50 + 20 = 00:10 on the 16th, less 10 = 00:00 at +3 = 21:00 UTC.
       expect(n.at, DateTime.utc(2026, 10, 15, 21, 0));
     });
@@ -990,4 +1025,3 @@ void main() {
     });
   });
 }
-

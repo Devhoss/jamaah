@@ -8,13 +8,9 @@ import '../../app/custom_sound_actions.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
-import '../../data/notifications/notification_sync.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
 import '../../domain/adhan_recordings.dart';
-import '../../domain/notification_channels.dart';
-import '../../domain/notification_plan.dart';
-import '../../domain/prayer.dart';
 import '../../domain/mosque.dart';
 import '../mosques/mosque_detail_page.dart';
 import 'settings_kit.dart';
@@ -58,7 +54,6 @@ class JamaahRemindersPage extends ConsumerStatefulWidget {
 class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
   late final AudioPreview _preview;
   String? _playing;
-  bool _sent = false;
 
   @override
   void initState() {
@@ -113,48 +108,6 @@ class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
     await _save(_current.copyWith(sound: chosen));
   }
 
-  Future<void> _sendTest() async {
-    final l10n = ref.read(notificationL10nProvider);
-    final settings = _current;
-    final active = ref.read(activeMosqueProvider);
-    final planned = PlannedNotification(
-      // Outside every id the planner can produce for centuries.
-      id: 999980,
-      kind: NotificationKind.iqama,
-      prayer: Prayer.fajr,
-      at: DateTime.now().toUtc(),
-      soundMode: null,
-      mosqueId: active?.id ?? '',
-      minutesBefore: 10,
-      vibrate: settings.vibrate,
-      ringInSilent: settings.ringInSilent,
-      reminderSound: settings.sound,
-      customSoundPath: settings.customSoundPath,
-    );
-    await ref.read(notificationPermissionRequestProvider)();
-    final text = notificationText(
-      l10n,
-      planned,
-      mosqueName: (_) => active?.name,
-    );
-    final item = ScheduledItem(
-      planned: planned,
-      channel: channelFor(planned),
-      title: text.title,
-      body: text.body,
-      stopLabel: l10n.adhanStop,
-    );
-    final gateway = ref.read(notificationGatewayProvider);
-    // A reminder set to ring on silent is played by the app, as the real one
-    // will be.
-    if (playsInApp(planned)) {
-      await gateway.playAdhanNow(item);
-    } else {
-      await gateway.showNow(item);
-    }
-    if (mounted) setState(() => _sent = true);
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -167,7 +120,9 @@ class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
     Widget? preview(String? asset) => asset == null
         ? null
         : SettingsTextButton(
-            label: _playing == asset ? l10n.alertStopPreview : l10n.alertPreview,
+            label: _playing == asset
+                ? l10n.alertStopPreview
+                : l10n.alertPreview,
             onPressed: () => _togglePreview(asset),
           );
 
@@ -193,12 +148,6 @@ class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
               l10n.reminderSoundChime,
               description: l10n.reminderSoundChimeHint,
               trailing: preview(kReminderChimeAsset),
-            ),
-            RadioOption(
-              ReminderSound.hayya,
-              l10n.soundHayya,
-              description: l10n.reminderSoundHayyaHint,
-              trailing: preview(kHayyaAsset),
             ),
             RadioOption(
               ReminderSound.standard,
@@ -240,13 +189,6 @@ class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
               ? null
               : (on) => _save(reminders.copyWith(ringInSilent: on)),
         ),
-        const SizedBox(height: 8),
-        SettingsButton(label: l10n.settingsReminderTest, onPressed: _sendTest),
-        if (_sent)
-          Semantics(
-            liveRegion: true,
-            child: SettingsNote(l10n.settingsReminderTestSent),
-          ),
         const SizedBox(height: 14),
         SettingsSwitchRow(
           title: l10n.settingsPauseAllIqama,

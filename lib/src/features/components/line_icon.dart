@@ -57,6 +57,20 @@ abstract final class LineIcons {
       'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
     ),
   ]);
+  static const mosque = LineIconData([
+    PathShape('M3 21h18M5 21V10l7-6 7 6v11M9 21v-6h6v6'),
+    PathShape('M9 11h.01M15 11h.01'),
+  ]);
+  static const qibla = LineIconData([
+    CircleShape(12, 12, 9),
+    PathShape('M12 2v3M22 12h-3M12 22v-3M2 12h3M12 12l4-4'),
+  ]);
+  static const settings = LineIconData([
+    PathShape('M4 6h16M4 12h16M4 18h16'),
+    CircleShape(8, 6, 2),
+    CircleShape(16, 12, 2),
+    CircleShape(10, 18, 2),
+  ]);
   static const plane = LineIconData([
     PathShape(
       'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 '

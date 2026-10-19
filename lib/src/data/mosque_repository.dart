@@ -41,7 +41,8 @@ class MosqueRepository {
   /// [clock] decides which day a schedule is in force for and what stamp a write
   /// carries. It is injected rather than read from the wall here, because a stored
   /// schedule belongs to a date and that date has to be knowable from a test.
-  MosqueRepository(this._db, {AppClock? clock}) : _clock = clock ?? const DeviceClock();
+  MosqueRepository(this._db, {AppClock? clock})
+    : _clock = clock ?? const DeviceClock();
 
   final AppDatabase _db;
   final AppClock _clock;
@@ -49,12 +50,12 @@ class MosqueRepository {
   /// Saved mosques, newest first. Two added on the same instant fall back to
   /// insertion order, so the newest still leads.
   Future<List<Mosque>> saved() async {
-    final rows = await (_db.select(_db.mosques)
-          ..orderBy([
-            (t) => OrderingTerm.desc(t.createdAt),
-            (t) => OrderingTerm.desc(t.rowId),
-          ]))
-        .get();
+    final rows =
+        await (_db.select(_db.mosques)..orderBy([
+              (t) => OrderingTerm.desc(t.createdAt),
+              (t) => OrderingTerm.desc(t.rowId),
+            ]))
+            .get();
     return Future.wait(rows.map(_load));
   }
 
@@ -62,11 +63,11 @@ class MosqueRepository {
   ///
   /// Watching only the mosques table would miss an Iqama edit, which writes
   /// schedules and schedule_prayers alone, and Today would keep the old time.
-  Stream<List<Mosque>> watchSaved() => watchTables(
-    _db,
-    [_db.mosques, _db.schedules, _db.schedulePrayers],
-    saved,
-  );
+  Stream<List<Mosque>> watchSaved() => watchTables(_db, [
+    _db.mosques,
+    _db.schedules,
+    _db.schedulePrayers,
+  ], saved);
 
   /// Inserts or replaces a whole mosque with its schedules.
   Future<void> save(Mosque mosque) => _db.transaction(() async {
@@ -103,9 +104,10 @@ class MosqueRepository {
     );
     await _db.transaction(() async {
       await save(mosque);
-      final active = await (_db.select(_db.appSettings)
-            ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
-          .getSingleOrNull();
+      final active =
+          await (_db.select(_db.appSettings)
+                ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
+              .getSingleOrNull();
       if (active?.value == null) {
         await _db
             .into(_db.appSettings)
@@ -125,9 +127,10 @@ class MosqueRepository {
     required String address,
   }) async {
     final cleanName = _requireName(name);
-    final changed = await (_db.update(_db.mosques)
-          ..where((t) => t.id.equals(mosqueId)))
-        .write(
+    final changed =
+        await (_db.update(
+          _db.mosques,
+        )..where((t) => t.id.equals(mosqueId))).write(
           MosquesCompanion(
             name: Value(cleanName),
             address: Value(MosqueDetailsInput.address(address)),
@@ -151,13 +154,14 @@ class MosqueRepository {
   /// no longer exists.
   Future<void> delete(String mosqueId) => _db.transaction(() async {
     await (_db.delete(_db.mosques)..where((t) => t.id.equals(mosqueId))).go();
-    final active = await (_db.select(_db.appSettings)
-          ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
-        .getSingleOrNull();
+    final active =
+        await (_db.select(_db.appSettings)
+              ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
+            .getSingleOrNull();
     if (active?.value == mosqueId) {
-      await (_db.delete(_db.appSettings)
-            ..where((t) => t.key.equals(SettingKeys.activeMosqueId)))
-          .go();
+      await (_db.delete(
+        _db.appSettings,
+      )..where((t) => t.key.equals(SettingKeys.activeMosqueId))).go();
     }
   });
 
@@ -192,7 +196,8 @@ class MosqueRepository {
         prayer: prayer,
         iqama: iqama,
         afterAdhanMinutes: iqama == null ? afterAdhanMinutes : null,
-        reminderEnabled: prayer.canHaveIqama &&
+        reminderEnabled:
+            prayer.canHaveIqama &&
             (iqama != null || afterAdhanMinutes != null) &&
             reminderEnabled,
         reminderMinutesBefore: reminderMinutesBefore,
@@ -208,10 +213,13 @@ class MosqueRepository {
 
   /// Pauses or resumes all of this mosque's Iqama reminders, keeping its Iqama
   /// times and every reminder setting.
-  Future<void> setRemindersPaused(String mosqueId, {required bool paused}) async {
-    final changed = await (_db.update(_db.mosques)
-          ..where((t) => t.id.equals(mosqueId)))
-        .write(MosquesCompanion(remindersPaused: Value(paused)));
+  Future<void> setRemindersPaused(
+    String mosqueId, {
+    required bool paused,
+  }) async {
+    final changed =
+        await (_db.update(_db.mosques)..where((t) => t.id.equals(mosqueId)))
+            .write(MosquesCompanion(remindersPaused: Value(paused)));
     if (changed == 0) {
       throw ArgumentError.value(
         mosqueId,
@@ -247,15 +255,16 @@ class MosqueRepository {
     return updated;
   }
 
-  /// Writes the mosque's Jumu'ah Iqama, as [setIqama] does for the five.
+  /// Writes the mosque's Friday Khutbah start and arrival reminder lead.
   Future<Schedule> setJumuah(
     String mosqueId,
     LocalTime? time, {
+    @Deprecated('Jumu’ah is set as a Khutbah time, never minutes after Adhan.')
     int? afterAdhanMinutes,
-    bool reminderEnabled = false,
+    @Deprecated('A configured Khutbah always has its arrival reminder.')
+    bool? reminderEnabled,
     int reminderMinutesBefore = 10,
   }) async {
-    _checkAfterAdhan(afterAdhanMinutes);
     if (!ReminderInterval.isValid(reminderMinutesBefore)) {
       throw ArgumentError.value(
         reminderMinutesBefore,
@@ -269,9 +278,9 @@ class MosqueRepository {
       jumuah: PrayerIqama(
         prayer: Prayer.dhuhr,
         iqama: time,
-        afterAdhanMinutes: time == null ? afterAdhanMinutes : null,
-        reminderEnabled:
-            (time != null || afterAdhanMinutes != null) && reminderEnabled,
+        // A configured Khutbah always has its arrival reminder. Its lead time
+        // is the Jumu'ah-specific reminder control.
+        reminderEnabled: time != null,
         reminderMinutesBefore: reminderMinutesBefore,
       ),
       updatedAt: now,
@@ -314,19 +323,19 @@ class MosqueRepository {
     }
   }
 
-  /// Switches the Jumu'ah reminder, keeping its time and interval. Refused
-  /// without a Jumu'ah time, as for every Iqama.
+  /// Legacy compatibility method. A configured Khutbah always has an arrival
+  /// reminder, so the [enabled] value no longer changes the schedule.
+  @Deprecated('A configured Jumu’ah Khutbah always has an arrival reminder.')
   Future<Schedule> setJumuahReminderEnabled(
     String mosqueId, {
     required bool enabled,
   }) async {
     final now = _clock.nowUtc();
     final schedule = await _scheduleInForce(mosqueId, now);
-    if (enabled && !schedule.jumuah.isConfigured) {
-      throw ReminderWithoutIqamaException(Prayer.dhuhr);
-    }
     final updated = schedule.copyWith(
-      jumuah: schedule.jumuah.copyWith(reminderEnabled: enabled),
+      jumuah: schedule.jumuah.copyWith(
+        reminderEnabled: schedule.jumuah.isConfigured,
+      ),
       updatedAt: now,
     );
     await _db.transaction(() => _saveSchedule(mosqueId, updated));
@@ -344,25 +353,30 @@ class MosqueRepository {
   }
 
   Future<Mosque?> byId(String id) async {
-    final row = await (_db.select(_db.mosques)
-          ..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    final row = await (_db.select(
+      _db.mosques,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
     return row == null ? null : _load(row);
   }
 
   /// The saved mosque with this provider place id, if any — how a search result
   /// knows it is already saved.
   Future<Mosque?> byPlaceId(String placeId) async {
-    final row = await (_db.select(_db.mosques)
-          ..where((t) => t.placeId.equals(placeId))
-          ..limit(1))
-        .getSingleOrNull();
+    final row =
+        await (_db.select(_db.mosques)
+              ..where((t) => t.placeId.equals(placeId))
+              ..limit(1))
+            .getSingleOrNull();
     return row == null ? null : _load(row);
   }
 
   Future<Mosque> requireById(String id) async =>
       (await byId(id)) ??
-      (throw ArgumentError.value(id, 'mosqueId', 'No saved mosque has this id'));
+      (throw ArgumentError.value(
+        id,
+        'mosqueId',
+        'No saved mosque has this id',
+      ));
 
   Future<void> _saveSchedule(String mosqueId, Schedule schedule) async {
     await _db
@@ -374,15 +388,15 @@ class MosqueRepository {
             effectiveFrom: _dayToInt(schedule.effectiveFrom),
             updatedAt: schedule.updatedAt.millisecondsSinceEpoch,
             jumuahMinutes: schedule.jumuah.iqama?.minutes,
-            jumuahAfterAdhanMinutes: schedule.jumuah.afterAdhanMinutes,
-            jumuahReminderEnabled: schedule.jumuah.reminderEnabled,
+            jumuahAfterAdhanMinutes: null,
+            jumuahReminderEnabled: schedule.jumuah.isConfigured,
             jumuahReminderMinutesBefore: schedule.jumuah.reminderMinutesBefore,
           ),
           mode: InsertMode.insertOrReplace,
         );
-    await (_db.delete(_db.schedulePrayers)
-          ..where((t) => t.scheduleId.equals(schedule.id)))
-        .go();
+    await (_db.delete(
+      _db.schedulePrayers,
+    )..where((t) => t.scheduleId.equals(schedule.id))).go();
     for (final prayer in Prayer.iqamaPrayers) {
       final entry = schedule.iqamaFor(prayer);
       await _db
@@ -401,12 +415,12 @@ class MosqueRepository {
   }
 
   Future<Mosque> _load(MosqueRow row) async {
-    final scheduleRows = await (_db.select(_db.schedules)
-          ..where((t) => t.mosqueId.equals(row.id)))
-        .get();
-    final prayerRows = await (_db.select(_db.schedulePrayers)
-          ..where((t) => t.scheduleId.isIn(scheduleRows.map((s) => s.id))))
-        .get();
+    final scheduleRows = await (_db.select(
+      _db.schedules,
+    )..where((t) => t.mosqueId.equals(row.id))).get();
+    final prayerRows = await (_db.select(
+      _db.schedulePrayers,
+    )..where((t) => t.scheduleId.isIn(scheduleRows.map((s) => s.id)))).get();
 
     return Mosque(
       id: row.id,
@@ -431,10 +445,11 @@ class MosqueRepository {
                 final m? => LocalTime(m),
                 null => null,
               },
-              afterAdhanMinutes: schedule.jumuahMinutes == null
-                  ? schedule.jumuahAfterAdhanMinutes
-                  : null,
-              reminderEnabled: schedule.jumuahReminderEnabled,
+              // Older rows could store Jumu'ah as minutes after Adhan. That
+              // value has no Khutbah meaning, so leave it unconfigured rather
+              // than carrying an ambiguous Friday schedule forward.
+              afterAdhanMinutes: null,
+              reminderEnabled: schedule.jumuahMinutes != null,
               reminderMinutesBefore: schedule.jumuahReminderMinutesBefore,
             ),
             prayers: {
@@ -442,12 +457,8 @@ class MosqueRepository {
                 prayer: PrayerIqama(
                   prayer: prayer,
                   iqama: _minutesOf(prayerRows, schedule.id, prayer),
-                  afterAdhanMinutes: _minutesOf(
-                            prayerRows,
-                            schedule.id,
-                            prayer,
-                          ) ==
-                          null
+                  afterAdhanMinutes:
+                      _minutesOf(prayerRows, schedule.id, prayer) == null
                       ? _afterAdhanOf(prayerRows, schedule.id, prayer)
                       : null,
                   reminderEnabled: _reminderEnabledOf(
@@ -472,12 +483,10 @@ class MosqueRepository {
     String scheduleId,
     Prayer prayer,
   ) {
-    final row = rows.where(
-      (r) => r.scheduleId == scheduleId && r.prayer == prayer.name,
-    ).firstOrNull;
-    return row?.iqamaMinutes == null
-        ? null
-        : LocalTime(row!.iqamaMinutes!);
+    final row = rows
+        .where((r) => r.scheduleId == scheduleId && r.prayer == prayer.name)
+        .firstOrNull;
+    return row?.iqamaMinutes == null ? null : LocalTime(row!.iqamaMinutes!);
   }
 
   int? _afterAdhanOf(
@@ -493,20 +502,22 @@ class MosqueRepository {
     List<SchedulePrayerRow> rows,
     String scheduleId,
     Prayer prayer,
-  ) => rows
-      .where((r) => r.scheduleId == scheduleId && r.prayer == prayer.name)
-      .firstOrNull
-      ?.reminderEnabled ??
+  ) =>
+      rows
+          .where((r) => r.scheduleId == scheduleId && r.prayer == prayer.name)
+          .firstOrNull
+          ?.reminderEnabled ??
       false;
 
   int _reminderMinutesOf(
     List<SchedulePrayerRow> rows,
     String scheduleId,
     Prayer prayer,
-  ) => rows
-      .where((r) => r.scheduleId == scheduleId && r.prayer == prayer.name)
-      .firstOrNull
-      ?.reminderMinutesBefore ??
+  ) =>
+      rows
+          .where((r) => r.scheduleId == scheduleId && r.prayer == prayer.name)
+          .firstOrNull
+          ?.reminderMinutesBefore ??
       10;
 
   MosqueSource _source(String name) => MosqueSource.values.firstWhere(
@@ -515,17 +526,12 @@ class MosqueRepository {
   );
 
   /// `yyyyMMdd`, so a plain integer compare orders effective dates correctly.
-  int? _dayToInt(LocalDay? day) => day == null
-      ? null
-      : day.year * 10000 + day.month * 100 + day.day;
+  int? _dayToInt(LocalDay? day) =>
+      day == null ? null : day.year * 10000 + day.month * 100 + day.day;
 
   LocalDay? _intToDay(int? value) => value == null
       ? null
-      : LocalDay(
-          value ~/ 10000,
-          (value ~/ 100) % 100,
-          value % 100,
-        );
+      : LocalDay(value ~/ 10000, (value ~/ 100) % 100, value % 100);
 }
 
 MosqueRow _toMosqueRow(Mosque mosque) => MosqueRow(

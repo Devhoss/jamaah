@@ -13,13 +13,14 @@ enum ChannelSound {
 
   /// The bundled short Adhan. Also used by "full" alerts: a full-length Adhan is
   /// played by the app itself (g4), not by the channel.
-  adhanShort,
+  azanShort,
+  azanAllahAkbar,
+  azanShortOne,
+  adhanVerseOne,
+  adhanVerseTwo,
 
   /// The app's own Jama’ah reminder chime (tool/generate_reminder_chime.dart).
   chime,
-
-  /// The «حيّ على الصلاة» clip: a short Adhan choice and a reminder choice.
-  hayya,
 }
 
 /// One Android notification channel, as data.
@@ -63,19 +64,18 @@ enum ChannelGroup { adhan, preAdhan, iqama, extra }
 /// Bumped whenever a bundled sound file changes. The version is part of every
 /// Adhan channel id, so a new recording gets new channels and the old ones are
 /// retired, instead of Android quietly keeping the old sound.
-const kAdhanToneVersion = 2;
+const kAdhanToneVersion = 3;
 
-/// The same, for the Jama’ah reminder chime.
 const kReminderChimeVersion = 1;
-
-/// The same, for the «حيّ على الصلاة» clip.
-const kHayyaVersion = 2;
 
 /// The raw resource a channel sound plays, or null for the platform's sound
 /// or none.
 String? rawSoundFor(ChannelSound sound) => switch (sound) {
-  ChannelSound.adhanShort => ShortAdhan.naghshbandi.raw,
-  ChannelSound.hayya => ShortAdhan.hayya.raw,
+  ChannelSound.azanShort => ShortAdhan.azanShort.raw,
+  ChannelSound.azanAllahAkbar => ShortAdhan.azanAllahAkbar.raw,
+  ChannelSound.azanShortOne => ShortAdhan.azanShortOne.raw,
+  ChannelSound.adhanVerseOne => ShortAdhan.adhanVerseOne.raw,
+  ChannelSound.adhanVerseTwo => ShortAdhan.adhanVerseTwo.raw,
   ChannelSound.chime => 'reminder_chime',
   ChannelSound.none || ChannelSound.platformDefault => null,
 };
@@ -83,8 +83,11 @@ String? rawSoundFor(ChannelSound sound) => switch (sound) {
 /// The file version that goes into the id of a channel with [sound], so a
 /// changed file gets a new channel.
 String? _versionTag(ChannelSound sound) => switch (sound) {
-  ChannelSound.adhanShort => 't$kAdhanToneVersion',
-  ChannelSound.hayya => 'h$kHayyaVersion',
+  ChannelSound.azanShort ||
+  ChannelSound.azanAllahAkbar ||
+  ChannelSound.azanShortOne ||
+  ChannelSound.adhanVerseOne ||
+  ChannelSound.adhanVerseTwo => 't$kAdhanToneVersion',
   ChannelSound.chime => 'c$kReminderChimeVersion',
   ChannelSound.none || ChannelSound.platformDefault => null,
 };
@@ -124,7 +127,6 @@ ChannelSpec _reminderChannel(
   };
   final sound = switch (reminder) {
     ReminderSound.chime => ChannelSound.chime,
-    ReminderSound.hayya => ChannelSound.hayya,
     ReminderSound.standard => ChannelSound.platformDefault,
     ReminderSound.silent => ChannelSound.none,
     // The user's own file is played by the app; the chime stands behind it.
@@ -151,11 +153,14 @@ ChannelSpec _reminderChannel(
 
 ChannelSpec _adhanChannel(PlannedNotification n) {
   final mode = n.soundMode ?? AdhanSoundMode.standard;
-  final clip = n.shortAdhan ?? ShortAdhan.naghshbandi;
+  final clip = n.shortAdhan ?? ShortAdhan.azanShort;
   final sound = switch (mode) {
     AdhanSoundMode.full || AdhanSoundMode.short => switch (clip) {
-      ShortAdhan.naghshbandi => ChannelSound.adhanShort,
-      ShortAdhan.hayya => ChannelSound.hayya,
+      ShortAdhan.azanShort => ChannelSound.azanShort,
+      ShortAdhan.azanAllahAkbar => ChannelSound.azanAllahAkbar,
+      ShortAdhan.azanShortOne => ChannelSound.azanShortOne,
+      ShortAdhan.adhanVerseOne => ChannelSound.adhanVerseOne,
+      ShortAdhan.adhanVerseTwo => ChannelSound.adhanVerseTwo,
     },
     AdhanSoundMode.standard => ChannelSound.platformDefault,
     AdhanSoundMode.silent => ChannelSound.none,
@@ -169,8 +174,12 @@ ChannelSpec _adhanChannel(PlannedNotification n) {
     mode.name,
     vibrate ? 'vib' : 'still',
     if (alarm) 'alarm',
-    // The Naghshbandi clip keeps the ids it had before there was a choice.
-    if (sound == ChannelSound.hayya) 'hayya',
+    if (sound == ChannelSound.azanShort ||
+        sound == ChannelSound.azanAllahAkbar ||
+        sound == ChannelSound.azanShortOne ||
+        sound == ChannelSound.adhanVerseOne ||
+        sound == ChannelSound.adhanVerseTwo)
+      sound.name,
     ?_versionTag(sound),
   ];
   return ChannelSpec(

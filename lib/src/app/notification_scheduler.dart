@@ -5,6 +5,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'diagnostics.dart';
 import '../data/notifications/local_notifications_gateway.dart';
 import '../data/notifications/notification_sync.dart';
 import '../domain/adhan_alerts.dart';
@@ -79,8 +80,7 @@ List<PlannedNotification> buildNotificationPlan({
             day: d,
             settings: extraTimes,
           ))
-            if (extraTimes.alerts.contains(e.time) && e.utc.isAfter(nowUtc))
-              e,
+            if (extraTimes.alerts.contains(e.time) && e.utc.isAfter(nowUtc)) e,
       ],
       windowDays: windowDays,
     ),
@@ -188,7 +188,6 @@ String channelDisplayName(AppLocalizations l10n, ChannelSpec c) {
 String reminderSoundName(AppLocalizations l10n, ReminderSound sound) =>
     switch (sound) {
       ReminderSound.chime => l10n.reminderSoundChime,
-      ReminderSound.hayya => l10n.soundHayya,
       ReminderSound.standard => l10n.soundModeStandard,
       ReminderSound.silent => l10n.soundModeSilent,
       ReminderSound.custom => l10n.reminderSoundCustom,
@@ -208,14 +207,11 @@ String soundModeName(AppLocalizations l10n, AdhanSoundMode mode) =>
 final notificationL10nProvider = Provider<AppLocalizations>(
   (ref) => appStringsFor(
     // Only the language: the gateway is rebuilt from these strings.
-    switch (ref.watch(
-      appSettingsProvider.select((s) => s.value?.language),
-    )) {
+    switch (ref.watch(appSettingsProvider.select((s) => s.value?.language))) {
       AppLanguage.ar => kArabicLocale,
       AppLanguage.en => kEnglishLocale,
-      AppLanguage.system || null => resolveAppLocale(
-        PlatformDispatcher.instance.locale,
-      ),
+      AppLanguage.system ||
+      null => resolveAppLocale(PlatformDispatcher.instance.locale),
     },
   ),
 );
@@ -343,6 +339,19 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               inFlight: settings.inFlight,
               extraTimes: settings.extraTimes,
             );
+      unawaited(
+        Diagnostics.record(
+          'notification_sync_started',
+          values: {
+            'planned': plan.length,
+            'adhan': plan.where((n) => n.kind.name == 'adhan').length,
+            'jamaah': plan.where((n) => n.kind.name == 'iqama').length,
+            'other': plan
+                .where((n) => n.kind.name != 'adhan' && n.kind.name != 'iqama')
+                .length,
+          },
+        ),
+      );
       final report = await NotificationSync(gateway).apply(
         plan: plan,
         now: now,
@@ -382,11 +391,28 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               ),
       );
       debugPrint('Notifications: $report');
+      unawaited(
+        Diagnostics.record(
+          'notification_sync_completed',
+          values: {
+            'scheduled': report.scheduled,
+            'cancelled': report.cancelled,
+            'exact_alarm': report.exact,
+            'notifications_enabled': report.notificationsEnabled,
+          },
+        ),
+      );
       // The app (or a test) may have closed while the platform was answering.
       if (!ref.mounted) return;
       state = NotificationSyncState(report: report);
     } on Object catch (error) {
       debugPrint('Notifications: sync failed: $error');
+      unawaited(
+        Diagnostics.record(
+          'notification_sync_failed',
+          values: {'error_type': error.runtimeType.toString()},
+        ),
+      );
       if (!ref.mounted) return;
       state = NotificationSyncState(report: state.report, error: error);
     }

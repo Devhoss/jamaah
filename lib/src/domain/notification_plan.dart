@@ -319,7 +319,12 @@ class NotificationPlanner {
       // On a Friday, Dhuhr's is Jumu'ah's (or Dhuhr's own while it has none).
       final resolved = schedule.iqamaOn(day, prayer);
       final iqama = resolved.entry;
-      if (!iqama.hasReminder) continue;
+      final isConfiguredJumuah = resolved.isJumuah && !resolved.jumuahNotSet;
+      // Jumu'ah's configured Khutbah time always schedules the arrival reminder;
+      // its lead time replaces the daily Iqama reminder on/off control.
+      if (isConfiguredJumuah ? !iqama.isConfigured : !iqama.hasReminder) {
+        continue;
+      }
 
       // An Isha Iqama can sit after midnight: 00:30 follows the 19:45 Adhan, so
       // it belongs to the *next* calendar day. Deciding by comparing with the
@@ -327,7 +332,15 @@ class NotificationPlanner {
       // fixed Jumu'ah a few minutes before the computed Dhuhr is still Friday's.
       final adhan = adhanTimes[prayer];
       final DateTime iqamaAt;
-      if (iqama.afterAdhanMinutes case final after?) {
+      if (isConfiguredJumuah) {
+        final khutbahStart = iqama.iqama;
+        if (khutbahStart == null) continue;
+        iqamaAt = instantFor(
+          day,
+          khutbahStart.minutes,
+          input.zoneOffsetFor(day),
+        );
+      } else if (iqama.afterAdhanMinutes case final after?) {
         // Minutes after the day's Adhan, added to its instant: past midnight
         // and across a clock change alike. No Adhan that day, no Iqama.
         if (adhan == null) continue;
@@ -371,7 +384,11 @@ class NotificationPlanner {
   }
 
   /// Instant for a wall-clock time on [day], in the given zone.
-  static DateTime instantFor(LocalDay day, int minutesFromMidnight, int zoneOffsetMinutes) {
+  static DateTime instantFor(
+    LocalDay day,
+    int minutesFromMidnight,
+    int zoneOffsetMinutes,
+  ) {
     final wrapped = ((minutesFromMidnight % 1440) + 1440) % 1440;
     return DateTime.fromMillisecondsSinceEpoch(
       day.midnightUtc().millisecondsSinceEpoch +
@@ -387,16 +404,20 @@ class NotificationPlanner {
 /// an id: `kind * 1 000 000 + days since 1970 * 10 + prayer`. It stays inside a
 /// positive 32-bit int (Android's limit) until the year 2243.
 int notificationId(NotificationKind kind, Prayer prayer, LocalDay day) {
-  final days = DateTime.utc(day.year, day.month, day.day)
-      .difference(DateTime.utc(1970))
-      .inDays;
+  final days = DateTime.utc(
+    day.year,
+    day.month,
+    day.day,
+  ).difference(DateTime.utc(1970)).inDays;
   return kind.index * 1000000 + days * 10 + prayer.index;
 }
 
 /// The id of an extra-time alert: its own kind, so it can never meet another.
 int extraNotificationId(ExtraTime time, LocalDay day) {
-  final days = DateTime.utc(day.year, day.month, day.day)
-      .difference(DateTime.utc(1970))
-      .inDays;
+  final days = DateTime.utc(
+    day.year,
+    day.month,
+    day.day,
+  ).difference(DateTime.utc(1970)).inDays;
   return NotificationKind.extra.index * 1000000 + days * 10 + time.index;
 }

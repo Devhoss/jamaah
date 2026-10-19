@@ -389,7 +389,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutBody.
   ///
   /// In en, this message translates to:
-  /// **'Early build. Prayer times are calculated on this device. Iqama times are entered by you, per mosque.'**
+  /// **'Prayer times are calculated on this device. You set Iqama times for each mosque, and they stay on this phone.'**
   String get aboutBody;
 
   /// No description provided for @qiblaFrom.
@@ -865,6 +865,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{prayer} Iqama'**
   String iqamaEditorTitle(String prayer);
+
+  /// No description provided for @jumuahEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu’ah Khutbah'**
+  String get jumuahEditorTitle;
+
+  /// No description provided for @jumuahKhutbahTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah starts'**
+  String get jumuahKhutbahTime;
+
+  /// No description provided for @jumuahChooseKhutbahTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Khutbah start time'**
+  String get jumuahChooseKhutbahTime;
+
+  /// No description provided for @jumuahKhutbahTimeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the time the Khutbah begins at this mosque.'**
+  String get jumuahKhutbahTimeNote;
+
+  /// No description provided for @jumuahArrivalLeadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes before Khutbah'**
+  String get jumuahArrivalLeadTitle;
+
+  /// No description provided for @jumuahSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu’ah Khutbah saved'**
+  String get jumuahSaved;
+
+  /// No description provided for @jumuahReminderLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder {minutes} min before Khutbah'**
+  String jumuahReminderLead(int minutes);
+
+  /// No description provided for @jumuahReminderNeedsTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a Khutbah time to enable the reminder.'**
+  String get jumuahReminderNeedsTime;
+
+  /// No description provided for @jumuahReminderCustomEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how many minutes before the Khutbah.'**
+  String get jumuahReminderCustomEmpty;
+
+  /// No description provided for @jumuahArriveBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrive by {time}'**
+  String jumuahArriveBy(String time);
+
+  /// No description provided for @jumuahReminderPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah starts at {khutbah}. Your {minutes} min reminder is at {arrival}.'**
+  String jumuahReminderPreview(String khutbah, int minutes, String arrival);
 
   /// No description provided for @iqamaEditorEditing.
   ///
@@ -1589,30 +1655,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'None'**
   String get alertReminderNone;
-
-  /// No description provided for @alertTryIt.
-  ///
-  /// In en, this message translates to:
-  /// **'Send a test notification'**
-  String get alertTryIt;
-
-  /// No description provided for @alertTrySent.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent. Check your notifications.'**
-  String get alertTrySent;
-
-  /// No description provided for @notifTestTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{prayer} · test'**
-  String notifTestTitle(String prayer);
-
-  /// No description provided for @notifTestBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This is how this alert will sound.'**
-  String get notifTestBody;
 
   /// No description provided for @adhanStop.
   ///
@@ -2922,41 +2964,17 @@ abstract class AppLocalizations {
   /// **'Chime'**
   String get reminderSoundChime;
 
-  /// No description provided for @soundHayya.
+  /// No description provided for @shortAdhanClipHint.
   ///
   /// In en, this message translates to:
-  /// **'حيّ على الصلاة'**
-  String get soundHayya;
-
-  /// No description provided for @reminderSoundHayyaHint.
-  ///
-  /// In en, this message translates to:
-  /// **'The call to prayer from the Adhan, about 10 seconds.'**
-  String get reminderSoundHayyaHint;
+  /// **'Preview this supplied short Adhan recording.'**
+  String get shortAdhanClipHint;
 
   /// No description provided for @settingsShortAdhan.
   ///
   /// In en, this message translates to:
   /// **'Short Adhan'**
   String get settingsShortAdhan;
-
-  /// No description provided for @shortAdhanNaghshbandi.
-  ///
-  /// In en, this message translates to:
-  /// **'Naghshbandi, opening'**
-  String get shortAdhanNaghshbandi;
-
-  /// No description provided for @shortAdhanNaghshbandiHint.
-  ///
-  /// In en, this message translates to:
-  /// **'The first 8 seconds of Naghshbandi\'s Adhan.'**
-  String get shortAdhanNaghshbandiHint;
-
-  /// No description provided for @shortAdhanHayyaHint.
-  ///
-  /// In en, this message translates to:
-  /// **'«حيّ على الصلاة» from the Adhan, 10 seconds.'**
-  String get shortAdhanHayyaHint;
 
   /// No description provided for @settingsReminderSound.
   ///
@@ -2987,18 +3005,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vibrate'**
   String get settingsReminderVibrate;
-
-  /// No description provided for @settingsReminderTest.
-  ///
-  /// In en, this message translates to:
-  /// **'Send a test reminder'**
-  String get settingsReminderTest;
-
-  /// No description provided for @settingsReminderTestSent.
-  ///
-  /// In en, this message translates to:
-  /// **'Test reminder sent.'**
-  String get settingsReminderTestSent;
 
   /// No description provided for @settingsPauseAllIqama.
   ///
@@ -3346,6 +3352,12 @@ abstract class AppLocalizations {
   /// **'That file could not be added.'**
   String get soundCouldNotAdd;
 
+  /// No description provided for @recordingPreviewFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This recording could not be played.'**
+  String get recordingPreviewFailed;
+
   /// No description provided for @soundOptions.
   ///
   /// In en, this message translates to:
@@ -3471,6 +3483,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Iqama · {mosque}'**
   String ticketKicker(String mosque);
+
+  /// No description provided for @jumuahTicketKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah · {mosque}'**
+  String jumuahTicketKicker(String mosque);
+
+  /// No description provided for @jumuahTicketSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah at {mosque}: {time}, {relative}. {rule}. {reminder}.'**
+  String jumuahTicketSemantics(
+    String mosque,
+    String time,
+    String relative,
+    String rule,
+    String reminder,
+  );
+
+  /// No description provided for @jumuahTicketUnsetSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah at {mosque}: not configured. Set time'**
+  String jumuahTicketUnsetSemantics(String mosque);
 
   /// No description provided for @ticketWhen.
   ///
@@ -4197,6 +4233,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get helpAbout;
+
+  /// No description provided for @diagnosticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get diagnosticsTitle;
+
+  /// No description provided for @diagnosticsLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us understand notification problems on this phone.'**
+  String get diagnosticsLead;
+
+  /// No description provided for @diagnosticsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'A small event history stays on this phone. Reports include app build, Android version, notification permission status, and recent scheduling outcomes. They exclude your place, mosque, prayer times, notification text, and identity.'**
+  String get diagnosticsPrivacy;
+
+  /// No description provided for @diagnosticsSentry.
+  ///
+  /// In en, this message translates to:
+  /// **'Send error reports to Sentry'**
+  String get diagnosticsSentry;
+
+  /// No description provided for @diagnosticsSentryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When enabled, app errors are sent automatically so we can investigate crashes.'**
+  String get diagnosticsSentryHint;
+
+  /// No description provided for @diagnosticsSentryUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Error reporting is not configured in this build.'**
+  String get diagnosticsSentryUnavailable;
+
+  /// No description provided for @diagnosticsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent notification activity'**
+  String get diagnosticsHistory;
+
+  /// No description provided for @diagnosticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No diagnostic events yet.'**
+  String get diagnosticsEmpty;
+
+  /// No description provided for @diagnosticsSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare a diagnostic report'**
+  String get diagnosticsSend;
+
+  /// No description provided for @diagnosticsSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing…'**
+  String get diagnosticsSending;
+
+  /// No description provided for @diagnosticsConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share diagnostic report?'**
+  String get diagnosticsConfirmTitle;
+
+  /// No description provided for @diagnosticsConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The report contains app and Android versions plus recent notification scheduling and permission events. It contains no place, mosque, prayer times, notification text, or account identity. Continue only if you are comfortable sharing this information.'**
+  String get diagnosticsConfirmBody;
+
+  /// No description provided for @diagnosticsUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to Sentry'**
+  String get diagnosticsUpload;
+
+  /// No description provided for @diagnosticsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Open share sheet'**
+  String get diagnosticsShare;
+
+  /// No description provided for @diagnosticsReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jama’ah diagnostic report'**
+  String get diagnosticsReportTitle;
+
+  /// No description provided for @diagnosticsUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostic report sent.'**
+  String get diagnosticsUploaded;
+
+  /// No description provided for @diagnosticsShareOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an app to share the report.'**
+  String get diagnosticsShareOpened;
+
+  /// No description provided for @diagnosticsSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not prepare or send the report.'**
+  String get diagnosticsSendFailed;
 
   /// No description provided for @methodListLead.
   ///

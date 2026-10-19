@@ -43,7 +43,11 @@ TicketContent ticketFor({
   final entry = resolved?.entry;
   final minutes = entry?.minutesOfDay(adhanTimes[prayer]);
   if (resolved == null || entry == null || minutes == null) {
-    return TicketNotConfigured(mosque: mosque.name, onSet: onSet);
+    return TicketNotConfigured(
+      mosque: mosque.name,
+      onSet: onSet,
+      isJumuah: resolved != null && resolved.isJumuah && !resolved.jumuahNotSet,
+    );
   }
   final at = LocalTime(minutes % 1440);
   final time = clock.time(at);
@@ -51,11 +55,19 @@ TicketContent ticketFor({
     mosque: mosque.name,
     time: time,
     relative: relativeText(l10n, minutes - nowMinute),
-    rule: entry.isAfterAdhan
+    rule: resolved.isJumuah && !resolved.jumuahNotSet
+        ? l10n.jumuahKhutbahTime
+        : entry.isAfterAdhan
         ? l10n.ticketRuleAfter(entry.afterAdhanMinutes!)
         : l10n.ticketRuleFixed,
-    reminderOn: entry.reminderEnabled,
-    reminder: entry.reminderEnabled
+    reminderOn:
+        (resolved.isJumuah && !resolved.jumuahNotSet) || entry.reminderEnabled,
+    isJumuah: resolved.isJumuah && !resolved.jumuahNotSet,
+    reminder: resolved.isJumuah && !resolved.jumuahNotSet
+        ? l10n.jumuahArriveBy(
+            clock.time(at.plusMinutes(-entry.reminderMinutesBefore)),
+          )
+        : entry.reminderEnabled
         ? l10n.ticketReminder(
             clock.time(at.plusMinutes(-entry.reminderMinutesBefore)),
           )

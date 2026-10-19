@@ -36,7 +36,9 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 
 ## Architecture
 - Flutter/Dart, Android only for now (iOS deferred). No accounts, analytics or custom backend
-  (a minimal proxy is allowed only to protect an API key).
+  (a minimal proxy is allowed only to protect an API key). Exception approved 2026-10-16:
+  opt-in Sentry error reports and user-triggered diagnostic reports only; no analytics,
+  performance monitoring, replay, or location/prayer schedule data.
 - Domain logic is independent of Flutter and unit-testable, and platform-neutral so iOS can be added later.
 - Offline-first: prayer times, Qibla, saved mosques, Iqama schedules, reminders, Adhan alerts and
   settings work with no network. Network only for: mosque discovery, geocoding the manual place
