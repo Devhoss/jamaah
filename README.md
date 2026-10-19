@@ -5,7 +5,7 @@
 </p>
 
 A calm, offline-first prayer companion for knowing when to pray, when your
-mosque starts, and when to leave. The app is built with Flutter for Android.
+Iqama starts, and when to leave. The app is built with Flutter for Android.
 iOS is deferred.
 
 ## What it does
