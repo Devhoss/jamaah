@@ -1227,6 +1227,7 @@
   "diagnosticsShare": "Open share sheet",
   "diagnosticsReportTitle": "Jama’ah diagnostic report",
   "diagnosticsUploaded": "Diagnostic report sent.",
+  "diagnosticsEventIdLabel": "Sentry event ID (select to copy)",
   "diagnosticsShareOpened": "Choose an app to share the report.",
   "diagnosticsSendFailed": "Could not prepare or send the report.",
   "methodListLead": "Each method's angles, and where it is used.",

@@ -128,7 +128,7 @@ class Diagnostics {
   static Future<String> createReport() async {
     final entries = await recent();
     final report = {
-      'format': 1,
+      'format': 2,
       'appBuild': buildLabel(),
       'platform': Platform.operatingSystem,
       'osVersion': Platform.operatingSystemVersion,
@@ -137,12 +137,13 @@ class Diagnostics {
     return const JsonEncoder.withIndent('  ').convert(report);
   }
 
-  static Future<void> uploadReport(String report) async {
+  static Future<String> uploadReport(String report) async {
     if (!canUpload || !_sentryEnabled) {
       throw StateError('Diagnostic upload is not enabled.');
     }
-    await Sentry.captureMessage(
+    final eventId = await Sentry.captureMessage(
       'Tester submitted a Jama\u2019ah diagnostics report',
+      level: SentryLevel.error,
       withScope: (scope) {
         scope.setTag('report_type', 'user_diagnostics');
         scope.addAttachment(
@@ -154,6 +155,13 @@ class Diagnostics {
         );
       },
     );
+    // The Sentry SDK returns an empty id when the transport fails, the event
+    // is dropped by a callback, or the SDK is not active. Do not let the UI
+    // report success for any of those cases.
+    if (eventId == SentryId.empty()) {
+      throw StateError('Sentry did not accept the diagnostic report.');
+    }
+    return eventId.toString();
   }
 
   static Future<File> _file() async {

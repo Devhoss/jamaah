@@ -2828,6 +2828,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get diagnosticsUploaded => 'أُرسل التقرير التشخيصي.';
 
   @override
+  String get diagnosticsEventIdLabel => 'معرّف الحدث في Sentry (حدّد للنسخ)';
+
+  @override
   String get diagnosticsShareOpened => 'اختر تطبيقًا لمشاركة التقرير.';
 
   @override

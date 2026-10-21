@@ -1616,6 +1616,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get diagnosticsUploaded => arabicDigits(super.diagnosticsUploaded);
 
   @override
+  String get diagnosticsEventIdLabel => arabicDigits(super.diagnosticsEventIdLabel);
+
+  @override
   String get diagnosticsShareOpened => arabicDigits(super.diagnosticsShareOpened);
 
   @override

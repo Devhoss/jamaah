@@ -4330,6 +4330,12 @@ abstract class AppLocalizations {
   /// **'Diagnostic report sent.'**
   String get diagnosticsUploaded;
 
+  /// No description provided for @diagnosticsEventIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentry event ID (select to copy)'**
+  String get diagnosticsEventIdLabel;
+
   /// No description provided for @diagnosticsShareOpened.
   ///
   /// In en, this message translates to:

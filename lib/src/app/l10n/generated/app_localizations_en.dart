@@ -2661,6 +2661,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diagnosticsUploaded => 'Diagnostic report sent.';
 
   @override
+  String get diagnosticsEventIdLabel => 'Sentry event ID (select to copy)';
+
+  @override
   String get diagnosticsShareOpened => 'Choose an app to share the report.';
 
   @override

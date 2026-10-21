@@ -49,23 +49,46 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     setState(() => _sending = true);
     try {
       final report = await Diagnostics.createReport();
+      String? sentryEventId;
       if (sendToSentry) {
-        await Diagnostics.uploadReport(report);
+        sentryEventId = await Diagnostics.uploadReport(report);
       } else {
         await SharePlus.instance.share(
           ShareParams(text: report, title: l10n.diagnosticsReportTitle),
         );
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            sendToSentry
-                ? l10n.diagnosticsUploaded
-                : l10n.diagnosticsShareOpened,
+      if (sentryEventId case final eventId?) {
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(l10n.diagnosticsUploaded),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.diagnosticsEventIdLabel),
+                const SizedBox(height: 8),
+                SelectableText(
+                  eventId,
+                  textDirection: TextDirection.ltr,
+                  style: const TextStyle(fontFamily: 'monospace'),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.close),
+              ),
+            ],
           ),
-        ),
-      );
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.diagnosticsShareOpened)),
+        );
+      }
     } on Object {
       if (!mounted) return;
       ScaffoldMessenger.of(context)

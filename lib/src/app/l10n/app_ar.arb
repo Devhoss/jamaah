@@ -701,6 +701,7 @@
   "diagnosticsShare": "فتح قائمة المشاركة",
   "diagnosticsReportTitle": "تقرير تشخيص تطبيق جماعة",
   "diagnosticsUploaded": "أُرسل التقرير التشخيصي.",
+  "diagnosticsEventIdLabel": "معرّف الحدث في Sentry (حدّد للنسخ)",
   "diagnosticsShareOpened": "اختر تطبيقًا لمشاركة التقرير.",
   "diagnosticsSendFailed": "تعذر إعداد التقرير أو إرساله.",
   "methodListLead": "زوايا كل طريقة، وأين تُستعمل.",

@@ -399,6 +399,18 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
             'cancelled': report.cancelled,
             'exact_alarm': report.exact,
             'notifications_enabled': report.notificationsEnabled,
+            'platform_pending': report.platformPending,
+            'platform_pending_duplicates_before':
+                report.platformPendingDuplicatesBefore,
+            'platform_pending_duplicates_after':
+                report.platformPendingDuplicates,
+            'platform_pending_unexpected': report.platformPendingUnexpected,
+            'platform_pending_missing': report.platformPendingMissing,
+            'app_adhan_alarms_pending': report.adhanAlarms,
+            'app_adhan_alarm_duplicates': report.adhanAlarmDuplicates,
+            'app_adhan_alarms_missing': report.adhanAlarmsMissing,
+            'planned_duplicate_ids': report.plannedDuplicateIds,
+            'adhan_time_collisions': report.adhanTimeCollisions,
           },
         ),
       );
