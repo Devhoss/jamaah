@@ -17,10 +17,13 @@ class Diagnostics {
 
   static const _preferenceKey = 'diagnostics.sentryOptIn';
   static const _maxEntries = 200;
+  static const _maxReportBytes = 1024 * 1024;
+  static const _maxHistoryBytes = 2 * 1024 * 1024;
   static const _dsn = String.fromEnvironment('SENTRY_DSN');
   static bool _sentryEnabled = false;
   static bool _initialized = false;
   static Future<void> _writeQueue = Future<void>.value();
+  static int _writeFailures = 0;
 
   static bool get canUpload => _dsn.isNotEmpty;
   static bool get sentryEnabled => _sentryEnabled;
@@ -101,8 +104,15 @@ class Diagnostics {
         if (entries.length > _maxEntries) {
           entries = entries.sublist(entries.length - _maxEntries);
         }
-        await file.writeAsString(jsonEncode(entries), flush: true);
+        var serialized = jsonEncode(entries);
+        while (entries.length > 1 &&
+            utf8.encode(serialized).length > _maxHistoryBytes) {
+          entries.removeAt(0);
+          serialized = jsonEncode(entries);
+        }
+        await file.writeAsString(serialized, flush: true);
       } on Object {
+        _writeFailures++;
         // Diagnostics must never interfere with prayer alerts or reminders.
       }
     });
@@ -125,16 +135,147 @@ class Diagnostics {
     }
   }
 
-  static Future<String> createReport() async {
+  static Future<String> createReport({
+    Object? nativeEnvironment,
+    Object? nativeEvents,
+    Object? nativeStoredAlarms,
+  }) async {
     final entries = await recent();
-    final report = {
-      'format': 2,
+    final report = <String, Object?>{
+      'format': 3,
+      'schemaVersion': 3,
       'appBuild': buildLabel(),
       'platform': Platform.operatingSystem,
       'osVersion': Platform.operatingSystemVersion,
+      'sessionId': _sessionId,
+      'createdAtUtc': DateTime.now().toUtc().toIso8601String(),
+      'summary': {
+        ..._summary(entries),
+        'build': buildLabel(),
+        ..._environmentSummary(nativeEnvironment, nativeStoredAlarms),
+      },
+      'diagnosticWriteFailures': _writeFailures,
+      'environment': {
+        'android':
+            nativeEnvironment ??
+            'unknown (native diagnostic channel unavailable)',
+        'nativeEvents': nativeEvents ?? const [],
+        'nativeStoredAlarms':
+            nativeStoredAlarms ??
+            'unknown (native diagnostic channel unavailable)',
+        'lifecycleLimitations': 'Android does not expose reliable force-stop detection. Plugin pending requests do not prove delivery or display.',
+      },
       'recentEvents': entries,
     };
-    return const JsonEncoder.withIndent('  ').convert(report);
+    var encoded = const JsonEncoder.withIndent('  ').convert(report);
+    while (utf8.encode(encoded).length > _maxReportBytes &&
+        (report['recentEvents'] as List).isNotEmpty) {
+      final events = report['recentEvents'] as List;
+      events.removeAt(0);
+      report['eventsTrimmedForSize'] =
+          (report['eventsTrimmedForSize'] as int? ?? 0) + 1;
+      encoded = const JsonEncoder.withIndent('  ').convert(report);
+    }
+    return encoded;
+  }
+
+  static final String _sessionId = DateTime.now()
+      .toUtc()
+      .microsecondsSinceEpoch
+      .toString();
+
+  static Map<String, Object?> _summary(List<Map<String, Object?>> entries) {
+    final syncs = entries.where(
+      (e) => e['event'] == 'notification_sync_completed',
+    );
+    final latest = syncs.isEmpty ? null : syncs.first;
+    final lastSync = latest == null
+        ? null
+        : {
+            for (final key in [
+              'syncId',
+              'trigger',
+              'startedAtUtc',
+              'durationMs',
+              'lockWaitMs',
+              'anotherSyncWasInProgress',
+              'scheduled',
+              'nativeDesired',
+              'platformDesired',
+              'app_adhan_alarms_pending',
+              'platform_pending',
+              'exact_alarm',
+              'notifications_enabled',
+              'reconciliation',
+            ])
+              if (latest.containsKey(key)) key: latest[key],
+          };
+    final lifecycle = entries
+        .where(
+          (e) =>
+              e['event'] == 'adhan_alarm_receiver_fired' ||
+              e['event'] == 'adhan_playback_started' ||
+              e['event'] == 'adhan_playback_completed' ||
+              e['event'] == 'adhan_playback_interrupted',
+        )
+        .take(10)
+        .toList();
+    final reconciliation = latest?['reconciliation'];
+    final platform = reconciliation is Map ? reconciliation['platform'] : null;
+    final native = reconciliation is Map ? reconciliation['native'] : null;
+    int reconciliationCount(Object? section, String key) =>
+        section is Map && section[key] is List
+        ? (section[key] as List).length
+        : 0;
+    return {
+      'lastSync': lastSync,
+      'reconciliationTotals': {
+        'missing':
+            reconciliationCount(platform, 'missingIds') +
+            reconciliationCount(native, 'missingIds'),
+        'unexpected':
+            reconciliationCount(platform, 'unexpectedIds') +
+            reconciliationCount(native, 'unexpectedIds'),
+        'duplicates':
+            reconciliationCount(platform, 'duplicateIds') +
+            reconciliationCount(native, 'duplicateIds'),
+        'timestampMismatches':
+            reconciliationCount(platform, 'timestampMismatches') +
+            reconciliationCount(native, 'timestampMismatches'),
+      },
+      'recentReceiverPlaybackEvidence': lifecycle,
+      'deliveryLimit': 'Platform pending state does not prove delivery; regular notification display callbacks are unavailable.',
+    };
+  }
+
+  static Map<String, Object?> _environmentSummary(
+    Object? raw,
+    Object? storedAlarms,
+  ) {
+    if (raw is! Map) return {'device': 'unknown', 'permissions': 'unknown'};
+    final environment = Map<Object?, Object?>.from(raw);
+    return {
+      'device': {
+        'manufacturer': environment['manufacturer'] ?? 'unknown',
+        'model': environment['model'] ?? 'unknown',
+        'androidVersion': environment['androidVersion'] ?? 'unknown',
+        'androidApiLevel': environment['androidApiLevel'] ?? 'unknown',
+        'osBuild': environment['osBuild'] ?? 'unknown',
+      },
+      'permissions': {
+        'notificationsEnabled':
+            environment['notificationsEnabled'] ?? 'unknown',
+        'postNotificationsPermission':
+            environment['postNotificationsPermission'] ?? 'unknown',
+        'exactAlarmCapability':
+            environment['exactAlarmCapability'] ?? 'unknown',
+        'fullScreenIntentCapability':
+            environment['fullScreenIntentCapability'] ?? 'unknown',
+      },
+      'nativeQueueCount': (storedAlarms is List)
+          ? storedAlarms.length
+          : 'unknown',
+    };
   }
 
   static Future<String> uploadReport(String report) async {

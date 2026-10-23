@@ -10,8 +10,25 @@ class FakeNotificationGateway implements NotificationGateway {
 
   bool exact;
   bool enabled;
+  bool _syncLocked = false;
+  int _nextLockToken = 0;
+
+  @override
+  Future<String?> acquireSyncLock() async {
+    while (_syncLocked) {
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+    _syncLocked = true;
+    return 'fake-lock-${_nextLockToken++}';
+  }
+
+  @override
+  Future<void> releaseSyncLock(String token) async {
+    _syncLocked = false;
+  }
 
   final scheduled = <int, ScheduledItem>{};
+  List<PendingItem>? pendingReadbackOverride;
   final channels = <String, ChannelSpec>{};
 
   /// Channels another app or an older install left behind.
@@ -45,19 +62,21 @@ class FakeNotificationGateway implements NotificationGateway {
   }
 
   @override
-  Future<List<PendingItem>> pending() async => [
-    for (final item in scheduled.values)
-      PendingItem(
-        id: item.id,
-        title: item.title,
-        body: item.body,
-        // What the real gateway writes, so screens can read time and kind.
-        payload: jsonEncode({
-          'at': item.at.toUtc().toIso8601String(),
-          'kind': item.planned.kind.name,
-        }),
-      ),
-  ];
+  Future<List<PendingItem>> pending() async =>
+      pendingReadbackOverride ??
+      [
+        for (final item in scheduled.values)
+          PendingItem(
+            id: item.id,
+            title: item.title,
+            body: item.body,
+            // What the real gateway writes, so screens can read time and kind.
+            payload: jsonEncode({
+              'at': item.at.toUtc().toIso8601String(),
+              'kind': item.planned.kind.name,
+            }),
+          ),
+      ];
 
   @override
   Future<void> cancel(int id) async => scheduled.remove(id);
@@ -71,6 +90,7 @@ class FakeNotificationGateway implements NotificationGateway {
 
   /// Adhans the app plays itself (native), by id.
   final adhanAlarmsById = <int, ScheduledItem>{};
+  List<PendingItem>? nativeReadbackOverride;
   final playedNow = <ScheduledItem>[];
   bool fullScreenAllowed = true;
 
@@ -82,18 +102,20 @@ class FakeNotificationGateway implements NotificationGateway {
   }
 
   @override
-  Future<List<PendingItem>> adhanAlarms() async => [
-    for (final item in adhanAlarmsById.values)
-      PendingItem(
-        id: item.id,
-        title: item.title,
-        body: item.body,
-        payload: jsonEncode({
-          'at': item.at.toUtc().toIso8601String(),
-          'kind': 'adhan',
-        }),
-      ),
-  ];
+  Future<List<PendingItem>> adhanAlarms() async =>
+      nativeReadbackOverride ??
+      [
+        for (final item in adhanAlarmsById.values)
+          PendingItem(
+            id: item.id,
+            title: item.title,
+            body: item.body,
+            payload: jsonEncode({
+              'at': item.at.toUtc().toIso8601String(),
+              'kind': item.planned.kind.name,
+            }),
+          ),
+      ];
 
   @override
   Future<void> playAdhanNow(ScheduledItem item) async => playedNow.add(item);

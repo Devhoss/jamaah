@@ -48,6 +48,12 @@ class PendingItem {
 
 /// The platform side, small enough to fake in tests.
 abstract interface class NotificationGateway {
+  /// Serializes all scheduling work across the foreground and background
+  /// Flutter engines. A null token means another engine currently owns it.
+  Future<String?> acquireSyncLock();
+
+  Future<void> releaseSyncLock(String token);
+
   /// Creates any of [channels] that do not exist yet. A channel that exists keeps
   /// the user's own changes to it in system settings.
   Future<void> ensureChannels(Iterable<ChannelSpec> channels);
@@ -107,6 +113,8 @@ class SyncReport {
     required this.adhanAlarmsMissing,
     required this.plannedDuplicateIds,
     required this.adhanTimeCollisions,
+    required this.reconciliation,
+    required this.lockWaitMs,
   });
 
   /// Number of future plan entries, not the platform queue size.
@@ -130,6 +138,11 @@ class SyncReport {
   /// Extra Adhan alarms sharing a minute with another Adhan alarm. This is a
   /// count only; the report never contains the minute or prayer identity.
   final int adhanTimeCollisions;
+
+  /// Exact ID and timestamp differences observed after scheduling. These are
+  /// queue readbacks, not evidence that Android delivered an alert.
+  final Map<String, Object?> reconciliation;
+  final int lockWaitMs;
 
   @override
   String toString() =>
@@ -156,151 +169,267 @@ class NotificationSync {
     String Function(DateTime at)? timeLabel,
     Map<String, Object?>? Function(PlannedNotification n)? screenFor,
   }) async {
-    final future = [
-      for (final n in plan)
-        if (n.at.isAfter(now)) n,
-    ];
-    final items = [
-      for (final n in future)
-        () {
-          final text = textFor(n);
-          return ScheduledItem(
-            planned: n,
-            channel: channelFor(n),
-            title: text.title,
-            body: text.body,
-            stopLabel: stopLabel,
-            timeLabel: timeLabel?.call(n.at) ?? '',
-            // Only an Adhan that fills the screen has a page to draw.
-            screen: n.fullScreen && n.kind == NotificationKind.adhan
-                ? screenFor?.call(n)
-                : null,
-          );
-        }(),
-    ];
-    // The full Adhan and the full-screen Adhan are played by the app itself;
-    // everything else is a notification the platform schedules.
-    final inApp = [
-      for (final i in items)
-        if (playsInApp(i.planned)) i,
-    ];
-    final notifications = [
-      for (final i in items)
-        if (!playsInApp(i.planned)) i,
-    ];
-    final wanted = {for (final i in notifications) i.id};
-    final channels = {for (final i in notifications) i.channel};
-
-    await _gateway.ensureChannels(channels);
-
-    final before = await _gateway.pending();
-    final beforeIds = before.map((p) => p.id).toList();
-    final beforeCounts = <int, int>{};
-    for (final id in beforeIds) {
-      beforeCounts.update(id, (n) => n + 1, ifAbsent: () => 1);
-    }
-    final pendingDuplicates = beforeCounts.values.fold<int>(
-      0,
-      (sum, count) => sum + (count > 1 ? count - 1 : 0),
-    );
-
-    var cancelled = 0;
-    for (final p in before) {
-      if (!wanted.contains(p.id)) {
-        await _gateway.cancel(p.id);
-        cancelled++;
+    String? lockToken;
+    final lockTimer = Stopwatch()..start();
+    while (lockToken == null) {
+      lockToken = await _gateway.acquireSyncLock();
+      if (lockToken == null) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
       }
     }
+    final lockWaitMs = lockTimer.elapsedMilliseconds;
+    try {
+      final future = [
+        for (final n in plan)
+          if (n.at.isAfter(now)) n,
+      ];
+      final items = [
+        for (final n in future)
+          () {
+            final text = textFor(n);
+            return ScheduledItem(
+              planned: n,
+              channel: channelFor(n),
+              title: text.title,
+              body: text.body,
+              stopLabel: stopLabel,
+              timeLabel: timeLabel?.call(n.at) ?? '',
+              // Only an Adhan that fills the screen has a page to draw.
+              screen: n.fullScreen && n.kind == NotificationKind.adhan
+                  ? screenFor?.call(n)
+                  : null,
+            );
+          }(),
+      ];
+      // The full Adhan and the full-screen Adhan are played by the app itself;
+      // everything else is a notification the platform schedules.
+      final inApp = [
+        for (final i in items)
+          if (playsInApp(i.planned)) i,
+      ];
+      final notifications = [
+        for (final i in items)
+          if (!playsInApp(i.planned)) i,
+      ];
+      final wanted = {for (final i in notifications) i.id};
+      final channels = {for (final i in notifications) i.channel};
 
-    final exact = await _gateway.canScheduleExact();
-    for (final item in notifications) {
-      await _gateway.schedule(item, exact: exact);
-    }
-    await _gateway.replaceAdhanAlarms(inApp);
+      await _gateway.ensureChannels(channels);
 
-    // Read back both platform-owned queues. Counts and duplicate checks only:
-    // never include ids, notification text, prayer names, or scheduled times
-    // in the user-submitted diagnostics report.
-    final after = await _gateway.pending();
-    final afterAdhan = await _gateway.adhanAlarms();
-    final actualPendingIds = after.map((p) => p.id).toSet();
-    final actualAdhanIds = afterAdhan.map((p) => p.id).toSet();
-    int duplicateCount(Iterable<PendingItem> entries) {
-      final counts = <int, int>{};
-      for (final entry in entries) {
-        counts.update(entry.id, (n) => n + 1, ifAbsent: () => 1);
+      final before = await _gateway.pending();
+      final beforeIds = before.map((p) => p.id).toList();
+      final beforeCounts = <int, int>{};
+      for (final id in beforeIds) {
+        beforeCounts.update(id, (n) => n + 1, ifAbsent: () => 1);
       }
-      return counts.values.fold<int>(
+      final pendingDuplicates = beforeCounts.values.fold<int>(
         0,
         (sum, count) => sum + (count > 1 ? count - 1 : 0),
       );
-    }
 
-    int adhanCollisionCount(Iterable<PendingItem> entries) {
-      final byMinute = <int, int>{};
-      for (final entry in entries) {
-        try {
-          final payload =
-              jsonDecode(entry.payload ?? '') as Map<String, dynamic>;
-          if (payload['kind'] != NotificationKind.adhan.name) continue;
-          final at = DateTime.parse(payload['at'] as String).toUtc();
-          final minute =
-              at.millisecondsSinceEpoch ~/ Duration.millisecondsPerMinute;
-          byMinute.update(minute, (count) => count + 1, ifAbsent: () => 1);
-        } on Object {
-          // Ignore an unreadable platform item; it is counted in the queue
-          // reconciliation fields instead.
+      var cancelled = 0;
+      for (final p in before) {
+        if (!wanted.contains(p.id)) {
+          await _gateway.cancel(p.id);
+          cancelled++;
         }
       }
-      return byMinute.values.fold<int>(
-        0,
-        (sum, count) => sum + (count > 1 ? count - 1 : 0),
-      );
-    }
 
-    final planCounts = <int, int>{};
-    for (final item in items) {
-      planCounts.update(item.id, (n) => n + 1, ifAbsent: () => 1);
-    }
-
-    // Channels nothing uses any more: a retired tone version, or a mode no
-    // prayer uses. Removing them keeps the system settings list honest.
-    // A channel with a notification showing is kept too: deleting it would
-    // take that notification away (a test sent a moment ago, 2026-10-16).
-    final inUse = {
-      for (final c in channels) c.id,
-      ...await _gateway.activeChannelIds(),
-    };
-    for (final id in await _gateway.channelIds()) {
-      if (id.startsWith(kChannelPrefix) && !inUse.contains(id)) {
-        await _gateway.deleteChannel(id);
+      final exact = await _gateway.canScheduleExact();
+      for (final item in notifications) {
+        await _gateway.schedule(item, exact: exact);
       }
-    }
+      await _gateway.replaceAdhanAlarms(inApp);
 
-    return SyncReport(
-      scheduled: items.length,
-      cancelled: cancelled,
-      exact: exact,
-      notificationsEnabled: await _gateway.notificationsEnabled(),
-      platformPending: after.length,
-      platformPendingDuplicatesBefore: pendingDuplicates,
-      platformPendingDuplicates: duplicateCount(after),
-      platformPendingUnexpected: after
-          .where((item) => !wanted.contains(item.id))
-          .length,
-      platformPendingMissing: notifications
-          .where((item) => !actualPendingIds.contains(item.id))
-          .length,
-      adhanAlarms: afterAdhan.length,
-      adhanAlarmDuplicates: duplicateCount(afterAdhan),
-      adhanAlarmsMissing: inApp
-          .where((item) => !actualAdhanIds.contains(item.id))
-          .length,
-      plannedDuplicateIds: planCounts.values.fold<int>(
-        0,
-        (sum, count) => sum + (count > 1 ? count - 1 : 0),
-      ),
-      adhanTimeCollisions: adhanCollisionCount([...after, ...afterAdhan]),
-    );
+      // Read back both platform-owned queues. Counts and duplicate checks only:
+      // never include ids, notification text, prayer names, or scheduled times
+      // in the user-submitted diagnostics report.
+      final after = await _gateway.pending();
+      final afterAdhan = await _gateway.adhanAlarms();
+      final actualPendingIds = after.map((p) => p.id).toSet();
+      final actualAdhanIds = afterAdhan.map((p) => p.id).toSet();
+      int duplicateCount(Iterable<PendingItem> entries) {
+        final counts = <int, int>{};
+        for (final entry in entries) {
+          counts.update(entry.id, (n) => n + 1, ifAbsent: () => 1);
+        }
+        return counts.values.fold<int>(
+          0,
+          (sum, count) => sum + (count > 1 ? count - 1 : 0),
+        );
+      }
+
+      int adhanCollisionCount(Iterable<PendingItem> entries) {
+        final byMinute = <int, int>{};
+        for (final entry in entries) {
+          try {
+            final payload =
+                jsonDecode(entry.payload ?? '') as Map<String, dynamic>;
+            if (payload['kind'] != NotificationKind.adhan.name) continue;
+            final at = DateTime.parse(payload['at'] as String).toUtc();
+            final minute =
+                at.millisecondsSinceEpoch ~/ Duration.millisecondsPerMinute;
+            byMinute.update(minute, (count) => count + 1, ifAbsent: () => 1);
+          } on Object {
+            // Ignore an unreadable platform item; it is counted in the queue
+            // reconciliation fields instead.
+          }
+        }
+        return byMinute.values.fold<int>(
+          0,
+          (sum, count) => sum + (count > 1 ? count - 1 : 0),
+        );
+      }
+
+      final planCounts = <int, int>{};
+      for (final item in items) {
+        planCounts.update(item.id, (n) => n + 1, ifAbsent: () => 1);
+      }
+
+      // Channels nothing uses any more: a retired tone version, or a mode no
+      // prayer uses. Removing them keeps the system settings list honest.
+      // A channel with a notification showing is kept too: deleting it would
+      // take that notification away (a test sent a moment ago, 2026-10-16).
+      final inUse = {
+        for (final c in channels) c.id,
+        ...await _gateway.activeChannelIds(),
+      };
+      for (final id in await _gateway.channelIds()) {
+        if (id.startsWith(kChannelPrefix) && !inUse.contains(id)) {
+          await _gateway.deleteChannel(id);
+        }
+      }
+
+      final desiredPlatform = {for (final item in notifications) item.id: item};
+      final desiredNative = {for (final item in inApp) item.id: item};
+      List<Map<String, Object?>> mismatches(
+        Iterable<PendingItem> actual,
+        Map<int, ScheduledItem> desired,
+      ) => [
+        for (final item in actual)
+          if (desired.containsKey(item.id))
+            () {
+              final expected = desired[item.id]!;
+              DateTime? observedAt;
+              try {
+                final payload =
+                    jsonDecode(item.payload ?? '') as Map<String, dynamic>;
+                if (payload['at'] is String) {
+                  observedAt = DateTime.parse(payload['at'] as String).toUtc();
+                }
+              } on Object {
+                // Invalid metadata remains a timestamp-unavailable mismatch.
+              }
+              if (observedAt == null || observedAt != expected.at.toUtc()) {
+                return {
+                  'id': item.id,
+                  'expectedAtUtc': expected.at.toUtc().toIso8601String(),
+                  'observedAtUtc': observedAt?.toIso8601String(),
+                  'reason': observedAt == null
+                      ? 'timestamp_unavailable'
+                      : 'timestamp_mismatch',
+                };
+              }
+              return null;
+            }(),
+      ].whereType<Map<String, Object?>>().toList();
+      List<int> duplicateIds(Iterable<PendingItem> entries) {
+        final counts = <int, int>{};
+        for (final entry in entries) {
+          counts.update(entry.id, (n) => n + 1, ifAbsent: () => 1);
+        }
+        return counts.entries
+            .where((e) => e.value > 1)
+            .map((e) => e.key)
+            .toList();
+      }
+
+      List<Map<String, Object?>> observedEntries(
+        Iterable<PendingItem> entries,
+      ) => [
+        for (final entry in entries)
+          {
+            'id': entry.id,
+            'metadata': () {
+              try {
+                final decoded = jsonDecode(entry.payload ?? '');
+                if (decoded is Map) {
+                  return {
+                    for (final key in [
+                      'at',
+                      'kind',
+                      'channel',
+                      'soundMode',
+                      'ringInSilent',
+                      'fullScreen',
+                    ])
+                      if (decoded.containsKey(key)) key: decoded[key],
+                  };
+                }
+              } on Object {
+                // Keep the queue entry visible even if its payload is unreadable.
+              }
+              return 'unavailable';
+            }(),
+          },
+      ];
+
+      return SyncReport(
+        scheduled: items.length,
+        cancelled: cancelled,
+        exact: exact,
+        notificationsEnabled: await _gateway.notificationsEnabled(),
+        platformPending: after.length,
+        platformPendingDuplicatesBefore: pendingDuplicates,
+        platformPendingDuplicates: duplicateCount(after),
+        platformPendingUnexpected: after
+            .where((item) => !wanted.contains(item.id))
+            .length,
+        platformPendingMissing: notifications
+            .where((item) => !actualPendingIds.contains(item.id))
+            .length,
+        adhanAlarms: afterAdhan.length,
+        adhanAlarmDuplicates: duplicateCount(afterAdhan),
+        adhanAlarmsMissing: inApp
+            .where((item) => !actualAdhanIds.contains(item.id))
+            .length,
+        plannedDuplicateIds: planCounts.values.fold<int>(
+          0,
+          (sum, count) => sum + (count > 1 ? count - 1 : 0),
+        ),
+        adhanTimeCollisions: adhanCollisionCount([...after, ...afterAdhan]),
+        reconciliation: {
+          'platform': {
+            'missingIds': notifications
+                .where((i) => !actualPendingIds.contains(i.id))
+                .map((i) => i.id)
+                .toList(),
+            'unexpectedIds': after
+                .where((i) => !wanted.contains(i.id))
+                .map((i) => i.id)
+                .toList(),
+            'duplicateIds': duplicateIds(after),
+            'timestampMismatches': mismatches(after, desiredPlatform),
+            'observedEntries': observedEntries(after),
+          },
+          'native': {
+            'missingIds': inApp
+                .where((i) => !actualAdhanIds.contains(i.id))
+                .map((i) => i.id)
+                .toList(),
+            'unexpectedIds': afterAdhan
+                .where((i) => !desiredNative.containsKey(i.id))
+                .map((i) => i.id)
+                .toList(),
+            'duplicateIds': duplicateIds(afterAdhan),
+            'timestampMismatches': mismatches(afterAdhan, desiredNative),
+            'observedEntries': observedEntries(afterAdhan),
+          },
+        },
+        lockWaitMs: lockWaitMs,
+      );
+    } finally {
+      await _gateway.releaseSyncLock(lockToken);
+    }
   }
 }

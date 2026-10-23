@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/diagnostics.dart';
@@ -25,7 +28,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
 
   Future<void> _sendReport() async {
     final l10n = AppLocalizations.of(context);
-    final sendToSentry = Diagnostics.canUpload && _sentryEnabled;
+    final canUploadToSentry = Diagnostics.canUpload && _sentryEnabled;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -34,27 +37,52 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
             child: Text(
-              sendToSentry ? l10n.diagnosticsUpload : l10n.diagnosticsShare,
+              canUploadToSentry ? l10n.diagnosticsShare : l10n.cancel,
             ),
           ),
+          if (canUploadToSentry)
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.diagnosticsUpload),
+            ),
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed == null || !mounted) return;
+    final sendToSentry = confirmed;
     setState(() => _sending = true);
     try {
-      final report = await Diagnostics.createReport();
+      const native = MethodChannel('dev.jamaah.app/adhan');
+      Object? environment;
+      Object? nativeEvents;
+      Object? nativeStoredAlarms;
+      try {
+        environment = await native.invokeMethod<Object?>(
+          'diagnosticEnvironment',
+        );
+        nativeEvents = await native.invokeMethod<Object?>('diagnosticEvents');
+        nativeStoredAlarms = await native.invokeMethod<Object?>('stored');
+      } on Object {
+        // Keep export available on unsupported platforms or if the channel fails.
+      }
+      final report = await Diagnostics.createReport(
+        nativeEnvironment: environment,
+        nativeEvents: nativeEvents,
+        nativeStoredAlarms: nativeStoredAlarms,
+      );
       String? sentryEventId;
       if (sendToSentry) {
         sentryEventId = await Diagnostics.uploadReport(report);
       } else {
         await SharePlus.instance.share(
-          ShareParams(text: report, title: l10n.diagnosticsReportTitle),
+          ShareParams(
+            files: [
+              XFile.fromData(utf8.encode(report), mimeType: 'application/json'),
+            ],
+            fileNameOverrides: const ['jamaah-diagnostics.json'],
+            title: l10n.diagnosticsReportTitle,
+          ),
         );
       }
       if (!mounted) return;
@@ -85,9 +113,8 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.diagnosticsShareOpened)),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.diagnosticsShareOpened)));
       }
     } on Object {
       if (!mounted) return;

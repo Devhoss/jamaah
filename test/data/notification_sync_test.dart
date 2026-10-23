@@ -84,6 +84,90 @@ void main() {
     expect(gateway.scheduled, hasLength(2));
   });
 
+  test(
+    'concurrent syncs are serialized and leave the last desired set',
+    () async {
+      final gateway = FakeNotificationGateway();
+      final sync = NotificationSync(gateway);
+      await Future.wait([
+        sync.apply(
+          plan: [n(1, fromNow: const Duration(hours: 1))],
+          now: now,
+          textFor: text,
+        ),
+        sync.apply(
+          plan: [n(2, fromNow: const Duration(hours: 2))],
+          now: now,
+          textFor: text,
+        ),
+      ]);
+      expect(gateway.scheduled.keys, [2]);
+    },
+  );
+
+  test(
+    'reconciliation identifies missing and timestamp-mismatched entries',
+    () async {
+      final gateway = FakeNotificationGateway();
+      final report = await NotificationSync(gateway).apply(
+        plan: [
+          n(1, fromNow: const Duration(hours: 1)),
+          n(2, fromNow: const Duration(hours: 2)),
+        ],
+        now: now,
+        textFor: text,
+      );
+      gateway.pendingReadbackOverride = [
+        PendingItem(
+          id: 1,
+          payload: '{"at":"2026-10-13T14:00:00.000Z","kind":"adhan"}',
+        ),
+        PendingItem(id: 999, payload: '{"at":"2026-10-13T14:00:00.000Z"}'),
+      ];
+      final mismatched = await NotificationSync(gateway).apply(
+        plan: [
+          n(1, fromNow: const Duration(hours: 1)),
+          n(2, fromNow: const Duration(hours: 2)),
+        ],
+        now: now,
+        textFor: text,
+      );
+      final platform = mismatched.reconciliation['platform']! as Map;
+      expect(platform['missingIds'], [2]);
+      expect(platform['unexpectedIds'], [999]);
+      expect(
+        (platform['timestampMismatches']! as List).single['reason'],
+        'timestamp_mismatch',
+      );
+      expect(report.scheduled, 2);
+    },
+  );
+
+  test(
+    'native count discrepancy reports the specific missing alarm ID',
+    () async {
+      final gateway = FakeNotificationGateway()
+        ..nativeReadbackOverride = [
+          PendingItem(
+            id: 10,
+            payload: '{"at":"2026-10-13T13:00:00.000Z","kind":"adhan"}',
+          ),
+        ];
+      final report = await NotificationSync(gateway).apply(
+        plan: [
+          n(10, fromNow: const Duration(hours: 1), mode: AdhanSoundMode.full),
+          n(11, fromNow: const Duration(hours: 2), mode: AdhanSoundMode.full),
+        ],
+        now: now,
+        textFor: text,
+      );
+      final native = report.reconciliation['native']! as Map;
+      expect(report.adhanAlarms, 1);
+      expect(report.adhanAlarmsMissing, 1);
+      expect(native['missingIds'], [11]);
+    },
+  );
+
   test('creates the channels the plan uses', () async {
     final gateway = FakeNotificationGateway();
     await NotificationSync(gateway).apply(
@@ -118,21 +202,25 @@ void main() {
     expect(ids, contains('miscellaneous'));
   });
 
-  test('keeps a channel whose notification is showing, such as a test', () async {
-    final gateway = FakeNotificationGateway();
-    final shown = n(9, fromNow: Duration.zero);
-    await gateway.showNow(
-      ScheduledItem(
-        planned: shown,
-        channel: channelFor(shown),
-        title: 't',
-        body: 'b',
-      ),
-    );
-    // Nothing is planned: every channel of the app is unused.
-    await NotificationSync(gateway).apply(plan: const [], now: now, textFor: text);
-    expect(await gateway.channelIds(), contains(channelFor(shown).id));
-  });
+  test(
+    'keeps a channel whose notification is showing, such as a test',
+    () async {
+      final gateway = FakeNotificationGateway();
+      final shown = n(9, fromNow: Duration.zero);
+      await gateway.showNow(
+        ScheduledItem(
+          planned: shown,
+          channel: channelFor(shown),
+          title: 't',
+          body: 'b',
+        ),
+      );
+      // Nothing is planned: every channel of the app is unused.
+      await NotificationSync(gateway)
+          .apply(plan: const [], now: now, textFor: text);
+      expect(await gateway.channelIds(), contains(channelFor(shown).id));
+    },
+  );
 
   test(
     'denied exact alarms degrade to inexact timing, and the report says so',

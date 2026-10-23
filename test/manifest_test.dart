@@ -197,12 +197,32 @@ void main() {
       expect(text, contains('android:showWhenLocked="true"'));
       expect(text, contains('android:name=".AdhanAlarmReceiver"'));
       expect(text, contains('android:name=".AdhanBootReceiver"'));
+      final service = File(
+        'android/app/src/main/kotlin/dev/jamaah/app/AdhanService.kt',
+      ).readAsStringSync();
+      final activity = File(
+        'android/app/src/main/kotlin/dev/jamaah/app/AdhanActivity.kt',
+      ).readAsStringSync();
+      final alarms = File(
+        'android/app/src/main/kotlin/dev/jamaah/app/AdhanAlarms.kt',
+      ).readAsStringSync();
       // The full recording is read from the Flutter assets in place.
-      expect(
-        File('android/app/src/main/kotlin/dev/jamaah/app/AdhanService.kt')
-            .readAsStringSync(),
-        contains('flutter_assets/'),
-      );
+      expect(service, contains('flutter_assets/'));
+      // A swipe must reach the service to stop playback, and the foreground
+      // notification must not be marked ongoing (non-dismissable).
+      expect(service, contains('builder.setDeleteIntent(dismiss)'));
+      expect(service, contains('ACTION_DISMISS'));
+      expect(service, contains('.setOngoing(false)'));
+      // Silent full-screen alerts and wedged players have bounded lifetimes.
+      expect(service, contains('soundDone = true'));
+      expect(service, contains('MAX_ADHAN_PLAYBACK_MILLIS'));
+      // Show over the lock screen without unlocking or keeping it awake after
+      // the Adhan activity is dismissed.
+      expect(activity, isNot(contains('requestDismissKeyguard')));
+      expect(activity, isNot(contains('FLAG_DISMISS_KEYGUARD')));
+      expect(activity, contains('clearScreenAwakeFlags()'));
+      expect(alarms, contains('"app_updated"'));
+      expect(alarms, contains('"fullScreenIntentCapability"'));
     },
   );
 }

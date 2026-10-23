@@ -107,26 +107,72 @@ data class AdhanAlarm(
 object AdhanAlarms {
     private const val PREFS = "jamaah_adhan_alarms"
     private const val KEY = "alarms"
+    private val lock = Any()
 
-    fun replaceAll(context: Context, alarms: List<AdhanAlarm>) {
-        for (old in stored(context)) cancel(context, old.id)
+    fun replaceAll(context: Context, alarms: List<AdhanAlarm>) = synchronized(lock) {
+        val duplicateIds = alarms.groupingBy { it.id }.eachCount().filterValues { it > 1 }
+        require(duplicateIds.isEmpty()) { "Duplicate native alarm IDs: ${duplicateIds.size}" }
+        val old = storedUnlocked(context)
         val future = alarms.filter { it.atMillis > System.currentTimeMillis() }
-        save(context, future)
-        for (alarm in future) register(context, alarm)
+        NativeDiagnostics.record(context, "adhan_alarm_replace_started", mapOf(
+            "oldCount" to old.size,
+            "requestedCount" to alarms.size,
+            "futureCount" to future.size,
+        ))
+        for (item in old) cancel(context, item.id)
+        // Keep the desired set durable before registering it so the next refresh
+        // or reboot can repair any alarms lost to process death.
+        saveUnlocked(context, future)
+        val failures = mutableListOf<Exception>()
+        for (alarm in future) {
+            try {
+                register(context, alarm)
+            } catch (error: Exception) {
+                failures += error
+            }
+        }
+        NativeDiagnostics.record(context, "adhan_alarm_replace_completed", mapOf(
+            "requestedCount" to future.size,
+            "registrationFailures" to failures.size,
+        ))
+        if (failures.isNotEmpty()) {
+            throw IllegalStateException("${failures.size} native alarms could not be registered", failures.first())
+        }
     }
 
     /** Puts the stored alarms back after a reboot or an app update. */
-    fun restore(context: Context) {
-        val future = stored(context).filter { it.atMillis > System.currentTimeMillis() }
-        save(context, future)
-        for (alarm in future) register(context, alarm)
+    fun restore(context: Context) = synchronized(lock) {
+        val future = storedUnlocked(context).filter { it.atMillis > System.currentTimeMillis() }
+        NativeDiagnostics.record(context, "adhan_alarm_restore_started", mapOf("futureCount" to future.size))
+        saveUnlocked(context, future)
+        val failures = mutableListOf<Exception>()
+        for (alarm in future) {
+            try {
+                register(context, alarm)
+            } catch (error: Exception) {
+                failures += error
+            }
+        }
+        NativeDiagnostics.record(context, "adhan_alarm_restore_completed", mapOf(
+            "requestedCount" to future.size,
+            "registrationFailures" to failures.size,
+        ))
+        if (failures.isNotEmpty()) {
+            throw IllegalStateException("${failures.size} native alarms could not be restored", failures.first())
+        }
     }
 
-    fun find(context: Context, id: Int): AdhanAlarm? = stored(context).firstOrNull { it.id == id }
+    /** Consume the record atomically so duplicate receiver callbacks cannot start it twice. */
+    fun take(context: Context, id: Int): AdhanAlarm? = synchronized(lock) {
+        val alarms = storedUnlocked(context)
+        val alarm = alarms.firstOrNull { it.id == id }
+        if (alarm != null) saveUnlocked(context, alarms.filterNot { it.id == id })
+        alarm
+    }
 
-    fun forget(context: Context, id: Int) = save(context, stored(context).filter { it.id != id })
+    fun stored(context: Context): List<AdhanAlarm> = synchronized(lock) { storedUnlocked(context) }
 
-    fun stored(context: Context): List<AdhanAlarm> {
+    private fun storedUnlocked(context: Context): List<AdhanAlarm> {
         val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null)
             ?: return emptyList()
         return try {
@@ -137,7 +183,7 @@ object AdhanAlarms {
         }
     }
 
-    private fun save(context: Context, alarms: List<AdhanAlarm>) {
+    private fun saveUnlocked(context: Context, alarms: List<AdhanAlarm>) {
         val array = JSONArray()
         alarms.forEach { array.put(it.toJson()) }
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -155,17 +201,54 @@ object AdhanAlarms {
         val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = pendingIntent(context, alarm.id)
         val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || manager.canScheduleExactAlarms()
+        val diagnostic = mapOf(
+            "notificationId" to alarm.id,
+            "kind" to alarm.kind,
+            "scheduledAtEpochMillis" to alarm.atMillis,
+            "exactCapability" to exact,
+            "exactCapabilityApi" to "AlarmManager.canScheduleExactAlarms",
+        )
+        NativeDiagnostics.record(context, "adhan_alarm_registration_requested", diagnostic)
         if (exact) {
-            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
+            try {
+                manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
+                NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf("mode" to "exact"))
+            } catch (error: SecurityException) {
+                try {
+                    manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
+                    NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf(
+                        "exactCapability" to false,
+                        "mode" to "inexact_fallback",
+                        "fallbackReason" to "exact_access_revoked_during_registration",
+                    ))
+                } catch (fallbackError: Exception) {
+                    recordRegistrationFailure(context, diagnostic, fallbackError, "inexact_fallback_failed")
+                    throw fallbackError
+                }
+            }
         } else {
             // Without the exact-alarm permission: inexact, and the app says so.
             manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
+            NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf("mode" to "inexact"))
         }
+    }
+
+    private fun recordRegistrationFailure(
+        context: Context,
+        diagnostic: Map<String, Any?>,
+        error: Exception,
+        code: String,
+    ) {
+        NativeDiagnostics.record(context, "adhan_alarm_registration_failed", diagnostic + mapOf(
+            "errorClass" to error.javaClass.simpleName,
+            "errorCode" to code,
+        ))
     }
 
     private fun cancel(context: Context, id: Int) {
         val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         manager.cancel(pendingIntent(context, id))
+        NativeDiagnostics.record(context, "adhan_alarm_cancel_completed", mapOf("notificationId" to id))
     }
 }
 
@@ -173,9 +256,26 @@ object AdhanAlarms {
 class AdhanAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getIntExtra(EXTRA_ID, -1)
-        val alarm = AdhanAlarms.find(context, id) ?: return
-        AdhanAlarms.forget(context, id)
-        AdhanService.start(context, alarm)
+        val alarm = AdhanAlarms.take(context, id)
+        if (alarm == null) {
+            NativeDiagnostics.record(context, "adhan_alarm_receiver_unmatched", mapOf("notificationId" to id))
+            return
+        }
+        NativeDiagnostics.record(context, "adhan_alarm_receiver_fired", mapOf(
+            "notificationId" to id,
+            "kind" to alarm.kind,
+            "scheduledAtEpochMillis" to alarm.atMillis,
+        ))
+        try {
+            AdhanService.start(context, alarm)
+            NativeDiagnostics.record(context, "adhan_service_start_requested", mapOf("notificationId" to id))
+        } catch (error: Exception) {
+            NativeDiagnostics.record(context, "adhan_service_start_failed", mapOf(
+                "notificationId" to id,
+                "errorClass" to error.javaClass.simpleName,
+            ))
+            throw error
+        }
     }
 
     companion object {
@@ -188,9 +288,19 @@ class AdhanBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED,
-            Intent.ACTION_MY_PACKAGE_REPLACED,
             "android.intent.action.QUICKBOOT_POWERON",
             -> AdhanAlarms.restore(context)
+            Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                NativeDiagnostics.record(
+                    context,
+                    "app_updated",
+                    mapOf(
+                        "fullScreenIntentCapability" to
+                            AdhanService.canUseFullScreen(context),
+                    ),
+                )
+                AdhanAlarms.restore(context)
+            }
         }
     }
 }

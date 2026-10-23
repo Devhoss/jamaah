@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../domain/notification_channels.dart';
+import '../../app/diagnostics.dart';
 import 'notification_sync.dart';
 
 /// [NotificationGateway] on flutter_local_notifications (Android).
@@ -43,12 +45,11 @@ class LocalNotificationsGateway implements NotificationGateway {
     _ready = true;
   }
 
-  AndroidNotificationSound? _sound(ChannelSpec c) => switch (rawSoundFor(
-    c.sound,
-  )) {
-    final raw? => RawResourceAndroidNotificationSound(raw),
-    null => null,
-  };
+  AndroidNotificationSound? _sound(ChannelSpec c) =>
+      switch (rawSoundFor(c.sound)) {
+        final raw? => RawResourceAndroidNotificationSound(raw),
+        null => null,
+      };
 
   AudioAttributesUsage _usage(ChannelSpec c) => c.alarmStream
       ? AudioAttributesUsage.alarm
@@ -110,7 +111,23 @@ class LocalNotificationsGateway implements NotificationGateway {
   @override
   Future<void> cancel(int id) async {
     await _init();
-    await _plugin.cancel(id: id);
+    unawaited(
+      Diagnostics.record('notification_cancel_requested', values: {'id': id}),
+    );
+    try {
+      await _plugin.cancel(id: id);
+      unawaited(
+        Diagnostics.record('notification_cancel_completed', values: {'id': id}),
+      );
+    } on Object catch (error) {
+      unawaited(
+        Diagnostics.record(
+          'notification_cancel_failed',
+          values: {'id': id, 'errorType': error.runtimeType.toString()},
+        ),
+      );
+      rethrow;
+    }
   }
 
   @override
@@ -128,21 +145,59 @@ class LocalNotificationsGateway implements NotificationGateway {
   Future<void> schedule(ScheduledItem item, {required bool exact}) async {
     await _init();
     final c = item.channel;
-    await _plugin.zonedSchedule(
-      id: item.id,
-      title: item.title,
-      body: item.body,
-      scheduledDate: tz.TZDateTime.from(item.at, tz.UTC),
-      androidScheduleMode: exact
-          ? AndroidScheduleMode.exactAllowWhileIdle
-          : AndroidScheduleMode.inexactAllowWhileIdle,
-      payload: jsonEncode({
-        'at': item.at.toUtc().toIso8601String(),
-        'channel': c.id,
-        'kind': item.planned.kind.name,
-      }),
-      notificationDetails: _details(c),
+    unawaited(
+      Diagnostics.record(
+        'notification_schedule_requested',
+        values: {
+          'id': item.id,
+          'correlationId': 'notification_${item.id}',
+          'kind': item.planned.kind.name,
+          'atUtc': item.at.toUtc().toIso8601String(),
+          'mechanism': 'platform_notification',
+          'exactRequested': exact,
+        },
+      ),
     );
+    try {
+      await _plugin.zonedSchedule(
+        id: item.id,
+        title: item.title,
+        body: item.body,
+        scheduledDate: tz.TZDateTime.from(item.at, tz.UTC),
+        androidScheduleMode: exact
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+        payload: jsonEncode({
+          'at': item.at.toUtc().toIso8601String(),
+          'channel': c.id,
+          'kind': item.planned.kind.name,
+        }),
+        notificationDetails: _details(c),
+      );
+      unawaited(
+        Diagnostics.record(
+          'notification_schedule_completed',
+          values: {
+            'id': item.id,
+            'correlationId': 'notification_${item.id}',
+            'kind': item.planned.kind.name,
+          },
+        ),
+      );
+    } on Object catch (error) {
+      unawaited(
+        Diagnostics.record(
+          'notification_schedule_failed',
+          values: {
+            'id': item.id,
+            'correlationId': 'notification_${item.id}',
+            'kind': item.planned.kind.name,
+            'errorType': error.runtimeType.toString(),
+          },
+        ),
+      );
+      rethrow;
+    }
   }
 
   NotificationDetails _details(ChannelSpec c) => NotificationDetails(
@@ -165,6 +220,23 @@ class LocalNotificationsGateway implements NotificationGateway {
 
   /// The app's own Adhan player: AdhanAlarms / AdhanService in MainActivity.
   static const _adhan = MethodChannel('dev.jamaah.app/adhan');
+
+  @override
+  Future<String> acquireSyncLock() async {
+    final deadline = DateTime.now().add(const Duration(minutes: 3));
+    while (true) {
+      final token = await _adhan.invokeMethod<String>('acquireSyncLock');
+      if (token != null) return token;
+      if (DateTime.now().isAfter(deadline)) {
+        throw TimeoutException('Timed out waiting for notification sync lock.');
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
+  @override
+  Future<void> releaseSyncLock(String token) =>
+      _adhan.invokeMethod<void>('releaseSyncLock', {'token': token});
 
   Map<String, Object?> _adhanMap(ScheduledItem item) => {
     'id': item.id,
@@ -204,7 +276,10 @@ class LocalNotificationsGateway implements NotificationGateway {
               (entry['at']! as num).toInt(),
               isUtc: true,
             ).toIso8601String(),
-            'kind': 'adhan',
+            'kind': entry['kind'] as String? ?? 'adhan',
+            'soundMode': entry['soundMode'] as String?,
+            'ringInSilent': entry['ringInSilent'] == true,
+            'fullScreen': entry['fullScreen'] == true,
           }),
         ),
     ];

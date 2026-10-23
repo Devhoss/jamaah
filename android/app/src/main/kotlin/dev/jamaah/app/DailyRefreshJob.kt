@@ -28,6 +28,7 @@ class DailyRefreshJob : JobService() {
     private val handler = Handler(Looper.getMainLooper())
 
     override fun onStartJob(params: JobParameters): Boolean {
+        NativeDiagnostics.record(this, "daily_refresh_started")
         val loader = FlutterInjector.instance().flutterLoader()
         loader.startInitialization(applicationContext)
         loader.ensureInitializationComplete(applicationContext, null)
@@ -38,13 +39,14 @@ class DailyRefreshJob : JobService() {
         MethodChannel(messenger, CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "done") {
                 result.success(null)
-                finish(params)
+                NativeDiagnostics.record(this@DailyRefreshJob, "daily_refresh_completed")
+                finish(params, true)
             } else {
                 result.notImplemented()
             }
         }
         // Never longer than a minute, whatever happens on the Dart side.
-        handler.postDelayed({ finish(params) }, TimeUnit.MINUTES.toMillis(1))
+        handler.postDelayed({ finish(params, false) }, TimeUnit.MINUTES.toMillis(1))
         e.dartExecutor.executeDartEntrypoint(
             DartExecutor.DartEntrypoint(loader.findAppBundlePath(), ENTRYPOINT),
         )
@@ -52,12 +54,14 @@ class DailyRefreshJob : JobService() {
     }
 
     override fun onStopJob(params: JobParameters): Boolean {
+        NativeDiagnostics.record(this, "daily_refresh_failed", mapOf("reason" to "job_stopped_by_system"))
         release()
         return true // try again later
     }
 
-    private fun finish(params: JobParameters) {
+    private fun finish(params: JobParameters, completed: Boolean) {
         if (engine == null) return
+        if (!completed) NativeDiagnostics.record(this, "daily_refresh_failed", mapOf("reason" to "timeout"))
         release()
         jobFinished(params, false)
     }

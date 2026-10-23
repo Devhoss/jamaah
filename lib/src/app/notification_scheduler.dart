@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'dart:ui' show PlatformDispatcher;
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -250,18 +251,22 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
   bool _queued = false;
   bool _running = false;
   bool _again = false;
+  String _nextTrigger = 'scheduler_initialization';
 
   @override
   NotificationSyncState build() {
-    ref.listen(appSettingsProvider, (_, _) => requestSync());
-    ref.listen(savedMosquesProvider, (_, _) => requestSync());
-    ref.listen(prayerTimesCalculatorProvider, (_, _) => requestSync());
+    ref.listen(appSettingsProvider, (_, _) => requestSync('settings_change'));
+    ref.listen(savedMosquesProvider, (_, _) => requestSync('mosque_change'));
+    ref.listen(
+      prayerTimesCalculatorProvider,
+      (_, _) => requestSync('calculation_or_location_change'),
+    );
     // The window moves when the place's date changes.
     ref.listen(
       todayProvider.select((t) => t?.day.day),
-      (_, _) => requestSync(),
+      (_, _) => requestSync('day_change'),
     );
-    requestSync();
+    requestSync('scheduler_initialization');
     return const NotificationSyncState();
   }
 
@@ -271,12 +276,14 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
   /// twice (travel mode, then the location follower's check), and each full
   /// sync reschedules every notification on this isolate. Waiting also lets
   /// the switch that started it finish its animation first (2026-10-16).
-  void requestSync() {
+  void requestSync([String trigger = 'manual_retry']) {
+    _nextTrigger = trigger;
     if (_queued) return;
     _queued = true;
     Timer(debounce, () {
       _queued = false;
-      if (ref.mounted) unawaited(syncNow());
+      final trigger = _nextTrigger;
+      if (ref.mounted) unawaited(syncNow(trigger: trigger));
     });
   }
 
@@ -284,7 +291,8 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
 
   /// Syncs now. While a sync is already running this asks for one more pass
   /// and waits for both, so a caller always returns after its change is in.
-  Future<void> syncNow() async {
+  Future<void> syncNow({String trigger = 'manual_retry'}) async {
+    _nextTrigger = trigger;
     if (_running) {
       _again = true;
       return _done?.future;
@@ -294,7 +302,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
     try {
       do {
         _again = false;
-        await _syncOnce();
+        await _syncOnce(trigger: _nextTrigger);
       } while (_again);
     } finally {
       _running = false;
@@ -304,7 +312,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
 
   Completer<void>? _done;
 
-  Future<void> _syncOnce() async {
+  Future<void> _syncOnce({required String trigger}) async {
     if (!ref.mounted) return;
     final settings = ref.read(appSettingsProvider).value;
     final calculator = ref.read(prayerTimesCalculatorProvider);
@@ -324,6 +332,8 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
     }
 
     state = NotificationSyncState(report: state.report, syncing: true);
+    String? syncId;
+    Stopwatch? syncTimer;
     try {
       final plan = calculator == null || zone == null
           // No place: nothing can be timed, so nothing stays scheduled.
@@ -339,16 +349,195 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               inFlight: settings.inFlight,
               extraTimes: settings.extraTimes,
             );
+      syncId =
+          '${now.microsecondsSinceEpoch}-${math.Random().nextInt(1 << 32)}';
+      syncTimer = Stopwatch()..start();
       unawaited(
         Diagnostics.record(
           'notification_sync_started',
           values: {
+            'syncId': syncId,
+            'startedAtUtc': now.toUtc().toIso8601String(),
+            'trigger': trigger,
             'planned': plan.length,
-            'adhan': plan.where((n) => n.kind.name == 'adhan').length,
-            'jamaah': plan.where((n) => n.kind.name == 'iqama').length,
-            'other': plan
-                .where((n) => n.kind.name != 'adhan' && n.kind.name != 'iqama')
+            'selectedForScheduling': plan
+                .where((n) => n.at.isAfter(now))
                 .length,
+            'countsByKind': {
+              for (final kind in NotificationKind.values)
+                kind.name: plan.where((n) => n.kind == kind).length,
+            },
+            'countsByMechanism': {
+              'native_app_managed': plan.where(playsInApp).length,
+              'platform_notification': plan.where((n) => !playsInApp(n)).length,
+            },
+            'configuration': {
+              'calculationMethod': settings.calculationMethod.name,
+              'effectiveCalculationMethod': calculator?.method.name,
+              'madhab': settings.madhab.name,
+              'highLatitudeRule': settings.highLatitudeRule.name,
+              'customAngles': {
+                'fajrAngle': settings.customAngles.fajrAngle,
+                'ishaAngle': settings.customAngles.ishaAngle,
+                'ishaMinutesAfterMaghrib':
+                    settings.customAngles.ishaMinutesAfterMaghrib,
+              },
+              'minuteOffsets': {
+                for (final entry in settings.minuteOffsets.entries)
+                  entry.key.name: entry.value,
+              },
+              'adhan': {
+                'defaultSoundMode': settings.adhanAlerts.defaultSoundMode.name,
+                'fullScreen': settings.adhanAlerts.fullScreen,
+                'fullRecordingId': settings.adhanAlerts.fullRecording,
+                'shortAdhan': settings.adhanAlerts.shortAdhan.name,
+                'prayers': {
+                  for (final prayer in Prayer.adhanPrayers)
+                    prayer.name: {
+                      'enabled': settings.adhanAlerts.alertFor(prayer).enabled,
+                      'enabledSource':
+                          settings.adhanAlerts.alerts.containsKey(prayer)
+                          ? 'prayer_setting'
+                          : 'default_disabled',
+                      'soundMode': settings.adhanAlerts
+                          .soundModeFor(prayer)
+                          .name,
+                      'soundModeSource':
+                          settings.adhanAlerts
+                                  .alertFor(prayer)
+                                  .soundModeOverride ==
+                              null
+                          ? 'global_default'
+                          : 'prayer_override',
+                      'vibrate': settings.adhanAlerts.alertFor(prayer).vibrate,
+                      'ringInSilent': settings.adhanAlerts
+                          .alertFor(prayer)
+                          .ringInSilent,
+                      'preAdhanMinutes': settings.adhanAlerts
+                          .alertFor(prayer)
+                          .preAdhanMinutes,
+                      'preAdhanRingInSilent': settings.adhanAlerts
+                          .alertFor(prayer)
+                          .preAdhanRingInSilent,
+                      'recordingId': settings.adhanAlerts.recordingFor(prayer),
+                      'recordingSource':
+                          settings.adhanAlerts.alertFor(prayer).recording ==
+                              null
+                          ? 'global_setting'
+                          : 'prayer_override',
+                      'customRecording': settings.adhanAlerts
+                          .recordingFor(prayer)
+                          .startsWith('custom:'),
+                    },
+                },
+              },
+              'travel': {
+                'mode': settings.travel.travelMode,
+                'pauseAllIqamaReminders':
+                    settings.travel.pauseAllIqamaReminders,
+              },
+              'jamaahReminders': {
+                'sound': settings.jamaahReminders.sound.name,
+                'vibrate': settings.jamaahReminders.vibrate,
+                'ringInSilent': settings.jamaahReminders.ringInSilent,
+                'customSoundConfigured':
+                    settings.jamaahReminders.customSoundPath != null,
+              },
+              'extraTimes': {
+                'shown': settings.extraTimes.shown.map((e) => e.name).toList(),
+                'alerts': settings.extraTimes.alerts
+                    .map((e) => e.name)
+                    .toList(),
+                'imsakMinutes': settings.extraTimes.imsakMinutes,
+                'duhaMinutes': settings.extraTimes.duhaMinutes,
+              },
+              'activeMosqueId': active?.id,
+              'activeMosqueRemindersPaused': active?.remindersPaused,
+              'activeMosqueSchedules': [
+                for (final schedule in active?.schedules ?? const <Schedule>[])
+                  {
+                    'scheduleId': schedule.id,
+                    'effectiveFrom': schedule.effectiveFrom?.toString(),
+                    'prayers': {
+                      for (final prayer in Prayer.iqamaPrayers)
+                        prayer.name: {
+                          'configured': schedule.iqamaFor(prayer).isConfigured,
+                          'fixedMinutesAfterMidnight': schedule
+                              .iqamaFor(prayer)
+                              .iqama
+                              ?.minutes,
+                          'minutesAfterAdhan': schedule
+                              .iqamaFor(prayer)
+                              .afterAdhanMinutes,
+                          'reminderEnabled': schedule
+                              .iqamaFor(prayer)
+                              .reminderEnabled,
+                          'reminderMinutesBefore': schedule
+                              .iqamaFor(prayer)
+                              .reminderMinutesBefore,
+                          'effectiveSource': 'mosque_schedule',
+                        },
+                    },
+                    'jumuah': {
+                      'configured': schedule.jumuah.isConfigured,
+                      'fixedMinutesAfterMidnight':
+                          schedule.jumuah.iqama?.minutes,
+                      'minutesAfterAdhan': schedule.jumuah.afterAdhanMinutes,
+                      'reminderEnabled': schedule.jumuah.reminderEnabled,
+                      'reminderMinutesBefore':
+                          schedule.jumuah.reminderMinutesBefore,
+                      'effectiveSource': 'mosque_schedule',
+                    },
+                  },
+              ],
+              'locationZone': settings.location?.ianaZone,
+            },
+            'plannedSchedule': [
+              for (final n in plan.take(400))
+                {
+                  'id': n.id,
+                  'correlationId': 'notification_${n.id}',
+                  'kind': n.kind.name,
+                  'category': n.kind == NotificationKind.extra
+                      ? 'extra_${n.extraTime?.name}'
+                      : n.kind.name,
+                  'prayer': n.prayer.name,
+                  'mosqueId': n.mosqueId.isEmpty ? null : n.mosqueId,
+                  'atUtc': n.at.toUtc().toIso8601String(),
+                  'timezone': settings.location?.ianaZone ?? 'unknown',
+                  'localTimeLabel': zone == null
+                      ? null
+                      : () {
+                          final local = n.at.toUtc().add(
+                            Duration(minutes: zone.offsetMinutesAt(n.at)),
+                          );
+                          return plainClockTime(
+                            LocalTime.of(local.hour, local.minute),
+                            use24Hour: PlatformDispatcher
+                                .instance
+                                .alwaysUse24HourFormat,
+                            languageCode: l10n.localeName,
+                          );
+                        }(),
+                  'minutesBefore': n.minutesBefore,
+                  'estimated': n.estimated,
+                  'mechanism': playsInApp(n)
+                      ? 'native_app_managed'
+                      : 'platform_notification',
+                  'selected': n.at.isAfter(now),
+                  'exclusionReason': n.at.isAfter(now) ? null : 'past',
+                  'soundMode': n.soundMode?.name ?? n.reminderSound?.name,
+                  'vibrate': n.vibrate,
+                  'ringInSilent': n.ringInSilent,
+                  'fullScreen': n.fullScreen,
+                  'customRecordingConfigured': n.customSoundPath != null,
+                },
+            ],
+            'scheduleTruncated': plan.length > 400,
+            'excludedEvents': {
+              'available': false,
+              'reason': 'The production planner returns selected notifications only; the plan does not expose rejected candidates. Effective enablement settings are included above.',
+            },
           },
         ),
       );
@@ -395,6 +584,10 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
         Diagnostics.record(
           'notification_sync_completed',
           values: {
+            'syncId': syncId,
+            'durationMs': syncTimer.elapsedMilliseconds,
+            'lockWaitMs': report.lockWaitMs,
+            'anotherSyncWasInProgress': report.lockWaitMs > 0,
             'scheduled': report.scheduled,
             'cancelled': report.cancelled,
             'exact_alarm': report.exact,
@@ -411,6 +604,13 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
             'app_adhan_alarms_missing': report.adhanAlarmsMissing,
             'planned_duplicate_ids': report.plannedDuplicateIds,
             'adhan_time_collisions': report.adhanTimeCollisions,
+            'byKind': {
+              for (final kind in NotificationKind.values)
+                kind.name: plan.where((n) => n.kind == kind).length,
+            },
+            'nativeDesired': plan.where(playsInApp).length,
+            'platformDesired': plan.where((n) => !playsInApp(n)).length,
+            'reconciliation': report.reconciliation,
           },
         ),
       );
@@ -422,7 +622,10 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
       unawaited(
         Diagnostics.record(
           'notification_sync_failed',
-          values: {'error_type': error.runtimeType.toString()},
+          values: {
+            'syncId': syncId,
+            'error_type': error.runtimeType.toString(),
+          },
         ),
       );
       if (!ref.mounted) return;
@@ -446,7 +649,9 @@ Future<void> refreshNotifications(ProviderContainer container) async {
   try {
     await container.read(appSettingsProvider.future);
     await container.read(savedMosquesProvider.future);
-    await container.read(notificationSchedulerProvider.notifier).syncNow();
+    await container
+        .read(notificationSchedulerProvider.notifier)
+        .syncNow(trigger: 'daily_refresh');
   } finally {
     for (final k in keep) {
       k.close();
@@ -479,8 +684,16 @@ class _NotificationsKeeperState extends ConsumerState<NotificationsKeeper> {
   void initState() {
     super.initState();
     _lifecycle = AppLifecycleListener(
-      onResume: () =>
-          ref.read(notificationSchedulerProvider.notifier).requestSync(),
+      onStateChange: (state) {
+        unawaited(
+          Diagnostics.record('app_lifecycle', values: {'state': state.name}),
+        );
+        if (state == AppLifecycleState.resumed) {
+          ref
+              .read(notificationSchedulerProvider.notifier)
+              .requestSync('app_resume');
+        }
+      },
     );
   }
 
@@ -510,7 +723,9 @@ final notificationPermissionRequestProvider = Provider<Future<void> Function()>(
       if (!await gateway.notificationsEnabled()) {
         await gateway.requestNotificationPermission();
       }
-      ref.read(notificationSchedulerProvider.notifier).requestSync();
+      ref
+          .read(notificationSchedulerProvider.notifier)
+          .requestSync('permission_change');
     } on Object catch (error) {
       debugPrint('Notifications: permission request failed: $error');
     }

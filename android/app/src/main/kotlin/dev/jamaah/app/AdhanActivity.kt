@@ -1,7 +1,6 @@
 package dev.jamaah.app
 
 import android.app.Activity
-import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -80,14 +79,11 @@ class AdhanActivity : Activity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
-            (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-                .requestDismissKeyguard(this, null)
         } else {
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD,
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
             )
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -143,15 +139,29 @@ class AdhanActivity : Activity() {
     }
 
     private fun stop() {
-        AdhanService.stop(this)
+        AdhanService.stop(this, dismissActivity = false)
         ended()
     }
 
     /** Playing has stopped: the Horizon page says so and waits for Dismiss;
      * the plain page simply closes. */
-    private fun ended() {
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        page?.showStopped() ?: finish()
+    private fun ended(dismiss: Boolean = false) {
+        clearScreenAwakeFlags()
+        if (dismiss || page == null) {
+            finish()
+        } else {
+            page?.showStopped()
+        }
+    }
+
+    private fun clearScreenAwakeFlags() {
+        window.clearFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setTurnScreenOn(false)
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -163,6 +173,13 @@ class AdhanActivity : Activity() {
     }
 
     override fun onDestroy() {
+        clearScreenAwakeFlags()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(false)
+        } else {
+            @Suppress("DEPRECATION")
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+        }
         open.removeAll { it.get() == null || it.get() == this }
         super.onDestroy()
     }
@@ -177,8 +194,8 @@ class AdhanActivity : Activity() {
 
         /** The recording ended or was stopped elsewhere (face down, the
          * notification): the page says so, or closes. */
-        fun endAll() {
-            open.mapNotNull { it.get() }.forEach { it.ended() }
+        fun endAll(dismiss: Boolean = false) {
+            open.mapNotNull { it.get() }.forEach { it.ended(dismiss) }
         }
     }
 }
