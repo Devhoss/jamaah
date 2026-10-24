@@ -26,10 +26,10 @@ void main() {
   tearDown(() => db.close());
 
   group('defaults on a fresh install', () {
-    test('match AGENTS.md and are readable without writing anything', () async {
+    test('use Auto detect and are readable without writing anything', () async {
       final snapshot = await settings.read();
 
-      expect(snapshot.calculationMethod, CalculationMethod.muslimWorldLeague);
+      expect(snapshot.calculationMethod, CalculationMethod.auto);
       expect(snapshot.madhab, Madhab.standard);
       expect(snapshot.highLatitudeRule, HighLatitudeRule.middleOfTheNight);
       expect(
@@ -100,10 +100,7 @@ void main() {
         "('calculation_method', 'not_a_method')",
       );
 
-      expect(
-        (await settings.read()).calculationMethod,
-        CalculationMethod.muslimWorldLeague,
-      );
+      expect((await settings.read()).calculationMethod, CalculationMethod.auto);
     });
   });
 

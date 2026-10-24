@@ -9,7 +9,7 @@ import 'providers.dart';
 
 /// "Follow my location" (travel, decided 2026-10-13), a travel-mode option.
 ///
-/// While travel mode and the option are both on, the app reads the device's coarse location each time it opens
+/// While travel mode and the option are both on, the app reads the device's permitted location each time it opens
 /// or comes back, without ever showing a permission dialog at that moment, and
 /// replaces the saved place when the phone has moved to another city or time
 /// zone. The new place reaches everything through the settings stream, so prayer

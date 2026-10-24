@@ -190,7 +190,7 @@ void main() {
           iqama(s, vibrate: false).id,
         ],
       },
-      hasLength(6),
+      hasLength(16),
       reason: 'custom sounds use the chime channel as fallback',
     );
     expect(

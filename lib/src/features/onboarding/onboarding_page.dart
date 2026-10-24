@@ -412,7 +412,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         ? null
         : methodName(
             l10n,
-            settings.calculationMethod.resolvedFor(place.ianaZone),
+            settings.calculationMethod.resolvedForPlace(
+              place.ianaZone,
+              place.countryCode,
+            ),
           );
     return [
       _title(context, l10n.locationSheetTitle, p),

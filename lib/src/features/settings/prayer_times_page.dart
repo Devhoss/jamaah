@@ -42,7 +42,10 @@ class PrayerTimesPage extends ConsumerWidget {
 
     final methodValue = method == CalculationMethod.auto && place != null
         ? l10n.methodAutoResolved(
-            methodName(l10n, method.resolvedFor(place.ianaZone)),
+            methodName(
+              l10n,
+              method.resolvedForPlace(place.ianaZone, place.countryCode),
+            ),
             placeLabel(l10n, place),
           )
         : methodName(l10n, method);

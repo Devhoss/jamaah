@@ -15,6 +15,7 @@ import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/qibla.dart';
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 
 import '../helpers/fake_clock.dart';
@@ -95,7 +96,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(t.tabQibla));
+    await tester.tap(find.byKey(BottomNav.tabKey(2)));
     await tester.pumpAndSettle();
   }
 
@@ -161,27 +162,28 @@ void main() {
     expect(find.text(t.compassPointSouthEast), findsOneWidget);
   });
 
-  testApp('a low-accuracy compass asks for a moment, says how, then says steady', (
-    tester,
-  ) async {
-    await open(tester);
-    await heading(tester, 100, accuracy: 45);
-    expect(find.text(t.qiblaNeedsMoment), findsOneWidget);
-    expect(find.text(t.qiblaCalibrateBody), findsOneWidget);
+  testApp(
+    'a low-accuracy compass asks for a moment, says how, then says steady',
+    (tester) async {
+      await open(tester);
+      await heading(tester, 100, accuracy: 45);
+      expect(find.text(t.qiblaNeedsMoment), findsOneWidget);
+      expect(find.text(t.qiblaCalibrateBody), findsOneWidget);
 
-    final how = find.text(t.qiblaCalibrate);
-    await tester.ensureVisible(how);
-    await tester.pumpAndSettle();
-    await tester.tap(how);
-    await tester.pumpAndSettle();
-    expect(find.text(t.qiblaCalibrateTitle), findsOneWidget);
-    await tester.tap(find.text(t.qiblaCalibrateDone));
-    await tester.pumpAndSettle();
+      final how = find.text(t.qiblaCalibrate);
+      await tester.ensureVisible(how);
+      await tester.pumpAndSettle();
+      await tester.tap(how);
+      await tester.pumpAndSettle();
+      expect(find.text(t.qiblaCalibrateTitle), findsOneWidget);
+      await tester.tap(find.text(t.qiblaCalibrateDone));
+      await tester.pumpAndSettle();
 
-    await heading(tester, 100);
-    expect(find.text(t.qiblaNeedsMoment), findsNothing);
-    expect(find.text(t.qiblaSteadyNow), findsOneWidget);
-  });
+      await heading(tester, 100);
+      expect(find.text(t.qiblaNeedsMoment), findsNothing);
+      expect(find.text(t.qiblaSteadyNow), findsOneWidget);
+    },
+  );
 
   testApp('the distance to the Kaaba is shown', (tester) async {
     await open(tester);

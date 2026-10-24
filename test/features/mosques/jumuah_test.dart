@@ -18,6 +18,7 @@ import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/components/horizon_controls.dart';
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/features/mosques/iqama_editor_sheet.dart';
 
 import '../../helpers/fake_clock.dart';
@@ -181,7 +182,8 @@ void main() {
   group('the mosque page', () {
     Future<void> openMosque(WidgetTester tester) async {
       await open(tester);
-      await tapText(tester, t.tabMosques);
+      await tester.tap(find.byKey(BottomNav.tabKey(1)));
+      await tester.pumpAndSettle();
       await tapText(tester, 'Masjid al-Nour');
     }
 

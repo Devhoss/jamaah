@@ -521,14 +521,14 @@ abstract class AppLocalizations {
   /// No description provided for @locationSheetBody.
   ///
   /// In en, this message translates to:
-  /// **'Jama’ah works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.'**
+  /// **'Jama\'ah uses your location to calculate prayer times and identify the area you are in. No account is needed.'**
   String get locationSheetBody;
 
-  /// No description provided for @locationSheetCoarse.
+  /// No description provided for @locationSheetPrecise.
   ///
   /// In en, this message translates to:
-  /// **'Prayer times need only approximate location — city level. Times across one city differ by only a few minutes. Finding mosques near you asks separately for precise location.'**
-  String get locationSheetCoarse;
+  /// **'Allow precise location to show your local area and select a country-based calculation method. Android\'s geocoding service receives the coordinates to find the place name.'**
+  String get locationSheetPrecise;
 
   /// No description provided for @locationUseDevice.
   ///
@@ -2964,6 +2964,36 @@ abstract class AppLocalizations {
   /// **'Chime'**
   String get reminderSoundChime;
 
+  /// No description provided for @reminderSoundShortAzan.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan Short'**
+  String get reminderSoundShortAzan;
+
+  /// No description provided for @reminderSoundShortAllahAkbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan Allah Akbar HD'**
+  String get reminderSoundShortAllahAkbar;
+
+  /// No description provided for @reminderSoundShortAzanOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan Short 1'**
+  String get reminderSoundShortAzanOne;
+
+  /// No description provided for @reminderSoundShortVerseOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan Verse 1'**
+  String get reminderSoundShortVerseOne;
+
+  /// No description provided for @reminderSoundShortVerseTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan Verse 2'**
+  String get reminderSoundShortVerseTwo;
+
   /// No description provided for @shortAdhanClipHint.
   ///
   /// In en, this message translates to:
@@ -4234,6 +4264,18 @@ abstract class AppLocalizations {
   /// **'About'**
   String get helpAbout;
 
+  /// No description provided for @helpCheckUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub releases'**
+  String get helpCheckUpdates;
+
+  /// No description provided for @helpUpdatesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the releases page.'**
+  String get helpUpdatesUnavailable;
+
   /// No description provided for @diagnosticsTitle.
   ///
   /// In en, this message translates to:
@@ -4489,7 +4531,7 @@ abstract class AppLocalizations {
   /// No description provided for @onbPlaceBody.
   ///
   /// In en, this message translates to:
-  /// **'Prayer times are worked out on your phone from your place. An approximate location is enough, and it never leaves your phone.'**
+  /// **'Prayer times are calculated on your phone. Precise location helps name your area and choose a local method. Android\'s geocoding service receives the coordinates to find the place name.'**
   String get onbPlaceBody;
 
   /// No description provided for @onbPlaceDetails.

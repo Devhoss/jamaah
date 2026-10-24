@@ -323,10 +323,29 @@ class TravelSettings {
       Object.hash(travelMode, followLocation, pauseAllIqamaReminders);
 }
 
-/// What a Jama’ah (Iqama) reminder plays (2026-10-13). [chime] is the app's
-/// own two-note chime; [hayya] the «حيّ على الصلاة» clip; [standard] the
-/// phone's notification sound; [silent] shows the reminder without a sound.
-enum ReminderSound { chime, standard, silent, custom }
+/// What a Jama'ah (Iqama) reminder plays. Short Adhan clips share the recorded
+/// audio choices available to Adhan alerts; standard uses the phone sound, and
+/// silent still shows the reminder without a sound.
+enum ReminderSound {
+  chime,
+  shortAzan,
+  shortAllahAkbar,
+  shortAzanOne,
+  shortVerseOne,
+  shortVerseTwo,
+  standard,
+  silent,
+  custom,
+}
+
+ShortAdhan? reminderClipFor(ReminderSound sound) => switch (sound) {
+  ReminderSound.shortAzan => ShortAdhan.azanShort,
+  ReminderSound.shortAllahAkbar => ShortAdhan.azanAllahAkbar,
+  ReminderSound.shortAzanOne => ShortAdhan.azanShortOne,
+  ReminderSound.shortVerseOne => ShortAdhan.adhanVerseOne,
+  ReminderSound.shortVerseTwo => ShortAdhan.adhanVerseTwo,
+  _ => null,
+};
 
 /// How every Jama’ah reminder sounds. One global setting: the reminders
 /// themselves (which prayers, how early) stay on each mosque.

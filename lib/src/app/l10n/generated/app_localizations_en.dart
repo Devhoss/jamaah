@@ -268,11 +268,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationSheetBody =>
-      'Jama’ah works out prayer times for the place you are in, on this device. There is no account and nothing is uploaded.';
+      'Jama\'ah uses your location to calculate prayer times and identify the area you are in. No account is needed.';
 
   @override
-  String get locationSheetCoarse =>
-      'Prayer times need only approximate location — city level. Times across one city differ by only a few minutes. Finding mosques near you asks separately for precise location.';
+  String get locationSheetPrecise =>
+      'Allow precise location to show your local area and select a country-based calculation method. Android\'s geocoding service receives the coordinates to find the place name.';
 
   @override
   String get locationUseDevice => 'Use my location';
@@ -1790,6 +1790,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderSoundChime => 'Chime';
 
   @override
+  String get reminderSoundShortAzan => 'Azan Short';
+
+  @override
+  String get reminderSoundShortAllahAkbar => 'Azan Allah Akbar HD';
+
+  @override
+  String get reminderSoundShortAzanOne => 'Azan Short 1';
+
+  @override
+  String get reminderSoundShortVerseOne => 'Adhan Verse 1';
+
+  @override
+  String get reminderSoundShortVerseTwo => 'Adhan Verse 2';
+
+  @override
   String get shortAdhanClipHint =>
       'Preview this supplied short Adhan recording.';
 
@@ -2608,6 +2623,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpAbout => 'About';
 
   @override
+  String get helpCheckUpdates => 'GitHub releases';
+
+  @override
+  String get helpUpdatesUnavailable => 'Could not open the releases page.';
+
+  @override
   String get diagnosticsTitle => 'Diagnostics';
 
   @override
@@ -2747,7 +2768,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbPlaceBody =>
-      'Prayer times are worked out on your phone from your place. An approximate location is enough, and it never leaves your phone.';
+      'Prayer times are calculated on your phone. Precise location helps name your area and choose a local method. Android\'s geocoding service receives the coordinates to find the place name.';
 
   @override
   String onbPlaceDetails(String method, String prayer, String time) {

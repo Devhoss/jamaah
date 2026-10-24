@@ -54,6 +54,7 @@ abstract final class SettingKeys {
   static const longitude = 'longitude';
   static const ianaZone = 'iana_zone';
   static const placeLabel = 'place_label';
+  static const placeCountryCode = 'place_country_code';
 
   /// The user's own name for the saved place. Absent means the app's label for it
   /// stands. It is the only part of a place the user can rewrite.

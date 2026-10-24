@@ -9,11 +9,12 @@ import 'qibla.dart' as qibla;
 /// Delegates to the same great-circle formula the Qibla screen uses.
 double bearingFor({required double lat, required double lng}) =>
     qibla.qiblaBearingFor(latitude: lat, longitude: lng);
+
 /// Calculation methods offered in Settings, mapped to adhan_dart's parameters.
 ///
 /// Expanded on 2026-10-13 at the user's request from the five AGENTS.md first
 /// named. Stored by [name], so the original five keep their stored values.
-/// [auto] is resolved from the place's time zone ([autoMethodFor]); [custom]
+/// [auto] is resolved from the place's country, then time zone ([autoMethodFor]); [custom]
 /// uses the user's own angles ([CustomAngles]).
 enum CalculationMethod {
   auto,
@@ -46,12 +47,15 @@ enum CalculationMethod {
 
   static CalculationMethod fromStorageKey(String? key) => values.firstWhere(
     (m) => m.name == key,
-    orElse: () => CalculationMethod.muslimWorldLeague,
+    orElse: () => CalculationMethod.auto,
   );
 
   /// The method to calculate with: [auto] becomes the one for [ianaZone].
   CalculationMethod resolvedFor(String ianaZone) =>
       this == auto ? autoMethodFor(ianaZone) : this;
+
+  CalculationMethod resolvedForPlace(String ianaZone, String? countryCode) =>
+      this == auto ? autoMethodFor(ianaZone, countryCode: countryCode) : this;
 }
 
 /// The user's own angles for [CalculationMethod.custom].
@@ -85,10 +89,41 @@ class CustomAngles {
       Object.hash(fajrAngle, ishaAngle, ishaMinutesAfterMaghrib);
 }
 
-/// The method commonly used where [ianaZone] is, for "Auto detect". The zone
-/// is what the app knows about a place without a network lookup; anything not
-/// listed falls back to the Muslim World League.
-CalculationMethod autoMethodFor(String ianaZone) {
+/// The method commonly used in [countryCode] for "Auto detect". When country
+/// data is unavailable, known time zones supply a fallback; unknown places use
+/// the Muslim World League.
+CalculationMethod autoMethodFor(String ianaZone, {String? countryCode}) {
+  const byCountry = <String, CalculationMethod>{
+    'EG': CalculationMethod.egyptian,
+    'SD': CalculationMethod.egyptian,
+    'LY': CalculationMethod.egyptian,
+    'KW': CalculationMethod.kuwait,
+    'SA': CalculationMethod.ummAlQura,
+    'QA': CalculationMethod.qatar,
+    'AE': CalculationMethod.dubai,
+    'BH': CalculationMethod.gulfRegion,
+    'OM': CalculationMethod.gulfRegion,
+    'JO': CalculationMethod.jordan,
+    'PK': CalculationMethod.karachi,
+    'IN': CalculationMethod.karachi,
+    'BD': CalculationMethod.karachi,
+    'AF': CalculationMethod.karachi,
+    'MY': CalculationMethod.jakim,
+    'SG': CalculationMethod.singapore,
+    'ID': CalculationMethod.indonesia,
+    'TR': CalculationMethod.turkiye,
+    'FR': CalculationMethod.france,
+    'DZ': CalculationMethod.algeria,
+    'MA': CalculationMethod.morocco,
+    'TN': CalculationMethod.tunisia,
+    'RU': CalculationMethod.russia,
+    'PT': CalculationMethod.portugal,
+    'IR': CalculationMethod.tehran,
+    'US': CalculationMethod.isna,
+    'CA': CalculationMethod.isna,
+  };
+  final countryMethod = byCountry[countryCode?.toUpperCase()];
+  if (countryMethod != null) return countryMethod;
   const byZone = <String, CalculationMethod>{
     'Africa/Cairo': CalculationMethod.egyptian,
     'Africa/Khartoum': CalculationMethod.egyptian,
@@ -192,8 +227,7 @@ adhan.CalculationParameters _parameters(
   bool ramadan = false,
 }) => switch (method) {
   // Resolved by the caller (CalculationMethod.resolvedFor); MWL if it is not.
-  CalculationMethod.auto ||
-  CalculationMethod.muslimWorldLeague =>
+  CalculationMethod.auto || CalculationMethod.muslimWorldLeague =>
     adhan.CalculationMethodParameters.muslimWorldLeague(),
   CalculationMethod.custom => adhan.CalculationParameters(
     method: adhan.CalculationMethod.other,
@@ -211,16 +245,13 @@ adhan.CalculationParameters _parameters(
       ..ishaInterval = ramadan ? 120 : 90,
   CalculationMethod.karachi => adhan.CalculationMethodParameters.karachi(),
   // JAKIM's published standard: Fajr 20°, Isha 18°. Not built into adhan_dart.
-  CalculationMethod.jakim =>
-    adhan.CalculationParameters(
-        method: adhan.CalculationMethod.other,
-        fajrAngle: 20,
-        ishaAngle: 18,
-      )
-      ..methodAdjustments = {adhan.Prayer.dhuhr: 1},
+  CalculationMethod.jakim => adhan.CalculationParameters(
+    method: adhan.CalculationMethod.other,
+    fajrAngle: 20,
+    ishaAngle: 18,
+  )..methodAdjustments = {adhan.Prayer.dhuhr: 1},
   CalculationMethod.singapore => adhan.CalculationMethodParameters.singapore(),
-  CalculationMethod.indonesia =>
-    adhan.CalculationMethodParameters.indonesian(),
+  CalculationMethod.indonesia => adhan.CalculationMethodParameters.indonesian(),
   CalculationMethod.turkiye => adhan.CalculationMethodParameters.turkiye(),
   CalculationMethod.france => adhan.CalculationMethodParameters.france(),
   CalculationMethod.kuwait => adhan.CalculationMethodParameters.kuwait(),
@@ -248,11 +279,7 @@ adhan.CalculationParameters calculationParametersFor({
   Map<Prayer, int> minuteOffsets = const {},
   adhan.PolarCircleResolution polarCircleResolution =
       adhan.PolarCircleResolution.unresolved,
-}) => _parameters(
-  method,
-  custom: customAngles,
-  ramadan: ramadan,
-).copyWith(
+}) => _parameters(method, custom: customAngles, ramadan: ramadan).copyWith(
   madhab: switch (madhab) {
     Madhab.standard => adhan.Madhab.shafi,
     Madhab.hanafi => adhan.Madhab.hanafi,
@@ -272,5 +299,3 @@ adhan.CalculationParameters calculationParametersFor({
       p.adhanPrayer: minuteOffsets[p] ?? 0,
   },
 );
-
-

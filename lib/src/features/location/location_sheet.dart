@@ -37,7 +37,7 @@ class _LocationSheet extends ConsumerWidget {
       title: l10n.locationSheetTitle,
       children: [
         SettingsNote(l10n.locationSheetBody, top: 0),
-        SettingsNote(l10n.locationSheetCoarse),
+        SettingsNote(l10n.locationSheetPrecise),
         if (place != null) ...[
           const SizedBox(height: 16),
           Container(

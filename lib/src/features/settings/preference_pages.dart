@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app.dart';
@@ -212,6 +213,20 @@ class HelpAboutPage extends StatelessWidget {
           divider: false,
         ),
         SettingsHeading(l10n.helpAbout),
+        SettingsLinkRow(
+          title: l10n.helpCheckUpdates,
+          onTap: () async {
+            final opened = await launchUrl(
+              Uri.parse('https://github.com/Devhoss/jamaah/releases'),
+              mode: LaunchMode.externalApplication,
+            );
+            if (!opened && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.helpUpdatesUnavailable)),
+              );
+            }
+          },
+        ),
         Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 10),
           child: Align(

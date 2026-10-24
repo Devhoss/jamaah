@@ -96,7 +96,10 @@ void main() {
     final container = containerAt(DateTime.utc(2026, 10, 12, 15, 5));
     await settled(container);
 
-    expect(container.read(todayProvider)?.day.day, const LocalDay(2026, 10, 13));
+    expect(
+      container.read(todayProvider)?.day.day,
+      const LocalDay(2026, 10, 13),
+    );
   });
 
   test('the reading follows the clock across the place\'s midnight', () async {
@@ -126,33 +129,36 @@ void main() {
     expect(container.read(todayProvider)!.day.day, isNot(first));
   });
 
-  test('the card shows the active mosque\'s earliest remaining Iqama', () async {
-    await saveCairo();
-    final probe = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
-    await settled(probe);
-    final next = probe.read(todayProvider)!.next!;
+  test(
+    'the card shows the active mosque\'s earliest remaining Iqama',
+    () async {
+      await saveCairo();
+      final probe = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
+      await settled(probe);
+      final next = probe.read(todayProvider)!.next!;
 
-    final mosque = await mosques.add(
-      name: 'Masjid al-Nour',
-      address: '12 Garden Road',
-      source: MosqueSource.manual,
-    );
-    await mosques.setIqama(
-      mosque.id,
-      next.prayer,
-      LocalTime(next.at.minutes + 10),
-    );
-    await settings.setActiveMosqueId(mosque.id);
+      final mosque = await mosques.add(
+        name: 'Masjid al-Nour',
+        address: '12 Garden Road',
+        source: MosqueSource.manual,
+      );
+      await mosques.setIqama(
+        mosque.id,
+        next.prayer,
+        LocalTime(next.at.minutes + 10),
+      );
+      await settings.setActiveMosqueId(mosque.id);
 
-    final container = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
-    await settled(container);
+      final container = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
+      await settled(container);
 
-    final iqama = container.read(nextIqamaProvider);
-    expect(iqama, isA<IqamaUpcoming>());
-    expect((iqama as IqamaUpcoming).prayer, next.prayer);
-    expect(iqama.at, LocalTime(next.at.minutes + 10));
-    expect(iqama.mosqueName, 'Masjid al-Nour');
-  });
+      final iqama = container.read(nextIqamaProvider);
+      expect(iqama, isA<IqamaUpcoming>());
+      expect((iqama as IqamaUpcoming).prayer, next.prayer);
+      expect(iqama.at, LocalTime(next.at.minutes + 10));
+      expect(iqama.mosqueName, 'Masjid al-Nour');
+    },
+  );
 
   test('switching the active mosque switches the Iqama', () async {
     await saveCairo();
@@ -226,18 +232,22 @@ void main() {
     await mosques.save(
       mosque.copyWith(
         schedules: [
-          empty.copyWith(prayers: {
-            Prayer.dhuhr: PrayerIqama(
-              prayer: Prayer.dhuhr,
-              iqama: const LocalTime(13 * 60),
-            ),
-          }),
-          seasonal.copyWith(prayers: {
-            Prayer.dhuhr: PrayerIqama(
-              prayer: Prayer.dhuhr,
-              iqama: const LocalTime(12 * 60),
-            ),
-          }),
+          empty.copyWith(
+            prayers: {
+              Prayer.dhuhr: PrayerIqama(
+                prayer: Prayer.dhuhr,
+                iqama: const LocalTime(13 * 60),
+              ),
+            },
+          ),
+          seasonal.copyWith(
+            prayers: {
+              Prayer.dhuhr: PrayerIqama(
+                prayer: Prayer.dhuhr,
+                iqama: const LocalTime(12 * 60),
+              ),
+            },
+          ),
         ],
       ),
     );
@@ -289,6 +299,9 @@ void main() {
 
   test('a method the user chose changes the times', () async {
     await saveCairo();
+    await settings.setPrayerTimesPreferences(
+      calculationMethod: CalculationMethod.muslimWorldLeague,
+    );
     final mwl = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
     await settled(mwl);
     final mwlFajr = mwl.read(todayProvider)!.day.timeOf(Prayer.fajr)!;
@@ -299,10 +312,7 @@ void main() {
     final egypt = containerAt(DateTime.utc(2026, 10, 12, 9, 0));
     await settled(egypt);
 
-    expect(
-      egypt.read(todayProvider)!.day.timeOf(Prayer.fajr),
-      isNot(mwlFajr),
-    );
+    expect(egypt.read(todayProvider)!.day.timeOf(Prayer.fajr), isNot(mwlFajr));
   });
 }
 

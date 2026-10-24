@@ -18,6 +18,7 @@ import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/components/horizon_controls.dart';
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/features/mosques/iqama_editor_sheet.dart';
 import 'package:jamaah/src/features/mosques/mosque_detail_page.dart';
 import 'package:jamaah/src/features/mosques/mosques_screen.dart';
@@ -64,13 +65,11 @@ void main() {
       placeSourceProvider.overrideWithValue(
         FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable)),
       ),
-      iqamaTimePickerProvider.overrideWithValue(
-        (context, initial) async {
-          pickerOpened = true;
-          pickerOpenedAt = initial;
-          return pickerAnswer;
-        },
-      ),
+      iqamaTimePickerProvider.overrideWithValue((context, initial) async {
+        pickerOpened = true;
+        pickerOpenedAt = initial;
+        return pickerAnswer;
+      }),
     ],
     child: Builder(
       builder: (context) => MediaQuery(
@@ -119,8 +118,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> goToMosques(WidgetTester tester) =>
-      tapText(tester, t.tabMosques);
+  Future<void> goToTab(WidgetTester tester, int index) async {
+    await tester.tap(find.byKey(BottomNav.tabKey(index)));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> goToMosques(WidgetTester tester) => goToTab(tester, 1);
 
   /// The clock format the screen itself resolved, so expectations follow the
   /// test device's 12/24-hour setting rather than assuming one.
@@ -265,7 +268,10 @@ void main() {
       await tester.pump();
       expect(find.text(t.iqamaSaved(t.prayerIsha)), findsOneWidget);
       await tester.pumpAndSettle();
-      final isha = storedEntry(await savedMosque('Masjid al-Nour'), Prayer.isha);
+      final isha = storedEntry(
+        await savedMosque('Masjid al-Nour'),
+        Prayer.isha,
+      );
       expect(isha.afterAdhanMinutes, 10);
       expect(isha.reminderEnabled, isTrue);
       expect(isha.reminderMinutesBefore, 10);
@@ -276,7 +282,12 @@ void main() {
       await open(tester);
       await addThroughSheet(tester);
       final mosque = await savedMosque('Masjid al-Nour');
-      await mosques.setIqama(mosque.id, Prayer.asr, null, afterAdhanMinutes: 15);
+      await mosques.setIqama(
+        mosque.id,
+        Prayer.asr,
+        null,
+        afterAdhanMinutes: 15,
+      );
       await tester.pumpAndSettle();
       await openMinutes(tester, Prayer.asr);
       expect(tester.widget<AppSwitch>(editorSwitch()).value, isFalse);
@@ -350,7 +361,11 @@ void main() {
         address: '',
         source: MosqueSource.manual,
       );
-      await mosques.add(name: 'Second', address: '', source: MosqueSource.manual);
+      await mosques.add(
+        name: 'Second',
+        address: '',
+        source: MosqueSource.manual,
+      );
       await settings.setActiveMosqueId(first.id);
       await open(tester);
       await goToMosques(tester);
@@ -499,45 +514,49 @@ void main() {
   });
 
   group('the Iqama editor', () {
-    testApp('an empty Iqama starts the picker at the Adhan time, saving nothing', (
-      tester,
-    ) async {
-      await open(tester);
-      await addThroughSheet(tester);
-      await openEditor(tester, Prayer.fajr);
+    testApp(
+      'an empty Iqama starts the picker at the Adhan time, saving nothing',
+      (tester) async {
+        await open(tester);
+        await addThroughSheet(tester);
+        await openEditor(tester, Prayer.fajr);
 
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(IqamaEditorSheet)),
-      );
-      final adhan = LocalTime(
-        container.read(todayProvider)!.day.timeOf(Prayer.fajr)!,
-      );
-      final at = clockOn(tester).time;
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(IqamaEditorSheet)),
+        );
+        final adhan = LocalTime(
+          container.read(todayProvider)!.day.timeOf(Prayer.fajr)!,
+        );
+        final at = clockOn(tester).time;
 
-      expect(find.text(t.iqamaStartsAtAdhan(at(adhan))), findsOneWidget);
-      expect(
-        isEnabled(tester, t.save),
-        isFalse,
-        reason: 'the Adhan time is where the picker starts, never a saved value '
-            '(AGENTS.md: Iqama is never derived from Adhan)',
-      );
-      expect(find.text(t.summaryNoTime), findsOneWidget);
+        expect(find.text(t.iqamaStartsAtAdhan(at(adhan))), findsOneWidget);
+        expect(
+          isEnabled(tester, t.save),
+          isFalse,
+          reason:
+              'the Adhan time is where the picker starts, never a saved value '
+              '(AGENTS.md: Iqama is never derived from Adhan)',
+        );
+        expect(find.text(t.summaryNoTime), findsOneWidget);
 
-      // Backing out of the picker leaves nothing chosen.
-      pickerAnswer = null;
-      await tester.tap(find.byKey(IqamaEditorSheet.timeFieldKey));
-      await tester.pumpAndSettle();
-      expect(pickerOpened, isTrue);
-      expect(pickerOpenedAt, adhan);
-      expect(isEnabled(tester, t.save), isFalse);
+        // Backing out of the picker leaves nothing chosen.
+        pickerAnswer = null;
+        await tester.tap(find.byKey(IqamaEditorSheet.timeFieldKey));
+        await tester.pumpAndSettle();
+        expect(pickerOpened, isTrue);
+        expect(pickerOpenedAt, adhan);
+        expect(isEnabled(tester, t.save), isFalse);
 
-      await tapText(tester, t.cancel);
-      expect(
-        storedEntry(await savedMosque('Masjid al-Nour'), Prayer.fajr)
-            .isConfigured,
-        isFalse,
-      );
-    });
+        await tapText(tester, t.cancel);
+        expect(
+          storedEntry(
+            await savedMosque('Masjid al-Nour'),
+            Prayer.fajr,
+          ).isConfigured,
+          isFalse,
+        );
+      },
+    );
 
     testApp('a configured Iqama reopens the picker at that Iqama', (
       tester,
@@ -897,7 +916,7 @@ void main() {
       expect(find.byType(MosqueDetailPage), findsNothing);
       expect(find.text(t.mosquesEmptyTitle), findsOneWidget);
 
-      await tapText(tester, t.tabToday);
+      await goToTab(tester, 0);
       expect(find.text(t.addMosqueTitle), findsOneWidget);
     });
   });
@@ -919,7 +938,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(t.tagRemindersPaused), findsOneWidget);
 
-      await tapText(tester, t.tabToday);
+      await goToTab(tester, 0);
       expect(find.text(t.pausedMosqueNote('Masjid al-Nour')), findsOneWidget);
     });
 
@@ -952,11 +971,14 @@ void main() {
 
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      await tapText(tester, t.tabToday);
+      await goToTab(tester, 0);
 
       await reveal(tester, find.text(t.rowIqama(at(LocalTime.of(12, 15)))));
       expect(find.text(t.rowIqama(at(LocalTime.of(12, 15)))), findsOneWidget);
-      expect(find.text('IQAMA · Masjid al-Nour', findRichText: true), findsOneWidget);
+      expect(
+        find.text('IQAMA · Masjid al-Nour', findRichText: true),
+        findsOneWidget,
+      );
 
       // Change it without leaving Today: the stream carries the edit.
       final mosque = await savedMosque('Masjid al-Nour');
@@ -995,7 +1017,7 @@ void main() {
       await tapText(tester, t.mosqueMakeActive);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      await tapText(tester, t.tabToday);
+      await goToTab(tester, 0);
 
       expect(find.text('IQAMA · Second', findRichText: true), findsOneWidget);
       await reveal(tester, find.text(t.rowIqama(at(LocalTime.of(12, 45)))));

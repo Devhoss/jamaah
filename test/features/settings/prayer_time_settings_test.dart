@@ -103,6 +103,10 @@ void main() {
     tester,
   ) async {
     await open(tester);
+    await settings.setPrayerTimesPreferences(
+      calculationMethod: CalculationMethod.jafari,
+    );
+    await tester.pumpAndSettle();
     final mwlFajr = timeOf(tester, Prayer.fajr);
     await tapText(tester, t.settingsMethod);
 

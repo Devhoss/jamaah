@@ -164,7 +164,7 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get locationSheetBody => arabicDigits(super.locationSheetBody);
 
   @override
-  String get locationSheetCoarse => arabicDigits(super.locationSheetCoarse);
+  String get locationSheetPrecise => arabicDigits(super.locationSheetPrecise);
 
   @override
   String get locationUseDevice => arabicDigits(super.locationUseDevice);
@@ -1112,6 +1112,21 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get reminderSoundChime => arabicDigits(super.reminderSoundChime);
 
   @override
+  String get reminderSoundShortAzan => arabicDigits(super.reminderSoundShortAzan);
+
+  @override
+  String get reminderSoundShortAllahAkbar => arabicDigits(super.reminderSoundShortAllahAkbar);
+
+  @override
+  String get reminderSoundShortAzanOne => arabicDigits(super.reminderSoundShortAzanOne);
+
+  @override
+  String get reminderSoundShortVerseOne => arabicDigits(super.reminderSoundShortVerseOne);
+
+  @override
+  String get reminderSoundShortVerseTwo => arabicDigits(super.reminderSoundShortVerseTwo);
+
+  @override
   String get shortAdhanClipHint => arabicDigits(super.shortAdhanClipHint);
 
   @override
@@ -1566,6 +1581,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
 
   @override
   String get helpAbout => arabicDigits(super.helpAbout);
+
+  @override
+  String get helpCheckUpdates => arabicDigits(super.helpCheckUpdates);
+
+  @override
+  String get helpUpdatesUnavailable => arabicDigits(super.helpUpdatesUnavailable);
 
   @override
   String get diagnosticsTitle => arabicDigits(super.diagnosticsTitle);

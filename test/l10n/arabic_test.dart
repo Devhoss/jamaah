@@ -64,7 +64,8 @@ void main() {
       expect(
         ar.qiblaDegrees('136'),
         '\u2066١٣٦°\u2069',
-        reason: 'the degree sign stays after the number in a right-to-left line',
+        reason:
+            'the degree sign stays after the number in a right-to-left line',
       );
       expect(en.qiblaDegrees('136'), '136°');
     });
@@ -163,7 +164,10 @@ void main() {
         TextDirection.rtl,
       );
       expect(find.text(ar.prayerFajr), findsWidgets);
-      expect(find.text(ar.tabQibla), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byKey(BottomNav.tabKey(2))).label,
+        ar.tabQibla,
+      );
       final texts = tester
           .widgetList<Text>(find.byType(Text))
           .map((t) => t.data ?? '')
@@ -222,11 +226,11 @@ void main() {
     ) async {
       await open(tester, textScale: 2.0);
       expect(tester.takeException(), isNull);
-      for (final tab in [ar.tabMosques, ar.tabQibla, ar.tabToday]) {
-        await tester.tap(find.text(tab));
+      for (final index in [1, 2, 0]) {
+        await tester.tap(find.byKey(BottomNav.tabKey(index)));
         await tester.pump(const Duration(seconds: 4));
         await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull, reason: tab);
+        expect(tester.takeException(), isNull, reason: 'tab $index');
       }
       await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
       await tester.pumpAndSettle();

@@ -77,7 +77,7 @@ void main() {
 
       expect(find.text(t.locationSheetTitle), findsWidgets);
       expect(find.text(t.locationSheetBody), findsWidgets);
-      expect(find.text(t.locationSheetCoarse), findsWidgets);
+      expect(find.text(t.locationSheetPrecise), findsWidgets);
       expect(find.text(t.locationUseDevice), findsOneWidget);
       expect(find.text(t.locationChooseCity), findsOneWidget);
       expect(

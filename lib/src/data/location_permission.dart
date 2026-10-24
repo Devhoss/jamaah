@@ -23,8 +23,8 @@ class LocationGrant {
   static const none = LocationGrant(fine: false, coarse: false, canAsk: false);
 }
 
-/// Asks for exactly the location level a step needs: approximate for prayer
-/// times, precise only for the mosque search (decided 2026-10-13).
+/// Requests approximate or precise location according to the user's explicit
+/// step, after the app explains why it needs that level.
 ///
 /// The platform side lives in MainActivity. A plugin that requests every
 /// location permission in the manifest would offer precise at the first prompt,

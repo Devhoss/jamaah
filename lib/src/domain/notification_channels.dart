@@ -127,6 +127,11 @@ ChannelSpec _reminderChannel(
   };
   final sound = switch (reminder) {
     ReminderSound.chime => ChannelSound.chime,
+    ReminderSound.shortAzan => ChannelSound.azanShort,
+    ReminderSound.shortAllahAkbar => ChannelSound.azanAllahAkbar,
+    ReminderSound.shortAzanOne => ChannelSound.azanShortOne,
+    ReminderSound.shortVerseOne => ChannelSound.adhanVerseOne,
+    ReminderSound.shortVerseTwo => ChannelSound.adhanVerseTwo,
     ReminderSound.standard => ChannelSound.platformDefault,
     ReminderSound.silent => ChannelSound.none,
     // The user's own file is played by the app; the chime stands behind it.

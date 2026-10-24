@@ -118,25 +118,27 @@ object AdhanAlarms {
             "oldCount" to old.size,
             "requestedCount" to alarms.size,
             "futureCount" to future.size,
+            "filteredPastCount" to (alarms.size - future.size),
         ))
         for (item in old) cancel(context, item.id)
         // Keep the desired set durable before registering it so the next refresh
         // or reboot can repair any alarms lost to process death.
         saveUnlocked(context, future)
-        val failures = mutableListOf<Exception>()
+        val failures = mutableListOf<Pair<Int, Exception>>()
         for (alarm in future) {
             try {
                 register(context, alarm)
             } catch (error: Exception) {
-                failures += error
+                failures += alarm.id to error
             }
         }
         NativeDiagnostics.record(context, "adhan_alarm_replace_completed", mapOf(
             "requestedCount" to future.size,
             "registrationFailures" to failures.size,
+            "failedIds" to failures.map { it.first },
         ))
         if (failures.isNotEmpty()) {
-            throw IllegalStateException("${failures.size} native alarms could not be registered", failures.first())
+            throw IllegalStateException("${failures.size} native alarms could not be registered", failures.first().second)
         }
     }
 
@@ -145,12 +147,12 @@ object AdhanAlarms {
         val future = storedUnlocked(context).filter { it.atMillis > System.currentTimeMillis() }
         NativeDiagnostics.record(context, "adhan_alarm_restore_started", mapOf("futureCount" to future.size))
         saveUnlocked(context, future)
-        val failures = mutableListOf<Exception>()
+        val failures = mutableListOf<Pair<Int, Exception>>()
         for (alarm in future) {
             try {
                 register(context, alarm)
             } catch (error: Exception) {
-                failures += error
+                failures += alarm.id to error
             }
         }
         NativeDiagnostics.record(context, "adhan_alarm_restore_completed", mapOf(
@@ -158,7 +160,7 @@ object AdhanAlarms {
             "registrationFailures" to failures.size,
         ))
         if (failures.isNotEmpty()) {
-            throw IllegalStateException("${failures.size} native alarms could not be restored", failures.first())
+            throw IllegalStateException("${failures.size} native alarms could not be restored", failures.first().second)
         }
     }
 
@@ -255,26 +257,63 @@ object AdhanAlarms {
 /** Fires at an Adhan time and hands it to [AdhanService]. */
 class AdhanAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        NativeDiagnostics.record(context, "adhan_alarm_receiver_entered", mapOf(
+            "action" to intent.action,
+            "hasAlarmId" to intent.hasExtra(EXTRA_ID),
+        ))
         val id = intent.getIntExtra(EXTRA_ID, -1)
-        val alarm = AdhanAlarms.take(context, id)
-        if (alarm == null) {
-            NativeDiagnostics.record(context, "adhan_alarm_receiver_unmatched", mapOf("notificationId" to id))
+        NativeDiagnostics.record(context, "adhan_alarm_receiver_id_validated", mapOf(
+            "notificationId" to id,
+            "valid" to (id >= 0),
+        ))
+        if (id < 0) return
+        val alarm = try {
+            AdhanAlarms.take(context, id)
+        } catch (error: Exception) {
+            NativeDiagnostics.record(context, "adhan_alarm_receiver_failed", mapOf(
+                "notificationId" to id,
+                "errorClass" to error.javaClass.simpleName,
+                "errorMessage" to error.message,
+                "errorCode" to error.javaClass.simpleName,
+            ))
             return
         }
+        if (alarm == null) {
+            NativeDiagnostics.record(context, "adhan_alarm_receiver_validated", mapOf(
+                "notificationId" to id,
+                "foundStoredAlarm" to false,
+                "validKind" to false,
+            ))
+            return
+        }
+        val validKind = alarm.kind == "adhan" || alarm.kind == "iqama"
+        NativeDiagnostics.record(context, "adhan_alarm_receiver_validated", mapOf(
+            "notificationId" to id,
+            "foundStoredAlarm" to true,
+            "validKind" to validKind,
+            "kind" to alarm.kind,
+        ))
+        if (!validKind) return
         NativeDiagnostics.record(context, "adhan_alarm_receiver_fired", mapOf(
             "notificationId" to id,
             "kind" to alarm.kind,
             "scheduledAtEpochMillis" to alarm.atMillis,
         ))
         try {
-            AdhanService.start(context, alarm)
             NativeDiagnostics.record(context, "adhan_service_start_requested", mapOf("notificationId" to id))
-        } catch (error: Exception) {
-            NativeDiagnostics.record(context, "adhan_service_start_failed", mapOf(
+            AdhanService.start(context, alarm)
+            NativeDiagnostics.record(context, "adhan_service_start_result", mapOf(
                 "notificationId" to id,
-                "errorClass" to error.javaClass.simpleName,
+                "acceptedBySystem" to true,
             ))
-            throw error
+        } catch (error: Exception) {
+            NativeDiagnostics.record(context, "adhan_service_start_result", mapOf(
+                "notificationId" to id,
+                "acceptedBySystem" to false,
+                "errorClass" to error.javaClass.simpleName,
+                "errorMessage" to error.message,
+                "errorCode" to (error as? android.app.ForegroundServiceStartNotAllowedException)?.let { "foreground_service_start_not_allowed" },
+            ))
         }
     }
 

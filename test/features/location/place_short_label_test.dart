@@ -14,8 +14,9 @@ void main() {
     double lng = 47.9774,
     String zone = 'Asia/Kuwait',
     String? userName,
+    String? label,
   }) => Place(
-    displayName: zone,
+    displayName: label ?? zone,
     latitude: lat,
     longitude: lng,
     ianaZone: zone,
@@ -23,19 +24,19 @@ void main() {
     userName: userName,
   );
 
-  test('a found place is named by the nearest city in the list', () {
-    final label = placeShortLabel(t, device());
-    expect(label, startsWith('Near '));
-    expect(label, contains('Kuwait'));
+  test('a found place uses its reverse-geocoded area and city', () {
+    expect(
+      placeShortLabel(t, device(label: 'Shatby, Alexandria, Egypt')),
+      'Shatby, Alexandria, Egypt',
+    );
   });
 
-  test('far from every city, the zone still names the region', () {
-    // Mid-desert, far from the list, in a zone named after a city.
+  test('without a geocoded name, it does not mistake a zone for a place', () {
     final label = placeShortLabel(
       t,
       device(lat: 23.0, lng: 52.0, zone: 'Asia/Dubai'),
     );
-    expect(label, t.placeNearCity('Dubai'));
+    expect(label, t.locationCurrentPlace);
   });
 
   test('with nothing to name it by, it stays the current location', () {

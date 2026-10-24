@@ -10,6 +10,7 @@ class Place {
     required this.ianaZone,
     required this.fromDevice,
     this.userName,
+    this.countryCode,
   });
 
   /// What the UI shows, e.g. "Cairo, Egypt" or the label for the device itself.
@@ -18,6 +19,9 @@ class Place {
   /// The name the user chose for this place, if they chose one. It replaces
   /// [displayName] everywhere, because "Home" is what they called it.
   final String? userName;
+
+  /// ISO 3166-1 alpha-2 country from reverse geocoding, when available.
+  final String? countryCode;
 
   final double latitude;
   final double longitude;
@@ -34,21 +38,22 @@ class Place {
       other is Place &&
       other.displayName == displayName &&
       other.userName == userName &&
+      other.countryCode == countryCode &&
       other.latitude == latitude &&
       other.longitude == longitude &&
       other.ianaZone == ianaZone &&
       other.fromDevice == fromDevice;
 
   @override
-  int get hashCode =>
-      Object.hash(
-        displayName,
-        userName,
-        latitude,
-        longitude,
-        ianaZone,
-        fromDevice,
-      );
+  int get hashCode => Object.hash(
+    displayName,
+    userName,
+    countryCode,
+    latitude,
+    longitude,
+    ianaZone,
+    fromDevice,
+  );
 
   @override
   String toString() =>
@@ -97,14 +102,14 @@ final class PlaceRejected extends PlaceReading {
 /// change this interface — it produces a place the user saves, not the one prayer
 /// times are calculated from.
 abstract interface class PlaceSource {
-  /// Ask for the device's coarse location and its time zone.
+  /// Ask for the device's location and its time zone.
   ///
   /// Implementations must return a [PlaceRejected] for every failure rather than
   /// throwing, and must not call the platform until this is invoked — the
   /// explanation sheet has to be on screen first.
   Future<PlaceReading> requestPlace();
 
-  /// The device's coarse location only if permission was already given: never
+  /// The device's allowed location only if permission was already given: never
   /// shows a dialog. "Follow my location" uses it when the app opens or comes
   /// back, which is not a moment the user asked for anything.
   Future<PlaceReading> currentPlaceIfAllowed();

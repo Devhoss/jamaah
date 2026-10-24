@@ -18,6 +18,7 @@ import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/time_model.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/mosques/iqama_editor_sheet.dart';
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 
 import '../../helpers/fake_clock.dart';
 import '../../helpers/fake_notification_gateway.dart';
@@ -114,7 +115,8 @@ void main() {
   }
 
   Future<void> openMosque(WidgetTester tester) async {
-    await tapText(tester, t.tabMosques);
+    await tester.tap(find.byKey(BottomNav.tabKey(1)));
+    await tester.pumpAndSettle();
     await tapText(tester, 'Masjid al-Nour');
   }
 
@@ -263,7 +265,8 @@ void main() {
     // Today adds them to the day's Adhan.
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    await tapText(tester, t.tabToday);
+    await tester.tap(find.byKey(BottomNav.tabKey(0)));
+    await tester.pumpAndSettle();
     await reveal(tester, find.text(t.rowIqama(hhmm(dhuhr + 20))));
     expect(find.text(t.rowIqama(hhmm(dhuhr + 20))), findsOneWidget);
   });
@@ -272,7 +275,8 @@ void main() {
     await addActive();
     await settings.setLanguage(AppLanguage.ar);
     await open(tester, textScale: 2.0);
-    await tapText(tester, ar.tabMosques);
+    await tester.tap(find.byKey(BottomNav.tabKey(1)));
+    await tester.pumpAndSettle();
     await tapText(tester, 'Masjid al-Nour');
     await tapText(tester, ar.enterAllFive);
     expect(tester.takeException(), isNull);

@@ -61,13 +61,24 @@ class AdhanService : Service(), SensorEventListener {
             return START_NOT_STICKY
         }
         val json = intent?.getStringExtra(EXTRA_ALARM)
-        val alarm = json?.let { AdhanAlarm.fromJson(JSONObject(it)) }
+        val alarm = try {
+            json?.let { AdhanAlarm.fromJson(JSONObject(it)) }
+        } catch (error: Exception) {
+            NativeDiagnostics.record(this, "adhan_service_start_failed", mapOf(
+                "reason" to "invalid_alarm_payload",
+                "errorClass" to error.javaClass.simpleName,
+                "errorMessage" to error.message,
+                "errorCode" to error.javaClass.simpleName,
+            ))
+            stopSelf()
+            return START_NOT_STICKY
+        }
         if (alarm == null) {
             NativeDiagnostics.record(this, "adhan_service_start_failed", mapOf("reason" to "missing_or_invalid_alarm"))
             stopSelf()
             return START_NOT_STICKY
         }
-        NativeDiagnostics.record(this, "adhan_service_started", mapOf("notificationId" to alarm.id, "kind" to alarm.kind))
+        NativeDiagnostics.record(this, "adhan_service_entered", mapOf("notificationId" to alarm.id, "kind" to alarm.kind))
         ensureChannel(this)
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val playing = current
@@ -85,8 +96,19 @@ class AdhanService : Service(), SensorEventListener {
         }
         release()
         current = alarm
-        keepForeground(buildNotification(alarm, playing = true))
-        play(alarm)
+        try {
+            keepForeground(buildNotification(alarm, playing = true))
+            NativeDiagnostics.record(this, "adhan_service_foreground_established", mapOf("notificationId" to alarm.id))
+            play(alarm)
+        } catch (error: Exception) {
+            NativeDiagnostics.record(this, "adhan_service_start_failed", mapOf(
+                "notificationId" to alarm.id,
+                "errorClass" to error.javaClass.simpleName,
+                "errorMessage" to error.message,
+                "errorCode" to error.javaClass.simpleName,
+            ))
+            finish(keepAlert = true, dismissActivity = true)
+        }
         return START_NOT_STICKY
     }
 
@@ -118,6 +140,18 @@ class AdhanService : Service(), SensorEventListener {
         } else {
             AudioAttributes.USAGE_NOTIFICATION
         }
+        NativeDiagnostics.record(this, "adhan_audio_route", mapOf(
+            "notificationId" to alarm.id,
+            "ringInSilent" to alarm.ringInSilent,
+            "ringerMode" to when (ringer) {
+                AudioManager.RINGER_MODE_SILENT -> "silent"
+                AudioManager.RINGER_MODE_VIBRATE -> "vibrate"
+                else -> "normal"
+            },
+            "alarmStreamVolume" to audio.getStreamVolume(AudioManager.STREAM_ALARM),
+            "alarmStreamMaxVolume" to audio.getStreamMaxVolume(AudioManager.STREAM_ALARM),
+            "notificationStreamVolume" to audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION),
+        ))
         // A full-screen page stays up for at least a minute, even when the sound
         // is short (or there is none), so it can be seen and dismissed.
         if (alarm.fullScreen) handler.postDelayed(minimumEnd, 60_000L)
@@ -146,6 +180,21 @@ class AdhanService : Service(), SensorEventListener {
             ?.takeIf { it != 0 }
             ?.let { Uri.parse("android.resource://$packageName/$it") }
             ?: shortAdhan
+        NativeDiagnostics.record(this, "adhan_audio_source_selected", mapOf(
+            "notificationId" to alarm.id,
+            "soundMode" to alarm.sound,
+            "ringInSilent" to alarm.ringInSilent,
+            "audioUsage" to if (alarm.ringInSilent) "alarm" else "notification",
+            "source" to when {
+                fromFile -> "user_file"
+                fromAssets -> "flutter_asset"
+                source == null -> "silent"
+                alarm.sound == "raw" -> "raw_resource"
+                alarm.sound == "standard" -> "platform_default"
+                else -> "bundled_short_fallback"
+            },
+            "asset" to alarm.recording.takeIf { fromAssets },
+        ))
         if (alarm.maxSeconds > 0) {
             handler.postDelayed(capEnd, alarm.maxSeconds * 1000L)
         } else if (alarm.kind == "adhan") {
@@ -162,6 +211,11 @@ class AdhanService : Service(), SensorEventListener {
             startFlipWatch()
             return
         }
+        NativeDiagnostics.record(this, "adhan_audio_playback_requested", mapOf(
+            "notificationId" to alarm.id,
+            "kind" to alarm.kind,
+            "ringInSilent" to alarm.ringInSilent,
+        ))
         fun attributes() = AudioAttributes.Builder()
             .setUsage(usage)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -176,15 +230,15 @@ class AdhanService : Service(), SensorEventListener {
                 }
                 setOnCompletionListener { soundEnded() }
                 setOnErrorListener { _, what, extra ->
-                    NativeDiagnostics.record(this@AdhanService, "adhan_playback_interrupted", mapOf("notificationId" to alarm.id, "reason" to "media_error", "errorCode" to what, "extraCode" to extra))
+                    NativeDiagnostics.record(this@AdhanService, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "media_error", "errorCode" to what, "extraCode" to extra))
                     finish(keepAlert = true, dismissActivity = true); true
                 }
                 prepare()
                 start()
-                NativeDiagnostics.record(this@AdhanService, "adhan_playback_started", mapOf("notificationId" to alarm.id, "kind" to alarm.kind))
+                NativeDiagnostics.record(this@AdhanService, "adhan_playback_started", mapOf("notificationId" to alarm.id, "kind" to alarm.kind, "ringInSilent" to alarm.ringInSilent))
             }
         } catch (e: Exception) {
-            NativeDiagnostics.record(this, "adhan_playback_interrupted", mapOf("notificationId" to alarm.id, "reason" to "prepare_or_start_failed", "errorClass" to e.javaClass.simpleName))
+            NativeDiagnostics.record(this, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "prepare_or_start_failed", "errorClass" to e.javaClass.simpleName, "errorMessage" to e.message, "errorCode" to e.javaClass.simpleName))
             player?.release()
             player = null
             if (!fromFile) {
@@ -198,14 +252,17 @@ class AdhanService : Service(), SensorEventListener {
                     setAudioAttributes(attributes())
                     setDataSource(this@AdhanService, fallback)
                     setOnCompletionListener { soundEnded() }
-                    setOnErrorListener { _, _, _ ->
+                    setOnErrorListener { _, what, extra ->
+                        NativeDiagnostics.record(this@AdhanService, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "fallback_media_error", "errorCode" to what, "extraCode" to extra))
                         finish(keepAlert = true, dismissActivity = true)
                         true
                     }
                     prepare()
                     start()
+                    NativeDiagnostics.record(this@AdhanService, "adhan_playback_started", mapOf("notificationId" to alarm.id, "kind" to alarm.kind, "source" to "bundled_fallback"))
                 }
             } catch (e2: Exception) {
+                NativeDiagnostics.record(this, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "fallback_prepare_or_start_failed", "errorClass" to e2.javaClass.simpleName, "errorMessage" to e2.message, "errorCode" to e2.javaClass.simpleName))
                 finish(keepAlert = true, dismissActivity = true)
                 return
             }
@@ -268,7 +325,20 @@ class AdhanService : Service(), SensorEventListener {
             assets.openFd("flutter_assets/$asset").use { fd ->
                 player.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
             }
+            NativeDiagnostics.record(this, "adhan_audio_asset_resolved", mapOf(
+                "asset" to asset,
+                "resolved" to true,
+                "source" to "flutter_asset",
+            ))
         } catch (e: Exception) {
+            NativeDiagnostics.record(this, "adhan_audio_asset_fallback", mapOf(
+                "asset" to asset,
+                "resolved" to false,
+                "fallback" to "bundled_short_adhan",
+                "errorClass" to e.javaClass.simpleName,
+                "errorMessage" to e.message,
+                "errorCode" to e.javaClass.simpleName,
+            ))
             player.setDataSource(this, fallback)
         }
     }

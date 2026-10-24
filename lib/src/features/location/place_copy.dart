@@ -1,6 +1,5 @@
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../domain/place.dart';
-import '../../domain/place_near.dart';
 
 /// The copy for a place: what it is called, and what each failure says.
 ///
@@ -9,21 +8,19 @@ import '../../domain/place_near.dart';
 /// every message here ends at the manual city list rather than at a dead end.
 String placeLabel(AppLocalizations l10n, Place place) =>
     place.userName ??
-    (place.fromDevice ? l10n.locationCurrentPlace : place.displayName);
+    (place.fromDevice && place.displayName == place.ianaZone
+        ? l10n.locationCurrentPlace
+        : place.displayName);
 
-/// The place as Today's top bar names it (owner, 2026-10-16): the user's own
-/// name, a chosen city, or for a place the phone found "Near Kuwait City",
-/// from the bundled city list with no network (see place_near.dart); only
-/// when nothing nearby is known, "Current location".
+/// The place as Today's top bar names it: the user's own name, a chosen city,
+/// or the device's reverse-geocoded area. Without a result it says
+/// "Current location" instead of inventing a nearby city.
 String placeShortLabel(AppLocalizations l10n, Place place) {
   if (place.userName case final name?) return name;
-  if (!place.fromDevice) return place.displayName;
-  final near = nearName(
-    latitude: place.latitude,
-    longitude: place.longitude,
-    ianaZone: place.ianaZone,
-  );
-  return near == null ? l10n.locationCurrentPlace : l10n.placeNearCity(near);
+  if (!place.fromDevice || place.displayName != place.ianaZone) {
+    return place.displayName;
+  }
+  return l10n.locationCurrentPlace;
 }
 
 String placeFailureMessage(AppLocalizations l10n, PlaceFailure failure) =>
@@ -35,15 +32,7 @@ String placeFailureMessage(AppLocalizations l10n, PlaceFailure failure) =>
       PlaceFailure.unavailable => l10n.locationUnavailable,
     };
 
-/// [placeLabel], with "near Cairo" added for a place found by the phone, so
-/// the user can see what was found (no network needed; see place_near.dart).
+/// The place label for the location sheet.
 String placeDescription(AppLocalizations l10n, Place place) {
-  final label = placeLabel(l10n, place);
-  if (!place.fromDevice || place.userName != null) return label;
-  final near = nearName(
-    latitude: place.latitude,
-    longitude: place.longitude,
-    ianaZone: place.ianaZone,
-  );
-  return near == null ? label : l10n.placeNear(label, near);
+  return placeLabel(l10n, place);
 }

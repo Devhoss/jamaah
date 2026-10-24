@@ -5,10 +5,9 @@
       INTERNET is required by mosque discovery and place search, which come later;
       it is declared now because release builds must never be the first place it
       shows up missing.
-      ACCESS_COARSE_LOCATION is city-level — the Today screen's "where are you?",
-      asked for on its own. ACCESS_FINE_LOCATION is asked for only by "Find nearby
-      mosques" (decided 2026-10-13); the app's own channel in MainActivity requests
-      each level separately, so the first prompt never offers precise.
+      ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION are requested separately by
+      the app's location flow. Prayer times and the local area label benefit from
+      precise location; mosque discovery also requests it when the user searches.
       POST_NOTIFICATIONS (Android 13+) is asked for when the user turns an alert or
       reminder on. SCHEDULE_EXACT_ALARM lets reminders fire on the minute; when the
       user denies it they fall back to inexact timing and the app says so.

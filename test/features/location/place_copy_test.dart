@@ -9,8 +9,8 @@ import 'package:jamaah/src/features/location/place_copy.dart';
 void main() {
   final t = AppLocalizationsEn();
 
-  Place device({String? userName}) => Place(
-    displayName: 'Africa/Cairo',
+  Place device({String? userName, String label = 'Africa/Cairo'}) => Place(
+    displayName: label,
     latitude: 30.0444,
     longitude: 31.2357,
     ianaZone: 'Africa/Cairo',
@@ -33,18 +33,28 @@ void main() {
       'Current location',
       reason: 'the owner asked for these words, so they are pinned here once',
     );
+    expect(
+      placeLabel(t, device(label: 'Shatby, Alexandria, Egypt')),
+      'Shatby, Alexandria, Egypt',
+    );
   });
 
   test('a place the user named is called what they called it', () {
     expect(placeLabel(t, device(userName: 'Home')), 'Home');
-    expect(placeLabel(t, const Place(
-      displayName: 'Cairo, Egypt',
-      latitude: 30.0444,
-      longitude: 31.2357,
-      ianaZone: 'Africa/Cairo',
-      fromDevice: false,
-      userName: 'Where we stay in summer',
-    )), 'Where we stay in summer');
+    expect(
+      placeLabel(
+        t,
+        const Place(
+          displayName: 'Cairo, Egypt',
+          latitude: 30.0444,
+          longitude: 31.2357,
+          ianaZone: 'Africa/Cairo',
+          fromDevice: false,
+          userName: 'Where we stay in summer',
+        ),
+      ),
+      'Where we stay in summer',
+    );
   });
 
   test('a city from the list keeps the list’s own name', () {

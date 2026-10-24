@@ -149,6 +149,39 @@ class _JamaahRemindersPageState extends ConsumerState<JamaahRemindersPage> {
               description: l10n.reminderSoundChimeHint,
               trailing: preview(kReminderChimeAsset),
             ),
+            for (final choice in [
+              (
+                ReminderSound.shortAzan,
+                ShortAdhan.azanShort,
+                l10n.reminderSoundShortAzan,
+              ),
+              (
+                ReminderSound.shortAllahAkbar,
+                ShortAdhan.azanAllahAkbar,
+                l10n.reminderSoundShortAllahAkbar,
+              ),
+              (
+                ReminderSound.shortAzanOne,
+                ShortAdhan.azanShortOne,
+                l10n.reminderSoundShortAzanOne,
+              ),
+              (
+                ReminderSound.shortVerseOne,
+                ShortAdhan.adhanVerseOne,
+                l10n.reminderSoundShortVerseOne,
+              ),
+              (
+                ReminderSound.shortVerseTwo,
+                ShortAdhan.adhanVerseTwo,
+                l10n.reminderSoundShortVerseTwo,
+              ),
+            ])
+              RadioOption(
+                choice.$1,
+                choice.$3,
+                description: l10n.shortAdhanClipHint,
+                trailing: preview(choice.$2.asset),
+              ),
             RadioOption(
               ReminderSound.standard,
               l10n.soundModeStandard,

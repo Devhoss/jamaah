@@ -388,13 +388,13 @@ void main() {
       expect(find.text(t.locationSheetTitle), findsOneWidget);
     });
 
-    testApp('a device place is named near the closest city, never by its zone', (
+    testApp('a device place without a geocoded name is not shown as a zone', (
       tester,
     ) async {
       await settings.setLocation(devicePlace.toStored());
       await openToday(tester);
       expect(find.text(placeShortLabel(t, devicePlace)), findsOneWidget);
-      expect(placeShortLabel(t, devicePlace), startsWith('Near '));
+      expect(placeShortLabel(t, devicePlace), t.locationCurrentPlace);
       expect(
         find.text(devicePlace.displayName),
         findsNothing,

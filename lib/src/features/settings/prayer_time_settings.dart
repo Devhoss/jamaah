@@ -125,8 +125,14 @@ class MethodListPage extends ConsumerWidget {
         if (place == null)
           l10n.methodAutoNoPlace
         else ...[
-          methodName(l10n, m.resolvedFor(place.ianaZone)),
-          methodAnglesLine(l10n, m.resolvedFor(place.ianaZone)),
+          methodName(
+            l10n,
+            m.resolvedForPlace(place.ianaZone, place.countryCode),
+          ),
+          methodAnglesLine(
+            l10n,
+            m.resolvedForPlace(place.ianaZone, place.countryCode),
+          ),
         ],
       ],
       CalculationMethod.custom => [

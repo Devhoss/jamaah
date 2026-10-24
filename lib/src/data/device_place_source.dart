@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 
@@ -7,11 +8,12 @@ import '../domain/zone_lookup.dart';
 import '../domain/place.dart';
 import 'location_permission.dart';
 
-/// Reads the device's **coarse** position and its IANA time zone.
+/// Reads the device's precise position, IANA time zone and nearest named place.
 ///
-/// Asks for approximate location only — the system dialog offers nothing more —
-/// and reads `LocationAccuracy.low`. Precise location belongs to the mosque
-/// search alone (decided 2026-10-13), see [DeviceNearbyLocationSource].
+/// The explanation sheet is shown before the user is asked for precise access.
+/// Reverse geocoding supplies a useful local place name and country for the
+/// country-based calculation method mapping. If it fails, time-zone fallback
+/// and prayer calculation continue to work.
 ///
 /// Every platform failure becomes a [PlaceRejected] value instead of an
 /// exception, because the caller has to show a message and route to the manual
@@ -38,13 +40,13 @@ class DevicePlaceSource implements PlaceSource {
 
     // Only now does the system dialog appear — which is why the explanation
     // sheet has to be on screen before this is ever called.
-    final grant = await _grant(permissions, precise: false);
+    final grant = await _grant(permissions, precise: true);
     if (!grant.any) {
       return PlaceRejected(
         grant.canAsk ? PlaceFailure.denied : PlaceFailure.permanentlyDenied,
       );
     }
-    return _read();
+    return _read(precise: grant.fine);
   }
 
   @override
@@ -54,21 +56,21 @@ class DevicePlaceSource implements PlaceSource {
     }
     final grant = await permissions.status();
     if (!grant.any) return const PlaceRejected(PlaceFailure.denied);
-    return _read();
+    return _read(precise: grant.fine);
   }
 
-  /// One coarse fix and the zone it is in, every failure as a value.
+  /// One location fix and its zone, every failure as a value.
   ///
   /// When no fresh fix comes in time (indoors, the phone just woken), the
   /// phone's last known position is used if it is recent: older than
   /// [lastKnownMaxAge] it could be from before a flight, and is not.
-  Future<PlaceReading> _read() async {
+  Future<PlaceReading> _read({required bool precise}) async {
     try {
       final Position position;
       try {
         position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.low,
+          locationSettings: LocationSettings(
+            accuracy: precise ? LocationAccuracy.high : LocationAccuracy.low,
           ),
         ).timeout(timeout);
       } on TimeoutException {
@@ -98,16 +100,45 @@ class DevicePlaceSource implements PlaceSource {
         zoneAt(latitude: position.latitude, longitude: position.longitude) ??
         await _ianaZoneName();
 
-    // A device place has no human-readable name we are allowed to invent:
-    // reverse geocoding needs the network. The zone is stored as the label and
-    // the UI shows its own "this device" wording for it.
+    String? displayName;
+    String? countryCode;
+    try {
+      final marks = await Geocoding()
+          .placemarkFromCoordinates(position.latitude, position.longitude)
+          .timeout(timeout);
+      if (marks.isNotEmpty) {
+        final mark = marks.first;
+        countryCode = mark.isoCountryCode;
+        final parts = <String?>[
+          mark.subLocality,
+          mark.locality ??
+              mark.subAdministrativeArea ??
+              mark.administrativeArea,
+          mark.country,
+        ];
+        final names = <String>[];
+        for (final part in parts) {
+          final value = part?.trim();
+          if (value != null &&
+              value.isNotEmpty &&
+              !names.any((name) => name.toLowerCase() == value.toLowerCase())) {
+            names.add(value);
+          }
+        }
+        if (names.isNotEmpty) displayName = names.join(', ');
+      }
+    } on Object {
+      // Reverse geocoding can be unavailable or rate limited. The fallback
+      // label and time-zone based method still work.
+    }
     return PlaceFound(
       Place(
-        displayName: ianaZone,
+        displayName: displayName ?? ianaZone,
         latitude: position.latitude,
         longitude: position.longitude,
         ianaZone: ianaZone,
         fromDevice: true,
+        countryCode: countryCode,
       ),
     );
   }

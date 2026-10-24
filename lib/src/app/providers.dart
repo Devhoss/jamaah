@@ -97,8 +97,11 @@ final prayerTimesCalculatorProvider = Provider<PrayerTimesCalculator?>((ref) {
     latitude: place.latitude,
     longitude: place.longitude,
     zone: zone,
-    // "Auto detect" is resolved from the place's own zone.
-    method: settings.calculationMethod.resolvedFor(place.ianaZone),
+    // "Auto detect" uses the reverse-geocoded country, then the time zone.
+    method: settings.calculationMethod.resolvedForPlace(
+      place.ianaZone,
+      place.countryCode,
+    ),
     madhab: settings.madhab,
     highLatitudeRule: settings.highLatitudeRule,
     minuteOffsets: settings.minuteOffsets,
@@ -143,8 +146,8 @@ final todayExtraTimesProvider = Provider<List<ExtraTimeAt>>((ref) {
 final activeMosqueProvider = Provider<Mosque?>((ref) {
   final id = ref.watch(appSettingsProvider).value?.activeMosqueId;
   if (id == null) return null;
-  for (final mosque in ref.watch(savedMosquesProvider).value ??
-      const <Mosque>[]) {
+  for (final mosque
+      in ref.watch(savedMosquesProvider).value ?? const <Mosque>[]) {
     if (mosque.id == id) return mosque;
   }
   return null;
@@ -153,8 +156,8 @@ final activeMosqueProvider = Provider<Mosque?>((ref) {
 /// One saved mosque, followed live: an Iqama edit or a rename re-emits it, and a
 /// removed mosque reads as null.
 final mosqueByIdProvider = Provider.family<Mosque?, String>((ref, id) {
-  for (final mosque in ref.watch(savedMosquesProvider).value ??
-      const <Mosque>[]) {
+  for (final mosque
+      in ref.watch(savedMosquesProvider).value ?? const <Mosque>[]) {
     if (mosque.id == id) return mosque;
   }
   return null;

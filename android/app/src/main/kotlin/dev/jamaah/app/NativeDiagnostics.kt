@@ -26,21 +26,34 @@ object NativeDiagnostics {
                 val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 val current = runCatching { JSONArray(prefs.getString(KEY_EVENTS, "[]")) }
                     .getOrElse { JSONArray() }
-                val next = JSONArray()
-                val first = (current.length() - MAX_EVENTS + 1).coerceAtLeast(0)
-                for (i in first until current.length()) next.put(current.getJSONObject(i))
+                val retained = (0 until current.length()).mapNotNull { i ->
+                    current.optJSONObject(i)
+                }.toMutableList()
                 val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
                     timeZone = TimeZone.getTimeZone("UTC")
                 }.format(Date())
                 val entry = JSONObject().put("at", timestamp).put("event", event)
                 values.forEach { (key, value) -> if (value != null) entry.put(key, value) }
-                next.put(entry)
+                retained.add(entry)
+                while (retained.size > MAX_EVENTS) {
+                    // Bulk registration is noisy. Keep receiver, service and
+                    // playback evidence ahead of routine schedule bookkeeping.
+                    val expendable = retained.indexOfFirst { !isLifecycle(it.optString("event")) }
+                    retained.removeAt(if (expendable >= 0) expendable else 0)
+                }
+                val next = JSONArray()
+                retained.forEach(next::put)
                 prefs.edit().putString(KEY_EVENTS, next.toString()).apply()
             } catch (_: Exception) {
                 // Diagnostics must never interrupt an alarm or audio playback.
             }
         }
     }
+
+    private fun isLifecycle(event: String): Boolean =
+        event.contains("receiver") || event.contains("service") ||
+            event.contains("playback") || event.contains("audio_asset") ||
+            event.contains("audio_route")
 
     fun events(context: Context): List<Map<String, Any?>> = synchronized(lock) {
         val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)

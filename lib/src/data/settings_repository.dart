@@ -24,6 +24,7 @@ class StoredLocation {
     required this.placeLabel,
     required this.usesGps,
     this.userName,
+    this.countryCode,
   });
 
   final double latitude;
@@ -39,6 +40,7 @@ class StoredLocation {
   /// The user's own name for the place, if they gave one. It wins over
   /// [placeLabel] in the UI and is the only part of a place they can edit.
   final String? userName;
+  final String? countryCode;
 
   /// True when the device supplied this place, false when the user picked it from
   /// the bundled list — which is a labelled placeholder, so the UI says which.
@@ -50,6 +52,7 @@ class StoredLocation {
   Place toPlace() => Place(
     displayName: placeLabel,
     userName: userName,
+    countryCode: countryCode,
     latitude: latitude,
     longitude: longitude,
     ianaZone: ianaZone,
@@ -64,11 +67,19 @@ class StoredLocation {
       other.ianaZone == ianaZone &&
       other.placeLabel == placeLabel &&
       other.userName == userName &&
+      other.countryCode == countryCode &&
       other.usesGps == usesGps;
 
   @override
-  int get hashCode =>
-      Object.hash(latitude, longitude, ianaZone, placeLabel, userName, usesGps);
+  int get hashCode => Object.hash(
+    latitude,
+    longitude,
+    ianaZone,
+    placeLabel,
+    userName,
+    countryCode,
+    usesGps,
+  );
 }
 
 /// Theme preference, stored as text and mapped to Flutter's ThemeMode by the UI.
@@ -154,15 +165,15 @@ class AppSettingsSnapshot {
 ///
 /// Every value has a documented default, so a missing or unreadable row degrades
 /// to that default instead of throwing: a corrupt setting must never stop the app
-/// from showing prayer times. Defaults match AGENTS.md — MWL, Standard asr,
-/// middleOfTheNight, the device's own theme, no Adhan alert enabled, no location.
+/// from showing prayer times. Defaults use Auto detect, Standard asr,
+/// middleOfTheNight, the device's own theme, no Adhan alert enabled, and no location.
 class SettingsRepository {
   SettingsRepository(this._db);
 
   final AppDatabase _db;
 
   static const defaults = AppSettingsSnapshot(
-    calculationMethod: CalculationMethod.muslimWorldLeague,
+    calculationMethod: CalculationMethod.auto,
     madhab: Madhab.standard,
     highLatitudeRule: HighLatitudeRule.middleOfTheNight,
     minuteOffsets: {},
@@ -527,6 +538,7 @@ class SettingsRepository {
           SettingKeys.longitude,
           SettingKeys.ianaZone,
           SettingKeys.placeLabel,
+          SettingKeys.placeCountryCode,
           SettingKeys.placeUserName,
           SettingKeys.usesGps,
         ]) {
@@ -539,6 +551,10 @@ class SettingsRepository {
         await _put(SettingKeys.longitude, location.longitude.toString());
         await _put(SettingKeys.ianaZone, location.ianaZone);
         await _put(SettingKeys.placeLabel, location.placeLabel);
+        final countryCode = location.countryCode;
+        if (countryCode != null) {
+          await _put(SettingKeys.placeCountryCode, countryCode);
+        }
         final userName = location.userName;
         if (userName != null) {
           await _put(SettingKeys.placeUserName, userName);
@@ -562,6 +578,7 @@ class SettingsRepository {
         longitude: existing.longitude,
         ianaZone: existing.ianaZone,
         placeLabel: existing.placeLabel,
+        countryCode: existing.countryCode,
         userName: (trimmed == null || trimmed.isEmpty) ? null : trimmed,
         usesGps: existing.usesGps,
       ),
@@ -659,6 +676,7 @@ class SettingsRepository {
       longitude: lng,
       ianaZone: zone,
       placeLabel: values[SettingKeys.placeLabel] ?? zone,
+      countryCode: values[SettingKeys.placeCountryCode],
       userName: values[SettingKeys.placeUserName],
       usesGps: values[SettingKeys.usesGps] == 'true',
     );
@@ -676,6 +694,7 @@ extension PlaceStorage on Place {
     longitude: longitude,
     ianaZone: ianaZone,
     placeLabel: displayName,
+    countryCode: countryCode,
     userName: userName,
     usesGps: fromDevice,
   );

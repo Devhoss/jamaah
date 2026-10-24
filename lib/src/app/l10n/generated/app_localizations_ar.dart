@@ -286,11 +286,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get locationSheetBody =>
-      'يحسب التطبيق مواقيت الصلاة للمكان الذي أنت فيه، على هذا الجهاز. لا يوجد حساب ولا يُرفع أي شيء.';
+      'يستخدم Jama\'ah موقعك لحساب مواقيت الصلاة وتحديد المنطقة التي توجد فيها. لا حاجة إلى حساب.';
 
   @override
-  String get locationSheetCoarse =>
-      'تحتاج مواقيت الصلاة إلى موقع تقريبي فقط، على مستوى المدينة؛ فالمواقيت داخل المدينة الواحدة تختلف بدقائق قليلة. أما البحث عن المساجد القريبة فيطلب الموقع الدقيق بشكل منفصل.';
+  String get locationSheetPrecise =>
+      'اسمح بالموقع الدقيق لعرض منطقتك واختيار طريقة حساب مرتبطة بالبلد. تستقبل خدمة الترميز الجغرافي في Android الإحداثيات لتحديد اسم المكان.';
 
   @override
   String get locationUseDevice => 'استخدم موقعي';
@@ -1906,6 +1906,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reminderSoundChime => 'نغمة';
 
   @override
+  String get reminderSoundShortAzan => 'أذان قصير';
+
+  @override
+  String get reminderSoundShortAllahAkbar => 'الأذان الله أكبر بجودة عالية';
+
+  @override
+  String get reminderSoundShortAzanOne => 'أذان قصير ١';
+
+  @override
+  String get reminderSoundShortVerseOne => 'مقطع الأذان الأول';
+
+  @override
+  String get reminderSoundShortVerseTwo => 'مقطع الأذان الثاني';
+
+  @override
   String get shortAdhanClipHint => 'استمع إلى مقطع الأذان القصير هذا.';
 
   @override
@@ -2775,6 +2790,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get helpAbout => 'عن التطبيق';
 
   @override
+  String get helpCheckUpdates => 'إصدارات GitHub';
+
+  @override
+  String get helpUpdatesUnavailable => 'تعذّر فتح صفحة الإصدارات.';
+
+  @override
   String get diagnosticsTitle => 'التشخيص';
 
   @override
@@ -2914,7 +2935,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onbPlaceBody =>
-      'تُحسب مواقيت الصلاة على هاتفك من مكانك. يكفي موقع تقريبي، ولا يغادر هاتفك أبدًا.';
+      'تُحسب مواقيت الصلاة على هاتفك. يساعد الموقع الدقيق على تحديد منطقتك واختيار طريقة محلية. تستقبل خدمة الترميز الجغرافي في Android الإحداثيات لتحديد اسم المكان.';
 
   @override
   String onbPlaceDetails(String method, String prayer, String time) {

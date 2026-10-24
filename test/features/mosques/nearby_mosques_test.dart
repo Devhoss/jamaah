@@ -17,6 +17,7 @@ import 'package:jamaah/src/domain/placeholder_places.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
 import 'package:jamaah/src/features/mosques/mosque_detail_page.dart';
 import 'package:jamaah/src/features/mosques/nearby_mosques_page.dart';
+import 'package:jamaah/src/features/components/bottom_nav.dart';
 
 import '../../helpers/fake_clock.dart';
 import '../../helpers/fake_place_source.dart';
@@ -117,7 +118,8 @@ void main() {
   }
 
   Future<void> openNearby(WidgetTester tester) async {
-    await tapText(tester, t.tabMosques);
+    await tester.tap(find.byKey(BottomNav.tabKey(1)));
+    await tester.pumpAndSettle();
     // "Find mosques nearby" while the list is empty, "Find nearby" after.
     await tapText(
       tester,

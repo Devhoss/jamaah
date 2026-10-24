@@ -82,14 +82,16 @@ void main() {
     expect(source.requestCount, 0);
   });
 
-  test('with travel mode on but the option off, the device is never asked',
-      () async {
-    await settings.saveTravel(
-      const TravelSettings(travelMode: true, followLocation: false),
-    );
-    await follower().refresh();
-    expect(source.silentCount, 0);
-  });
+  test(
+    'with travel mode on but the option off, the device is never asked',
+    () async {
+      await settings.saveTravel(
+        const TravelSettings(travelMode: true, followLocation: false),
+      );
+      await follower().refresh();
+      expect(source.silentCount, 0);
+    },
+  );
 
   test('opening the app never shows a permission dialog', () async {
     await following();
@@ -126,7 +128,10 @@ void main() {
                   latitude: dubai.latitude,
                   longitude: dubai.longitude,
                   zone: zone,
-                  method: CalculationMethod.muslimWorldLeague,
+                  method: CalculationMethod.auto.resolvedForPlace(
+                    dubai.ianaZone,
+                    dubai.countryCode,
+                  ),
                   madhab: Madhab.standard,
                   highLatitudeRule: HighLatitudeRule.middleOfTheNight,
                   minuteOffsets: const {},
@@ -180,27 +185,29 @@ void main() {
     expect(snapshot.placeCheckFailed, isTrue);
   });
 
-  test('turning travel mode on may ask, and a refusal turns only following off',
-      () async {
-    source.reading = const PlaceRejected(PlaceFailure.denied);
-    final failure = await follower().setTravelMode(true);
-    expect(failure, PlaceFailure.denied);
-    expect(source.requestCount, 1);
-    var travel = (await settings.read()).travel;
-    expect(travel.travelMode, isTrue);
-    expect(travel.followLocation, isFalse);
+  test(
+    'turning travel mode on may ask, and a refusal turns only following off',
+    () async {
+      source.reading = const PlaceRejected(PlaceFailure.denied);
+      final failure = await follower().setTravelMode(true);
+      expect(failure, PlaceFailure.denied);
+      expect(source.requestCount, 1);
+      var travel = (await settings.read()).travel;
+      expect(travel.travelMode, isTrue);
+      expect(travel.followLocation, isFalse);
 
-    source.reading = const PlaceFound(dubai);
-    expect(await follower().setFollowLocation(true), isNull);
-    final snapshot = await settings.read();
-    expect(snapshot.travel.followsLocation, isTrue);
-    expect(snapshot.location!.ianaZone, 'Asia/Dubai');
+      source.reading = const PlaceFound(dubai);
+      expect(await follower().setFollowLocation(true), isNull);
+      final snapshot = await settings.read();
+      expect(snapshot.travel.followsLocation, isTrue);
+      expect(snapshot.location!.ianaZone, 'Asia/Dubai');
 
-    expect(await follower().setTravelMode(false), isNull);
-    travel = (await settings.read()).travel;
-    expect(travel.travelMode, isFalse);
-    expect(travel.followLocation, isTrue, reason: 'the option is remembered');
-  });
+      expect(await follower().setTravelMode(false), isNull);
+      travel = (await settings.read()).travel;
+      expect(travel.travelMode, isFalse);
+      expect(travel.followLocation, isTrue, reason: 'the option is remembered');
+    },
+  );
 
   test('with travel mode off, the option is only remembered', () async {
     expect(await follower().setFollowLocation(false), isNull);
