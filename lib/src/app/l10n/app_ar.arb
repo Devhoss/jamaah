@@ -784,5 +784,8 @@
   "onbExactAllow": "اسمح بالتنبيهات في وقتها",
   "onbExactHow": "فعّل المفتاح في الشاشة التالية، ثم عُد.",
   "onbExactAllowed": "التنبيهات في وقتها مسموح بها",
-  "recordingPreviewFailed": "تعذّر تشغيل هذا التسجيل."
+  "recordingPreviewFailed": "تعذّر تشغيل هذا التسجيل.",
+  "jumuahFollowDhuhr": "مع أذان الظهر",
+  "jumuahFollowDhuhrDescription": "يتغيّر وقت الخطبة مع أذان الظهر كل جمعة.",
+  "jumuahFollowDhuhrPreview": "تبدأ الخطبة مع أذان الظهر عند {time}."
 }

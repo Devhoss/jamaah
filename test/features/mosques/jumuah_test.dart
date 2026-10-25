@@ -252,5 +252,23 @@ void main() {
       expect(saved.jumuah.hasReminder, isTrue);
       expect(saved.iqamaFor(Prayer.dhuhr).hasReminder, isTrue);
     });
+
+    testApp("Jumu'ah can follow Dhuhr Adhan", (tester) async {
+      final m = await activeMosque();
+      await openMosque(tester);
+      await tester.scrollUntilVisible(
+        find.text(t.jumuahRowHint),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tapText(tester, t.jumuahRowHint);
+      expect(find.text(t.jumuahFollowDhuhr), findsOneWidget);
+      await tapText(tester, t.jumuahFollowDhuhr);
+      await tapText(tester, t.save);
+      final saved = (await mosques.byId(m.id))!.schedules.single;
+      expect(saved.jumuah.iqama, isNull);
+      expect(saved.jumuah.afterAdhanMinutes, 0);
+      expect(saved.jumuah.reminderMinutesBefore, 10);
+    });
   });
 }

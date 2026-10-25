@@ -127,11 +127,15 @@ class IqamaEditorSheet extends ConsumerStatefulWidget {
 
 /// How the Iqama is entered: as the mosque publishes it, minutes after the
 /// Adhan (the default for a new entry), or as a fixed time (2026-10-14).
-enum _Mode { afterAdhan, fixed }
+enum _Mode { afterAdhan, fixed, followDhuhr }
 
 class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   late LocalTime? _time = widget.current.iqama;
-  late _Mode _mode = widget.jumuah || widget.current.iqama != null
+  late _Mode _mode = widget.jumuah
+      ? (widget.current.afterAdhanMinutes == 0
+            ? _Mode.followDhuhr
+            : _Mode.fixed)
+      : widget.current.iqama != null
       ? _Mode.fixed
       : _Mode.afterAdhan;
   late final _afterField = TextEditingController(
@@ -168,7 +172,9 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   }
 
   /// Something to save: a picked time, or valid minutes.
-  bool get _hasEntry => widget.jumuah || _mode == _Mode.fixed
+  bool get _hasEntry => widget.jumuah
+      ? (_mode == _Mode.followDhuhr || _time != null)
+      : _mode == _Mode.fixed
       ? _time != null
       : _afterMinutes != null;
 
@@ -190,6 +196,7 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
   LocalTime? get _iqamaToday => switch (_mode) {
     _Mode.fixed => _time,
     _Mode.afterAdhan => _next?.iqama,
+    _Mode.followDhuhr => widget.adhan,
   };
 
   ReminderMinutesInput get _customInput =>
@@ -228,6 +235,7 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
       await repository.setJumuah(
         widget.mosque.id,
         fixed,
+        followsDhuhrAdhan: _mode == _Mode.followDhuhr,
         reminderMinutesBefore: minutes,
       );
       await ref.read(notificationPermissionRequestProvider)();
@@ -326,28 +334,53 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
               const SizedBox(height: 2),
               Text(sub, style: type.body.copyWith(color: s.onSurfaceMuted)),
               const SizedBox(height: 16),
-              if (!widget.jumuah)
+              if (widget.jumuah || _mode != _Mode.followDhuhr)
                 Segmented<_Mode>(
-                  options: [
-                    SegmentOption(
-                      _Mode.afterAdhan,
-                      l10n.iqamaModeAfterAdhan,
-                      description: l10n.iqamaModeAfterDesc,
-                    ),
-                    SegmentOption(
-                      _Mode.fixed,
-                      l10n.iqamaModeFixed,
-                      description: l10n.iqamaModeFixedDesc,
-                    ),
-                  ],
+                  options: widget.jumuah
+                      ? [
+                          SegmentOption(
+                            _Mode.followDhuhr,
+                            l10n.jumuahFollowDhuhr,
+                            description: l10n.jumuahFollowDhuhrDescription,
+                          ),
+                          SegmentOption(
+                            _Mode.fixed,
+                            l10n.iqamaModeFixed,
+                            description: l10n.iqamaModeFixedDesc,
+                          ),
+                        ]
+                      : [
+                          SegmentOption(
+                            _Mode.afterAdhan,
+                            l10n.iqamaModeAfterAdhan,
+                            description: l10n.iqamaModeAfterDesc,
+                          ),
+                          SegmentOption(
+                            _Mode.fixed,
+                            l10n.iqamaModeFixed,
+                            description: l10n.iqamaModeFixedDesc,
+                          ),
+                        ],
                   selected: _mode,
                   onChanged: _saving ? null : (m) => setState(() => _mode = m),
                 ),
               const SizedBox(height: 18),
-              if (widget.jumuah || _mode == _Mode.fixed)
+              if (_mode == _Mode.fixed)
                 ..._fixedInputs(l10n, clock, s, type, muted)
-              else
+              else if (!widget.jumuah)
                 ..._minutesInputs(l10n, clock, s, type, muted),
+              if (widget.jumuah && _mode == _Mode.followDhuhr)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    widget.adhan == null
+                        ? l10n.iqamaNeedsAdhan
+                        : l10n.jumuahFollowDhuhrPreview(
+                            clock.time(widget.adhan!),
+                          ),
+                    style: muted,
+                  ),
+                ),
               if (widget.jumuah) ...[
                 const SizedBox(height: 18),
                 Text(

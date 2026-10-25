@@ -575,7 +575,9 @@ class _IqamaRow extends ConsumerWidget {
                                   ),
                                 Text(
                                   jumuah
-                                      ? l10n.jumuahKhutbahTime
+                                      ? entry.afterAdhanMinutes == 0
+                                            ? l10n.jumuahFollowDhuhr
+                                            : l10n.jumuahKhutbahTime
                                       : entry.afterAdhanMinutes != null
                                       ? l10n.rowAdhanPlus(
                                           entry.afterAdhanMinutes!,

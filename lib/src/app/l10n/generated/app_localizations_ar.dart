@@ -506,6 +506,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jumuahKhutbahTimeNote => 'حدّد وقت بدء الخطبة في هذا المسجد.';
 
   @override
+  String get jumuahFollowDhuhr => 'مع أذان الظهر';
+
+  @override
+  String get jumuahFollowDhuhrDescription =>
+      'يتغيّر وقت الخطبة مع أذان الظهر كل جمعة.';
+
+  @override
+  String jumuahFollowDhuhrPreview(String time) {
+    return 'تبدأ الخطبة مع أذان الظهر عند $time.';
+  }
+
+  @override
   String get jumuahArrivalLeadTitle => 'دقائق قبل الخطبة';
 
   @override

@@ -861,11 +861,12 @@ void main() {
       AdhanAlertSettings alerts = const AdhanAlertSettings(),
       List<ExtraTimeAt> extraTimes = const [],
       JamaahReminderSettings reminders = const JamaahReminderSettings(),
+      Map<Prayer, int>? todayTimes,
     }) => const NotificationPlanner().plan(
       NotificationPlanInput(
         today: today,
         now: DateTime.utc(2026, 10, 14),
-        prayerTimeOf: {today: times, today.addDays(1): times},
+        prayerTimeOf: {today: todayTimes ?? times, today.addDays(1): times},
         zoneOffsetFor: (_) => 180,
         adhanAlerts: alerts,
         activeMosque: active,
@@ -960,6 +961,37 @@ void main() {
         active: active,
       ).where((n) => n.kind == NotificationKind.iqama).single;
       expect(fri.at, DateTime.utc(2026, 10, 16, 8, 10)); // 11:10 at +3
+    });
+
+    test("Dhuhr-linked Jumu'ah reminder follows the calculated Adhan", () {
+      final active = mosque(
+        jumuah: const PrayerIqama(
+          prayer: Prayer.dhuhr,
+          afterAdhanMinutes: 0,
+          reminderEnabled: true,
+          reminderMinutesBefore: 10,
+        ),
+      );
+      final fri = plan(
+        friday,
+        active: active,
+      ).where((n) => n.kind == NotificationKind.iqama).single;
+      expect(fri.jumuah, isTrue);
+      expect(fri.at, DateTime.utc(2026, 10, 16, 8, 15));
+
+      final moved = plan(
+        friday,
+        active: active,
+        todayTimes: {...times, Prayer.dhuhr: 11 * 60 + 33},
+      ).where((n) => n.kind == NotificationKind.iqama).single;
+      expect(moved.at, DateTime.utc(2026, 10, 16, 8, 23));
+
+      final noDhuhr = plan(
+        friday,
+        active: active,
+        todayTimes: {...times}..remove(Prayer.dhuhr),
+      );
+      expect(noDhuhr.where((n) => n.kind == NotificationKind.iqama), isEmpty);
     });
 
     test("Friday's Dhuhr Adhan and the reminder before it are Jumu'ah's", () {
