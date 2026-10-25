@@ -501,6 +501,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get jumuahFixedModeDescription => 'Same time every Jumu’ah';
+
+  @override
   String get jumuahArrivalLeadTitle => 'Minutes before Khutbah';
 
   @override

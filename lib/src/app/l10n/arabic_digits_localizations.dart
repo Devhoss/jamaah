@@ -323,6 +323,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get jumuahFollowDhuhrDescription => arabicDigits(super.jumuahFollowDhuhrDescription);
 
   @override
+  String get jumuahFixedModeDescription => arabicDigits(super.jumuahFixedModeDescription);
+
+  @override
   String get jumuahArrivalLeadTitle => arabicDigits(super.jumuahArrivalLeadTitle);
 
   @override

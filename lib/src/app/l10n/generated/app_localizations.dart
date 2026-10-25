@@ -908,6 +908,12 @@ abstract class AppLocalizations {
   /// **'Khutbah starts with Dhuhr Adhan at {time}.'**
   String jumuahFollowDhuhrPreview(String time);
 
+  /// No description provided for @jumuahFixedModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Same time every Jumu’ah'**
+  String get jumuahFixedModeDescription;
+
   /// No description provided for @jumuahArrivalLeadTitle.
   ///
   /// In en, this message translates to:

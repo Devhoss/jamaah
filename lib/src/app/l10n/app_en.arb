@@ -313,6 +313,7 @@
   "jumuahFollowDhuhrDescription": "Khutbah time moves with Dhuhr each Friday.",
   "jumuahFollowDhuhrPreview": "Khutbah starts with Dhuhr Adhan at {time}.",
   "@jumuahFollowDhuhrPreview": {"placeholders": {"time": {"type": "String"}}},
+  "jumuahFixedModeDescription": "Same time every Jumu’ah",
   "jumuahArrivalLeadTitle": "Minutes before Khutbah",
   "jumuahSaved": "Jumu’ah Khutbah saved",
   "jumuahReminderLead": "Reminder {minutes} min before Khutbah",

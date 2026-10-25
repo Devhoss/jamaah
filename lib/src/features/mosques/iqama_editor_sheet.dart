@@ -346,7 +346,7 @@ class _IqamaEditorSheetState extends ConsumerState<IqamaEditorSheet> {
                           SegmentOption(
                             _Mode.fixed,
                             l10n.iqamaModeFixed,
-                            description: l10n.iqamaModeFixedDesc,
+                            description: l10n.jumuahFixedModeDescription,
                           ),
                         ]
                       : [

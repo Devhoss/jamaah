@@ -518,6 +518,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get jumuahFixedModeDescription => 'في الموعد نفسه كل جمعة';
+
+  @override
   String get jumuahArrivalLeadTitle => 'دقائق قبل الخطبة';
 
   @override

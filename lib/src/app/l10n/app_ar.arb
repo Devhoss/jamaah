@@ -132,6 +132,10 @@
   "jumuahKhutbahTime": "بداية الخطبة",
   "jumuahChooseKhutbahTime": "اختر وقت بدء الخطبة",
   "jumuahKhutbahTimeNote": "حدّد وقت بدء الخطبة في هذا المسجد.",
+  "jumuahFollowDhuhr": "مع أذان الظهر",
+  "jumuahFollowDhuhrDescription": "يتغيّر وقت الخطبة مع أذان الظهر كل جمعة.",
+  "jumuahFollowDhuhrPreview": "تبدأ الخطبة مع أذان الظهر عند {time}.",
+  "jumuahFixedModeDescription": "في الموعد نفسه كل جمعة",
   "jumuahArrivalLeadTitle": "دقائق قبل الخطبة",
   "jumuahSaved": "حُفظ وقت خطبة الجمعة",
   "jumuahReminderLead": "تذكير قبل الخطبة بـ {minutes} دقيقة",
@@ -546,6 +550,7 @@
   "soundName": "الاسم",
   "soundDeleteConfirm": "حذف «{name}»؟ ما يستخدمه يعود إلى الصوت المدمج.",
   "soundCouldNotAdd": "تعذّرت إضافة هذا الملف.",
+  "recordingPreviewFailed": "تعذّر تشغيل هذا التسجيل.",
   "soundOptions": "خيارات {name}",
   "prayerRecording": "التسجيل",
   "prayerRecordingSame": "كما في الإعدادات ({name})",
@@ -783,9 +788,5 @@
   "onbExactNote": "لتصل التنبيهات في دقيقتها تمامًا، يطلب أندرويد أيضًا أن تسمح لتطبيق «جماعة» بضبط المنبّهات. ومن دون ذلك قد يتأخّر التنبيه بضع دقائق.",
   "onbExactAllow": "اسمح بالتنبيهات في وقتها",
   "onbExactHow": "فعّل المفتاح في الشاشة التالية، ثم عُد.",
-  "onbExactAllowed": "التنبيهات في وقتها مسموح بها",
-  "recordingPreviewFailed": "تعذّر تشغيل هذا التسجيل.",
-  "jumuahFollowDhuhr": "مع أذان الظهر",
-  "jumuahFollowDhuhrDescription": "يتغيّر وقت الخطبة مع أذان الظهر كل جمعة.",
-  "jumuahFollowDhuhrPreview": "تبدأ الخطبة مع أذان الظهر عند {time}."
+  "onbExactAllowed": "التنبيهات في وقتها مسموح بها"
 }
