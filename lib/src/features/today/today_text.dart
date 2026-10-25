@@ -56,7 +56,9 @@ TicketContent ticketFor({
     time: time,
     relative: relativeText(l10n, minutes - nowMinute),
     rule: resolved.isJumuah && !resolved.jumuahNotSet
-        ? l10n.jumuahKhutbahTime
+        ? entry.afterAdhanMinutes == 0
+              ? l10n.jumuahFollowDhuhr
+              : l10n.jumuahKhutbahTime
         : entry.isAfterAdhan
         ? l10n.ticketRuleAfter(entry.afterAdhanMinutes!)
         : l10n.ticketRuleFixed,

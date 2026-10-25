@@ -890,6 +890,24 @@ abstract class AppLocalizations {
   /// **'Set the time the Khutbah begins at this mosque.'**
   String get jumuahKhutbahTimeNote;
 
+  /// No description provided for @jumuahFollowDhuhr.
+  ///
+  /// In en, this message translates to:
+  /// **'At Dhuhr Adhan'**
+  String get jumuahFollowDhuhr;
+
+  /// No description provided for @jumuahFollowDhuhrDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah time moves with Dhuhr each Friday.'**
+  String get jumuahFollowDhuhrDescription;
+
+  /// No description provided for @jumuahFollowDhuhrPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Khutbah starts with Dhuhr Adhan at {time}.'**
+  String jumuahFollowDhuhrPreview(String time);
+
   /// No description provided for @jumuahArrivalLeadTitle.
   ///
   /// In en, this message translates to:

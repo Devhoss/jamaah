@@ -333,13 +333,24 @@ class NotificationPlanner {
       final adhan = adhanTimes[prayer];
       final DateTime iqamaAt;
       if (isConfiguredJumuah) {
-        final khutbahStart = iqama.iqama;
-        if (khutbahStart == null) continue;
-        iqamaAt = instantFor(
-          day,
-          khutbahStart.minutes,
-          input.zoneOffsetFor(day),
-        );
+        if (iqama.afterAdhanMinutes case final after?) {
+          // The linked mode is at Dhuhr Adhan (zero offset). Without a Dhuhr
+          // Adhan that day there is no linked arrival reminder.
+          if (adhan == null) continue;
+          iqamaAt = instantFor(
+            day,
+            adhan,
+            input.zoneOffsetFor(day),
+          ).add(Duration(minutes: after));
+        } else {
+          final khutbahStart = iqama.iqama;
+          if (khutbahStart == null) continue;
+          iqamaAt = instantFor(
+            day,
+            khutbahStart.minutes,
+            input.zoneOffsetFor(day),
+          );
+        }
       } else if (iqama.afterAdhanMinutes case final after?) {
         // Minutes after the day's Adhan, added to its instant: past midnight
         // and across a clock change alike. No Adhan that day, no Iqama.

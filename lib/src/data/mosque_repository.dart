@@ -259,8 +259,7 @@ class MosqueRepository {
   Future<Schedule> setJumuah(
     String mosqueId,
     LocalTime? time, {
-    @Deprecated('Jumu’ah is set as a Khutbah time, never minutes after Adhan.')
-    int? afterAdhanMinutes,
+    bool followsDhuhrAdhan = false,
     @Deprecated('A configured Khutbah always has its arrival reminder.')
     bool? reminderEnabled,
     int reminderMinutesBefore = 10,
@@ -277,10 +276,11 @@ class MosqueRepository {
     final updated = schedule.copyWith(
       jumuah: PrayerIqama(
         prayer: Prayer.dhuhr,
-        iqama: time,
+        iqama: followsDhuhrAdhan ? null : time,
+        afterAdhanMinutes: followsDhuhrAdhan ? 0 : null,
         // A configured Khutbah always has its arrival reminder. Its lead time
         // is the Jumu'ah-specific reminder control.
-        reminderEnabled: time != null,
+        reminderEnabled: followsDhuhrAdhan || time != null,
         reminderMinutesBefore: reminderMinutesBefore,
       ),
       updatedAt: now,
@@ -388,7 +388,7 @@ class MosqueRepository {
             effectiveFrom: _dayToInt(schedule.effectiveFrom),
             updatedAt: schedule.updatedAt.millisecondsSinceEpoch,
             jumuahMinutes: schedule.jumuah.iqama?.minutes,
-            jumuahAfterAdhanMinutes: null,
+            jumuahAfterAdhanMinutes: schedule.jumuah.afterAdhanMinutes,
             jumuahReminderEnabled: schedule.jumuah.isConfigured,
             jumuahReminderMinutesBefore: schedule.jumuah.reminderMinutesBefore,
           ),
@@ -445,11 +445,14 @@ class MosqueRepository {
                 final m? => LocalTime(m),
                 null => null,
               },
-              // Older rows could store Jumu'ah as minutes after Adhan. That
-              // value has no Khutbah meaning, so leave it unconfigured rather
-              // than carrying an ambiguous Friday schedule forward.
-              afterAdhanMinutes: null,
-              reminderEnabled: schedule.jumuahMinutes != null,
+              // Zero explicitly means the Khutbah follows Dhuhr Adhan.
+              // Other offsets remain unsupported for Jumu'ah.
+              afterAdhanMinutes: schedule.jumuahAfterAdhanMinutes == 0
+                  ? 0
+                  : null,
+              reminderEnabled:
+                  schedule.jumuahMinutes != null ||
+                  schedule.jumuahAfterAdhanMinutes == 0,
               reminderMinutesBefore: schedule.jumuahReminderMinutesBefore,
             ),
             prayers: {

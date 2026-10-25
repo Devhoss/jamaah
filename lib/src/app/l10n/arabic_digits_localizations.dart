@@ -317,6 +317,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get jumuahKhutbahTimeNote => arabicDigits(super.jumuahKhutbahTimeNote);
 
   @override
+  String get jumuahFollowDhuhr => arabicDigits(super.jumuahFollowDhuhr);
+
+  @override
+  String get jumuahFollowDhuhrDescription => arabicDigits(super.jumuahFollowDhuhrDescription);
+
+  @override
   String get jumuahArrivalLeadTitle => arabicDigits(super.jumuahArrivalLeadTitle);
 
   @override
@@ -1928,6 +1934,10 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String iqamaEditorTitle(String prayer) =>
       arabicDigits(super.iqamaEditorTitle(prayer));
+
+  @override
+  String jumuahFollowDhuhrPreview(String time) =>
+      arabicDigits(super.jumuahFollowDhuhrPreview(time));
 
   @override
   String jumuahReminderLead(int minutes) =>

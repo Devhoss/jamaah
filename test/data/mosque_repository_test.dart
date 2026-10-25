@@ -904,6 +904,24 @@ void main() {
       await mosques.setJumuahReminderEnabled(m.id, enabled: false);
       expect(current((await mosques.byId(m.id))!).jumuah.hasReminder, isTrue);
     });
+
+    test(
+      'Dhuhr-linked Jumu\'ah is stored distinctly from a fixed time',
+      () async {
+        final m = await add();
+        await mosques.setJumuah(
+          m.id,
+          null,
+          followsDhuhrAdhan: true,
+          reminderMinutesBefore: 15,
+        );
+        final entry = current((await mosques.byId(m.id))!).jumuah;
+        expect(entry.iqama, isNull);
+        expect(entry.afterAdhanMinutes, 0);
+        expect(entry.hasReminder, isTrue);
+        expect(entry.reminderMinutesBefore, 15);
+      },
+    );
   });
 
   group('minutes after the Adhan (2026-10-14)', () {
@@ -929,12 +947,6 @@ void main() {
       expect(e.afterAdhanMinutes, 22);
       expect(e.iqama, isNull);
       expect(e.hasReminder, isTrue);
-    });
-
-    test('legacy Jumu’ah Adhan offset is not a Khutbah time', () async {
-      final m = await add();
-      await mosques.setJumuah(m.id, null, afterAdhanMinutes: 30);
-      expect(current((await mosques.byId(m.id))!).jumuah.isConfigured, isFalse);
     });
 
     test('all five at once, leaving out the empty ones', () async {

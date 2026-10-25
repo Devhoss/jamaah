@@ -489,6 +489,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Set the time the Khutbah begins at this mosque.';
 
   @override
+  String get jumuahFollowDhuhr => 'At Dhuhr Adhan';
+
+  @override
+  String get jumuahFollowDhuhrDescription =>
+      'Khutbah time moves with Dhuhr each Friday.';
+
+  @override
+  String jumuahFollowDhuhrPreview(String time) {
+    return 'Khutbah starts with Dhuhr Adhan at $time.';
+  }
+
+  @override
   String get jumuahArrivalLeadTitle => 'Minutes before Khutbah';
 
   @override
