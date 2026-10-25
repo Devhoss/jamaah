@@ -95,7 +95,6 @@ Create a versioned release APK from PowerShell:
 
 ```powershell
 $version = ((Select-String -Path pubspec.yaml -Pattern '^version:').Line -split '\s+')[1]
-$appName = (Select-String -Path branding.yaml -Pattern '^  name:').Line -replace '^  name:\s*', ''
 $commit = (git rev-parse --short HEAD).Trim()
 git diff --quiet -- . ':!android/app/build.gradle.kts'
 if ($LASTEXITCODE -ne 0) { $commit += '+' }
@@ -106,13 +105,15 @@ flutter build apk --release --dart-define-from-file=.env `
   --dart-define="BUILD_DATE=$date"
 if ($LASTEXITCODE -ne 0) { throw 'Release APK build failed.' }
 $releaseVersion = $version.Split('+')[0]
-$apk = "build/app/outputs/flutter-apk/$appName-$releaseVersion.apk"
+$apk = "build/app/outputs/flutter-apk/Jamaah-$releaseVersion.apk"
 Move-Item -LiteralPath 'build/app/outputs/flutter-apk/app-release.apk' `
   -Destination $apk -Force
 $apk
 ```
 
-The APK stays under the ignored `build/` directory; do not add it to the source
+The APK uses the stable ASCII filename `Jamaah-<version>.apk` (for example,
+`Jamaah-1.0.4.apk`) for every release, independent of the branded app label.
+It stays under the ignored `build/` directory; do not add it to the source
 commit. For a public release, create an annotated source tag such as `v1.0.0`
 on the release commit and attach the matching APK to that host's release entry.
 Release builds for public distribution still need an agreed application ID,
