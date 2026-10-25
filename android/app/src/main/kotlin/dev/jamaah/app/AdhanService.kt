@@ -89,6 +89,13 @@ class AdhanService : Service(), SensorEventListener {
         if (playing != null && playing.kind == "adhan" && alarm.kind != "adhan") {
             keepForeground(buildNotification(playing, playing = true))
             manager.notify(alarm.id, buildNotification(alarm, playing = false))
+            NativeDiagnostics.record(this, "adhan_notification_post_returned", mapOf(
+                "notificationId" to alarm.id,
+                "channelId" to CHANNEL_ID,
+                "kind" to alarm.kind,
+                "postingApi" to "NotificationManager.notify",
+                "result" to "returned",
+            ))
             return START_NOT_STICKY
         }
         if (playing != null) {
@@ -99,6 +106,14 @@ class AdhanService : Service(), SensorEventListener {
         try {
             keepForeground(buildNotification(alarm, playing = true))
             NativeDiagnostics.record(this, "adhan_service_foreground_established", mapOf("notificationId" to alarm.id))
+            NativeDiagnostics.record(this, "adhan_notification_post_returned", mapOf(
+                "notificationId" to PLAYING_ID,
+                "alarmId" to alarm.id,
+                "channelId" to CHANNEL_ID,
+                "kind" to alarm.kind,
+                "postingApi" to "Service.startForeground",
+                "result" to "returned",
+            ))
             play(alarm)
         } catch (error: Exception) {
             NativeDiagnostics.record(this, "adhan_service_start_failed", mapOf(

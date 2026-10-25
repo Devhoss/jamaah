@@ -66,6 +66,10 @@ enum ChannelGroup { adhan, preAdhan, iqama, extra }
 /// retired, instead of Android quietly keeping the old sound.
 const kAdhanToneVersion = 3;
 
+/// Bump when Adhan notification presentation changes. Android channel
+/// importance is immutable after creation, so this also migrates existing apps.
+const kAdhanPresentationVersion = 2;
+
 const kReminderChimeVersion = 1;
 
 /// The raw resource a channel sound plays, or null for the platform's sound
@@ -176,6 +180,7 @@ ChannelSpec _adhanChannel(PlannedNotification n) {
   final vibrate = n.vibrate;
   final parts = [
     'adhan',
+    'v$kAdhanPresentationVersion',
     mode.name,
     vibrate ? 'vib' : 'still',
     if (alarm) 'alarm',

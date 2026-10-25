@@ -66,7 +66,12 @@ class LocalNotificationsGateway implements NotificationGateway {
         AndroidNotificationChannel(
           c.id,
           channelName(c),
-          importance: c.sound == ChannelSound.none && !c.vibrate
+          // Adhan alerts must be eligible for heads-up presentation even when
+          // configured silent. Android fixes importance at channel creation;
+          // the Adhan channel ID carries a presentation version for migration.
+          importance: c.group == ChannelGroup.adhan
+              ? Importance.high
+              : c.sound == ChannelSound.none && !c.vibrate
               ? Importance.defaultImportance
               : Importance.high,
           playSound: c.sound != ChannelSound.none,

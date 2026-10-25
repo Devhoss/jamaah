@@ -57,6 +57,14 @@ void main() {
     expect(c.sound, ChannelSound.none);
     expect(c.vibrate, isFalse);
     expect(c.alarmStream, isFalse);
+    expect(c.id, contains('_v${kAdhanPresentationVersion}_'));
+  });
+
+  test('Adhan presentation version changes the immutable channel identity', () {
+    final c = channelFor(adhan(mode: AdhanSoundMode.silent, vibrate: false));
+    expect(c.id, 'jamaah_adhan_v${kAdhanPresentationVersion}_silent_still');
+    expect(c.sound, ChannelSound.none);
+    expect(c.vibrate, isFalse);
   });
 
   test('ring in silent gets an alarm-volume channel of its own', () {
