@@ -13,6 +13,7 @@ class ScheduledItem {
     this.stopLabel = 'Stop',
     this.timeLabel = '',
     this.screen,
+    this.syncId,
   });
 
   final PlannedNotification planned;
@@ -28,6 +29,7 @@ class ScheduledItem {
   /// For a full-screen Adhan: what its page shows (the sky, the sun path and
   /// the words), worked out when scheduling (app/adhan_screen.dart).
   final Map<String, Object?>? screen;
+  final String? syncId;
 
   int get id => planned.id;
   DateTime get at => planned.at;
@@ -46,11 +48,19 @@ class PendingItem {
   final String? payload;
 }
 
+class NotificationSyncLock {
+  const NotificationSyncLock({required this.token, required this.contended});
+
+  final String token;
+  final bool contended;
+}
+
 /// The platform side, small enough to fake in tests.
 abstract interface class NotificationGateway {
   /// Serializes all scheduling work across the foreground and background
-  /// Flutter engines. A null token means another engine currently owns it.
-  Future<String?> acquireSyncLock();
+  /// Flutter engines. [contended] is true only if an earlier attempt found the
+  /// lock owned by another sync.
+  Future<NotificationSyncLock> acquireSyncLock();
 
   Future<void> releaseSyncLock(String token);
 
@@ -68,7 +78,12 @@ abstract interface class NotificationGateway {
 
   Future<List<PendingItem>> pending();
 
-  Future<void> cancel(int id);
+  Future<void> cancel(
+    int id, {
+    PendingItem? pending,
+    String? syncId,
+    String reason = 'sync_reconciliation',
+  });
 
   /// Schedules or replaces the notification with this id.
   Future<void> schedule(ScheduledItem item, {required bool exact});
@@ -78,7 +93,7 @@ abstract interface class NotificationGateway {
 
   /// Replaces every Adhan the app plays itself (the native AdhanService) with
   /// [items]. Those are not notifications the platform schedules for us.
-  Future<void> replaceAdhanAlarms(List<ScheduledItem> items);
+  Future<void> replaceAdhanAlarms(List<ScheduledItem> items, {String? syncId});
 
   /// The Adhans the app will play itself, for the debug list.
   Future<List<PendingItem>> adhanAlarms();
@@ -100,6 +115,8 @@ abstract interface class NotificationGateway {
 class SyncReport {
   const SyncReport({
     required this.scheduled,
+    required this.nativeDesired,
+    required this.platformDesired,
     required this.cancelled,
     required this.exact,
     required this.notificationsEnabled,
@@ -115,10 +132,13 @@ class SyncReport {
     required this.adhanTimeCollisions,
     required this.reconciliation,
     required this.lockWaitMs,
+    required this.anotherSyncWasInProgress,
   });
 
   /// Number of future plan entries, not the platform queue size.
   final int scheduled;
+  final int nativeDesired;
+  final int platformDesired;
   final int cancelled;
   final bool exact;
   final bool notificationsEnabled;
@@ -143,6 +163,7 @@ class SyncReport {
   /// queue readbacks, not evidence that Android delivered an alert.
   final Map<String, Object?> reconciliation;
   final int lockWaitMs;
+  final bool anotherSyncWasInProgress;
 
   @override
   String toString() =>
@@ -168,15 +189,11 @@ class NotificationSync {
     String stopLabel = 'Stop',
     String Function(DateTime at)? timeLabel,
     Map<String, Object?>? Function(PlannedNotification n)? screenFor,
+    String? syncId,
   }) async {
-    String? lockToken;
     final lockTimer = Stopwatch()..start();
-    while (lockToken == null) {
-      lockToken = await _gateway.acquireSyncLock();
-      if (lockToken == null) {
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-      }
-    }
+    final lock = await _gateway.acquireSyncLock();
+    final lockToken = lock.token;
     final lockWaitMs = lockTimer.elapsedMilliseconds;
     try {
       final future = [
@@ -198,6 +215,7 @@ class NotificationSync {
               screen: n.fullScreen && n.kind == NotificationKind.adhan
                   ? screenFor?.call(n)
                   : null,
+              syncId: syncId,
             );
           }(),
       ];
@@ -230,7 +248,12 @@ class NotificationSync {
       var cancelled = 0;
       for (final p in before) {
         if (!wanted.contains(p.id)) {
-          await _gateway.cancel(p.id);
+          await _gateway.cancel(
+            p.id,
+            pending: p,
+            syncId: syncId,
+            reason: 'sync_reconciliation',
+          );
           cancelled++;
         }
       }
@@ -239,7 +262,7 @@ class NotificationSync {
       for (final item in notifications) {
         await _gateway.schedule(item, exact: exact);
       }
-      await _gateway.replaceAdhanAlarms(inApp);
+      await _gateway.replaceAdhanAlarms(inApp, syncId: syncId);
 
       // Read back both platform-owned queues. Counts and duplicate checks only:
       // never include ids, notification text, prayer names, or scheduled times
@@ -376,6 +399,8 @@ class NotificationSync {
 
       return SyncReport(
         scheduled: items.length,
+        nativeDesired: inApp.length,
+        platformDesired: notifications.length,
         cancelled: cancelled,
         exact: exact,
         notificationsEnabled: await _gateway.notificationsEnabled(),
@@ -427,6 +452,7 @@ class NotificationSync {
           },
         },
         lockWaitMs: lockWaitMs,
+        anotherSyncWasInProgress: lock.contended,
       );
     } finally {
       await _gateway.releaseSyncLock(lockToken);

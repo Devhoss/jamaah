@@ -78,7 +78,7 @@ class AdhanService : Service(), SensorEventListener {
             stopSelf()
             return START_NOT_STICKY
         }
-        NativeDiagnostics.record(this, "adhan_service_entered", mapOf("notificationId" to alarm.id, "kind" to alarm.kind))
+        NativeDiagnostics.record(this, "adhan_service_entered", alarmEvidence(alarm))
         ensureChannel(this)
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val playing = current
@@ -87,36 +87,83 @@ class AdhanService : Service(), SensorEventListener {
         // shown, silently. Anything else takes the sound, and the one it
         // replaces stays in the notification shade.
         if (playing != null && playing.kind == "adhan" && alarm.kind != "adhan") {
+            NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(alarm) + mapOf(
+                "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                "postingApi" to "NotificationManager.notify", "foreground" to false,
+            ))
             keepForeground(buildNotification(playing, playing = true))
             manager.notify(alarm.id, buildNotification(alarm, playing = false))
             NativeDiagnostics.record(this, "adhan_notification_post_returned", mapOf(
                 "notificationId" to alarm.id,
+                "alarmId" to alarm.id,
+                "correlationId" to "notification_${alarm.id}",
+                "prayer" to alarm.prayer,
+                "syncId" to alarm.syncId,
+                "scheduledAtEpochMillis" to alarm.atMillis,
                 "channelId" to CHANNEL_ID,
                 "kind" to alarm.kind,
                 "postingApi" to "NotificationManager.notify",
                 "result" to "returned",
             ))
+            recordActiveNotification(alarm.id, alarm)
             return START_NOT_STICKY
         }
         if (playing != null) {
+            if (player?.isPlaying == true) {
+                NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(playing) + mapOf(
+                    "reason" to "replaced_by_new_alarm",
+                    "replacementAlarmId" to alarm.id,
+                    "replacementPrayer" to alarm.prayer,
+                    "replacementKind" to alarm.kind,
+                ))
+            }
+            NativeDiagnostics.record(this, "adhan_notification_replaced", alarmEvidence(playing) + mapOf(
+                "notificationId" to playing.id,
+                "replacementAlarmId" to alarm.id,
+                "replacementPrayer" to alarm.prayer,
+                "replacementKind" to alarm.kind,
+            ))
+            NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(playing) + mapOf(
+                "notificationId" to playing.id, "channelId" to CHANNEL_ID,
+                "postingApi" to "NotificationManager.notify", "reason" to "playback_replaced",
+            ))
             manager.notify(playing.id, buildNotification(playing, playing = false))
+            NativeDiagnostics.record(this, "adhan_notification_post_returned", alarmEvidence(playing) + mapOf(
+                "notificationId" to playing.id, "channelId" to CHANNEL_ID,
+                "postingApi" to "NotificationManager.notify", "result" to "returned",
+            ))
         }
         release()
         current = alarm
         try {
-            keepForeground(buildNotification(alarm, playing = true))
-            NativeDiagnostics.record(this, "adhan_service_foreground_established", mapOf("notificationId" to alarm.id))
+            val foregroundNotification = buildNotification(alarm, playing = true)
+            NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(alarm) + mapOf(
+                "notificationId" to PLAYING_ID, "channelId" to CHANNEL_ID,
+                "postingApi" to "Service.startForeground", "foreground" to true,
+                "titlePresent" to !alarm.title.isNullOrEmpty(), "textPresent" to !alarm.body.isNullOrEmpty(),
+                "visibility" to foregroundNotification.visibility,
+                "ongoing" to (foregroundNotification.flags and Notification.FLAG_ONGOING_EVENT != 0),
+                "fullScreenIntentAttached" to (foregroundNotification.fullScreenIntent != null),
+                "fullScreenCapability" to canUseFullScreen(this),
+            ))
+            keepForeground(foregroundNotification)
+            NativeDiagnostics.record(this, "adhan_service_foreground_established", alarmEvidence(alarm) + mapOf("notificationId" to PLAYING_ID))
             NativeDiagnostics.record(this, "adhan_notification_post_returned", mapOf(
                 "notificationId" to PLAYING_ID,
                 "alarmId" to alarm.id,
+                "correlationId" to "notification_${alarm.id}",
+                "prayer" to alarm.prayer,
+                "syncId" to alarm.syncId,
+                "scheduledAtEpochMillis" to alarm.atMillis,
                 "channelId" to CHANNEL_ID,
                 "kind" to alarm.kind,
                 "postingApi" to "Service.startForeground",
                 "result" to "returned",
             ))
+            recordActiveNotification(PLAYING_ID, alarm)
             play(alarm)
         } catch (error: Exception) {
-            NativeDiagnostics.record(this, "adhan_service_start_failed", mapOf(
+            NativeDiagnostics.record(this, "adhan_service_start_failed", alarmEvidence(alarm) + mapOf(
                 "notificationId" to alarm.id,
                 "errorClass" to error.javaClass.simpleName,
                 "errorMessage" to error.message,
@@ -157,6 +204,10 @@ class AdhanService : Service(), SensorEventListener {
         }
         NativeDiagnostics.record(this, "adhan_audio_route", mapOf(
             "notificationId" to alarm.id,
+            "correlationId" to "notification_${alarm.id}",
+            "prayer" to alarm.prayer,
+            "syncId" to alarm.syncId,
+            "scheduledAtEpochMillis" to alarm.atMillis,
             "ringInSilent" to alarm.ringInSilent,
             "ringerMode" to when (ringer) {
                 AudioManager.RINGER_MODE_SILENT -> "silent"
@@ -184,10 +235,9 @@ class AdhanService : Service(), SensorEventListener {
         }
         // The user's own file (2026-10-15): an absolute path, for a full Adhan
         // or ("file") a reminder.
-        val fromFile = alarm.recording.startsWith("/") &&
+        val fromFile = AdhanPlaybackDiagnostics.isUserFile(alarm.recording) &&
             (alarm.sound == "full" || alarm.sound == "file")
-        val fromAssets = !fromFile &&
-            (alarm.sound == "full" || alarm.sound == "short") && alarm.recording.isNotEmpty()
+        val fromAssets = !fromFile && AdhanPlaybackDiagnostics.usesFlutterAsset(alarm.sound, alarm.recording)
         // What plays if the user's file cannot: the reminder's own bundled sound,
         // or the short Adhan.
         val fallback = alarm.raw.takeIf { it.isNotEmpty() }
@@ -197,6 +247,10 @@ class AdhanService : Service(), SensorEventListener {
             ?: shortAdhan
         NativeDiagnostics.record(this, "adhan_audio_source_selected", mapOf(
             "notificationId" to alarm.id,
+            "correlationId" to "notification_${alarm.id}",
+            "prayer" to alarm.prayer,
+            "syncId" to alarm.syncId,
+            "scheduledAtEpochMillis" to alarm.atMillis,
             "soundMode" to alarm.sound,
             "ringInSilent" to alarm.ringInSilent,
             "audioUsage" to if (alarm.ringInSilent) "alarm" else "notification",
@@ -228,6 +282,10 @@ class AdhanService : Service(), SensorEventListener {
         }
         NativeDiagnostics.record(this, "adhan_audio_playback_requested", mapOf(
             "notificationId" to alarm.id,
+            "correlationId" to "notification_${alarm.id}",
+            "prayer" to alarm.prayer,
+            "syncId" to alarm.syncId,
+            "scheduledAtEpochMillis" to alarm.atMillis,
             "kind" to alarm.kind,
             "ringInSilent" to alarm.ringInSilent,
         ))
@@ -240,20 +298,20 @@ class AdhanService : Service(), SensorEventListener {
                 setAudioAttributes(attributes())
                 when {
                     fromFile -> setDataSource(alarm.recording)
-                    fromAssets -> setAssetSource(this, alarm.recording, shortAdhan)
+                    fromAssets -> setAssetSource(this, alarm, alarm.recording, shortAdhan)
                     else -> setDataSource(this@AdhanService, source!!)
                 }
                 setOnCompletionListener { soundEnded() }
                 setOnErrorListener { _, what, extra ->
-                    NativeDiagnostics.record(this@AdhanService, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "media_error", "errorCode" to what, "extraCode" to extra))
+                    NativeDiagnostics.record(this@AdhanService, "adhan_playback_failed", alarmEvidence(alarm) + AdhanPlaybackDiagnostics.failureDetails("media_error", errorCode = what, extraCode = extra))
                     finish(keepAlert = true, dismissActivity = true); true
                 }
                 prepare()
                 start()
-                NativeDiagnostics.record(this@AdhanService, "adhan_playback_started", mapOf("notificationId" to alarm.id, "kind" to alarm.kind, "ringInSilent" to alarm.ringInSilent))
+                NativeDiagnostics.record(this@AdhanService, "adhan_playback_started", alarmEvidence(alarm) + mapOf("kind" to alarm.kind, "ringInSilent" to alarm.ringInSilent))
             }
         } catch (e: Exception) {
-            NativeDiagnostics.record(this, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "prepare_or_start_failed", "errorClass" to e.javaClass.simpleName, "errorMessage" to e.message, "errorCode" to e.javaClass.simpleName))
+            NativeDiagnostics.record(this, "adhan_playback_failed", alarmEvidence(alarm) + AdhanPlaybackDiagnostics.failureDetails("prepare_or_start_failed", error = e))
             player?.release()
             player = null
             if (!fromFile) {
@@ -335,18 +393,18 @@ class AdhanService : Service(), SensorEventListener {
      * flutter_assets/ in the APK, stored uncompressed for audio, so the file can
      * be opened in place. Falls back to the short Adhan if it cannot be read.
      */
-    private fun setAssetSource(player: MediaPlayer, asset: String, fallback: Uri) {
+    private fun setAssetSource(player: MediaPlayer, alarm: AdhanAlarm, asset: String, fallback: Uri) {
         try {
-            assets.openFd("flutter_assets/$asset").use { fd ->
+            assets.openFd(AdhanPlaybackDiagnostics.flutterAssetDescriptorPath(asset)).use { fd ->
                 player.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
             }
-            NativeDiagnostics.record(this, "adhan_audio_asset_resolved", mapOf(
+            NativeDiagnostics.record(this, "adhan_audio_asset_resolved", alarmEvidence(alarm) + mapOf(
                 "asset" to asset,
                 "resolved" to true,
                 "source" to "flutter_asset",
             ))
         } catch (e: Exception) {
-            NativeDiagnostics.record(this, "adhan_audio_asset_fallback", mapOf(
+            NativeDiagnostics.record(this, "adhan_audio_asset_fallback", alarmEvidence(alarm) + mapOf(
                 "asset" to asset,
                 "resolved" to false,
                 "fallback" to "bundled_short_adhan",
@@ -389,7 +447,7 @@ class AdhanService : Service(), SensorEventListener {
 
     /** The recording ended: finish, unless a full-screen page is still due its minute. */
     private fun soundEnded() {
-        current?.let { NativeDiagnostics.record(this, "adhan_playback_completed", mapOf("notificationId" to it.id, "kind" to it.kind)) }
+        current?.let { NativeDiagnostics.record(this, "adhan_playback_completed", alarmEvidence(it)) }
         soundDone = true
         if (current?.fullScreen != true || minimumPassed) {
             finish(keepAlert = true, dismissActivity = true)
@@ -430,7 +488,7 @@ class AdhanService : Service(), SensorEventListener {
     private fun finish(keepAlert: Boolean = false, dismissActivity: Boolean = true) {
         val alarm = current
         if (alarm != null && player?.isPlaying == true) {
-            NativeDiagnostics.record(this, "adhan_playback_interrupted", mapOf("notificationId" to alarm.id, "reason" to "service_stopped"))
+            NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(alarm) + mapOf("reason" to "service_stopped"))
         }
         release()
         current = null
@@ -440,15 +498,87 @@ class AdhanService : Service(), SensorEventListener {
             @Suppress("DEPRECATION")
             stopForeground(true)
         }
+        if (alarm != null) NativeDiagnostics.record(this, "adhan_notification_cancelled", alarmEvidence(alarm) + mapOf(
+            "notificationId" to PLAYING_ID,
+            "channelId" to CHANNEL_ID,
+            "reason" to "foreground_removed",
+        ))
         if (alarm != null && keepAlert) {
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.notify(alarm.id, buildNotification(alarm, playing = false))
+            val notification = buildNotification(alarm, playing = false)
+            NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(alarm) + mapOf(
+                "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                "postingApi" to "NotificationManager.notify", "foreground" to false,
+                "titlePresent" to alarm.title.isNotEmpty(), "textPresent" to alarm.body.isNotEmpty(),
+                "visibility" to notification.visibility, "ongoing" to false,
+            ))
+            try {
+                manager.notify(alarm.id, notification)
+                NativeDiagnostics.record(this, "adhan_notification_post_returned", alarmEvidence(alarm) + mapOf(
+                    "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                    "postingApi" to "NotificationManager.notify", "result" to "returned",
+                ))
+                recordActiveNotification(alarm.id, alarm)
+            } catch (error: Exception) {
+                NativeDiagnostics.record(this, "adhan_notification_post_failed", alarmEvidence(alarm) + mapOf(
+                    "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                    "errorClass" to error.javaClass.simpleName,
+                    "errorMessage" to error.message,
+                    "errorCode" to error.javaClass.simpleName,
+                ))
+            }
         } else if (alarm != null) {
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.cancel(alarm.id)
+            NativeDiagnostics.record(this, "adhan_notification_cancel_requested", alarmEvidence(alarm) + mapOf(
+                "notificationId" to alarm.id, "channelId" to CHANNEL_ID, "reason" to "playback_dismissed",
+            ))
+            try {
+                manager.cancel(alarm.id)
+                NativeDiagnostics.record(this, "adhan_notification_cancelled", alarmEvidence(alarm) + mapOf(
+                    "notificationId" to alarm.id, "channelId" to CHANNEL_ID, "reason" to "playback_dismissed",
+                ))
+            } catch (error: Exception) {
+                NativeDiagnostics.record(this, "adhan_notification_cancel_failed", alarmEvidence(alarm) + mapOf(
+                    "notificationId" to alarm.id, "errorClass" to error.javaClass.simpleName,
+                    "errorMessage" to error.message, "errorCode" to error.javaClass.simpleName,
+                ))
+            }
         }
         AdhanActivity.endAll(dismissActivity)
         stopSelf()
+    }
+
+    private fun alarmEvidence(alarm: AdhanAlarm): Map<String, Any?> = mapOf(
+        "alarmId" to alarm.id,
+        "correlationId" to "notification_${alarm.id}",
+        "syncId" to alarm.syncId,
+        "kind" to alarm.kind,
+        "prayer" to alarm.prayer,
+        "scheduledAtEpochMillis" to alarm.atMillis,
+    )
+
+    /** A successful query proves current NotificationManager state, not banner rendering. */
+    private fun recordActiveNotification(id: Int, alarm: AdhanAlarm) {
+        try {
+            val active = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .activeNotifications.firstOrNull { it.id == id }
+            NativeDiagnostics.record(this, "adhan_notification_state_observed", alarmEvidence(alarm) + mapOf(
+                "notificationId" to id,
+                "channelId" to active?.notification?.channelId,
+                "active" to (active != null),
+                "titlePresent" to (active?.notification?.extras?.getCharSequence(Notification.EXTRA_TITLE)?.isNotEmpty() == true),
+                "textPresent" to (active?.notification?.extras?.getCharSequence(Notification.EXTRA_TEXT)?.isNotEmpty() == true),
+                    "ongoing" to (((active?.notification?.flags ?: 0) and Notification.FLAG_ONGOING_EVENT) != 0),
+                    "foregroundService" to (((active?.notification?.flags ?: 0) and Notification.FLAG_FOREGROUND_SERVICE) != 0),
+                "grouped" to (active?.groupKey?.isNotEmpty() == true),
+                "scope" to "notification_manager_active_notifications_snapshot",
+            ))
+        } catch (error: Exception) {
+            NativeDiagnostics.record(this, "adhan_notification_state_query_failed", alarmEvidence(alarm) + mapOf(
+                "notificationId" to id, "errorClass" to error.javaClass.simpleName,
+                "errorMessage" to error.message, "errorCode" to error.javaClass.simpleName,
+            ))
+        }
     }
 
     private fun release() {
@@ -479,6 +609,11 @@ class AdhanService : Service(), SensorEventListener {
     }
 
     override fun onDestroy() {
+        current?.takeIf { player?.isPlaying == true }?.let { alarm ->
+            NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(alarm) + mapOf(
+                "reason" to "service_destroyed",
+            ))
+        }
         release()
         super.onDestroy()
     }
@@ -495,6 +630,9 @@ class AdhanService : Service(), SensorEventListener {
         } else {
             @Suppress("DEPRECATION")
             Notification.Builder(this).setPriority(Notification.PRIORITY_HIGH)
+        }
+        if (playing && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
         }
         builder
             .setSmallIcon(R.drawable.ic_stat_jamaah)

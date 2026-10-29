@@ -1,6 +1,7 @@
 package dev.jamaah.app
 
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -17,7 +18,6 @@ import java.util.TimeZone
 object NativeDiagnostics {
     private const val PREFS = "jamaah_diagnostics_native"
     private const val KEY_EVENTS = "events"
-    private const val MAX_EVENTS = 300
     private val lock = Any()
 
     fun record(context: Context, event: String, values: Map<String, Any?> = emptyMap()) {
@@ -34,26 +34,24 @@ object NativeDiagnostics {
                 }.format(Date())
                 val entry = JSONObject().put("at", timestamp).put("event", event)
                 values.forEach { (key, value) -> if (value != null) entry.put(key, value) }
-                retained.add(entry)
-                while (retained.size > MAX_EVENTS) {
-                    // Bulk registration is noisy. Keep receiver, service and
-                    // playback evidence ahead of routine schedule bookkeeping.
-                    val expendable = retained.indexOfFirst { !isLifecycle(it.optString("event")) }
-                    retained.removeAt(if (expendable >= 0) expendable else 0)
-                }
+                val alarmId = (values["alarmId"] as? Number)?.toInt()
+                    ?: (values["notificationId"] as? Number)?.toInt()
+                    ?: (values["id"] as? Number)?.toInt()
+                val correlationId = values["correlationId"] as? String
+                    ?: alarmId?.let { "notification_$it" }
+                if (correlationId != null) entry.put("correlationId", correlationId)
+                val candidates = retained + entry
+                val indices = NativeEventRetention.retainedIndices(
+                    candidates.map { it.optString("event") },
+                )
                 val next = JSONArray()
-                retained.forEach(next::put)
+                indices.forEach { index -> next.put(candidates[index]) }
                 prefs.edit().putString(KEY_EVENTS, next.toString()).apply()
             } catch (_: Exception) {
                 // Diagnostics must never interrupt an alarm or audio playback.
             }
         }
     }
-
-    private fun isLifecycle(event: String): Boolean =
-        event.contains("receiver") || event.contains("service") ||
-            event.contains("playback") || event.contains("audio_asset") ||
-            event.contains("audio_route")
 
     fun events(context: Context): List<Map<String, Any?>> = synchronized(lock) {
         val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -105,6 +103,26 @@ object NativeDiagnostics {
                 )
             }
         } else emptyList()
+        val activeResult = runCatching {
+            notifications.activeNotifications.map { status ->
+                val notification = status.notification
+                mapOf(
+                    "id" to status.id,
+                    "tagPresent" to (status.tag != null),
+                    "channelId" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        notification.channelId
+                    } else null,
+                    "category" to notification.category,
+                    "titlePresent" to (notification.extras?.getCharSequence(Notification.EXTRA_TITLE)?.isNotEmpty() == true),
+                    "textPresent" to (notification.extras?.getCharSequence(Notification.EXTRA_TEXT)?.isNotEmpty() == true),
+                    "visibility" to notification.visibility,
+                    "ongoing" to (notification.flags and Notification.FLAG_ONGOING_EVENT != 0),
+                    "foregroundService" to (notification.flags and Notification.FLAG_FOREGROUND_SERVICE != 0),
+                    "grouped" to (!status.groupKey.isNullOrEmpty()),
+                    "postTimeEpochMillis" to status.postTime,
+                )
+            }
+        }
         val zone = TimeZone.getDefault()
         return mapOf(
             "androidApiLevel" to Build.VERSION.SDK_INT,
@@ -130,6 +148,9 @@ object NativeDiagnostics {
             "fullScreenIntentCapability" to fullScreen,
             "batteryOptimizationExempt" to power.isIgnoringBatteryOptimizations(context.packageName),
             "channels" to channels,
+            "activeNotifications" to activeResult.getOrElse { emptyList() },
+            "activeNotificationsQuery" to if (activeResult.isSuccess) "succeeded" else
+                "failed:${activeResult.exceptionOrNull()?.javaClass?.simpleName ?: "unknown"}",
         )
     }
 

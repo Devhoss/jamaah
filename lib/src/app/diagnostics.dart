@@ -6,12 +6,14 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'build_info.dart';
+import 'diagnostic_evidence.dart';
 
 /// Small, bounded on-device history of notification health events.
 ///
-/// Entries intentionally contain only event codes, counts, permission state,
-/// and timestamps. Never add prayer names/times, notification text, or place
-/// data here: this file is included in a report a tester chooses to send.
+/// Entries stay on device until a user-triggered report is shared. Scheduling
+/// records include the notification ID, prayer, and scheduled time so a tester
+/// can correlate a missing alert with its delivery path. Never add notification
+/// text or place data.
 class Diagnostics {
   Diagnostics._();
 
@@ -150,7 +152,7 @@ class Diagnostics {
       'sessionId': _sessionId,
       'createdAtUtc': DateTime.now().toUtc().toIso8601String(),
       'summary': {
-        ..._summary(entries),
+        ..._summary(entries, nativeEvents),
         'build': buildLabel(),
         ..._environmentSummary(nativeEnvironment, nativeStoredAlarms),
       },
@@ -184,7 +186,10 @@ class Diagnostics {
       .microsecondsSinceEpoch
       .toString();
 
-  static Map<String, Object?> _summary(List<Map<String, Object?>> entries) {
+  static Map<String, Object?> _summary(
+    List<Map<String, Object?>> entries,
+    Object? nativeEvents,
+  ) {
     final syncs = entries.where(
       (e) => e['event'] == 'notification_sync_completed',
     );
@@ -210,16 +215,10 @@ class Diagnostics {
             ])
               if (latest.containsKey(key)) key: latest[key],
           };
-    final lifecycle = entries
-        .where(
-          (e) =>
-              e['event'] == 'adhan_alarm_receiver_fired' ||
-              e['event'] == 'adhan_playback_started' ||
-              e['event'] == 'adhan_playback_completed' ||
-              e['event'] == 'adhan_playback_interrupted',
-        )
-        .take(10)
-        .toList();
+    final lifecycle = recentNotificationEvidence(
+      flutterEvents: entries,
+      nativeEvents: nativeEvents,
+    );
     final reconciliation = latest?['reconciliation'];
     final platform = reconciliation is Map ? reconciliation['platform'] : null;
     final native = reconciliation is Map ? reconciliation['native'] : null;
@@ -244,7 +243,7 @@ class Diagnostics {
             reconciliationCount(native, 'timestampMismatches'),
       },
       'recentReceiverPlaybackEvidence': lifecycle,
-      'deliveryLimit': 'Platform pending state does not prove delivery; regular notification display callbacks are unavailable.',
+      'deliveryLimit': 'Platform scheduling and pending state do not prove that ScheduledNotificationReceiver posted or displayed an alert. Android active-notification snapshots show state only when queried; they cannot confirm heads-up/banner presentation.',
     };
   }
 

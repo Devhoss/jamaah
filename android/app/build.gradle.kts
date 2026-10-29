@@ -62,6 +62,7 @@ kotlin {
 dependencies {
     // Required by flutter_local_notifications for java.time on older Android.
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    testImplementation("junit:junit:4.13.2")
 }
 
 flutter {

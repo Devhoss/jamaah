@@ -26,11 +26,18 @@ object AdhanChannel {
         MethodChannel(messenger, NAME).setMethodCallHandler { call, result ->
             when (call.method) {
                 "replaceAll" -> {
-                    val list = call.arguments as? List<*> ?: emptyList<Any>()
+                    val arguments = call.arguments
+                    val syncId = (arguments as? Map<*, *>)?.get("syncId") as? String
+                    val list = when (arguments) {
+                        is List<*> -> arguments
+                        is Map<*, *> -> arguments["alarms"] as? List<*> ?: emptyList<Any>()
+                        else -> emptyList<Any>()
+                    }
                     try {
                         AdhanAlarms.replaceAll(
                             context,
                             list.mapNotNull { (it as? Map<*, *>)?.let(AdhanAlarm::fromMap) },
+                            syncId,
                         )
                         result.success(null)
                     } catch (error: Exception) {
@@ -48,6 +55,8 @@ object AdhanChannel {
                             "id" to it.id,
                             "at" to it.atMillis,
                             "kind" to it.kind,
+                            "prayer" to it.prayer,
+                            "syncId" to it.syncId,
                             "soundMode" to it.sound,
                             "ringInSilent" to it.ringInSilent,
                             "fullScreen" to it.fullScreen,

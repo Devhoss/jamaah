@@ -89,19 +89,44 @@ void main() {
     () async {
       final gateway = FakeNotificationGateway();
       final sync = NotificationSync(gateway);
-      await Future.wait([
-        sync.apply(
-          plan: [n(1, fromNow: const Duration(hours: 1))],
-          now: now,
-          textFor: text,
-        ),
-        sync.apply(
-          plan: [n(2, fromNow: const Duration(hours: 2))],
-          now: now,
-          textFor: text,
-        ),
-      ]);
+      final first = sync.apply(
+        plan: [n(1, fromNow: const Duration(hours: 1))],
+        now: now,
+        textFor: text,
+      );
+      final second = sync.apply(
+        plan: [n(2, fromNow: const Duration(hours: 2))],
+        now: now,
+        textFor: text,
+      );
+      final reports = await Future.wait([first, second]);
       expect(gateway.scheduled.keys, [2]);
+      expect(reports[0].anotherSyncWasInProgress, isFalse);
+      expect(reports[1].anotherSyncWasInProgress, isTrue);
+    },
+  );
+
+  test(
+    'desired counts and sync correlation exclude past plan entries',
+    () async {
+      final gateway = FakeNotificationGateway();
+      final report = await NotificationSync(gateway).apply(
+        plan: [
+          n(1, fromNow: const Duration(hours: -1), mode: AdhanSoundMode.full),
+          n(2, fromNow: const Duration(hours: 1), mode: AdhanSoundMode.full),
+          n(3, fromNow: const Duration(hours: -2)),
+          n(4, fromNow: const Duration(hours: 2)),
+        ],
+        now: now,
+        textFor: text,
+        syncId: 'sync-test-42',
+      );
+
+      expect(report.scheduled, 2);
+      expect(report.nativeDesired, 1);
+      expect(report.platformDesired, 1);
+      expect(gateway.adhanAlarmsById[2]?.syncId, 'sync-test-42');
+      expect(gateway.scheduled[4]?.syncId, 'sync-test-42');
     },
   );
 

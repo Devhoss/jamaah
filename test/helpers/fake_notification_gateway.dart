@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:jamaah/src/data/notifications/notification_sync.dart';
@@ -12,14 +13,20 @@ class FakeNotificationGateway implements NotificationGateway {
   bool enabled;
   bool _syncLocked = false;
   int _nextLockToken = 0;
+  Future<void>? scheduleGate;
+  Completer<void>? scheduleStarted;
 
   @override
-  Future<String?> acquireSyncLock() async {
+  Future<NotificationSyncLock> acquireSyncLock() async {
+    final contended = _syncLocked;
     while (_syncLocked) {
       await Future<void>.delayed(const Duration(milliseconds: 1));
     }
     _syncLocked = true;
-    return 'fake-lock-${_nextLockToken++}';
+    return NotificationSyncLock(
+      token: 'fake-lock-${_nextLockToken++}',
+      contended: contended,
+    );
   }
 
   @override
@@ -79,11 +86,19 @@ class FakeNotificationGateway implements NotificationGateway {
       ];
 
   @override
-  Future<void> cancel(int id) async => scheduled.remove(id);
+  Future<void> cancel(
+    int id, {
+    PendingItem? pending,
+    String? syncId,
+    String reason = 'sync_reconciliation',
+  }) async => scheduled.remove(id);
 
   @override
   Future<void> schedule(ScheduledItem item, {required bool exact}) async {
     scheduleCalls++;
+    final started = scheduleStarted;
+    if (started != null && !started.isCompleted) started.complete();
+    await scheduleGate;
     scheduled[item.id] = item;
     exactFlags[item.id] = exact;
   }
@@ -95,7 +110,10 @@ class FakeNotificationGateway implements NotificationGateway {
   bool fullScreenAllowed = true;
 
   @override
-  Future<void> replaceAdhanAlarms(List<ScheduledItem> items) async {
+  Future<void> replaceAdhanAlarms(
+    List<ScheduledItem> items, {
+    String? syncId,
+  }) async {
     adhanAlarmsById
       ..clear()
       ..addAll({for (final i in items) i.id: i});

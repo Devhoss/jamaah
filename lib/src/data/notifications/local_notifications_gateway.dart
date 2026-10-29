@@ -51,6 +51,16 @@ class LocalNotificationsGateway implements NotificationGateway {
         null => null,
       };
 
+  Map<String, Object?> _payload(String? payload) {
+    if (payload == null) return const {};
+    try {
+      final decoded = jsonDecode(payload);
+      return decoded is Map ? Map<String, Object?>.from(decoded) : const {};
+    } on Object {
+      return const {};
+    }
+  }
+
   AudioAttributesUsage _usage(ChannelSpec c) => c.alarmStream
       ? AudioAttributesUsage.alarm
       : AudioAttributesUsage.notification;
@@ -114,21 +124,56 @@ class LocalNotificationsGateway implements NotificationGateway {
   }
 
   @override
-  Future<void> cancel(int id) async {
+  Future<void> cancel(
+    int id, {
+    PendingItem? pending,
+    String? syncId,
+    String reason = 'sync_reconciliation',
+  }) async {
     await _init();
+    final payload = _payload(pending?.payload);
     unawaited(
-      Diagnostics.record('notification_cancel_requested', values: {'id': id}),
+      Diagnostics.record(
+        'notification_cancel_requested',
+        values: {
+          'id': id,
+          'correlationId': 'notification_$id',
+          'syncId': syncId,
+          'kind': payload['kind'],
+          'prayer': payload['prayer'],
+          'atUtc': payload['at'],
+          'channelId': payload['channel'],
+          'reason': reason,
+        },
+      ),
     );
     try {
       await _plugin.cancel(id: id);
       unawaited(
-        Diagnostics.record('notification_cancel_completed', values: {'id': id}),
+        Diagnostics.record(
+          'notification_cancel_completed',
+          values: {
+            'id': id,
+            'correlationId': 'notification_$id',
+            'syncId': syncId,
+            'kind': payload['kind'],
+            'atUtc': payload['at'],
+            'channelId': payload['channel'],
+            'reason': reason,
+          },
+        ),
       );
     } on Object catch (error) {
       unawaited(
         Diagnostics.record(
           'notification_cancel_failed',
-          values: {'id': id, 'errorType': error.runtimeType.toString()},
+          values: {
+            'id': id,
+            'correlationId': 'notification_$id',
+            'syncId': syncId,
+            'errorType': error.runtimeType.toString(),
+            'error': error.toString(),
+          },
         ),
       );
       rethrow;
@@ -156,9 +201,14 @@ class LocalNotificationsGateway implements NotificationGateway {
         values: {
           'id': item.id,
           'correlationId': 'notification_${item.id}',
+          'syncId': item.syncId,
           'kind': item.planned.kind.name,
+          'prayer': item.planned.prayer.name,
           'atUtc': item.at.toUtc().toIso8601String(),
           'mechanism': 'platform_notification',
+          'channelId': c.id,
+          'titlePresent': item.title.isNotEmpty,
+          'bodyPresent': item.body.isNotEmpty,
           'exactRequested': exact,
         },
       ),
@@ -176,6 +226,8 @@ class LocalNotificationsGateway implements NotificationGateway {
           'at': item.at.toUtc().toIso8601String(),
           'channel': c.id,
           'kind': item.planned.kind.name,
+          'prayer': item.planned.prayer.name,
+          'syncId': item.syncId,
         }),
         notificationDetails: _details(c),
       );
@@ -185,7 +237,11 @@ class LocalNotificationsGateway implements NotificationGateway {
           values: {
             'id': item.id,
             'correlationId': 'notification_${item.id}',
+            'syncId': item.syncId,
             'kind': item.planned.kind.name,
+            'prayer': item.planned.prayer.name,
+            'atUtc': item.at.toUtc().toIso8601String(),
+            'channelId': c.id,
           },
         ),
       );
@@ -196,8 +252,13 @@ class LocalNotificationsGateway implements NotificationGateway {
           values: {
             'id': item.id,
             'correlationId': 'notification_${item.id}',
+            'syncId': item.syncId,
             'kind': item.planned.kind.name,
+            'prayer': item.planned.prayer.name,
+            'atUtc': item.at.toUtc().toIso8601String(),
+            'channelId': c.id,
             'errorType': error.runtimeType.toString(),
+            'error': error.toString(),
           },
         ),
       );
@@ -227,11 +288,15 @@ class LocalNotificationsGateway implements NotificationGateway {
   static const _adhan = MethodChannel('dev.jamaah.app/adhan');
 
   @override
-  Future<String> acquireSyncLock() async {
+  Future<NotificationSyncLock> acquireSyncLock() async {
     final deadline = DateTime.now().add(const Duration(minutes: 3));
+    var contended = false;
     while (true) {
       final token = await _adhan.invokeMethod<String>('acquireSyncLock');
-      if (token != null) return token;
+      if (token != null) {
+        return NotificationSyncLock(token: token, contended: contended);
+      }
+      contended = true;
       if (DateTime.now().isAfter(deadline)) {
         throw TimeoutException('Timed out waiting for notification sync lock.');
       }
@@ -255,6 +320,8 @@ class LocalNotificationsGateway implements NotificationGateway {
     'maxSeconds': maxSecondsFor(item.planned),
     // Which keeps the sound when two fire at once: an Adhan over a reminder.
     'kind': item.planned.kind.name,
+    'prayer': item.planned.prayer.name,
+    'syncId': item.syncId,
     'ringInSilent': item.planned.ringInSilent,
     'fullScreen': item.planned.fullScreen,
     'vibrate': item.planned.vibrate,
@@ -264,8 +331,13 @@ class LocalNotificationsGateway implements NotificationGateway {
   };
 
   @override
-  Future<void> replaceAdhanAlarms(List<ScheduledItem> items) =>
-      _adhan.invokeMethod('replaceAll', [for (final i in items) _adhanMap(i)]);
+  Future<void> replaceAdhanAlarms(
+    List<ScheduledItem> items, {
+    String? syncId,
+  }) => _adhan.invokeMethod('replaceAll', {
+    'syncId': syncId,
+    'alarms': [for (final i in items) _adhanMap(i)],
+  });
 
   @override
   Future<List<PendingItem>> adhanAlarms() async {

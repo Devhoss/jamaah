@@ -583,6 +583,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
                   languageCode: l10n.localeName,
                 ),
               ),
+        syncId: syncId,
       );
       debugPrint('Notifications: $report');
       unawaited(
@@ -592,7 +593,7 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
             'syncId': syncId,
             'durationMs': syncTimer.elapsedMilliseconds,
             'lockWaitMs': report.lockWaitMs,
-            'anotherSyncWasInProgress': report.lockWaitMs > 0,
+            'anotherSyncWasInProgress': report.anotherSyncWasInProgress,
             'scheduled': report.scheduled,
             'cancelled': report.cancelled,
             'exact_alarm': report.exact,
@@ -613,8 +614,8 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
               for (final kind in NotificationKind.values)
                 kind.name: plan.where((n) => n.kind == kind).length,
             },
-            'nativeDesired': plan.where(playsInApp).length,
-            'platformDesired': plan.where((n) => !playsInApp(n)).length,
+            'nativeDesired': report.nativeDesired,
+            'platformDesired': report.platformDesired,
             'reconciliation': report.reconciliation,
           },
         ),

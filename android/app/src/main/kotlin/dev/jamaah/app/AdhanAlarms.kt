@@ -36,6 +36,8 @@ data class AdhanAlarm(
     /** "adhan", or a reminder's kind: decides which one keeps the sound when
      * two fire at once (2026-10-15). */
     val kind: String = "adhan",
+    val prayer: String = "unknown",
+    val syncId: String? = null,
     /** The full-screen page's sky, sun path and words, worked out in Dart
      * (lib/src/app/adhan_screen.dart); null for an alarm stored before it. */
     val screen: JSONObject? = null,
@@ -55,6 +57,8 @@ data class AdhanAlarm(
         .put("stopLabel", stopLabel)
         .put("timeLabel", timeLabel)
         .put("kind", kind)
+        .put("prayer", prayer)
+        .also { o -> syncId?.let { o.put("syncId", it) } }
         .also { o -> screen?.let { o.put("screen", it) } }
 
     companion object {
@@ -73,6 +77,8 @@ data class AdhanAlarm(
             stopLabel = o.optString("stopLabel", "Stop"),
             timeLabel = o.optString("timeLabel", ""),
             kind = o.optString("kind", "adhan"),
+            prayer = o.optString("prayer", "unknown"),
+            syncId = o.optString("syncId").takeIf { it.isNotEmpty() },
             screen = o.optJSONObject("screen"),
         )
 
@@ -91,6 +97,8 @@ data class AdhanAlarm(
             stopLabel = m["stopLabel"] as? String ?: "Stop",
             timeLabel = m["timeLabel"] as? String ?: "",
             kind = m["kind"] as? String ?: "adhan",
+            prayer = m["prayer"] as? String ?: "unknown",
+            syncId = m["syncId"] as? String,
             screen = (m["screen"] as? Map<*, *>)?.let { JSONObject(it) },
         )
     }
@@ -109,18 +117,20 @@ object AdhanAlarms {
     private const val KEY = "alarms"
     private val lock = Any()
 
-    fun replaceAll(context: Context, alarms: List<AdhanAlarm>) = synchronized(lock) {
+    fun replaceAll(context: Context, alarms: List<AdhanAlarm>, syncId: String? = null) = synchronized(lock) {
         val duplicateIds = alarms.groupingBy { it.id }.eachCount().filterValues { it > 1 }
         require(duplicateIds.isEmpty()) { "Duplicate native alarm IDs: ${duplicateIds.size}" }
         val old = storedUnlocked(context)
         val future = alarms.filter { it.atMillis > System.currentTimeMillis() }
+            .map { if (syncId == null) it else it.copy(syncId = syncId) }
         NativeDiagnostics.record(context, "adhan_alarm_replace_started", mapOf(
             "oldCount" to old.size,
             "requestedCount" to alarms.size,
             "futureCount" to future.size,
             "filteredPastCount" to (alarms.size - future.size),
+            "syncId" to syncId,
         ))
-        for (item in old) cancel(context, item.id)
+        for (item in old) cancel(context, item, syncId, "replace_all")
         // Keep the desired set durable before registering it so the next refresh
         // or reboot can repair any alarms lost to process death.
         saveUnlocked(context, future)
@@ -136,6 +146,7 @@ object AdhanAlarms {
             "requestedCount" to future.size,
             "registrationFailures" to failures.size,
             "failedIds" to failures.map { it.first },
+            "syncId" to syncId,
         ))
         if (failures.isNotEmpty()) {
             throw IllegalStateException("${failures.size} native alarms could not be registered", failures.first().second)
@@ -205,7 +216,10 @@ object AdhanAlarms {
         val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || manager.canScheduleExactAlarms()
         val diagnostic = mapOf(
             "notificationId" to alarm.id,
+            "correlationId" to "notification_${alarm.id}",
+            "syncId" to alarm.syncId,
             "kind" to alarm.kind,
+            "prayer" to alarm.prayer,
             "scheduledAtEpochMillis" to alarm.atMillis,
             "exactCapability" to exact,
             "exactCapabilityApi" to "AlarmManager.canScheduleExactAlarms",
@@ -247,10 +261,19 @@ object AdhanAlarms {
         ))
     }
 
-    private fun cancel(context: Context, id: Int) {
+    private fun cancel(context: Context, alarm: AdhanAlarm, syncId: String?, reason: String) {
         val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        manager.cancel(pendingIntent(context, id))
-        NativeDiagnostics.record(context, "adhan_alarm_cancel_completed", mapOf("notificationId" to id))
+        manager.cancel(pendingIntent(context, alarm.id))
+        NativeDiagnostics.record(context, "adhan_alarm_cancel_completed", mapOf(
+            "notificationId" to alarm.id,
+            "correlationId" to "notification_${alarm.id}",
+            "syncId" to syncId,
+            "previousSyncId" to alarm.syncId,
+            "kind" to alarm.kind,
+            "prayer" to alarm.prayer,
+            "scheduledAtEpochMillis" to alarm.atMillis,
+            "reason" to reason,
+        ))
     }
 }
 
@@ -260,10 +283,12 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
         NativeDiagnostics.record(context, "adhan_alarm_receiver_entered", mapOf(
             "action" to intent.action,
             "hasAlarmId" to intent.hasExtra(EXTRA_ID),
+            "source" to "AdhanAlarmReceiver",
         ))
         val id = intent.getIntExtra(EXTRA_ID, -1)
         NativeDiagnostics.record(context, "adhan_alarm_receiver_id_validated", mapOf(
             "notificationId" to id,
+            "correlationId" to "notification_$id",
             "valid" to (id >= 0),
         ))
         if (id < 0) return
@@ -286,29 +311,51 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
             ))
             return
         }
-        val validKind = alarm.kind == "adhan" || alarm.kind == "iqama"
+        val validKind = AdhanPlaybackDiagnostics.isValidAlarmKind(alarm.kind)
         NativeDiagnostics.record(context, "adhan_alarm_receiver_validated", mapOf(
             "notificationId" to id,
+            "correlationId" to "notification_$id",
             "foundStoredAlarm" to true,
             "validKind" to validKind,
             "kind" to alarm.kind,
+            "prayer" to alarm.prayer,
+            "syncId" to alarm.syncId,
+            "scheduledAtEpochMillis" to alarm.atMillis,
         ))
         if (!validKind) return
         NativeDiagnostics.record(context, "adhan_alarm_receiver_fired", mapOf(
             "notificationId" to id,
+            "correlationId" to "notification_$id",
             "kind" to alarm.kind,
+            "prayer" to alarm.prayer,
+            "syncId" to alarm.syncId,
             "scheduledAtEpochMillis" to alarm.atMillis,
         ))
         try {
-            NativeDiagnostics.record(context, "adhan_service_start_requested", mapOf("notificationId" to id))
-            AdhanService.start(context, alarm)
-            NativeDiagnostics.record(context, "adhan_service_start_result", mapOf(
+            val evidence = mapOf<String, Any?>(
                 "notificationId" to id,
+                "correlationId" to "notification_$id",
+                "kind" to alarm.kind,
+                "prayer" to alarm.prayer,
+                "syncId" to alarm.syncId,
+                "scheduledAtEpochMillis" to alarm.atMillis,
+            )
+            NativeDiagnostics.record(context, "adhan_service_start_requested", evidence)
+            val handedOff = AdhanPlaybackDiagnostics.handoffIfValid(alarm) {
+                AdhanService.start(context, it)
+            }
+            if (!handedOff) return
+            NativeDiagnostics.record(context, "adhan_service_start_result", evidence + mapOf(
                 "acceptedBySystem" to true,
             ))
         } catch (error: Exception) {
             NativeDiagnostics.record(context, "adhan_service_start_result", mapOf(
                 "notificationId" to id,
+                "correlationId" to "notification_$id",
+                "kind" to alarm.kind,
+                "prayer" to alarm.prayer,
+                "syncId" to alarm.syncId,
+                "scheduledAtEpochMillis" to alarm.atMillis,
                 "acceptedBySystem" to false,
                 "errorClass" to error.javaClass.simpleName,
                 "errorMessage" to error.message,
