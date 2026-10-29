@@ -57,6 +57,7 @@ object AdhanChannel {
                             "kind" to it.kind,
                             "prayer" to it.prayer,
                             "syncId" to it.syncId,
+                            "channelId" to it.channelId,
                             "soundMode" to it.sound,
                             "ringInSilent" to it.ringInSilent,
                             "fullScreen" to it.fullScreen,

@@ -322,6 +322,10 @@ class LocalNotificationsGateway implements NotificationGateway {
     'kind': item.planned.kind.name,
     'prayer': item.planned.prayer.name,
     'syncId': item.syncId,
+    // The reminder's own channel, for the native shown-only presentation
+    // (2026-10-29): so the shown reminder can carry the identity the user's
+    // settings gave it, never an Adhan channel's.
+    'channelId': item.channel.id,
     'ringInSilent': item.planned.ringInSilent,
     'fullScreen': item.planned.fullScreen,
     'vibrate': item.planned.vibrate,

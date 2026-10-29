@@ -23,13 +23,17 @@ class AdhanPlaybackDiagnosticsTest {
     )
 
     @Test
-    fun receiverHandoffInvokesServiceStarterOnlyForValidatedKinds() {
-        var started: AdhanAlarm? = null
+    fun receiverHandoffInvokesServiceStarterForEveryPlannerKind() {
+        var started = mutableListOf<String>()
 
-        assertTrue(AdhanPlaybackDiagnostics.handoffIfValid(alarm("adhan")) { started = it })
-        assertEquals("adhan", started?.kind)
-        assertFalse(AdhanPlaybackDiagnostics.handoffIfValid(alarm("unknown")) { started = it })
-        assertEquals("adhan", started?.kind)
+        for (kind in listOf("adhan", "iqama", "preAdhan", "extra")) {
+            assertTrue("kind $kind must reach the service", AdhanPlaybackDiagnostics.handoffIfValid(alarm(kind)) { started.add(it.kind) })
+        }
+        assertEquals(listOf("adhan", "iqama", "preAdhan", "extra"), started)
+
+        started = mutableListOf()
+        assertFalse(AdhanPlaybackDiagnostics.handoffIfValid(alarm("unknown")) { started.add(it.kind) })
+        assertEquals("a corrupt kind starts nothing", 0, started.size)
     }
 
     @Test

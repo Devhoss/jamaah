@@ -18,11 +18,11 @@ internal object NativeEventRetention {
 
     private fun isDeliveryEvent(event: String): Boolean =
         event.startsWith("adhan_alarm_receiver_") ||
-            event.startsWith("adhan_alarm_cancel_") ||
             event.startsWith("adhan_alarm_replace_") ||
             event.startsWith("adhan_service_") ||
             event.startsWith("adhan_audio_") ||
             event.startsWith("adhan_playback_") ||
+            event.startsWith("adhan_full_screen_") ||
             event.endsWith("_failed") ||
             event == "notification_sync_lock_busy" ||
             event == "notification_sync_lock_expired" ||
@@ -30,4 +30,8 @@ internal object NativeEventRetention {
             event.contains("notification_cancel") ||
             event.contains("notification_state") ||
             event.contains("notification_replaced")
+    // `adhan_alarm_cancel_completed` is deliberately bookkeeping, not delivery:
+    // one replace-all emits one per alarm (~80), which overnight crowded the
+    // whole next morning's receiver evidence out of the buffer (seen in a
+    // device export 2026-10-29, where Fajr's handoff was gone by noon).
 }

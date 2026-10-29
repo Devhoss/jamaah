@@ -87,8 +87,10 @@ class AdhanService : Service(), SensorEventListener {
         // shown, silently. Anything else takes the sound, and the one it
         // replaces stays in the notification shade.
         if (playing != null && playing.kind == "adhan" && alarm.kind != "adhan") {
+            val shownChannel = channelFor(alarm, playing = false)
             NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(alarm) + mapOf(
-                "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                "notificationId" to alarm.id,
+                "channelId" to shownChannel,
                 "postingApi" to "NotificationManager.notify", "foreground" to false,
             ))
             keepForeground(buildNotification(playing, playing = true))
@@ -100,12 +102,13 @@ class AdhanService : Service(), SensorEventListener {
                 "prayer" to alarm.prayer,
                 "syncId" to alarm.syncId,
                 "scheduledAtEpochMillis" to alarm.atMillis,
-                "channelId" to CHANNEL_ID,
+                "channelId" to shownChannel,
                 "kind" to alarm.kind,
                 "postingApi" to "NotificationManager.notify",
                 "result" to "returned",
             ))
             recordActiveNotification(alarm.id, alarm)
+            recordActiveNotificationLater(alarm.id, alarm)
             return START_NOT_STICKY
         }
         if (playing != null) {
@@ -124,12 +127,14 @@ class AdhanService : Service(), SensorEventListener {
                 "replacementKind" to alarm.kind,
             ))
             NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(playing) + mapOf(
-                "notificationId" to playing.id, "channelId" to CHANNEL_ID,
+                "notificationId" to playing.id,
+                "channelId" to channelFor(playing, playing = false),
                 "postingApi" to "NotificationManager.notify", "reason" to "playback_replaced",
             ))
             manager.notify(playing.id, buildNotification(playing, playing = false))
             NativeDiagnostics.record(this, "adhan_notification_post_returned", alarmEvidence(playing) + mapOf(
-                "notificationId" to playing.id, "channelId" to CHANNEL_ID,
+                "notificationId" to playing.id,
+                "channelId" to channelFor(playing, playing = false),
                 "postingApi" to "NotificationManager.notify", "result" to "returned",
             ))
         }
@@ -161,6 +166,7 @@ class AdhanService : Service(), SensorEventListener {
                 "result" to "returned",
             ))
             recordActiveNotification(PLAYING_ID, alarm)
+            recordActiveNotificationLater(PLAYING_ID, alarm)
             play(alarm)
         } catch (error: Exception) {
             NativeDiagnostics.record(this, "adhan_service_start_failed", alarmEvidence(alarm) + mapOf(
@@ -195,7 +201,10 @@ class AdhanService : Service(), SensorEventListener {
 
         val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val ringer = audio.ringerMode
-        if (alarm.vibrate && ringer != AudioManager.RINGER_MODE_SILENT) vibrate()
+        // Ring in silent is an explicit ask to be alarmed through the alarm
+        // stream (2026-10-29): its vibration is part of that alert, not of the
+        // ringer mode, so it vibrates even on a silenced phone.
+        if (alarm.vibrate && (alarm.ringInSilent || ringer != AudioManager.RINGER_MODE_SILENT)) vibrate()
 
         val usage = if (alarm.ringInSilent) {
             AudioAttributes.USAGE_ALARM
@@ -484,7 +493,19 @@ class AdhanService : Service(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
 
-    /** Ends playback, preserving a quiet alert only when playback ended by itself. */
+    /**
+     * Ends playback, preserving a quiet alert only when playback ended by itself.
+     *
+     * The kept alert updates the notification that is already in the shade
+     * rather than posting a twin (2026-10-29): cancelling the player's
+     * notification and re-posting the same words under the plan id was
+     * presented by Android as a second heads-up about a minute later — the
+     * "double notification" a device showed at Asr. An update of an existing
+     * notification is only presented where the front one already shows. The
+     * kept alert must therefore stay under the player's id: DETACH releases
+     * the foreground service's ownership without taking the notification
+     * away, and the fresh content lands in the same slot.
+     */
     private fun finish(keepAlert: Boolean = false, dismissActivity: Boolean = true) {
         val alarm = current
         if (alarm != null && player?.isPlaying == true) {
@@ -493,35 +514,42 @@ class AdhanService : Service(), SensorEventListener {
         release()
         current = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopForeground(if (keepAlert) STOP_FOREGROUND_DETACH else STOP_FOREGROUND_REMOVE)
         } else {
             @Suppress("DEPRECATION")
-            stopForeground(true)
+            stopForeground(!keepAlert)
         }
         if (alarm != null) NativeDiagnostics.record(this, "adhan_notification_cancelled", alarmEvidence(alarm) + mapOf(
             "notificationId" to PLAYING_ID,
             "channelId" to CHANNEL_ID,
-            "reason" to "foreground_removed",
+            "reason" to if (keepAlert) "foreground_detached" else "foreground_removed",
         ))
         if (alarm != null && keepAlert) {
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val channelId = channelFor(alarm, playing = false)
             val notification = buildNotification(alarm, playing = false)
             NativeDiagnostics.record(this, "adhan_notification_post_requested", alarmEvidence(alarm) + mapOf(
-                "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                "notificationId" to PLAYING_ID, "channelId" to channelId,
                 "postingApi" to "NotificationManager.notify", "foreground" to false,
+                "updatingInPlace" to true,
                 "titlePresent" to alarm.title.isNotEmpty(), "textPresent" to alarm.body.isNotEmpty(),
                 "visibility" to notification.visibility, "ongoing" to false,
             ))
             try {
-                manager.notify(alarm.id, notification)
+                // Same id as the player's notification: an update of the entry
+                // already in the shade, never a fresh heads-up. If no entry
+                // exists (the foreground never was established), this is the
+                // alert's only banner, which is exactly right.
+                manager.notify(PLAYING_ID, notification)
                 NativeDiagnostics.record(this, "adhan_notification_post_returned", alarmEvidence(alarm) + mapOf(
-                    "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                    "notificationId" to PLAYING_ID, "channelId" to channelId,
                     "postingApi" to "NotificationManager.notify", "result" to "returned",
                 ))
-                recordActiveNotification(alarm.id, alarm)
+                recordActiveNotification(PLAYING_ID, alarm)
+                recordActiveNotificationLater(PLAYING_ID, alarm)
             } catch (error: Exception) {
                 NativeDiagnostics.record(this, "adhan_notification_post_failed", alarmEvidence(alarm) + mapOf(
-                    "notificationId" to alarm.id, "channelId" to CHANNEL_ID,
+                    "notificationId" to PLAYING_ID, "channelId" to channelId,
                     "errorClass" to error.javaClass.simpleName,
                     "errorMessage" to error.message,
                     "errorCode" to error.javaClass.simpleName,
@@ -558,7 +586,7 @@ class AdhanService : Service(), SensorEventListener {
     )
 
     /** A successful query proves current NotificationManager state, not banner rendering. */
-    private fun recordActiveNotification(id: Int, alarm: AdhanAlarm) {
+    private fun recordActiveNotification(id: Int, alarm: AdhanAlarm, delayed: Boolean = false) {
         try {
             val active = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
                 .activeNotifications.firstOrNull { it.id == id }
@@ -571,7 +599,11 @@ class AdhanService : Service(), SensorEventListener {
                     "ongoing" to (((active?.notification?.flags ?: 0) and Notification.FLAG_ONGOING_EVENT) != 0),
                     "foregroundService" to (((active?.notification?.flags ?: 0) and Notification.FLAG_FOREGROUND_SERVICE) != 0),
                 "grouped" to (active?.groupKey?.isNotEmpty() == true),
-                "scope" to "notification_manager_active_notifications_snapshot",
+                "scope" to if (delayed) {
+                    "notification_manager_active_notifications_snapshot_delayed"
+                } else {
+                    "notification_manager_active_notifications_snapshot"
+                },
             ))
         } catch (error: Exception) {
             NativeDiagnostics.record(this, "adhan_notification_state_query_failed", alarmEvidence(alarm) + mapOf(
@@ -579,6 +611,16 @@ class AdhanService : Service(), SensorEventListener {
                 "errorMessage" to error.message, "errorCode" to error.javaClass.simpleName,
             ))
         }
+    }
+
+    /**
+     * Queries the shade again a moment later: the snapshot taken the instant
+     * `notify()` returns has been seen not yet listing the notification while
+     * the system's own log shows it enqueued (2026-10-29), so the immediate
+     * `active:` result can be a false negative.
+     */
+    private fun recordActiveNotificationLater(id: Int, alarm: AdhanAlarm) {
+        handler.postDelayed({ recordActiveNotification(id, alarm, delayed = true) }, 1_000L)
     }
 
     private fun release() {
@@ -618,7 +660,31 @@ class AdhanService : Service(), SensorEventListener {
         super.onDestroy()
     }
 
+    /**
+     * Which channel shows [alarm]. The player's notification — while playing,
+     * and in the finished state after it — is the service's own quiet channel:
+     * a channel's sound is fixed at creation, and the sound here, when there
+     * is one, belongs to the player, never to the channel.
+     *
+     * A Jama'ah reminder shown while an Adhan is playing is shown, silently
+     * (2026-10-15): its own channel would sound and take the moment from the
+     * Adhan. But when the user's own reminder channel is one set silent, that
+     * channel cannot sound either — so it is used, and the reminder keeps the
+     * identity, grouping and vibration the user chose instead of appearing on
+     * an Adhan channel (Adhan alerts and Iqama reminders are independent,
+     * AGENTS.md).
+     */
+    private fun channelFor(alarm: AdhanAlarm, playing: Boolean): String {
+        if (playing) return CHANNEL_ID
+        if (alarm.kind != "adhan" && alarm.sound == "silent" && alarm.channelId.isNotEmpty()) {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (manager.getNotificationChannel(alarm.channelId) != null) return alarm.channelId
+        }
+        return CHANNEL_ID
+    }
+
     private fun buildNotification(alarm: AdhanAlarm, playing: Boolean): Notification {
+        val channelId = channelFor(alarm, playing)
         val openApp = PendingIntent.getActivity(
             this,
             alarm.id,
@@ -626,7 +692,7 @@ class AdhanService : Service(), SensorEventListener {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, CHANNEL_ID)
+            Notification.Builder(this, channelId)
         } else {
             @Suppress("DEPRECATION")
             Notification.Builder(this).setPriority(Notification.PRIORITY_HIGH)
@@ -638,7 +704,15 @@ class AdhanService : Service(), SensorEventListener {
             .setSmallIcon(R.drawable.ic_stat_jamaah)
             .setContentTitle(alarm.title)
             .setContentText(alarm.body)
-            .setCategory(Notification.CATEGORY_ALARM)
+            // Adhan alerts and Jama'ah reminders are separate concepts
+            // (AGENTS.md): the shade records them as what they are.
+            .setCategory(
+                if (alarm.kind == "adhan") {
+                    Notification.CATEGORY_ALARM
+                } else {
+                    Notification.CATEGORY_REMINDER
+                },
+            )
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(openApp)
             // A playing alert remains a foreground service, but users can

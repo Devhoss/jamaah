@@ -36,11 +36,11 @@ List<Map<String, Object?>> recentNotificationEvidence({
 bool _isEvidenceEvent(String event, String source) {
   if (source == 'android_native') {
     return event.startsWith('adhan_alarm_receiver_') ||
-        event.startsWith('adhan_alarm_cancel_') ||
         event.startsWith('adhan_alarm_replace_') ||
         event.startsWith('adhan_service_') ||
         event.startsWith('adhan_audio_') ||
         event.startsWith('adhan_playback_') ||
+        event.startsWith('adhan_full_screen_') ||
         event.contains('notification_post') ||
         event.contains('notification_state') ||
         event.contains('notification_cancel') ||

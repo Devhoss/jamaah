@@ -38,6 +38,9 @@ data class AdhanAlarm(
     val kind: String = "adhan",
     val prayer: String = "unknown",
     val syncId: String? = null,
+    /** The channel the Dart side picked for showing this alarm as a reminder
+     * (2026-10-29): empty for an alarm stored before it was carried. */
+    val channelId: String = "",
     /** The full-screen page's sky, sun path and words, worked out in Dart
      * (lib/src/app/adhan_screen.dart); null for an alarm stored before it. */
     val screen: JSONObject? = null,
@@ -58,6 +61,7 @@ data class AdhanAlarm(
         .put("timeLabel", timeLabel)
         .put("kind", kind)
         .put("prayer", prayer)
+        .put("channelId", channelId)
         .also { o -> syncId?.let { o.put("syncId", it) } }
         .also { o -> screen?.let { o.put("screen", it) } }
 
@@ -79,6 +83,7 @@ data class AdhanAlarm(
             kind = o.optString("kind", "adhan"),
             prayer = o.optString("prayer", "unknown"),
             syncId = o.optString("syncId").takeIf { it.isNotEmpty() },
+            channelId = o.optString("channelId"),
             screen = o.optJSONObject("screen"),
         )
 
@@ -99,6 +104,7 @@ data class AdhanAlarm(
             kind = m["kind"] as? String ?: "adhan",
             prayer = m["prayer"] as? String ?: "unknown",
             syncId = m["syncId"] as? String,
+            channelId = m["channelId"] as? String ?: "",
             screen = (m["screen"] as? Map<*, *>)?.let { JSONObject(it) },
         )
     }
@@ -118,16 +124,22 @@ object AdhanAlarms {
     private val lock = Any()
 
     fun replaceAll(context: Context, alarms: List<AdhanAlarm>, syncId: String? = null) = synchronized(lock) {
-        val duplicateIds = alarms.groupingBy { it.id }.eachCount().filterValues { it > 1 }
-        require(duplicateIds.isEmpty()) { "Duplicate native alarm IDs: ${duplicateIds.size}" }
+        // A duplicate id would make the two alarms overwrite the same alarm slot
+        // (2026-10-29): keep the first, record the rest, and never abort the
+        // whole replacement for it — a failed replacement leaves every Adhan of
+        // the coming days unscheduled at once.
+        val seenIds = mutableSetOf<Int>()
+        val unique = alarms.filter { seenIds.add(it.id) }
+        val duplicateIds = alarms.size - unique.size
         val old = storedUnlocked(context)
-        val future = alarms.filter { it.atMillis > System.currentTimeMillis() }
+        val future = unique.filter { it.atMillis > System.currentTimeMillis() }
             .map { if (syncId == null) it else it.copy(syncId = syncId) }
         NativeDiagnostics.record(context, "adhan_alarm_replace_started", mapOf(
             "oldCount" to old.size,
             "requestedCount" to alarms.size,
             "futureCount" to future.size,
             "filteredPastCount" to (alarms.size - future.size),
+            "duplicateIdsDropped" to duplicateIds,
             "syncId" to syncId,
         ))
         for (item in old) cancel(context, item, syncId, "replace_all")
@@ -181,6 +193,16 @@ object AdhanAlarms {
         val alarm = alarms.firstOrNull { it.id == id }
         if (alarm != null) saveUnlocked(context, alarms.filterNot { it.id == id })
         alarm
+    }
+
+    /** Puts one consumed alarm back (2026-10-29): the receiver does this when
+     * handing the alarm over failed, so a lost start is a recorded, repairable
+     * state for the next sync, not a silently vanished alert. */
+    fun putBack(context: Context, alarm: AdhanAlarm) = synchronized(lock) {
+        val alarms = storedUnlocked(context)
+        if (alarms.none { it.id == alarm.id }) {
+            saveUnlocked(context, alarms + alarm)
+        }
     }
 
     fun stored(context: Context): List<AdhanAlarm> = synchronized(lock) { storedUnlocked(context) }
@@ -322,7 +344,23 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
             "syncId" to alarm.syncId,
             "scheduledAtEpochMillis" to alarm.atMillis,
         ))
-        if (!validKind) return
+        if (!validKind) {
+            // A kind that is not one of the planner's own is a corrupt payload:
+            // nothing to fire, but the record must not silently vanish (then no
+            // signal ever showed the loss). The next sync replaces the whole
+            // set, including this one.
+            try {
+                AdhanAlarms.putBack(context, alarm)
+            } catch (restoreError: Exception) {
+                NativeDiagnostics.record(context, "adhan_alarm_receiver_failed", mapOf(
+                    "notificationId" to id,
+                    "reason" to "corrupt_alarm_not_restorable",
+                    "errorClass" to restoreError.javaClass.simpleName,
+                    "errorMessage" to restoreError.message,
+                ))
+            }
+            return
+        }
         NativeDiagnostics.record(context, "adhan_alarm_receiver_fired", mapOf(
             "notificationId" to id,
             "correlationId" to "notification_$id",
@@ -344,11 +382,37 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
             val handedOff = AdhanPlaybackDiagnostics.handoffIfValid(alarm) {
                 AdhanService.start(context, it)
             }
-            if (!handedOff) return
+            if (!handedOff) {
+                try {
+                    AdhanAlarms.putBack(context, alarm)
+                } catch (restoreError: Exception) {
+                    NativeDiagnostics.record(context, "adhan_alarm_receiver_failed", mapOf(
+                        "notificationId" to id,
+                        "reason" to "rejected_alarm_not_restorable",
+                        "errorClass" to restoreError.javaClass.simpleName,
+                        "errorMessage" to restoreError.message,
+                    ))
+                }
+                return
+            }
             NativeDiagnostics.record(context, "adhan_service_start_result", evidence + mapOf(
                 "acceptedBySystem" to true,
             ))
         } catch (error: Exception) {
+            // The start itself failed (a foreground-service start may be
+            // disallowed just after boot, 2026-10-29): the record was consumed
+            // already, so put it back — the loss is recorded, repairable state
+            // for the next sync, not a forgotten alert.
+            try {
+                AdhanAlarms.putBack(context, alarm)
+            } catch (restoreError: Exception) {
+                NativeDiagnostics.record(context, "adhan_alarm_receiver_failed", mapOf(
+                    "notificationId" to id,
+                    "reason" to "failed_start_not_restorable",
+                    "errorClass" to restoreError.javaClass.simpleName,
+                    "errorMessage" to restoreError.message,
+                ))
+            }
             NativeDiagnostics.record(context, "adhan_service_start_result", mapOf(
                 "notificationId" to id,
                 "correlationId" to "notification_$id",
@@ -357,6 +421,7 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
                 "syncId" to alarm.syncId,
                 "scheduledAtEpochMillis" to alarm.atMillis,
                 "acceptedBySystem" to false,
+                "restoredToStore" to true,
                 "errorClass" to error.javaClass.simpleName,
                 "errorMessage" to error.message,
                 "errorCode" to (error as? android.app.ForegroundServiceStartNotAllowedException)?.let { "foreground_service_start_not_allowed" },

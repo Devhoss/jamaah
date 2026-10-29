@@ -27,6 +27,7 @@ import java.lang.ref.WeakReference
  */
 class AdhanActivity : Activity() {
     private var page: AdhanPage? = null
+    private var alarmId = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +37,22 @@ class AdhanActivity : Activity() {
         val alarm = intent.getStringExtra(AdhanService.EXTRA_ALARM)
             ?.let { AdhanAlarm.fromJson(JSONObject(it)) }
         if (alarm == null) {
+            NativeDiagnostics.record(this, "adhan_full_screen_shown", mapOf(
+                "reason" to "missing_alarm_payload",
+            ))
             finish()
             return
         }
+        alarmId = alarm.id.toLong()
+        NativeDiagnostics.record(this, "adhan_full_screen_shown", mapOf(
+            "alarmId" to alarm.id,
+            "correlationId" to "notification_${alarm.id}",
+            "syncId" to alarm.syncId,
+            "kind" to alarm.kind,
+            "prayer" to alarm.prayer,
+            "scheduledAtEpochMillis" to alarm.atMillis,
+            "horizonScreen" to (alarm.screen != null),
+        ))
         val screen = alarm.screen
         if (screen != null) {
             val horizon = AdhanPage(
@@ -180,6 +194,10 @@ class AdhanActivity : Activity() {
             @Suppress("DEPRECATION")
             window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
         }
+        NativeDiagnostics.record(this, "adhan_full_screen_closed", mapOf(
+            "alarmId" to alarmId.takeIf { it > 0 },
+            "correlationId" to alarmId.takeIf { it > 0 }?.let { "notification_$it" },
+        ))
         open.removeAll { it.get() == null || it.get() == this }
         super.onDestroy()
     }
