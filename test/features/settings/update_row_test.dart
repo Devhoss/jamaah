@@ -219,7 +219,7 @@ class _Lookup implements GitHubReleaseLookup {
     this.fails = false,
     bool noSha = false,
     this.holdDownload,
-  }) : this.sha = noSha ? null : ('a' * 64);
+  }) : sha = noSha ? null : ('a' * 64);
 
   String tag;
   bool withApk;
