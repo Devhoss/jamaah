@@ -2808,6 +2808,70 @@ class AppLocalizationsAr extends AppLocalizations {
   String get helpCheckUpdates => 'إصدارات GitHub';
 
   @override
+  String get updateChecking => 'جارٍ التحقق…';
+
+  @override
+  String updateUpToDate(String version) {
+    return 'لديك بالفعل $version';
+  }
+
+  @override
+  String updateAvailable(String version) {
+    return 'التحديث إلى $version';
+  }
+
+  @override
+  String updateAvailableOnSite(String version) {
+    return '$version · افتح صفحة الإصدارات';
+  }
+
+  @override
+  String updateDownloading(int percent) {
+    return 'جارٍ التنزيل… ‏$percent٪';
+  }
+
+  @override
+  String get updateDownloadingUnknown => 'جارٍ التنزيل…';
+
+  @override
+  String get updateReady => 'تم التنزيل · انقر للتثبيت';
+
+  @override
+  String get updateLookupFailed =>
+      'تعذّر الوصول إلى GitHub. انقر للمحاولة من جديد.';
+
+  @override
+  String get updateNoChecksum => 'لا توجد بصمة تحقق — افتح صفحة الإصدارات';
+
+  @override
+  String get updateBroken => 'انقطع التنزيل. انقر للمحاولة من جديد.';
+
+  @override
+  String updateConfirmTitle(String version) {
+    return 'التحديث إلى $version؟';
+  }
+
+  @override
+  String updateConfirmBody(String version) {
+    return 'يُنزَّل $version من إصدارات GitHub ويُتحقَّق منه قبل التثبيت. يعيد التطبيق تشغيل نفسه أثناء التثبيت.';
+  }
+
+  @override
+  String get updateStart => 'تحديث';
+
+  @override
+  String get updateStopTitle => 'إيقاف التنزيل؟';
+
+  @override
+  String get updateKeep => 'متابعة التنزيل';
+
+  @override
+  String get updateStop => 'إيقاف';
+
+  @override
+  String get updateInstallFailed => 'لم يبدأ التثبيت. حاول من جديد.';
+
+  @override
   String get helpUpdatesUnavailable => 'تعذّر فتح صفحة الإصدارات.';
 
   @override

@@ -9,6 +9,7 @@ import '../data/discovery/google_places_provider.dart';
 import '../data/discovery/osm_provider.dart';
 import '../data/mosque_repository.dart';
 import '../data/settings_repository.dart';
+import '../data/updates/update_flow.dart';
 import '../domain/extra_times.dart';
 import '../domain/discovery.dart';
 import '../domain/mosque.dart';
@@ -34,6 +35,11 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => SettingsRepository(ref.watch(appDatabaseProvider)),
 );
+
+/// The self-update flow (About page's "GitHub releases" row). One instance
+/// per session, so one About page after another makes GitHub hear about it
+/// once. Tests override it with a quiet fake — no test reaches the network.
+final updateFlowProvider = Provider<UpdateFlow>((ref) => UpdateFlow());
 
 /// The settings the UI renders from, re-emitted on every change.
 final appSettingsProvider = StreamProvider<AppSettingsSnapshot>(

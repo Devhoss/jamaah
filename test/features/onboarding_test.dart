@@ -13,6 +13,7 @@ import 'package:jamaah/src/app/notification_scheduler.dart';
 import 'package:jamaah/src/app/providers.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/data/updates/update_flow.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
@@ -23,6 +24,7 @@ import 'package:jamaah/src/features/settings/preference_pages.dart';
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_notification_gateway.dart';
 import '../helpers/fake_place_source.dart';
+import '../helpers/quiet_updates.dart';
 import '../helpers/test_app.dart';
 
 /// The first-run introduction (2026-10-14).
@@ -73,6 +75,10 @@ void main() {
               requestNotifications: () async => permissionAsks++,
               requestExactAlarms: () async => exactAsks++,
             ),
+          ),
+          // The About page's update row never asks GitHub in a test.
+          updateFlowProvider.overrideWith(
+            (ref) => UpdateFlow(lookup: QuietUpdatesLookup()),
           ),
         ],
         child: Builder(

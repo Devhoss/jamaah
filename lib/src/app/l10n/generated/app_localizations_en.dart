@@ -2641,6 +2641,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpCheckUpdates => 'GitHub releases';
 
   @override
+  String get updateChecking => 'Checking…';
+
+  @override
+  String updateUpToDate(String version) {
+    return 'You already have $version';
+  }
+
+  @override
+  String updateAvailable(String version) {
+    return 'Update to $version';
+  }
+
+  @override
+  String updateAvailableOnSite(String version) {
+    return '$version · open the releases page';
+  }
+
+  @override
+  String updateDownloading(int percent) {
+    return 'Downloading… $percent%';
+  }
+
+  @override
+  String get updateDownloadingUnknown => 'Downloading…';
+
+  @override
+  String get updateReady => 'Downloaded · tap to install';
+
+  @override
+  String get updateLookupFailed => 'Couldn\'t reach GitHub. Tap to try again.';
+
+  @override
+  String get updateNoChecksum =>
+      'No checksum published — open the releases page';
+
+  @override
+  String get updateBroken => 'Download interrupted. Tap to try again.';
+
+  @override
+  String updateConfirmTitle(String version) {
+    return 'Update to $version?';
+  }
+
+  @override
+  String updateConfirmBody(String version) {
+    return '$version downloads from GitHub Releases and is checked before installing. The app restarts during the install.';
+  }
+
+  @override
+  String get updateStart => 'Update';
+
+  @override
+  String get updateStopTitle => 'Stop the download?';
+
+  @override
+  String get updateKeep => 'Keep downloading';
+
+  @override
+  String get updateStop => 'Stop';
+
+  @override
+  String get updateInstallFailed => 'The install didn\'t start. Try again.';
+
+  @override
   String get helpUpdatesUnavailable => 'Could not open the releases page.';
 
   @override

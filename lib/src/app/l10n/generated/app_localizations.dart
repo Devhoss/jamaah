@@ -4294,6 +4294,108 @@ abstract class AppLocalizations {
   /// **'GitHub releases'**
   String get helpCheckUpdates;
 
+  /// No description provided for @updateChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get updateChecking;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have {version}'**
+  String updateUpToDate(String version);
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Update to {version}'**
+  String updateAvailable(String version);
+
+  /// No description provided for @updateAvailableOnSite.
+  ///
+  /// In en, this message translates to:
+  /// **'{version} · open the releases page'**
+  String updateAvailableOnSite(String version);
+
+  /// No description provided for @updateDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading… {percent}%'**
+  String updateDownloading(int percent);
+
+  /// No description provided for @updateDownloadingUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get updateDownloadingUnknown;
+
+  /// No description provided for @updateReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded · tap to install'**
+  String get updateReady;
+
+  /// No description provided for @updateLookupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach GitHub. Tap to try again.'**
+  String get updateLookupFailed;
+
+  /// No description provided for @updateNoChecksum.
+  ///
+  /// In en, this message translates to:
+  /// **'No checksum published — open the releases page'**
+  String get updateNoChecksum;
+
+  /// No description provided for @updateBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'Download interrupted. Tap to try again.'**
+  String get updateBroken;
+
+  /// No description provided for @updateConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update to {version}?'**
+  String updateConfirmTitle(String version);
+
+  /// No description provided for @updateConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{version} downloads from GitHub Releases and is checked before installing. The app restarts during the install.'**
+  String updateConfirmBody(String version);
+
+  /// No description provided for @updateStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateStart;
+
+  /// No description provided for @updateStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the download?'**
+  String get updateStopTitle;
+
+  /// No description provided for @updateKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep downloading'**
+  String get updateKeep;
+
+  /// No description provided for @updateStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get updateStop;
+
+  /// No description provided for @updateInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The install didn\'t start. Try again.'**
+  String get updateInstallFailed;
+
   /// No description provided for @helpUpdatesUnavailable.
   ///
   /// In en, this message translates to:

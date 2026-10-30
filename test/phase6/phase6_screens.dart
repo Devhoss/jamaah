@@ -13,6 +13,7 @@ import 'package:jamaah/src/app/providers.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/mosque_repository.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
+import 'package:jamaah/src/data/updates/update_flow.dart';
 import 'package:jamaah/src/domain/mosque.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/prayer.dart';
@@ -37,6 +38,7 @@ import 'package:jamaah/src/features/settings/scheduled_notifications_page.dart';
 import '../helpers/fake_clock.dart';
 import '../helpers/fake_notification_gateway.dart';
 import '../helpers/fake_place_source.dart';
+import '../helpers/quiet_updates.dart';
 
 /// The screens Phase 6 checks, and the app they open in (Horizon spec §5,
 /// §6): shared by the screen matrix and the golden tests.
@@ -123,6 +125,10 @@ Future<String> startPhase6App(
           FakeNotificationGateway(),
         ),
         compassSourceProvider.overrideWithValue(_StillCompass()),
+        // The About page's update row never asks GitHub in a golden.
+        updateFlowProvider.overrideWith(
+          (ref) => UpdateFlow(lookup: QuietUpdatesLookup()),
+        ),
       ],
       child: Builder(
         builder: (context) => MediaQuery(

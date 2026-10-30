@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app.dart';
@@ -18,6 +17,7 @@ import 'scheduled_notifications_page.dart';
 import 'diagnostics_page.dart';
 import 'settings_kit.dart';
 import 'settings_page.dart';
+import 'update_row.dart';
 
 /// "Off", "On", or "On · following your location".
 String travelSummary(AppLocalizations l10n, TravelSettings travel) =>
@@ -185,11 +185,11 @@ class LanguageLookPage extends ConsumerWidget {
 }
 
 /// Help and about (spec §4.9).
-class HelpAboutPage extends StatelessWidget {
+class HelpAboutPage extends ConsumerWidget {
   const HelpAboutPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return SettingsScaffold(
       title: l10n.settingsHelpAbout,
@@ -210,23 +210,9 @@ class HelpAboutPage extends StatelessWidget {
         SettingsLinkRow(
           title: l10n.scheduledTitle,
           onTap: () => openScheduledNotifications(context),
-          divider: false,
         ),
         SettingsHeading(l10n.helpAbout),
-        SettingsLinkRow(
-          title: l10n.helpCheckUpdates,
-          onTap: () async {
-            final opened = await launchUrl(
-              Uri.parse('https://github.com/Devhoss/jamaah/releases'),
-              mode: LaunchMode.externalApplication,
-            );
-            if (!opened && context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.helpUpdatesUnavailable)),
-              );
-            }
-          },
-        ),
+        UpdateRow(flow: ref.watch(updateFlowProvider)),
         Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 10),
           child: Align(

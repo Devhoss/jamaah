@@ -42,7 +42,9 @@ The prototype does not cover Adhan alerts or sound options; design those in the 
 - Domain logic is independent of Flutter and unit-testable, and platform-neutral so iOS can be added later.
 - Offline-first: prayer times, Qibla, saved mosques, Iqama schedules, reminders, Adhan alerts and
   settings work with no network. Network only for: mosque discovery, geocoding the manual place
-  fallback (or a bundled offline city list), and Aladhan as a dev-time test oracle only.
+  fallback (or a bundled offline city list), Aladhan as a dev-time test oracle
+  only, and the app's own self-update via GitHub Releases (release check +
+  verified APK download; nothing else about the release API is called).
 - On-device: adhan_dart (times), geolocator, flutter_compass, drift/SQLite, flutter_local_notifications,
   just_audio or audioplayers (full adhan). Substitute equivalents if justified.
 - App name, bundle ID and branding live in one config location. Logo/branding undecided: neutral wordmark.

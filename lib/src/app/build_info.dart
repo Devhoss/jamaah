@@ -1,6 +1,6 @@
 /// Which build this is, so a tester can say exactly what they are running
-/// (2026-10-14). Passed in at build time by tool/build_apk.sh; a build made
-/// another way says "dev".
+/// (2026-10-14). Passed in at build time by tool/build_release.ps1; a build
+/// made another way says "dev".
 const kAppVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
 const kGitCommit = String.fromEnvironment('GIT_COMMIT', defaultValue: 'dev');
 const kBuildDate = String.fromEnvironment('BUILD_DATE');

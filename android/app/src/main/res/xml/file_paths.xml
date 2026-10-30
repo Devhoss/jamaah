@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What FileProvider may serve from this app (UpdateChannel): the update
+     APK that the app itself downloaded into its own cache directory. The
+     grant is per-intent (FLAG_GRANT_READ_URI_PERMISSION), so the only
+     receiver is the package installer the user chose to open. -->
+<paths>
+    <cache-path name="update" path="." />
+</paths>

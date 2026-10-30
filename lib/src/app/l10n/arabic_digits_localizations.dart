@@ -1595,6 +1595,39 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get helpCheckUpdates => arabicDigits(super.helpCheckUpdates);
 
   @override
+  String get updateChecking => arabicDigits(super.updateChecking);
+
+  @override
+  String get updateDownloadingUnknown => arabicDigits(super.updateDownloadingUnknown);
+
+  @override
+  String get updateReady => arabicDigits(super.updateReady);
+
+  @override
+  String get updateLookupFailed => arabicDigits(super.updateLookupFailed);
+
+  @override
+  String get updateNoChecksum => arabicDigits(super.updateNoChecksum);
+
+  @override
+  String get updateBroken => arabicDigits(super.updateBroken);
+
+  @override
+  String get updateStart => arabicDigits(super.updateStart);
+
+  @override
+  String get updateStopTitle => arabicDigits(super.updateStopTitle);
+
+  @override
+  String get updateKeep => arabicDigits(super.updateKeep);
+
+  @override
+  String get updateStop => arabicDigits(super.updateStop);
+
+  @override
+  String get updateInstallFailed => arabicDigits(super.updateInstallFailed);
+
+  @override
   String get helpUpdatesUnavailable => arabicDigits(super.helpUpdatesUnavailable);
 
   @override
@@ -2509,6 +2542,30 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String extraAlertsFor(String names) =>
       arabicDigits(super.extraAlertsFor(names));
+
+  @override
+  String updateUpToDate(String version) =>
+      arabicDigits(super.updateUpToDate(version));
+
+  @override
+  String updateAvailable(String version) =>
+      arabicDigits(super.updateAvailable(version));
+
+  @override
+  String updateAvailableOnSite(String version) =>
+      arabicDigits(super.updateAvailableOnSite(version));
+
+  @override
+  String updateDownloading(int percent) =>
+      arabicDigits(super.updateDownloading(percent));
+
+  @override
+  String updateConfirmTitle(String version) =>
+      arabicDigits(super.updateConfirmTitle(version));
+
+  @override
+  String updateConfirmBody(String version) =>
+      arabicDigits(super.updateConfirmBody(version));
 
   @override
   String qiblaLead(String place, String distance) =>

@@ -62,6 +62,11 @@ kotlin {
 dependencies {
     // Required by flutter_local_notifications for java.time on older Android.
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // The app's own FileProvider (android/app/src/main/AndroidManifest.xml):
+    // androidx.core is on the runtime classpath through plugins, and here
+    // through this explicit dependency for the AndroidManifest-baked
+    // class the in-app updater's installer hands the APK over with.
+    implementation("androidx.core:core:1.16.0")
     testImplementation("junit:junit:4.13.2")
 }
 

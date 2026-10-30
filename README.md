@@ -91,34 +91,44 @@ python tool/gen_arabic_digits.py
 
 ## Build an APK
 
-Create a versioned release APK from PowerShell:
+Build a versioned release APK from PowerShell:
 
 ```powershell
-$version = ((Select-String -Path pubspec.yaml -Pattern '^version:').Line -split '\s+')[1]
-$commit = (git rev-parse --short HEAD).Trim()
-git diff --quiet -- . ':!android/app/build.gradle.kts'
-if ($LASTEXITCODE -ne 0) { $commit += '+' }
-$date = Get-Date -Format 'yyyy-MM-dd'
-flutter build apk --release --dart-define-from-file=.env `
-  --dart-define="APP_VERSION=$version" `
-  --dart-define="GIT_COMMIT=$commit" `
-  --dart-define="BUILD_DATE=$date"
-if ($LASTEXITCODE -ne 0) { throw 'Release APK build failed.' }
-$releaseVersion = $version.Split('+')[0]
-$apk = "build/app/outputs/flutter-apk/Jamaah-$releaseVersion.apk"
-Move-Item -LiteralPath 'build/app/outputs/flutter-apk/app-release.apk' `
-  -Destination $apk -Force
-$apk
+tool\build_release.ps1
+```
+
+The script refuses to run without a `.env` (the release build must be built
+with the same dart-defines dev builds use, or mosque discovery and Sentry are
+dead), bakes `APP_VERSION` / `GIT_COMMIT` / `BUILD_DATE` in for the About
+page, and emits:
+
+```
+build/app/outputs/flutter-apk/Jamaah-<version>.apk
+build/app/outputs/flutter-apk/Jamaah-<version>.apk.sha256
 ```
 
 The APK uses the stable ASCII filename `Jamaah-<version>.apk` (for example,
-`Jamaah-1.0.4.apk`) for every release, independent of the branded app label.
-It stays under the ignored `build/` directory; do not add it to the source
-commit. For a public release, create an annotated source tag such as `v1.0.0`
-on the release commit and attach the matching APK to that host's release entry.
-Release builds for public distribution still need an agreed application ID,
-store listing and signing key. Confirm audio rights before redistributing the
-supplied recordings; see
+`Jamaah-1.0.5.apk`) for every release, independent of the branded app label.
+The `.sha256` sidecar (`<hash>  Jamaah-<version>.apk`, as `sha256sum` writes
+it) is what the app's in-app updater verifies a download against; a release
+uploaded without it is not offered as a direct update. Both files stay under
+the ignored `build/` directory; do not add them to the source commit.
+
+For a public release, create an annotated source tag such as `v1.0.5` on the
+release commit, publish the GitHub release with the tag, and attach the APK
+and its sidecar:
+
+```powershell
+gh release create v1.0.5 --title "1.0.5" --notes "…" `
+  build/app/outputs/flutter-apk/Jamaah-1.0.5.apk `
+  build/app/outputs/flutter-apk/Jamaah-1.0.5.apk.sha256
+```
+
+The app's updater checks `releases/latest` on that repository, so the tag may
+carry a `v` prefix (`v1.0.5`); the row shows the version without it.
+Prereleases and drafts never surface as updates. Release builds for public
+distribution still need an agreed application ID, store listing and signing
+key. Confirm audio rights before redistributing the supplied recordings; see
 [`docs/audio-licence.md`](docs/audio-licence.md).
 
 ## Notifications and diagnostics

@@ -33,6 +33,9 @@ class MainActivity : FlutterActivity() {
         // The Adhans the app plays itself: see AdhanChannel.
         AdhanChannel.register(messenger, this)
 
+        // The app's own updates: see UpdateChannel.
+        UpdateChannel.register(messenger, this)
+
         // The plan is renewed daily even when the app is not opened.
         DailyRefreshJob.schedule(this)
 
