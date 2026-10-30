@@ -99,6 +99,11 @@ class UpdateFlow extends ChangeNotifier {
 
   UpdateStage get stage => _stage;
   LatestRelease? get release => _release;
+
+  /// The version this device runs (injected for tests; a release build
+  /// carries its own). "You already have x" speaks of this one.
+  String get runningVersion => _runningVersion;
+
   int get received => _received;
   int? get total => _total;
   UpdateFailure? get failure => _failure;

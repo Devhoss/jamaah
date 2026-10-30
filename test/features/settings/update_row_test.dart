@@ -150,8 +150,10 @@ void main() {
   testApp('a build that is the newest says so, with its version', (
     tester,
   ) async {
+    // GitHub's newest (1.0.4) is older than this build (1.0.5): the row
+    // speaks of the version you have, never of the one GitHub is on.
     final flow = flowFor(
-      _Lookup(tag: '1.0.5'),
+      _Lookup(tag: '1.0.4'),
       runningVersion: '1.0.5',
     );
     // The check (its housekeeping touches the real cache with IO) runs in

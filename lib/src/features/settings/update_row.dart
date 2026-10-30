@@ -147,7 +147,9 @@ class _UpdateRowState extends State<UpdateRow> {
       case UpdateStage.checking:
         return l10n.updateChecking;
       case UpdateStage.upToDate:
-        return l10n.updateUpToDate(flow.latestVersion);
+        // The version you have, not the one GitHub is on: a published
+        // release older than this build names the running one here.
+        return l10n.updateUpToDate(flow.runningVersion);
       case UpdateStage.available:
         final version = flow.latestVersion;
         return flow.needsReleasesPage
