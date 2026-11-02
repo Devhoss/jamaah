@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/place_follow.dart';
 
-/// When "Follow my location" replaces the saved place (cabin crew, 2026-10-13).
+/// Whether a follow check moves the saved place (2026-11-02): a device place
+/// moves with the phone, a place picked by hand is pinned and offered.
 void main() {
   Place device(double lat, double lng, String zone) => Place(
     displayName: zone,
@@ -13,16 +14,35 @@ void main() {
     fromDevice: true,
   );
 
-  final cairo = device(30.0444, 31.2357, 'Africa/Cairo');
+  Place picked(double lat, double lng, String zone) => Place(
+    displayName: 'Cairo, Egypt',
+    latitude: lat,
+    longitude: lng,
+    ianaZone: zone,
+    fromDevice: false,
+  );
 
-  test('a few kilometres around town keeps the place', () {
+  final cairo = device(30.0444, 31.2357, 'Africa/Cairo');
+  final pickedCairo = picked(30.0444, 31.2357, 'Africa/Cairo');
+
+  test('a few kilometres around town keeps a device place', () {
     expect(
       decideFollow(saved: cairo, fix: device(30.0800, 31.2800, 'Africa/Cairo')),
       FollowDecision.keep,
     );
   });
 
-  test('another city replaces it', () {
+  test('a few kilometres around town keeps a picked place', () {
+    expect(
+      decideFollow(
+        saved: pickedCairo,
+        fix: device(30.0800, 31.2800, 'Africa/Cairo'),
+      ),
+      FollowDecision.keep,
+    );
+  });
+
+  test('another city replaces a device place', () {
     // Alexandria, about 180 km away.
     expect(
       decideFollow(saved: cairo, fix: device(31.2001, 29.9187, 'Africa/Cairo')),
@@ -30,7 +50,7 @@ void main() {
     );
   });
 
-  test('a flight to another zone replaces it, however short', () {
+  test('a device place in another zone is replaced, however short', () {
     final nearbyOtherZone = device(30.05, 31.24, 'Asia/Jerusalem');
     expect(
       decideFollow(saved: cairo, fix: nearbyOtherZone),
@@ -38,15 +58,24 @@ void main() {
     );
   });
 
-  test('a city picked from the list gives way to the first fix', () {
-    const picked = Place(
-      displayName: 'Cairo, Egypt',
-      latitude: 30.0444,
-      longitude: 31.2357,
-      ianaZone: 'Africa/Cairo',
-      fromDevice: false,
+  test('another city never moves a picked place silently', () {
+    expect(
+      decideFollow(
+        saved: pickedCairo,
+        fix: device(31.2001, 29.9187, 'Africa/Cairo'),
+      ),
+      FollowDecision.offer,
     );
-    expect(decideFollow(saved: picked, fix: cairo), FollowDecision.replace);
+  });
+
+  test('a picked place in another zone is offered too', () {
+    expect(
+      decideFollow(
+        saved: pickedCairo,
+        fix: device(30.05, 31.24, 'Asia/Jerusalem'),
+      ),
+      FollowDecision.offer,
+    );
   });
 
   test('no saved place takes the fix', () {

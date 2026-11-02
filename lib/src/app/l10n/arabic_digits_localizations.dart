@@ -515,6 +515,21 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get scheduledOpenAppSettings => arabicDigits(super.scheduledOpenAppSettings);
 
   @override
+  String get scheduledBatteryExempt => arabicDigits(super.scheduledBatteryExempt);
+
+  @override
+  String get scheduledBatteryRestricted => arabicDigits(super.scheduledBatteryRestricted);
+
+  @override
+  String get scheduledTestAdhanTitle => arabicDigits(super.scheduledTestAdhanTitle);
+
+  @override
+  String get scheduledTestAdhanButton => arabicDigits(super.scheduledTestAdhanButton);
+
+  @override
+  String get scheduledTestAdhanNote => arabicDigits(super.scheduledTestAdhanNote);
+
+  @override
   String get kindAdhan => arabicDigits(super.kindAdhan);
 
   @override
@@ -623,12 +638,6 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get alertStopHint => arabicDigits(super.alertStopHint);
 
   @override
-  String get settingsFollowLocation => arabicDigits(super.settingsFollowLocation);
-
-  @override
-  String get settingsFollowLocationHint => arabicDigits(super.settingsFollowLocationHint);
-
-  @override
   String get settingsTravelMode => arabicDigits(super.settingsTravelMode);
 
   @override
@@ -686,10 +695,10 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get themeDark => arabicDigits(super.themeDark);
 
   @override
-  String get followDenied => arabicDigits(super.followDenied);
+  String get followOfferUse => arabicDigits(super.followOfferUse);
 
   @override
-  String get followUnavailable => arabicDigits(super.followUnavailable);
+  String get followOfferDismiss => arabicDigits(super.followOfferDismiss);
 
   @override
   String get agoJustNow => arabicDigits(super.agoJustNow);
@@ -1511,9 +1520,6 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get travelSummaryOn => arabicDigits(super.travelSummaryOn);
 
   @override
-  String get travelSummaryFollowing => arabicDigits(super.travelSummaryFollowing);
-
-  @override
   String get settingsHelpSummary => arabicDigits(super.settingsHelpSummary);
 
   @override
@@ -1563,9 +1569,6 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
 
   @override
   String get settingsRemindersOnMosque => arabicDigits(super.settingsRemindersOnMosque);
-
-  @override
-  String get followNeedsTravel => arabicDigits(super.followNeedsTravel);
 
   @override
   String get travelInFlightValue => arabicDigits(super.travelInFlightValue);
@@ -2092,6 +2095,10 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
       arabicDigits(super.scheduledCount(count));
 
   @override
+  String scheduledTestAdhanBody(String time) =>
+      arabicDigits(super.scheduledTestAdhanBody(time));
+
+  @override
   String settingsAlertOn(String sound) =>
       arabicDigits(super.settingsAlertOn(sound));
 
@@ -2134,6 +2141,10 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   @override
   String recordingLength(String minutes, String seconds) =>
       arabicDigits(super.recordingLength(minutes, seconds));
+
+  @override
+  String followOfferNote(String place) =>
+      arabicDigits(super.followOfferNote(place));
 
   @override
   String followingUpdated(String ago) =>

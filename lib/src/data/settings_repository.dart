@@ -9,6 +9,7 @@ import '../domain/extra_times.dart';
 import '../domain/hijri.dart';
 import '../domain/notification_plan.dart';
 import '../domain/place.dart';
+import '../domain/place_follow.dart';
 import '../domain/prayer.dart';
 import '../domain/prayer_times_parameters.dart';
 import '../domain/zone_offsets.dart';
@@ -110,6 +111,7 @@ class AppSettingsSnapshot {
     this.location,
     this.placeCheckedAt,
     this.placeCheckFailed = false,
+    this.followOffer,
   });
 
   final CalculationMethod calculationMethod;
@@ -159,6 +161,10 @@ class AppSettingsSnapshot {
   /// True when the latest try to follow the device failed, so the saved place
   /// may be out of date. Shown on Today, never silent.
   final bool placeCheckFailed;
+
+  /// A follow fix standing as an offer, because the saved place was picked by
+  /// hand. Null when there is none; Today shows it and the user decides.
+  final FollowOffer? followOffer;
 }
 
 /// Reads and writes the stored settings.
@@ -224,13 +230,13 @@ class SettingsRepository {
       customAngles: _customAngles(values),
       adhanAlerts: _adhanAlerts(values, alerts),
       travel: TravelSettings(
-        // Before travel mode, following was a switch of its own: a user who
+        // Before travel mode was its own switch, following was: a user who
         // had it on starts in travel mode, so nothing changes for them.
+        // The key is read nowhere else and written nowhere anymore.
         travelMode: switch (values[SettingKeys.travelModeOn]) {
           final v? => v == 'true',
           null => values[SettingKeys.followLocation] == 'true',
         },
-        followLocation: values[SettingKeys.followLocation] != 'false',
         // Before the per-mosque pause there was a travel-mode pause; a user
         // who had it on keeps every reminder paused rather than suddenly
         // getting them again.
@@ -275,6 +281,7 @@ class SettingsRepository {
         null => null,
       },
       placeCheckFailed: values[SettingKeys.placeCheckFailed] == 'true',
+      followOffer: _followOffer(values),
     );
   }
 
@@ -519,15 +526,30 @@ class SettingsRepository {
         );
       });
 
-  /// Travel mode and its options, and the pause on every Iqama reminder.
+  /// Travel mode and the pause on every Iqama reminder. The place is not
+  /// part of it: following the device is automatic.
   Future<void> saveTravel(TravelSettings travel) => _db.transaction(() async {
     await _put(SettingKeys.travelModeOn, '${travel.travelMode}');
     await _put(
       SettingKeys.pauseAllIqamaReminders,
       '${travel.pauseAllIqamaReminders}',
     );
-    await _put(SettingKeys.followLocation, '${travel.followLocation}');
+    // The old option key is dead: delete it, so the travel-mode migration
+    // never fires again once the new code has written anything.
+    await (_db.delete(
+      _db.appSettings,
+    )..where((t) => t.key.equals(SettingKeys.followLocation))).go();
   });
+
+  /// Stands the [FollowOffer] on Today, or drops it with null.
+  Future<void> saveFollowOffer(FollowOffer? offer) => offer == null
+      ? (_db.delete(
+          _db.appSettings,
+        )..where((t) => t.key.equals(SettingKeys.followOffer))).go()
+      : _put(
+          SettingKeys.followOffer,
+          jsonEncode(followOfferJson(offer)),
+        );
 
   /// Passing null forgets the location; the Today screen then shows the
   /// "set your location" state again.
@@ -721,6 +743,45 @@ List<CustomSound> _customSounds(Map<String, String?> values) {
     return const [];
   }
 }
+
+/// The standing [FollowOffer]; unreadable or incomplete reads as none.
+FollowOffer? _followOffer(Map<String, String?> values) {
+  final raw = values[SettingKeys.followOffer];
+  if (raw == null || raw.isEmpty) return null;
+  try {
+    final map = (jsonDecode(raw) as Map).cast<String, Object?>();
+    final lat = (map['latitude'] as num).toDouble();
+    final lng = (map['longitude'] as num).toDouble();
+    final zone = map['ianaZone'] as String?;
+    final label = map['label'] as String?;
+    final at = int.tryParse('${map['at'] ?? ''}');
+    if (zone == null || zone.isEmpty || label == null || at == null) {
+      return null;
+    }
+    return FollowOffer(
+      place: Place(
+        displayName: label,
+        latitude: lat,
+        longitude: lng,
+        ianaZone: zone,
+        fromDevice: true,
+        countryCode: map['country'] as String?,
+      ),
+      at: DateTime.fromMillisecondsSinceEpoch(at, isUtc: true),
+    );
+  } on Object {
+    return null;
+  }
+}
+
+Map<String, Object?> followOfferJson(FollowOffer offer) => {
+  'latitude': offer.place.latitude,
+  'longitude': offer.place.longitude,
+  'ianaZone': offer.place.ianaZone,
+  'label': offer.place.displayName,
+  'country': offer.place.countryCode,
+  'at': offer.at.toUtc().millisecondsSinceEpoch,
+};
 
 CustomSound? _soundById(List<CustomSound> sounds, String? id) {
   for (final s in sounds) {

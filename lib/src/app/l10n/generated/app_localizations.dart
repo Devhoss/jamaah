@@ -1464,6 +1464,42 @@ abstract class AppLocalizations {
   /// **'Open app settings'**
   String get scheduledOpenAppSettings;
 
+  /// No description provided for @scheduledBatteryExempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery optimisation is lifted: Jama’ah\'s alerts come through while the phone sleeps.'**
+  String get scheduledBatteryExempt;
+
+  /// No description provided for @scheduledBatteryRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery optimisation is still on: the phone may hold alarms back for minutes. If that happens, allow Jama’ah below.'**
+  String get scheduledBatteryRestricted;
+
+  /// No description provided for @scheduledTestAdhanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test adhan'**
+  String get scheduledTestAdhanTitle;
+
+  /// No description provided for @scheduledTestAdhanButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule a test adhan (2 minutes)'**
+  String get scheduledTestAdhanButton;
+
+  /// No description provided for @scheduledTestAdhanNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug tool: adds one real alarm-clock adhan two minutes out, through the same alarms and sound as a prayer alert — a delivery check, not a prayer. The next reschedule removes it.'**
+  String get scheduledTestAdhanNote;
+
+  /// No description provided for @scheduledTestAdhanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery test — two minutes after {time}.'**
+  String scheduledTestAdhanBody(String time);
+
   /// No description provided for @kindAdhan.
   ///
   /// In en, this message translates to:
@@ -1716,18 +1752,6 @@ abstract class AppLocalizations {
   /// **'Stop it with either volume key, from the notification, or by turning the phone face down.'**
   String get alertStopHint;
 
-  /// No description provided for @settingsFollowLocation.
-  ///
-  /// In en, this message translates to:
-  /// **'Follow my location'**
-  String get settingsFollowLocation;
-
-  /// No description provided for @settingsFollowLocationHint.
-  ///
-  /// In en, this message translates to:
-  /// **'While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones.'**
-  String get settingsFollowLocationHint;
-
   /// No description provided for @settingsTravelMode.
   ///
   /// In en, this message translates to:
@@ -1737,7 +1761,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsTravelModeHint.
   ///
   /// In en, this message translates to:
-  /// **'Turns on the travel options below. The airplane at the top of the app switches it too.'**
+  /// **'Away from your mosque: Jama’ah reminders pause, and in-flight mode appears. The airplane at the top of the app switches it too.'**
   String get settingsTravelModeHint;
 
   /// No description provided for @travelModeTurnOn.
@@ -1872,17 +1896,23 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
-  /// No description provided for @followDenied.
+  /// The place was picked by hand, so the app never moves it by itself.
   ///
   /// In en, this message translates to:
-  /// **'Location wasn\'t allowed, so the app can\'t follow you. You can still choose a city.'**
-  String get followDenied;
+  /// **'Your phone is now near {place}, not where your saved place is. Use it for prayer times?'**
+  String followOfferNote(String place);
 
-  /// No description provided for @followUnavailable.
+  /// No description provided for @followOfferUse.
   ///
   /// In en, this message translates to:
-  /// **'Your location couldn\'t be read right now, so following stays off. Try again in a moment.'**
-  String get followUnavailable;
+  /// **'Use it'**
+  String get followOfferUse;
+
+  /// No description provided for @followOfferDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get followOfferDismiss;
 
   /// No description provided for @followingUpdated.
   ///
@@ -2397,7 +2427,7 @@ abstract class AppLocalizations {
   /// No description provided for @onbTravelBody.
   ///
   /// In en, this message translates to:
-  /// **'Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route.'**
+  /// **'Travel mode pauses your mosque’s Jama’ah reminders while you are away, and in-flight mode appears on a plane. Prayer times follow your location by themselves, wherever you land.'**
   String get onbTravelBody;
 
   /// No description provided for @onbTravelSwitch.
@@ -4120,12 +4150,6 @@ abstract class AppLocalizations {
   /// **'On'**
   String get travelSummaryOn;
 
-  /// No description provided for @travelSummaryFollowing.
-  ///
-  /// In en, this message translates to:
-  /// **'On · following your location'**
-  String get travelSummaryFollowing;
-
   /// No description provided for @settingsHelpSummary.
   ///
   /// In en, this message translates to:
@@ -4153,7 +4177,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsTravelLead.
   ///
   /// In en, this message translates to:
-  /// **'Times that follow you on a journey.'**
+  /// **'Away from your mosque: reminders pause, and in flight.'**
   String get settingsTravelLead;
 
   /// No description provided for @settingsLanguageLookLead.
@@ -4233,12 +4257,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Iqama times and which prayers remind you are set on each mosque.'**
   String get settingsRemindersOnMosque;
-
-  /// No description provided for @followNeedsTravel.
-  ///
-  /// In en, this message translates to:
-  /// **'Available while travel mode is on.'**
-  String get followNeedsTravel;
 
   /// No description provided for @travelInFlightValue.
   ///
@@ -4723,13 +4741,13 @@ abstract class AppLocalizations {
   /// No description provided for @onbTravelOnSub.
   ///
   /// In en, this message translates to:
-  /// **'On: times follow you'**
+  /// **'On: reminders pause away from your mosque'**
   String get onbTravelOnSub;
 
   /// No description provided for @onbTravelOffSub.
   ///
   /// In en, this message translates to:
-  /// **'Off: times stay where you set them'**
+  /// **'Off: reminders stay as usual'**
   String get onbTravelOffSub;
 
   /// No description provided for @onbTravelSame.

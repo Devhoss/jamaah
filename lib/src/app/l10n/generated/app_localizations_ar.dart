@@ -917,6 +917,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduledOpenAppSettings => 'فتح إعدادات التطبيق';
 
   @override
+  String get scheduledBatteryExempt =>
+      'تحسين البطارية غير مفعَّل لهذا التطبيق، فيمرّ تنبيهه أثناء ركود الهاتف.';
+
+  @override
+  String get scheduledBatteryRestricted =>
+      'تحسين البطارية ما زال مفعَّلًا، وقد يحتجز الهاتف المنبّهات دقائق. إن حدث ذلك، فاسمح بتطبيق Jama’ah أدناه.';
+
+  @override
+  String get scheduledTestAdhanTitle => 'أذان تجريبي';
+
+  @override
+  String get scheduledTestAdhanButton => 'جدولة أذان تجريبي (بعد دقيقتين)';
+
+  @override
+  String get scheduledTestAdhanNote =>
+      'أداة التشخيص: تضيف أذانًا واحدًا حقيقيًا عبر نظام المنبّه قبل دقيقتين، بالمسار نفسه الذي يسير فيه تنبيه الصلاة — اختبار للتسليم لا لصلاة. تزيله إعادة الجدولة التالية.';
+
+  @override
+  String scheduledTestAdhanBody(String time) {
+    return 'اختبار تسليم — بعد دقيقتين من $time.';
+  }
+
+  @override
   String get kindAdhan => 'الأذان';
 
   @override
@@ -1084,18 +1107,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'أوقفه بأي من زرّي الصوت، أو من الإشعار، أو بقلب الهاتف على وجهه.';
 
   @override
-  String get settingsFollowLocation => 'تتبّع موقعي';
-
-  @override
-  String get settingsFollowLocationHint =>
-      'أثناء وضع السفر، يتحدّث مكانك إلى حيث أنت عند فتح التطبيق، فتتبعك المواقيت بين المدن والمناطق الزمنية.';
-
-  @override
   String get settingsTravelMode => 'وضع السفر';
 
   @override
   String get settingsTravelModeHint =>
-      'يشغّل خيارات السفر أدناه. ويمكن تبديله أيضًا من الطائرة أعلى التطبيق.';
+      'بعيدًا عن مسجلك: تتوقف تذكيرات الجماعة، ويظهر وضع الطيران. ويمكن تبديله أيضًا من الطائرة أعلى التطبيق.';
 
   @override
   String get travelModeTurnOn => 'تشغيل وضع السفر';
@@ -1175,12 +1191,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get themeDark => 'داكنة';
 
   @override
-  String get followDenied =>
-      'لم يُسمح بالموقع، فلا يمكن للتطبيق تتبّعك. لا يزال بإمكانك اختيار مدينة.';
+  String followOfferNote(String place) {
+    return 'هاتفك الآن قرب $place، بعيدًا عن مكانك المحفوظ. أتريد استخدامه لمواقيت الصلاة؟';
+  }
 
   @override
-  String get followUnavailable =>
-      'تعذّرت قراءة موقعك الآن، لذا يبقى التتبّع متوقفًا. حاول بعد قليل.';
+  String get followOfferUse => 'استخدمه';
+
+  @override
+  String get followOfferDismiss => 'ليس الآن';
 
   @override
   String followingUpdated(String ago) {
@@ -1499,7 +1518,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onbTravelBody =>
-      'يتبع وضع السفر موقعك، فتبقى الأوقات والقبلة صحيحة حيثما حللت. وعلى متن الطائرة يمكنه عرض مواقيت الصلاة على طول الرحلة.';
+      'يوقف وضع السفر تذكيرات جماعة مسجلك أثناء عليك، ويظهر وضع الطيران في الطائرة. أما مواقيت الصلاة فتتتبع موقعك تلقائيًا حيثما حللت.';
 
   @override
   String get onbTravelSwitch => 'وضع السفر';
@@ -2714,9 +2733,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get travelSummaryOn => 'مفعّل';
 
   @override
-  String get travelSummaryFollowing => 'مفعّل · يتبع موقعك';
-
-  @override
   String get settingsHelpSummary => 'المقدمة، والتنبيهات المتأخرة، وعن التطبيق';
 
   @override
@@ -2729,7 +2745,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsRemindersLead => 'صوت التذكير الذي يسبق إقامة مسجدك.';
 
   @override
-  String get settingsTravelLead => 'أوقات تتبعك في سفرك.';
+  String get settingsTravelLead =>
+      'بعيدًا عن مسجلك: تتوقف التذكيرات، ووضع الطيران.';
 
   @override
   String get settingsLanguageLookLead => 'لغة التطبيق ومظهره.';
@@ -2774,9 +2791,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get settingsRemindersOnMosque =>
       'أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد.';
-
-  @override
-  String get followNeedsTravel => 'متاح أثناء تفعيل وضع السفر.';
 
   @override
   String get travelInFlightValue => 'أوقات الصلاة والقبلة على متن الطائرة';
@@ -3053,10 +3067,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onbBatterySettings => 'إعدادات البطارية';
 
   @override
-  String get onbTravelOnSub => 'مفعّل: الأوقات تتبعك';
+  String get onbTravelOnSub => 'مفعّل: تتوقف التذكيرات بعيدًا عن مسجلك';
 
   @override
-  String get onbTravelOffSub => 'متوقف: تبقى الأوقات حيث ضبطتها';
+  String get onbTravelOffSub => 'متوقف: تبقى التذكيرات كما هي';
 
   @override
   String get onbTravelSame => 'المفتاح نفسه موجود أعلى «اليوم».';

@@ -8,7 +8,6 @@ import '../../app/providers.dart';
 import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
 import '../../domain/adhan_recordings.dart';
-import '../../domain/place.dart';
 import '../../domain/prayer.dart';
 import 'adhan_alerts_page.dart';
 import 'jamaah_reminder_settings.dart';
@@ -33,31 +32,17 @@ String themeModeName(AppLocalizations l10n, AppThemeMode mode) =>
       AppThemeMode.dark => l10n.themeDark,
     };
 
-String followFailure(AppLocalizations l10n, PlaceFailure failure) =>
-    failure == PlaceFailure.denied || failure == PlaceFailure.permanentlyDenied
-    ? l10n.followDenied
-    : l10n.followUnavailable;
-
-/// Travel mode on or off, from the top bar or Settings. The location dialog
-/// may show (following starts now); the outcome is said in a snack bar, since
-/// the top-bar button is only an icon.
+/// Travel mode on or off, from the top bar or Settings. The place is not part
+/// of it, so no location request runs and nothing can refuse the switch.
 Future<void> setTravelMode(BuildContext context, WidgetRef ref, bool on) async {
   final messenger = ScaffoldMessenger.of(context);
-  final l10n = AppLocalizations.of(context);
-  final failure = await ref.read(locationFollowerProvider).setTravelMode(on);
+  final message = on
+      ? AppLocalizations.of(context).travelModeOnSnack
+      : AppLocalizations.of(context).travelModeOffSnack;
+  await ref.read(locationFollowerProvider).setTravelMode(on);
   messenger
     ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(
-          failure != null
-              ? followFailure(l10n, failure)
-              : on
-              ? l10n.travelModeOnSnack
-              : l10n.travelModeOffSnack,
-        ),
-      ),
-    );
+    ..showSnackBar(SnackBar(content: Text(message)));
 }
 
 Future<void> openSettings(BuildContext context) =>

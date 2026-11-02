@@ -20,9 +20,9 @@ import '../helpers/fake_clock.dart';
 import '../helpers/fake_notification_gateway.dart';
 import '../helpers/fake_place_source.dart';
 
-/// "Follow my location" for cabin crew: the place follows the phone when the app
-/// opens, a flight reschedules every notification for the new place, and a
-/// failed check keeps the last place and says so.
+/// "Follow my location", automatic: the place follows the phone whenever the
+/// app opens, a flight reschedules every notification for the new place, and
+/// a place picked by hand is offered, never moved silently.
 void main() {
   const dubai = Place(
     displayName: 'Asia/Dubai',
@@ -66,9 +66,6 @@ void main() {
 
   LocationFollower follower() => container.read(locationFollowerProvider);
 
-  Future<void> following() =>
-      settings.saveTravel(const TravelSettings(travelMode: true));
-
   Future<void> settle() async {
     for (var i = 0; i < 10; i++) {
       await pumpEventQueue();
@@ -76,28 +73,33 @@ void main() {
     await container.read(notificationSchedulerProvider.notifier).syncNow();
   }
 
-  test('with travel mode off, the device is never asked', () async {
+  test('the first-run introduction is never skipped by an automatic place', () async {
+    await settings.setLocation(null);
     await follower().refresh();
     expect(source.silentCount, 0);
-    expect(source.requestCount, 0);
+    expect((await settings.read()).location, isNull);
   });
 
-  test(
-    'with travel mode on but the option off, the device is never asked',
-    () async {
-      await settings.saveTravel(
-        const TravelSettings(travelMode: true, followLocation: false),
-      );
-      await follower().refresh();
-      expect(source.silentCount, 0);
-    },
-  );
-
-  test('opening the app never shows a permission dialog', () async {
-    await following();
+  test('an install older than the introduction keeps following', () async {
+    // A place saved before the introduction existed; onboarding is not done.
+    expect((await settings.read()).onboardingDone, isFalse);
+    source.reading = const PlaceFound(dubai);
     await follower().refresh();
     expect(source.silentCount, 1);
+    expect((await settings.read()).location!.ianaZone, 'Asia/Dubai');
+  });
+
+  test('the device is checked on the app opening, never asked', () async {
+    await follower().refresh();
+    expect(source.silentCount, 1);
+    expect(source.requestCount, 0, reason: 'no permission dialog');
+  });
+
+  test('travel mode alone does not touch the device', () async {
+    await follower().setTravelMode(true);
     expect(source.requestCount, 0);
+    expect(source.silentCount, 0);
+    expect((await settings.read()).travel.travelMode, isTrue);
   });
 
   test(
@@ -109,7 +111,6 @@ void main() {
           const AdhanAlert(enabled: true),
         ),
       );
-      await following();
       await settle();
       final cairoTimes = {for (final i in gateway.scheduled.values) i.at};
 
@@ -139,7 +140,7 @@ void main() {
                 zone: zone,
                 nowUtc: clock.nowUtc(),
                 alerts: (await settings.read()).adhanAlerts,
-                travel: const TravelSettings(followLocation: true),
+                travel: const TravelSettings(),
                 activeMosque: null,
               )
               .where(
@@ -157,7 +158,6 @@ void main() {
   );
 
   test('a few kilometres keeps the place but records the check', () async {
-    await following();
     source.silentReading = const PlaceFound(
       Place(
         displayName: 'Africa/Cairo',
@@ -176,7 +176,6 @@ void main() {
   });
 
   test('no fix keeps the last place and says the check failed', () async {
-    await following();
     source.silentReading = const PlaceRejected(PlaceFailure.timeout);
     await follower().refresh();
 
@@ -185,40 +184,68 @@ void main() {
     expect(snapshot.placeCheckFailed, isTrue);
   });
 
-  test(
-    'turning travel mode on may ask, and a refusal turns only following off',
-    () async {
-      source.reading = const PlaceRejected(PlaceFailure.denied);
-      final failure = await follower().setTravelMode(true);
-      expect(failure, PlaceFailure.denied);
-      expect(source.requestCount, 1);
-      var travel = (await settings.read()).travel;
-      expect(travel.travelMode, isTrue);
-      expect(travel.followLocation, isFalse);
+  test('no permission keeps the last place and stamps nothing', () async {
+    source.silentReading = const PlaceRejected(PlaceFailure.denied);
+    await follower().refresh();
 
-      source.reading = const PlaceFound(dubai);
-      expect(await follower().setFollowLocation(true), isNull);
-      final snapshot = await settings.read();
-      expect(snapshot.travel.followsLocation, isTrue);
-      expect(snapshot.location!.ianaZone, 'Asia/Dubai');
-
-      expect(await follower().setTravelMode(false), isNull);
-      travel = (await settings.read()).travel;
-      expect(travel.travelMode, isFalse);
-      expect(travel.followLocation, isTrue, reason: 'the option is remembered');
-    },
-  );
-
-  test('with travel mode off, the option is only remembered', () async {
-    expect(await follower().setFollowLocation(false), isNull);
-    expect(await follower().setFollowLocation(true), isNull);
-    expect(source.requestCount, 0);
-    expect((await settings.read()).travel.followLocation, isTrue);
+    final snapshot = await settings.read();
+    expect(snapshot.location!.ianaZone, devicePlace.ianaZone);
+    expect(snapshot.placeCheckedAt, isNull);
+    expect(snapshot.placeCheckFailed, isFalse);
   });
 
-  test('turning travel mode on starts following at once', () async {
-    source.reading = const PlaceFound(dubai);
-    expect(await follower().setTravelMode(true), isNull);
-    expect((await settings.read()).location!.ianaZone, 'Asia/Dubai');
+  test('a fix near a picked place stands an offer and moves nothing', () async {
+    await settings.setLocation(cairo.toStored());
+    source.silentReading = const PlaceFound(dubai);
+    await follower().refresh();
+
+    final snapshot = await settings.read();
+    expect(snapshot.location!.ianaZone, devicePlace.ianaZone);
+    final offer = snapshot.followOffer;
+    expect(offer!.place.ianaZone, 'Asia/Dubai');
+    expect(offer.at, clock.nowUtc());
+    // A check that found nothing new takes any standing offer away.
+    source.silentReading = const PlaceFound(devicePlace);
+    await follower().refresh();
+    expect((await settings.read()).followOffer, isNull);
+  });
+
+  test('applying the offer moves the place and un-pins it', () async {
+    await settings.setLocation(cairo.toStored());
+    source.silentReading = const PlaceFound(dubai);
+    await follower().refresh();
+    await follower().applyOffer();
+
+    final snapshot = await settings.read();
+    expect(snapshot.location!.ianaZone, 'Asia/Dubai');
+    expect(snapshot.location!.usesGps, isTrue);
+    expect(snapshot.followOffer, isNull);
+  });
+
+  test('dismissing the offer keeps the place', () async {
+    await settings.setLocation(cairo.toStored());
+    source.silentReading = const PlaceFound(dubai);
+    await follower().refresh();
+    await follower().dismissOffer();
+
+    final snapshot = await settings.read();
+    expect(snapshot.location!.ianaZone, devicePlace.ianaZone);
+    expect(snapshot.followOffer, isNull);
+  });
+
+  test('a device place takes the new city with no offer', () async {
+    source.silentReading = const PlaceFound(dubai);
+    await follower().refresh();
+
+    final snapshot = await settings.read();
+    expect(snapshot.location!.ianaZone, 'Asia/Dubai');
+    expect(snapshot.followOffer, isNull);
+  });
+
+  test('a stored offer that cannot be read is no offer', () async {
+    await db.customStatement(
+      "INSERT INTO app_settings (key, value) VALUES ('follow_offer', 'gone')",
+    );
+    expect((await settings.read()).followOffer, isNull);
   });
 }

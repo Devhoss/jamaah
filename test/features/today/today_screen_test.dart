@@ -694,7 +694,6 @@ void main() {
       await settings.saveTravel(
         const TravelSettings(
           travelMode: true,
-          followLocation: false,
           pauseAllIqamaReminders: true,
         ),
       );
@@ -812,7 +811,7 @@ void main() {
       expect(find.text(t.inFlightCardTitle), findsNothing);
       await closeToday(tester);
       await settings.saveTravel(
-        const TravelSettings(travelMode: true, followLocation: false),
+        const TravelSettings(travelMode: true),
       );
       await openToday(tester);
       expect(find.text(t.inFlightCardTitle), findsOneWidget);
@@ -917,9 +916,7 @@ void main() {
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       await settings.setLocation(cairo.toStored());
-      await settings.saveTravel(
-        const TravelSettings(travelMode: true, followLocation: false),
-      );
+      await settings.saveTravel(const TravelSettings(travelMode: true));
       await openToday(tester);
       expect(tester.takeException(), isNull);
       await tester.scrollUntilVisible(row(Prayer.isha), 200);
@@ -934,9 +931,7 @@ void main() {
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       await settings.setLocation(cairo.toStored());
-      await settings.saveTravel(
-        const TravelSettings(travelMode: true, followLocation: false),
-      );
+      await settings.saveTravel(const TravelSettings(travelMode: true));
       await openToday(tester);
       final scroll = find.byType(Scrollable).first;
       for (var i = 0; i < 6; i++) {

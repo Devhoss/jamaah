@@ -14,14 +14,20 @@ class TodayNote {
     this.icon = LineIcons.info,
     this.actionLabel,
     this.onAction,
+    this.secondaryLabel,
+    this.onSecondaryAction,
   });
 
   final String text;
   final LineIconData icon;
 
-  /// The in-flight hold's "End".
+  /// The in-flight hold's "End", the follow offer's "Use it".
   final String? actionLabel;
   final VoidCallback? onAction;
+
+  /// The follow offer's "Dismiss", beside its own action.
+  final String? secondaryLabel;
+  final VoidCallback? onSecondaryAction;
 }
 
 /// At most two notes as single quiet lines; more collapse into "2 more notes"
@@ -158,7 +164,7 @@ class _NoteLine extends StatelessWidget {
               style: style.copyWith(color: palette.mute),
             ),
           ),
-          if (action != null && note.actionLabel != null)
+          if (note.actionLabel != null && action != null)
             // In the note's own size, and free to wrap beside a long note.
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 150),
@@ -170,6 +176,19 @@ class _NoteLine extends StatelessWidget {
                   textStyle: style.copyWith(fontWeight: FontWeight.w600),
                 ),
                 child: Text(note.actionLabel!, textAlign: TextAlign.end),
+              ),
+            ),
+          if (note.secondaryLabel != null && note.onSecondaryAction != null)
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 110),
+              child: TextButton(
+                onPressed: note.onSecondaryAction,
+                style: TextButton.styleFrom(
+                  foregroundColor: palette.mute,
+                  minimumSize: const Size(48, 48),
+                  textStyle: style.copyWith(fontWeight: FontWeight.w600),
+                ),
+                child: Text(note.secondaryLabel!, textAlign: TextAlign.end),
               ),
             ),
         ],

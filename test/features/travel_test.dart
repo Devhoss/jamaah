@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:jamaah/src/features/components/bottom_nav.dart';
 import 'package:jamaah/src/features/components/travel_switch.dart';
 import 'package:jamaah/src/app/app.dart';
 import 'package:jamaah/src/app/clock.dart';
@@ -12,7 +11,6 @@ import 'package:jamaah/src/app/notification_scheduler.dart';
 import 'package:jamaah/src/app/providers.dart';
 import 'package:jamaah/src/data/app_database.dart';
 import 'package:jamaah/src/data/settings_repository.dart';
-import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/place.dart';
 import 'package:jamaah/src/domain/placeholder_places.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
@@ -23,8 +21,9 @@ import '../helpers/fake_notification_gateway.dart';
 import '../helpers/fake_place_source.dart';
 import '../helpers/test_app.dart';
 
-/// The travel screens: following the phone, saying how fresh the place is, and
-/// looking at another city without moving.
+/// The travel screens, and the automatic follow of the device (2026-11-02):
+/// how fresh the followed place is, the offer when the place was picked by
+/// hand, and looking at another city without moving.
 void main() {
   final t = AppLocalizationsEn();
 
@@ -79,7 +78,6 @@ void main() {
 
   testApp('Today says how fresh the followed place is', (tester) async {
     await settings.setLocation(devicePlace.toStored());
-    await settings.saveTravel(const TravelSettings(travelMode: true));
     await open(tester);
 
     expect(find.text(t.followingUpdated(t.agoJustNow)), findsOneWidget);
@@ -89,7 +87,6 @@ void main() {
     tester,
   ) async {
     await settings.setLocation(devicePlace.toStored());
-    await settings.saveTravel(const TravelSettings(travelMode: true));
     await settings.markPlaceChecked(
       at: now.subtract(const Duration(hours: 6)),
       failed: false,
@@ -100,49 +97,93 @@ void main() {
     expect(find.text(t.followingStale(t.agoHours(6))), findsOneWidget);
   });
 
-  testApp('without following there is no follow line at all', (tester) async {
-    await settings.setLocation(cairo.toStored());
-    await open(tester);
-    expect(find.textContaining('Following your location'), findsNothing);
-    expect(source.silentCount, 0);
-  });
-
-  testApp('a refused permission leaves following off, and says why', (
+  testApp('a place picked by hand shows the date, not the follow line', (
     tester,
   ) async {
     await settings.setLocation(cairo.toStored());
+    await open(tester);
+    expect(find.textContaining('Following your location'), findsNothing);
+    expect((await settings.read()).location!.ianaZone, cairo.ianaZone);
+  });
+
+  testApp('the device is followed automatically, with no permission dialog', (
+    tester,
+  ) async {
+    await settings.setLocation(devicePlace.toStored());
+    await open(tester);
+    expect(find.text(t.followingUpdated(t.agoJustNow)), findsOneWidget);
+    expect(source.silentCount, 1);
+    expect(source.requestCount, 0);
+  });
+
+  testApp('a refused permission says nothing and asks nothing', (tester) async {
+    await settings.setLocation(cairo.toStored());
     source.reading = const PlaceRejected(PlaceFailure.denied);
     await open(tester);
-    await tester.tap(find.byKey(BottomNav.tabKey(BottomNav.settingsIndex)));
-    await tester.pumpAndSettle();
-    await tapText(tester, t.settingsTravelSection);
     await tester.tap(find.byType(TravelSwitch));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.followDenied), findsOneWidget);
     final travel = (await settings.read()).travel;
     expect(travel.travelMode, isTrue);
-    expect(travel.followLocation, isFalse);
+    expect(find.text(t.travelModeOnSnack), findsOneWidget);
+    expect(source.requestCount, 0);
   });
 
   testApp('the travel switch on the top bar switches travel mode', (
     tester,
   ) async {
     await settings.setLocation(cairo.toStored());
-    source.reading = const PlaceFound(devicePlace);
     await open(tester);
 
     await tester.tap(find.byType(TravelSwitch));
     await tester.pumpAndSettle();
     expect((await settings.read()).travel.travelMode, isTrue);
     expect(find.text(t.travelModeOnSnack), findsOneWidget);
-    expect(find.textContaining('Following your location'), findsOneWidget);
 
     await tester.tap(find.byType(TravelSwitch));
     await tester.pumpAndSettle();
     expect((await settings.read()).travel.travelMode, isFalse);
     expect(find.text(t.travelModeOffSnack), findsOneWidget);
-    expect(find.textContaining('Following your location'), findsNothing);
+  });
+
+  testApp('a picked place that the phone left is offered, not moved', (
+    tester,
+  ) async {
+    await settings.setLocation(cairo.toStored());
+    source.reading = const PlaceFound(auckland);
+    await open(tester);
+
+    expect(
+      find.text(t.followOfferNote(t.locationCurrentPlace)),
+      findsOneWidget,
+      reason: 'the times stay as they were until the user decides',
+    );
+    expect((await settings.read()).location!.ianaZone, cairo.ianaZone);
+  });
+
+  testApp('using the offered place moves and un-pins it', (tester) async {
+    await settings.setLocation(cairo.toStored());
+    source.reading = const PlaceFound(auckland);
+    await open(tester);
+    await tester.tap(find.text(t.followOfferUse));
+    await tester.pumpAndSettle();
+
+    final stored = (await settings.read()).location!;
+    expect(stored.ianaZone, auckland.ianaZone);
+    expect(stored.usesGps, isTrue);
+    expect(find.textContaining('Following your location'), findsOneWidget);
+    expect(find.text(t.followOfferUse), findsNothing);
+  });
+
+  testApp('dismissing the offer keeps the picked place', (tester) async {
+    await settings.setLocation(cairo.toStored());
+    source.reading = const PlaceFound(auckland);
+    await open(tester);
+    await tester.tap(find.text(t.followOfferDismiss));
+    await tester.pumpAndSettle();
+
+    expect((await settings.read()).location!.ianaZone, cairo.ianaZone);
+    expect(find.text(t.followOfferUse), findsNothing);
   });
 
   testApp('previewing another city shows its times and moves nothing', (
@@ -166,3 +207,12 @@ void main() {
 
 /// The chip's words for a city picked from the list.
 String placeLabelFor(Place place) => place.displayName;
+
+/// A far fix the device reports, another city and another zone from Cairo.
+const auckland = Place(
+  displayName: 'Pacific/Auckland',
+  latitude: -36.8509,
+  longitude: 174.7645,
+  ianaZone: 'Pacific/Auckland',
+  fromDevice: true,
+);

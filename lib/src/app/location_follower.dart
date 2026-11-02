@@ -7,15 +7,18 @@ import '../domain/place_follow.dart';
 import 'clock.dart';
 import 'providers.dart';
 
-/// "Follow my location" (travel, decided 2026-10-13), a travel-mode option.
+/// "Follow my location" (2026-11-02): automatic, no longer a travel option.
 ///
-/// While travel mode and the option are both on, the app reads the device's permitted location each time it opens
-/// or comes back, without ever showing a permission dialog at that moment, and
-/// replaces the saved place when the phone has moved to another city or time
-/// zone. The new place reaches everything through the settings stream, so prayer
-/// times, "today" and every scheduled notification follow it.
+/// Each time the app opens or comes back, it reads the device's permitted
+/// location — without ever showing a permission dialog at that moment — and
+/// moves the saved place when the phone has travelled to another city or time
+/// zone, so prayer times, "today" and every scheduled notification follow the
+/// user. A place the user picked by hand is pinned: it is offered on Today
+/// instead, never moved silently.
 ///
-/// A failed check keeps the last place and says so on Today; it is never silent.
+/// A failed check keeps the last place and says so on Today; it is never
+/// silent. A user who has never allowed location says nothing either: the
+/// saved place stands, and the offer to follow runs from Onboarding.
 class LocationFollower {
   LocationFollower(this._ref);
 
@@ -24,13 +27,17 @@ class LocationFollower {
 
   SettingsRepository get _settings => _ref.read(settingsRepositoryProvider);
 
-  /// Checks once, if following is on. Safe to call as often as the app likes.
+  /// Checks once. Safe to call as often as the app likes.
   Future<void> refresh() async {
     if (_running) return;
     _running = true;
     try {
       final snapshot = await _settings.read();
-      if (!snapshot.travel.followsLocation) return;
+      // Nothing is placed for a fresh install still in its first-run
+      // introduction: the user has not been walked through choosing yet, and
+      // the app must not take the choice away. An install older than the
+      // introduction already has a place, and keeps following.
+      if (!snapshot.onboardingDone && snapshot.location == null) return;
       final reading = await _ref
           .read(placeSourceProvider)
           .currentPlaceIfAllowed();
@@ -40,68 +47,73 @@ class LocationFollower {
     }
   }
 
-  /// Travel mode on or off, from the user's tap (top bar or Settings), so the
-  /// permission dialog may show now. Travel mode itself always switches; when
-  /// following cannot start, only that option goes off, and the reason is
-  /// returned for the screen to say.
-  Future<PlaceFailure?> setTravelMode(bool on) async {
+  /// Travel mode on or off, from the user's tap (top bar or Settings).
+  ///
+  /// The place is untouched: travel mode says "away from my mosque" — it
+  /// pauses Iqama reminders and opens in-flight mode — and following runs
+  /// whatever travel mode says.
+  Future<void> setTravelMode(bool on) async {
     final travel = (await _settings.read()).travel;
-    if (!on) {
-      await _settings.saveTravel(travel.copyWith(travelMode: false));
-      await _settings.markPlaceChecked(failed: false);
-      return null;
-    }
-    await _settings.saveTravel(travel.copyWith(travelMode: true));
-    return travel.followLocation ? _startFollowing() : null;
-  }
-
-  /// The "Follow my location" option, from the user's tap in Settings. With
-  /// travel mode off it is only remembered; with it on, following starts now.
-  Future<PlaceFailure?> setFollowLocation(bool on) async {
-    final travel = (await _settings.read()).travel;
-    if (!on) {
-      await _settings.saveTravel(travel.copyWith(followLocation: false));
-      await _settings.markPlaceChecked(failed: false);
-      return null;
-    }
-    if (!travel.travelMode) {
-      await _settings.saveTravel(travel.copyWith(followLocation: true));
-      return null;
-    }
-    return _startFollowing();
-  }
-
-  /// Asks for the place (the dialog may show). If the device says no, the
-  /// option goes off and nothing else changes.
-  Future<PlaceFailure?> _startFollowing() async {
-    final reading = await _ref.read(placeSourceProvider).requestPlace();
-    final snapshot = await _settings.read();
-    if (reading case PlaceRejected(:final failure)) {
-      await _settings.saveTravel(
-        snapshot.travel.copyWith(followLocation: false),
-      );
-      return failure;
-    }
-    await _settings.saveTravel(snapshot.travel.copyWith(followLocation: true));
-    await _apply(reading, saved: snapshot.location?.toPlace());
-    return null;
+    await _settings.saveTravel(travel.copyWith(travelMode: on));
+    if (!on) await _settings.markPlaceChecked(failed: false);
   }
 
   Future<void> _apply(PlaceReading reading, {required Place? saved}) async {
     switch (reading) {
       case PlaceFound(:final place):
-        if (decideFollow(saved: saved, fix: place) == FollowDecision.replace) {
-          await _settings.setLocation(place.toStored());
+        switch (decideFollow(saved: saved, fix: place)) {
+          case FollowDecision.keep:
+            // Still here: a standing offer says something that is no longer
+            // true, so it goes.
+            await _settings.saveFollowOffer(null);
+          case FollowDecision.replace:
+            await _settings.setLocation(place.toStored());
+            await _settings.saveFollowOffer(null);
+          case FollowDecision.offer:
+            // The saved place was picked by hand: stand the fix as an offer
+            // and leave the place exactly as it is.
+            await _settings.saveFollowOffer(
+              FollowOffer(
+                place: place,
+                at: _ref.read(appClockProvider).nowUtc(),
+              ),
+            );
         }
         await _settings.markPlaceChecked(
           at: _ref.read(appClockProvider).nowUtc(),
           failed: false,
         );
-      case PlaceRejected():
-        // No fix (in the air, location off, permission withdrawn): the last
-        // place stays in use, and Today says how old it is.
-        await _settings.markPlaceChecked(failed: true);
+      case PlaceRejected(:final failure):
+        switch (failure) {
+          // No permission: following simply cannot run, and there is nothing
+          // to stamp. Someone who picked a place with location off must not
+          // see "couldn't update" over and over.
+          case PlaceFailure.denied:
+          case PlaceFailure.permanentlyDenied:
+            return;
+          case PlaceFailure.serviceDisabled:
+          case PlaceFailure.timeout:
+          case PlaceFailure.unavailable:
+            // Location is on (a grant exists), so the last place may be out
+            // of date: say so on Today.
+            await _settings.markPlaceChecked(failed: true);
+        }
     }
+  }
+
+  /// Applies the [FollowOffer] standing on Today: the fix becomes the saved
+  /// place (un-pinning it) and the offer goes. A no-op when none stands.
+  Future<void> applyOffer() async {
+    final offer = (await _settings.read()).followOffer;
+    if (offer == null) return;
+    await _settings.setLocation(offer.place.toStored());
+    await _settings.saveFollowOffer(null);
+  }
+
+  /// Dismisses the [FollowOffer] standing on Today, leaving the place as it
+  /// is. The next check that sees the same distance stands it again.
+  Future<void> dismissOffer() async {
+    await _settings.saveFollowOffer(null);
   }
 }
 

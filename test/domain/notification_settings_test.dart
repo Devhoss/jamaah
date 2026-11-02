@@ -80,16 +80,10 @@ void main() {
       expect(AdhanAlertSettings.defaults().fullScreen, isFalse);
     });
 
-    test('nothing is paused and nothing followed until the user says so', () {
+    test('nothing is paused until the user says so', () {
       const travel = TravelSettings();
       expect(travel.pauseAllIqamaReminders, isFalse);
       expect(travel.travelMode, isFalse);
-      expect(travel.followsLocation, isFalse);
-      expect(
-        travel.followLocation,
-        isTrue,
-        reason: 'turning travel mode on follows the phone unless told not to',
-      );
     });
 
     test('an early reminder outside 1..120 minutes is a programming error', () {

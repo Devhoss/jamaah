@@ -8,6 +8,7 @@ import '../../app/clock_format.dart';
 import '../../app/date_labels.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/l10n/prayer_labels.dart';
+import '../../app/location_follower.dart';
 import '../../app/notification_scheduler.dart';
 import '../../app/providers.dart';
 import '../../app/theme/horizon_tokens.dart';
@@ -380,7 +381,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     final held = TodayView.heldPrayer(
       today: today,
       iqama: iqama,
-      awayFromMosque: travel.pauseAllIqamaReminders || travel.followsLocation,
+      awayFromMosque: travel.pauseAllIqamaReminders || travel.travelMode,
     );
     final selection = _view.select(times: times, next: today.next, held: held);
 
@@ -872,6 +873,21 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     final snapshot = ref.watch(appSettingsProvider).requireValue;
     final now = ref.watch(minuteClockProvider);
     final notes = <TodayNote>[];
+    // Out of date place first, so it is never the note that collapses away.
+    if (snapshot.followOffer case final offer?) {
+      notes.add(
+        TodayNote(
+          l10n.followOfferNote(placeLabel(l10n, offer.place)),
+          icon: LineIcons.pin,
+          actionLabel: l10n.followOfferUse,
+          onAction: () =>
+              ref.read(locationFollowerProvider).applyOffer(),
+          secondaryLabel: l10n.followOfferDismiss,
+          onSecondaryAction: () =>
+              ref.read(locationFollowerProvider).dismissOffer(),
+        ),
+      );
+    }
     if (snapshot.inFlight case final hold? when hold.activeAt(now)) {
       notes.add(
         TodayNote(
@@ -940,8 +956,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           );
   }
 
-  /// "Thu 15 Oct · 4 Jumada al-Awwal 1448", or how fresh the followed
-  /// location is in travel mode.
+  /// "Thu 15 Oct · 4 Jumada al-Awwal 1448", or how fresh the followed place
+  /// is when the device supplied it (a pinned, picked place is not followed).
   String _subline(
     BuildContext context,
     AppLocalizations l10n,
@@ -949,10 +965,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     LocalDay day,
     DateTime now,
   ) {
-    final travel = snapshot.travel;
     final checked = snapshot.placeCheckedAt;
     final failed = snapshot.placeCheckFailed;
-    if (travel.followsLocation && (checked != null || failed)) {
+    if ((snapshot.location?.usesGps ?? false) && (checked != null || failed)) {
       final ago = checked == null ? '' : agoLabel(l10n, checked, now);
       return failed ? l10n.followingStale(ago) : l10n.followingUpdated(ago);
     }

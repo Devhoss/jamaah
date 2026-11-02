@@ -81,6 +81,10 @@ abstract final class SettingKeys {
   /// Travel mode and its manual Iqama pause (decided 2026-10-13). Absent means off.
   static const travelMode = 'travel_mode';
   static const pauseIqamaReminders = 'pause_iqama_reminders';
+
+  /// Legacy: the "Follow my location" option that used to live inside travel
+  /// mode. Read once for the travel-mode migration, then written nowhere;
+  /// following is automatic since 2026-11-02.
   static const followLocation = 'follow_location';
 
   /// The travel-mode switch (2026-10-13). Not [travelMode], which was the
@@ -95,6 +99,11 @@ abstract final class SettingKeys {
   /// and whether the latest try failed (the last place is then still in use).
   static const placeCheckedAt = 'place_checked_at';
   static const placeCheckFailed = 'place_check_failed';
+
+  /// A follow fix that was not applied because the saved place was pinned:
+  /// JSON of the candidate and when it was found. Today offers it; absent
+  /// means no offer is standing.
+  static const followOffer = 'follow_offer';
 
   /// The user's own angles for the "Custom angles" method. Absent means the
   /// defaults in CustomAngles.

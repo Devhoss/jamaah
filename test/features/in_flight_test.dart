@@ -77,9 +77,7 @@ void main() {
     addTearDown(tester.view.reset);
     await settings.setLocation(cairo.toStored());
     await settings.setLanguage(language);
-    await settings.saveTravel(
-      TravelSettings(travelMode: travel, followLocation: false),
-    );
+    await settings.saveTravel(TravelSettings(travelMode: travel));
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -158,9 +156,7 @@ void main() {
   testApp('the card is there only in travel mode', (tester) async {
     await open(tester, travel: false);
     expect(find.text(t.inFlightCardTitle), findsNothing);
-    await settings.saveTravel(
-      const TravelSettings(travelMode: true, followLocation: false),
-    );
+    await settings.saveTravel(const TravelSettings(travelMode: true));
     await tester.pumpAndSettle();
     expect(find.text(t.inFlightCardTitle), findsOneWidget);
   });

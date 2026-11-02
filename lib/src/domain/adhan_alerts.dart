@@ -274,9 +274,11 @@ class AdhanAlert {
 
 /// Reminder and travel preferences that are not per prayer.
 ///
-/// [travelMode] (2026-10-13) is one switch, on the top bar and in Settings, that
-/// turns on the travel options; today that is [followLocation], and more may
-/// join it. An option only acts while travel mode is on.
+/// [travelMode] (2026-10-13) is one switch, on the top bar and in Settings,
+/// that says "I am away from my mosque": the Iqama reminders pause and
+/// in-flight mode appears on Today. It no longer affects the place itself —
+/// the place follows the device on its own (2026-11-02), and follows nothing
+/// else.
 ///
 /// [pauseAllIqamaReminders] (2026-10-13) stops every Iqama reminder at once;
 /// each mosque can also be paused on its own ([Mosque.remindersPaused]). Adhan
@@ -284,17 +286,10 @@ class AdhanAlert {
 class TravelSettings {
   const TravelSettings({
     this.travelMode = false,
-    this.followLocation = true,
     this.pauseAllIqamaReminders = false,
   });
 
   final bool travelMode;
-
-  /// Travel option: refresh the place from the device when the app opens.
-  final bool followLocation;
-
-  /// Whether the place follows the device right now.
-  bool get followsLocation => travelMode && followLocation;
 
   /// No Iqama reminders at all, whichever mosque is active. Iqama times and
   /// reminder settings are kept.
@@ -302,11 +297,9 @@ class TravelSettings {
 
   TravelSettings copyWith({
     bool? travelMode,
-    bool? followLocation,
     bool? pauseAllIqamaReminders,
   }) => TravelSettings(
     travelMode: travelMode ?? this.travelMode,
-    followLocation: followLocation ?? this.followLocation,
     pauseAllIqamaReminders:
         pauseAllIqamaReminders ?? this.pauseAllIqamaReminders,
   );
@@ -315,12 +308,10 @@ class TravelSettings {
   bool operator ==(Object other) =>
       other is TravelSettings &&
       other.travelMode == travelMode &&
-      other.followLocation == followLocation &&
       other.pauseAllIqamaReminders == pauseAllIqamaReminders;
 
   @override
-  int get hashCode =>
-      Object.hash(travelMode, followLocation, pauseAllIqamaReminders);
+  int get hashCode => Object.hash(travelMode, pauseAllIqamaReminders);
 }
 
 /// What a Jama'ah (Iqama) reminder plays. Short Adhan clips share the recorded

@@ -8,6 +8,8 @@ import 'package:jamaah/src/data/settings_repository.dart';
 import 'package:jamaah/src/domain/adhan_alerts.dart';
 import 'package:jamaah/src/domain/custom_sounds.dart';
 import 'package:jamaah/src/domain/extra_times.dart';
+import 'package:jamaah/src/domain/place.dart';
+import 'package:jamaah/src/domain/place_follow.dart';
 import 'package:jamaah/src/domain/prayer.dart';
 import 'package:jamaah/src/domain/prayer_times_parameters.dart';
 import 'package:jamaah/src/domain/zone_offsets.dart';
@@ -332,6 +334,28 @@ void main() {
         reason: 'a name without a place is a fact about nothing',
       );
     });
+
+    test('the follow offer round-trips, and drops', () async {
+      expect((await settings.read()).followOffer, isNull);
+      final offer = FollowOffer(
+        place: const Place(
+          displayName: 'Alexandria, Egypt',
+          latitude: 31.2001,
+          longitude: 29.9187,
+          ianaZone: 'Africa/Cairo',
+          fromDevice: true,
+          countryCode: 'EG',
+        ),
+        at: DateTime.utc(2026, 11, 2, 7),
+      );
+      await settings.saveFollowOffer(offer);
+      final read = (await settings.read()).followOffer;
+      expect(read, offer);
+
+      await settings.saveFollowOffer(null);
+      expect((await settings.read()).followOffer, isNull);
+      expect(await db.select(db.appSettings).get(), isEmpty);
+    });
   });
 
   group('active mosque', () {
@@ -430,13 +454,25 @@ void main() {
       const travel = TravelSettings(
         travelMode: true,
         pauseAllIqamaReminders: true,
-        followLocation: false,
       );
       await settings.saveTravel(travel);
       expect((await settings.read()).travel, travel);
 
       await settings.saveTravel(const TravelSettings());
       expect((await settings.read()).travel, const TravelSettings());
+    });
+
+    test('saving travel retires the legacy option key completely', () async {
+      await db.customStatement(
+        "INSERT INTO app_settings (key, value) VALUES "
+        "('${SettingKeys.followLocation}', 'true')",
+      );
+      await settings.saveTravel(const TravelSettings());
+      // With the key gone, the travel-mode migration can never fire again.
+      await db.customStatement(
+        "DELETE FROM app_settings WHERE key = '${SettingKeys.travelModeOn}'",
+      );
+      expect((await settings.read()).travel.travelMode, isFalse);
     });
 
     test(
@@ -448,18 +484,15 @@ void main() {
         );
         final travel = (await settings.read()).travel;
         expect(travel.travelMode, isTrue);
-        expect(travel.followsLocation, isTrue);
       },
     );
 
-    test('someone who had turned following off keeps it off', () async {
+    test('someone who had turned following off starts travel mode off', () async {
       await db.customStatement(
         "INSERT INTO app_settings (key, value) VALUES "
         "('${SettingKeys.followLocation}', 'false')",
       );
-      final travel = (await settings.read()).travel;
-      expect(travel.travelMode, isFalse);
-      expect(travel.followLocation, isFalse);
+      expect((await settings.read()).travel.travelMode, isFalse);
     });
 
     test(
@@ -585,13 +618,10 @@ void main() {
       final sub = settings.watch().listen(seen.add);
       await pumpEventQueue();
 
-      await settings.saveTravel(const TravelSettings(followLocation: true));
+      await settings.saveTravel(const TravelSettings());
       await pumpEventQueue();
       await settings.saveTravel(
-        const TravelSettings(
-          followLocation: true,
-          pauseAllIqamaReminders: true,
-        ),
+        const TravelSettings(pauseAllIqamaReminders: true),
       );
       await pumpEventQueue();
       await sub.cancel();

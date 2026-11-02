@@ -91,6 +91,10 @@ void main() {
       tester,
     ) async {
       source = FakePlaceSource(const PlaceFound(devicePlace));
+      // Following is automatic now, but the device is only asked (and its
+      // location only exists) once the user taps: the silent check that runs
+      // on open sees no permission yet.
+      source.silentReading = const PlaceRejected(PlaceFailure.denied);
       await openSheet(tester);
 
       await tester.tap(find.text(t.locationUseDevice));
@@ -131,6 +135,7 @@ void main() {
       tester,
     ) async {
       source = FakePlaceSource(const PlaceFound(devicePlace));
+      source.silentReading = const PlaceRejected(PlaceFailure.denied);
       await openSheet(tester);
       await tester.tap(find.text(t.locationUseDevice));
       await tester.pumpAndSettle();
@@ -157,6 +162,7 @@ void main() {
 
     testApp('an empty name hands the place back to the app', (tester) async {
       source = FakePlaceSource(const PlaceFound(devicePlace));
+      source.silentReading = const PlaceRejected(PlaceFailure.denied);
       await openSheet(tester);
       await tester.tap(find.text(t.locationUseDevice));
       await tester.pumpAndSettle();
@@ -294,6 +300,7 @@ void main() {
 
   testApp('a stored place survives a restart', (tester) async {
     source = FakePlaceSource(const PlaceFound(devicePlace));
+    source.silentReading = const PlaceRejected(PlaceFailure.denied);
     await openSheet(tester);
     await tester.tap(find.text(t.locationUseDevice));
     await tester.pumpAndSettle();

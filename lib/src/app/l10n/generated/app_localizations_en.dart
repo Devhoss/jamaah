@@ -858,6 +858,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduledOpenAppSettings => 'Open app settings';
 
   @override
+  String get scheduledBatteryExempt =>
+      'Battery optimisation is lifted: Jama’ah\'s alerts come through while the phone sleeps.';
+
+  @override
+  String get scheduledBatteryRestricted =>
+      'Battery optimisation is still on: the phone may hold alarms back for minutes. If that happens, allow Jama’ah below.';
+
+  @override
+  String get scheduledTestAdhanTitle => 'Test adhan';
+
+  @override
+  String get scheduledTestAdhanButton => 'Schedule a test adhan (2 minutes)';
+
+  @override
+  String get scheduledTestAdhanNote =>
+      'Debug tool: adds one real alarm-clock adhan two minutes out, through the same alarms and sound as a prayer alert — a delivery check, not a prayer. The next reschedule removes it.';
+
+  @override
+  String scheduledTestAdhanBody(String time) {
+    return 'Delivery test — two minutes after $time.';
+  }
+
+  @override
   String get kindAdhan => 'Adhan';
 
   @override
@@ -1007,18 +1030,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Stop it with either volume key, from the notification, or by turning the phone face down.';
 
   @override
-  String get settingsFollowLocation => 'Follow my location';
-
-  @override
-  String get settingsFollowLocationHint =>
-      'While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones.';
-
-  @override
   String get settingsTravelMode => 'Travel mode';
 
   @override
   String get settingsTravelModeHint =>
-      'Turns on the travel options below. The airplane at the top of the app switches it too.';
+      'Away from your mosque: Jama’ah reminders pause, and in-flight mode appears. The airplane at the top of the app switches it too.';
 
   @override
   String get travelModeTurnOn => 'Turn on travel mode';
@@ -1098,12 +1114,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get followDenied =>
-      'Location wasn\'t allowed, so the app can\'t follow you. You can still choose a city.';
+  String followOfferNote(String place) {
+    return 'Your phone is now near $place, not where your saved place is. Use it for prayer times?';
+  }
 
   @override
-  String get followUnavailable =>
-      'Your location couldn\'t be read right now, so following stays off. Try again in a moment.';
+  String get followOfferUse => 'Use it';
+
+  @override
+  String get followOfferDismiss => 'Not now';
 
   @override
   String followingUpdated(String ago) {
@@ -1400,7 +1419,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbTravelBody =>
-      'Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route.';
+      'Travel mode pauses your mosque’s Jama’ah reminders while you are away, and in-flight mode appears on a plane. Prayer times follow your location by themselves, wherever you land.';
 
   @override
   String get onbTravelSwitch => 'Travel mode';
@@ -2544,9 +2563,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get travelSummaryOn => 'On';
 
   @override
-  String get travelSummaryFollowing => 'On · following your location';
-
-  @override
   String get settingsHelpSummary => 'Introduction, late alerts, about';
 
   @override
@@ -2561,7 +2577,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'How the reminder before your mosque’s Iqama sounds.';
 
   @override
-  String get settingsTravelLead => 'Times that follow you on a journey.';
+  String get settingsTravelLead =>
+      'Away from your mosque: reminders pause, and in flight.';
 
   @override
   String get settingsLanguageLookLead => 'The app’s language and theme.';
@@ -2607,9 +2624,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsRemindersOnMosque =>
       'Iqama times and which prayers remind you are set on each mosque.';
-
-  @override
-  String get followNeedsTravel => 'Available while travel mode is on.';
 
   @override
   String get travelInFlightValue => 'Prayer times and the Qibla on a plane';
@@ -2887,10 +2901,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onbBatterySettings => 'Battery settings';
 
   @override
-  String get onbTravelOnSub => 'On: times follow you';
+  String get onbTravelOnSub => 'On: reminders pause away from your mosque';
 
   @override
-  String get onbTravelOffSub => 'Off: times stay where you set them';
+  String get onbTravelOffSub => 'Off: reminders stay as usual';
 
   @override
   String get onbTravelSame => 'The same switch sits at the top of Today.';

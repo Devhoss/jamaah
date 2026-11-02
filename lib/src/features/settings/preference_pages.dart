@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/app.dart';
 import '../../app/build_info.dart';
 import '../../app/l10n/generated/app_localizations.dart';
-import '../../app/location_follower.dart';
 import '../../app/providers.dart';
 import '../../app/theme/horizon_tokens.dart';
 import '../../data/settings_repository.dart';
@@ -19,32 +18,14 @@ import 'settings_kit.dart';
 import 'settings_page.dart';
 import 'update_row.dart';
 
-/// "Off", "On", or "On · following your location".
+/// "Off" or "On".
 String travelSummary(AppLocalizations l10n, TravelSettings travel) =>
-    !travel.travelMode
-    ? l10n.travelSummaryOff
-    : travel.followLocation
-    ? l10n.travelSummaryFollowing
-    : l10n.travelSummaryOn;
+    travel.travelMode ? l10n.travelSummaryOn : l10n.travelSummaryOff;
 
-/// Travel (spec §4.9): the switch, following the location, and in flight.
+/// Travel (spec §4.9): the switch, and in flight. The place itself is not a
+/// travel option: following the device is automatic.
 class TravelPage extends ConsumerWidget {
   const TravelPage({super.key});
-
-  /// The option is the user's tap, so the location dialog may show now; if the
-  /// device says no, the option stays off and the reason is shown.
-  Future<void> _setFollow(BuildContext context, WidgetRef ref, bool on) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = AppLocalizations.of(context);
-    final failure = await ref
-        .read(locationFollowerProvider)
-        .setFollowLocation(on);
-    if (failure != null) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(followFailure(l10n, failure))),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -103,16 +84,6 @@ class TravelPage extends ConsumerWidget {
               ],
             ),
           ),
-        ),
-        SettingsSwitchRow(
-          title: l10n.settingsFollowLocation,
-          hint: travel.travelMode
-              ? l10n.settingsFollowLocationHint
-              : l10n.followNeedsTravel,
-          value: travel.followLocation,
-          onChanged: travel.travelMode
-              ? (on) => _setFollow(context, ref, on)
-              : null,
         ),
         SettingsLinkRow(
           title: l10n.inFlightHelpTitle,
