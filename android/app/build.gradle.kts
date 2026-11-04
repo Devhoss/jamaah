@@ -15,7 +15,34 @@ val brandingProps = Properties().apply {
 }
 val brandingApplicationId = brandingProps.getProperty("applicationId", "dev.jamaah.app")
 
+// Release signing (Option A, 2026-11-04). The keystore lives outside every
+// repo (E:/dev/keys/jamaah-release.jks) and reaches the build through the
+// untracked android/key.properties (gitignored, like keytool artifacts and
+// *.jks). When key.properties is absent — CI, another machine — the build
+// falls back to debug signing so `flutter run --release` keeps working; a
+// release build signed with the debug key can only ever be handed out as a
+// clearly-labelled test artifact, never as a release.
+val releaseSigning = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hasReleaseSigning = releaseSigning.getProperty("storeFile") != null
+
 android {
+    if (hasReleaseSigning) {
+        signingConfigs {
+            create("release") {
+                // storeType before storeFile: PKCS12 keystores are read by
+                // type, not by content sniff.
+                storeType = releaseSigning.getProperty("storeType", "PKCS12")
+                storeFile = file(releaseSigning.getProperty("storeFile"))
+                storePassword = releaseSigning.getProperty("storePassword")
+                keyAlias = releaseSigning.getProperty("keyAlias")
+                keyPassword = releaseSigning.getProperty("keyPassword")
+            }
+        }
+    }
+
     namespace = brandingApplicationId
     compileSdk = flutter.compileSdkVersion
     // MACHINE WORKAROUND — keep this uncommitted (it never belongs in history).
@@ -46,9 +73,11 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Signed with the release key when key.properties is present; the
+            // debug-key fallback keeps `flutter run --release` working on
+            // machines without the keystore (see the signing comment above).
+            signingConfig = if (hasReleaseSigning) signingConfigs.getByName("release")
+                else signingConfigs.getByName("debug")
         }
     }
 }
