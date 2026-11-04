@@ -13,12 +13,28 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /** Bounded native lifecycle history shared by the foreground and refresh engines. */
 object NativeDiagnostics {
     private const val PREFS = "jamaah_diagnostics_native"
     private const val KEY_EVENTS = "events"
+    // Compresses a record burst (a fired adhan emits ~18 events within ~150 ms)
+    // into one buffer write instead of a full-history rewrite per event.
+    private const val PERSIST_DELAY_MS = 250L
     private val lock = Any()
+    private val history = DiagnosticHistory(maxEvents = NativeEventRetention.MAX_EVENTS)
+    private var loaded = false
+    private var persistPending = false
+    private val persistExecutor = Executors.newSingleThreadScheduledExecutor { runnable ->
+        Thread(runnable, "jamaah-diagnostics-persist").apply { isDaemon = true }
+    }
+    private val timestampFormat: SimpleDateFormat by lazy {
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+    }
 
     fun record(context: Context, event: String, values: Map<String, Any?> = emptyMap()) {
         // Stamped before the lock: a record whose turn comes late would otherwise
@@ -27,50 +43,72 @@ object NativeDiagnostics {
         // long enough to matter.
         val wallSoonest = Date()
         val lockEntered = System.nanoTime()
-        synchronized(lock) {
-            try {
-                val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                val current = runCatching { JSONArray(prefs.getString(KEY_EVENTS, "[]")) }
-                    .getOrElse { JSONArray() }
-                val retained = (0 until current.length()).mapNotNull { i ->
-                    current.optJSONObject(i)
-                }.toMutableList()
-                val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-                    timeZone = TimeZone.getTimeZone("UTC")
-                }.format(wallSoonest)
-                val lockWait = (System.nanoTime() - lockEntered) / 1_000_000
-                val entry = JSONObject().put("at", timestamp).put("event", event)
-                if (lockWait >= 100) entry.put("recordLockWaitMs", lockWait)
-                values.forEach { (key, value) -> if (value != null) entry.put(key, value) }
-                val alarmId = (values["alarmId"] as? Number)?.toInt()
-                    ?: (values["notificationId"] as? Number)?.toInt()
-                    ?: (values["id"] as? Number)?.toInt()
-                val correlationId = values["correlationId"] as? String
-                    ?: alarmId?.let { "notification_$it" }
-                if (correlationId != null) entry.put("correlationId", correlationId)
-                val candidates = retained + entry
-                val indices = NativeEventRetention.retainedIndices(
-                    candidates.map { it.optString("event") },
+        try {
+            synchronized(lock) {
+                ensureHistoryLoaded(context)
+                val lockWaitMs = ((System.nanoTime() - lockEntered) / 1_000_000).toInt()
+                history.append(
+                    at = timestampFormat.format(wallSoonest),
+                    event = event,
+                    lockWaitMs = if (lockWaitMs >= 100) lockWaitMs else null,
+                    values = values,
                 )
-                val next = JSONArray()
-                indices.forEach { index -> next.put(candidates[index]) }
-                prefs.edit().putString(KEY_EVENTS, next.toString()).apply()
-            } catch (_: Exception) {
-                // Diagnostics must never interrupt an alarm or audio playback.
+                schedulePersistLocked(context)
             }
+        } catch (_: Exception) {
+            // Diagnostics must never interrupt an alarm or audio playback.
         }
     }
 
     fun events(context: Context): List<Map<String, Any?>> = synchronized(lock) {
-        val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(KEY_EVENTS, "[]") ?: "[]"
+        ensureHistoryLoaded(context)
+        history.all()
+    }
+
+    /** Loads the stored buffer exactly once per process; afterwards the
+     *  in-memory history is authoritative and storage is read never again. */
+    private fun ensureHistoryLoaded(context: Context) {
+        if (loaded) return
+        loaded = true
         runCatching {
+            val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString(KEY_EVENTS, "[]") ?: "[]"
             val array = JSONArray(raw)
-            (0 until array.length()).mapNotNull { i ->
-                val item = array.optJSONObject(i) ?: return@mapNotNull null
-                item.keys().asSequence().associateWith { key -> item.opt(key) }
+            for (i in 0 until array.length()) {
+                val item = array.optJSONObject(i) ?: continue
+                val entry = LinkedHashMap<String, Any?>()
+                for (key in item.keys()) entry[key] = item.opt(key)
+                history.restore(entry)
             }
-        }.getOrDefault(emptyList())
+        }.getOrNull()
+    }
+
+    private fun schedulePersistLocked(context: Context) {
+        if (persistPending) return
+        persistPending = true
+        val appContext = context.applicationContext
+        persistExecutor.schedule(
+            { persist(appContext) },
+            PERSIST_DELAY_MS,
+            TimeUnit.MILLISECONDS,
+        )
+    }
+
+    private fun persist(context: Context) {
+        // Cleared before snapshotting so any record arriving during the
+        // serialization schedules its own follow-up persist.
+        val json = synchronized(lock) {
+            persistPending = false
+            JSONArray().apply {
+                for (entry in history.snapshot()) put(JSONObject(entry))
+            }.toString()
+        }
+        try {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit().putString(KEY_EVENTS, json).apply()
+        } catch (_: Exception) {
+            // Diagnostics must never interrupt an alarm or audio playback.
+        }
     }
 
     fun environment(context: Context): Map<String, Any?> {
