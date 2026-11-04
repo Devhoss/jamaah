@@ -56,4 +56,40 @@ void main() {
     expect(result.single['source'], 'flutter');
     expect(result.single, isNot(contains('displayed')));
   });
+
+  test('delivery summary counts measured alarms and reports worst deltas', () {
+    final summary = deliverySummary([
+      {
+        'at': '2026-10-29T01:42:42Z',
+        'event': 'adhan_alarm_receiver_fired',
+        'entryDeltaMs': 222000, // delivered late: 3m42s, the OnePlus report
+      },
+      {
+        'at': '2026-10-28T01:39:02Z',
+        'event': 'adhan_alarm_receiver_fired',
+        'entryDeltaMs': -1800, // delivered a touch early
+      },
+      // Not a fired event: never measured.
+      {
+        'at': '2026-10-28T01:38:59Z',
+        'event': 'adhan_alarm_receiver_entered',
+        'entryDeltaMs': 999999,
+      },
+    ]);
+
+    expect(summary, {
+      'alarms': 2,
+      'maxLateMs': 222000,
+      'maxEarlyMs': -1800,
+      'lastDeltaMs': 222000, // newest by 'at', not list position
+    });
+  });
+
+  test('delivery summary with nothing measured yet says so quietly', () {
+    expect(deliverySummary(const []), {'alarms': 0});
+    expect(deliverySummary(null), {'alarms': 'unknown'});
+    expect(deliverySummary([
+      {'at': '2026-10-29T01:42:42Z', 'event': 'adhan_alarm_receiver_fired'},
+    ]), {'alarms': 0}, reason: 'a receiver event without a delta is not evidence of delivery');
+  });
 }

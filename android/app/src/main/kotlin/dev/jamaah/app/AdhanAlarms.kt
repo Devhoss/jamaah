@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -165,6 +166,26 @@ object AdhanAlarms {
         }
     }
 
+    /**
+     * Adds one extra alarm to the stored set and registers it (debug builds
+     * only): the tester's own Adhan, minutes away, through the very same
+     * store, alarm registration and service as a real one, to measure how
+     * the phone delivers alarms. The next full replacement (Dart sync)
+     * removes it again — straight back to the plan.
+     */
+    fun addTest(context: Context, alarm: AdhanAlarm) = synchronized(lock) {
+        val alarms = storedUnlocked(context)
+        if (alarms.none { it.id == alarm.id }) {
+            saveUnlocked(context, alarms + alarm)
+            NativeDiagnostics.record(context, "adhan_alarm_test_scheduled", mapOf(
+                "notificationId" to alarm.id,
+                "correlationId" to "notification_${alarm.id}",
+                "scheduledAtEpochMillis" to alarm.atMillis,
+            ))
+            register(context, alarm)
+        }
+    }
+
     /** Puts the stored alarms back after a reboot or an app update. */
     fun restore(context: Context) = synchronized(lock) {
         val future = storedUnlocked(context).filter { it.atMillis > System.currentTimeMillis() }
@@ -249,18 +270,40 @@ object AdhanAlarms {
         NativeDiagnostics.record(context, "adhan_alarm_registration_requested", diagnostic)
         if (exact) {
             try {
-                manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
-                NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf("mode" to "exact"))
+                // An alarm-clock alarm (2026-10-31): Android treats it like the
+                // user's own clock, rising above OEM battery batching that
+                // delivered exact alarms minutes late on a OnePlus (2026-10-30
+                // report). The show entry opens the app, like any alarm clock's.
+                manager.setAlarmClock(
+                    AlarmManager.AlarmClockInfo(alarm.atMillis, showIntent(context, alarm.id)),
+                    intent,
+                )
+                NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf(
+                    "mode" to "alarm_clock",
+                    "schedulingApi" to "AlarmManager.setAlarmClock",
+                ))
             } catch (error: SecurityException) {
                 try {
-                    manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
+                    manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
                     NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf(
                         "exactCapability" to false,
-                        "mode" to "inexact_fallback",
-                        "fallbackReason" to "exact_access_revoked_during_registration",
+                        "mode" to "exact_fallback",
+                        "fallbackReason" to "alarm_clock_rejected_during_registration",
                     ))
+                } catch (fallbackError: SecurityException) {
+                    try {
+                        manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, intent)
+                        NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf(
+                            "exactCapability" to false,
+                            "mode" to "inexact_fallback",
+                            "fallbackReason" to "exact_timing_revoked_during_registration",
+                        ))
+                    } catch (finalError: Exception) {
+                        recordRegistrationFailure(context, diagnostic, finalError, "inexact_fallback_failed")
+                        throw finalError
+                    }
                 } catch (fallbackError: Exception) {
-                    recordRegistrationFailure(context, diagnostic, fallbackError, "inexact_fallback_failed")
+                    recordRegistrationFailure(context, diagnostic, fallbackError, "exact_fallback_failed")
                     throw fallbackError
                 }
             }
@@ -270,6 +313,17 @@ object AdhanAlarms {
             NativeDiagnostics.record(context, "adhan_alarm_registration_completed", diagnostic + mapOf("mode" to "inexact"))
         }
     }
+
+    /** What tapping the alarm-clock entry in the system UI opens: the app itself. */
+    private fun showIntent(context: Context, id: Int): PendingIntent? =
+        context.packageManager.getLaunchIntentForPackage(context.packageName)?.let { launch ->
+            PendingIntent.getActivity(
+                context,
+                id,
+                launch,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
 
     private fun recordRegistrationFailure(
         context: Context,
@@ -302,10 +356,18 @@ object AdhanAlarms {
 /** Fires at an Adhan time and hands it to [AdhanService]. */
 class AdhanAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // First stamps: the moment the phone handed this alarm over. The
+        // difference against the planned instant is the delivery lateness —
+        // the OnePlus report's whole question (2026-10-30) — measured on the
+        // app's side, not inferred from a later log write.
+        val entryWall = System.currentTimeMillis()
+        val entryUptime = SystemClock.elapsedRealtime()
         NativeDiagnostics.record(context, "adhan_alarm_receiver_entered", mapOf(
             "action" to intent.action,
             "hasAlarmId" to intent.hasExtra(EXTRA_ID),
             "source" to "AdhanAlarmReceiver",
+            "entryWallClockMillis" to entryWall,
+            "entryUptimeMillis" to entryUptime,
         ))
         val id = intent.getIntExtra(EXTRA_ID, -1)
         NativeDiagnostics.record(context, "adhan_alarm_receiver_id_validated", mapOf(
@@ -343,6 +405,10 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
             "prayer" to alarm.prayer,
             "syncId" to alarm.syncId,
             "scheduledAtEpochMillis" to alarm.atMillis,
+            // Positive: the phone delivered it after the planned instant. Sticky
+            // on both events so one export answers "did the alarm arrive on
+            // time" (AGENTS.md battery-optimisation honesty, 2026-10-30).
+            "entryDeltaMs" to (entryWall - alarm.atMillis),
         ))
         if (!validKind) {
             // A kind that is not one of the planner's own is a corrupt payload:
@@ -368,6 +434,7 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
             "prayer" to alarm.prayer,
             "syncId" to alarm.syncId,
             "scheduledAtEpochMillis" to alarm.atMillis,
+            "entryDeltaMs" to (System.currentTimeMillis() - alarm.atMillis),
         ))
         try {
             val evidence = mapOf<String, Any?>(

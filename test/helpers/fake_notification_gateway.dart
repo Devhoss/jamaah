@@ -133,6 +133,7 @@ class FakeNotificationGateway implements NotificationGateway {
               'kind': item.planned.kind.name,
             }),
           ),
+        ...testAdhans,
       ];
 
   @override
@@ -140,6 +141,33 @@ class FakeNotificationGateway implements NotificationGateway {
 
   @override
   Future<bool> canUseFullScreen() async => fullScreenAllowed;
+
+  /// Battery-optimisation state the fake "reports"; null = cannot be said.
+  bool? batteryExempt = true;
+
+  @override
+  Future<bool?> batteryOptimizationExempt() async => batteryExempt;
+
+  /// Test adhans the page asked to schedule ("schedule a test adhan"), kept
+  /// as pending readbacks the way the native store would list them.
+  final testAdhans = <PendingItem>[];
+
+  @override
+  Future<void> scheduleTestAdhan({
+    required DateTime at,
+    required String title,
+    String body = '',
+    String timeLabel = '',
+  }) async {
+    testAdhans.add(
+      PendingItem(
+        id: testAdhans.length + 900_000,
+        title: title,
+        body: body,
+        payload: jsonEncode({'at': at.toUtc().toIso8601String(), 'kind': 'adhan'}),
+      ),
+    );
+  }
 
   /// Notifications shown immediately ("send a test notification").
   final shownNow = <ScheduledItem>[];

@@ -21,6 +21,12 @@ object NativeDiagnostics {
     private val lock = Any()
 
     fun record(context: Context, event: String, values: Map<String, Any?> = emptyMap()) {
+        // Stamped before the lock: a record whose turn comes late would otherwise
+        // inherit the queue's time and smear the whole receiver chain onto one
+        // timestamp (2026-10-30). [recordLockWaitMs] shows the wait when it was
+        // long enough to matter.
+        val wallSoonest = Date()
+        val lockEntered = System.nanoTime()
         synchronized(lock) {
             try {
                 val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -31,8 +37,10 @@ object NativeDiagnostics {
                 }.toMutableList()
                 val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
                     timeZone = TimeZone.getTimeZone("UTC")
-                }.format(Date())
+                }.format(wallSoonest)
+                val lockWait = (System.nanoTime() - lockEntered) / 1_000_000
                 val entry = JSONObject().put("at", timestamp).put("event", event)
+                if (lockWait >= 100) entry.put("recordLockWaitMs", lockWait)
                 values.forEach { (key, value) -> if (value != null) entry.put(key, value) }
                 val alarmId = (values["alarmId"] as? Number)?.toInt()
                     ?: (values["notificationId"] as? Number)?.toInt()

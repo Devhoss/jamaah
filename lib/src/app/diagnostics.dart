@@ -243,6 +243,9 @@ class Diagnostics {
             reconciliationCount(native, 'timestampMismatches'),
       },
       'recentReceiverPlaybackEvidence': lifecycle,
+      // How the phone delivered the native alarm-clock Adhans (2026-10-31):
+      // the receiver's own entry stamps, not inferred from later log writes.
+      'delivery': deliverySummary(nativeEvents),
       'deliveryLimit': 'Platform scheduling and pending state do not prove that ScheduledNotificationReceiver posted or displayed an alert. Android active-notification snapshots show state only when queried; they cannot confirm heads-up/banner presentation.',
     };
   }

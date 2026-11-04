@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -176,5 +177,64 @@ void main() {
         .length;
     expect(titles, gateway.scheduled.length);
     expect(gateway.scheduled, isNotEmpty);
+  });
+
+  testApp('battery state is said plainly when optimisation is lifted', (
+    tester,
+  ) async {
+    gateway.enabled = true;
+    await open(tester);
+    expect(find.text(t.scheduledBatteryExempt), findsOneWidget);
+  });
+
+  testApp('battery state warns while optimisation still applies', (tester) async {
+    gateway.enabled = true;
+    gateway.batteryExempt = false;
+    await open(tester);
+    expect(find.text(t.scheduledBatteryRestricted), findsOneWidget);
+    expect(find.text(t.scheduledBatteryExempt), findsNothing);
+  });
+
+  testApp('battery state stays silent when the phone cannot be asked', (
+    tester,
+  ) async {
+    gateway.enabled = true;
+    gateway.batteryExempt = null;
+    await open(tester);
+    expect(find.text(t.scheduledBatteryExempt), findsNothing);
+    expect(find.text(t.scheduledBatteryRestricted), findsNothing);
+  });
+
+  testApp('a test adhan schedules one real alarm two minutes out', (
+    tester,
+  ) async {
+    // Debug builds (widget tests are one) show the delivery- check button.
+    gateway.enabled = true;
+    // A tall surface, so the delivery-check section is on screen: this test
+    // is about the alarm, not the scroll.
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await open(tester);
+
+    await tester.tap(find.text(t.scheduledTestAdhanButton));
+    await tester.pumpAndSettle();
+
+    expect(gateway.testAdhans, hasLength(1));
+    final payload =
+        jsonDecode(gateway.testAdhans.single.payload!) as Map<String, Object?>;
+    final at = DateTime.parse(payload['at']! as String);
+    final now = DateTime.now();
+    expect(
+      at.isAfter(now.add(const Duration(minutes: 1, seconds: 30))),
+      isTrue,
+      reason: 'far enough out to measure delivery, not so far one forgets it',
+    );
+    expect(
+      at.isBefore(now.add(const Duration(minutes: 2, seconds: 30))),
+      isTrue,
+    );
+    // The alarm joins the list, the way the native store reports it.
+    expect(find.text(t.scheduledTestAdhanTitle), findsOneWidget);
   });
 }

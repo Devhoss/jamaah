@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,11 +39,17 @@ class _Snapshot {
     required this.pending,
     required this.enabled,
     required this.exact,
+    required this.batteryExempt,
   });
 
   final List<PendingItem> pending;
   final bool enabled;
   final bool exact;
+
+  /// True when Android lifted battery optimisation for the app, false when it
+  /// still applies it (Doze may hold alarms), and null when the platform
+  /// cannot say — the screen then says nothing rather than guessing.
+  final bool? batteryExempt;
 }
 
 class _ScheduledNotificationsPageState
@@ -79,6 +86,7 @@ class _ScheduledNotificationsPageState
       pending: [...await gateway.pending(), ...await gateway.adhanAlarms()],
       enabled: await gateway.notificationsEnabled(),
       exact: await gateway.canScheduleExact(),
+      batteryExempt: await gateway.batteryOptimizationExempt(),
     );
     if (!mounted) return;
     final gained =
@@ -125,6 +133,7 @@ class _ScheduledNotificationsPageState
         pending: pending,
         enabled: data.enabled,
         exact: data.exact,
+        batteryExempt: data.batteryExempt,
       ),
     );
   }
@@ -137,6 +146,29 @@ class _ScheduledNotificationsPageState
   void _allowExact() => unawaited(
     ref.read(notificationPermissionActionsProvider).requestExactAlarms(),
   );
+
+  /// A delivery check scheduling itself (debug or TEST_ADHAN builds only):
+  /// one alarm-clock Adhan through the very same native path as a prayer
+  /// alert, to measure how this phone hands its alarms over (the 2026-10-30
+  /// report showed minutes of lateness on one phone).
+  static const _testAdhan = kDebugMode || bool.fromEnvironment('TEST_ADHAN');
+
+  Future<void> _scheduleTestAdhan() async {
+    final l10n = AppLocalizations.of(context);
+    // Two minutes: squarely past Doze and batching windows, near enough that
+    // nobody forgets to watch.
+    final at = DateTime.now().add(const Duration(minutes: 2));
+    final label = ClockFormat.of(context).time(LocalTime.of(at.hour, at.minute));
+    await ref
+        .read(notificationGatewayProvider)
+        .scheduleTestAdhan(
+          at: at,
+          title: l10n.scheduledTestAdhanTitle,
+          body: l10n.scheduledTestAdhanBody(label),
+          timeLabel: label,
+        );
+    await _reload();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -196,6 +228,18 @@ class _ScheduledNotificationsPageState
         for (final (i, item) in items.indexed)
           _PendingRow(item: item, at: _at(item), divider: i < items.length - 1),
       const SizedBox(height: 18),
+      // The battery checkup, as a state rather than advice only (AGENTS.md):
+      // the line above the hint says what the phone is doing right now, and
+      // warns only when there is something to warn about.
+      if (data.batteryExempt != null) ...[
+        SettingsNote(
+          data.batteryExempt!
+              ? l10n.scheduledBatteryExempt
+              : l10n.scheduledBatteryRestricted,
+          top: 0,
+        ),
+        const SizedBox(height: 8),
+      ],
       SettingsNote(l10n.scheduledBatteryHint, top: 0),
       const SizedBox(height: 10),
       Wrap(
@@ -212,6 +256,15 @@ class _ScheduledNotificationsPageState
           ),
         ],
       ),
+      if (_testAdhan) ...[
+        const SizedBox(height: 18),
+        SettingsNote(l10n.scheduledTestAdhanNote, top: 0),
+        const SizedBox(height: 10),
+        SettingsButton(
+          label: l10n.scheduledTestAdhanButton,
+          onPressed: _scheduleTestAdhan,
+        ),
+      ],
     ];
   }
 

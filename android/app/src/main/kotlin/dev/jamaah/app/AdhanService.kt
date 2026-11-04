@@ -49,6 +49,8 @@ class AdhanService : Service(), SensorEventListener {
     private var faceDownSince = 0L
     private var current: AdhanAlarm? = null
     private var session: MediaSession? = null
+    /** When this alarm's start command began: the zero for service-side deltas. */
+    private var commandStartedUptime = 0L
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -57,6 +59,7 @@ class AdhanService : Service(), SensorEventListener {
             finish(
                 keepAlert = false,
                 dismissActivity = intent?.getBooleanExtra(EXTRA_DISMISS_ACTIVITY, true) == true,
+                stopReason = if (intent?.action == ACTION_STOP) "stop_action" else "dismiss_action",
             )
             return START_NOT_STICKY
         }
@@ -79,6 +82,7 @@ class AdhanService : Service(), SensorEventListener {
             return START_NOT_STICKY
         }
         NativeDiagnostics.record(this, "adhan_service_entered", alarmEvidence(alarm))
+        commandStartedUptime = SystemClock.elapsedRealtime()
         ensureChannel(this)
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val playing = current
@@ -175,7 +179,7 @@ class AdhanService : Service(), SensorEventListener {
                 "errorMessage" to error.message,
                 "errorCode" to error.javaClass.simpleName,
             ))
-            finish(keepAlert = true, dismissActivity = true)
+            finish(keepAlert = true, dismissActivity = true, stopReason = "start_failed")
         }
         return START_NOT_STICKY
     }
@@ -226,6 +230,10 @@ class AdhanService : Service(), SensorEventListener {
             "alarmStreamVolume" to audio.getStreamVolume(AudioManager.STREAM_ALARM),
             "alarmStreamMaxVolume" to audio.getStreamMaxVolume(AudioManager.STREAM_ALARM),
             "notificationStreamVolume" to audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION),
+            // Receiver → sound decision, inside the app. The gap between this
+            // and the receiver's entry delta shows where the OnePlus lateness
+            // lived (2026-10-30): the phone's delivery, or the app's start-up.
+            "startToRouteMs" to (SystemClock.elapsedRealtime() - commandStartedUptime),
         ))
         // A full-screen page stays up for at least a minute, even when the sound
         // is short (or there is none), so it can be seen and dismissed.
@@ -285,7 +293,7 @@ class AdhanService : Service(), SensorEventListener {
             // full-screen alert stay visible for its minimum display time,
             // then complete it through minimumEnd like a short recording.
             soundDone = true
-            if (!alarm.fullScreen) finish(keepAlert = true, dismissActivity = true)
+            if (!alarm.fullScreen) finish(keepAlert = true, dismissActivity = true, stopReason = "silent_no_sound")
             startFlipWatch()
             return
         }
@@ -297,6 +305,7 @@ class AdhanService : Service(), SensorEventListener {
             "scheduledAtEpochMillis" to alarm.atMillis,
             "kind" to alarm.kind,
             "ringInSilent" to alarm.ringInSilent,
+            "startToPlaybackMs" to (SystemClock.elapsedRealtime() - commandStartedUptime),
         ))
         fun attributes() = AudioAttributes.Builder()
             .setUsage(usage)
@@ -313,7 +322,7 @@ class AdhanService : Service(), SensorEventListener {
                 setOnCompletionListener { soundEnded() }
                 setOnErrorListener { _, what, extra ->
                     NativeDiagnostics.record(this@AdhanService, "adhan_playback_failed", alarmEvidence(alarm) + AdhanPlaybackDiagnostics.failureDetails("media_error", errorCode = what, extraCode = extra))
-                    finish(keepAlert = true, dismissActivity = true); true
+                    finish(keepAlert = true, dismissActivity = true, stopReason = "playback_error"); true
                 }
                 prepare()
                 start()
@@ -324,7 +333,7 @@ class AdhanService : Service(), SensorEventListener {
             player?.release()
             player = null
             if (!fromFile) {
-                finish(keepAlert = true, dismissActivity = true)
+                finish(keepAlert = true, dismissActivity = true, stopReason = "playback_prepare_failed")
                 return
             }
             // The user's file would not play (moved, damaged, an odd format):
@@ -336,7 +345,7 @@ class AdhanService : Service(), SensorEventListener {
                     setOnCompletionListener { soundEnded() }
                     setOnErrorListener { _, what, extra ->
                         NativeDiagnostics.record(this@AdhanService, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "fallback_media_error", "errorCode" to what, "extraCode" to extra))
-                        finish(keepAlert = true, dismissActivity = true)
+                        finish(keepAlert = true, dismissActivity = true, stopReason = "fallback_playback_error")
                         true
                     }
                     prepare()
@@ -345,7 +354,7 @@ class AdhanService : Service(), SensorEventListener {
                 }
             } catch (e2: Exception) {
                 NativeDiagnostics.record(this, "adhan_playback_failed", mapOf("notificationId" to alarm.id, "reason" to "fallback_prepare_or_start_failed", "errorClass" to e2.javaClass.simpleName, "errorMessage" to e2.message, "errorCode" to e2.javaClass.simpleName))
-                finish(keepAlert = true, dismissActivity = true)
+                finish(keepAlert = true, dismissActivity = true, stopReason = "fallback_prepare_failed")
                 return
             }
         }
@@ -363,7 +372,7 @@ class AdhanService : Service(), SensorEventListener {
      * session goes when the Adhan stops, and the keys work as usual again.
      */
     private fun startVolumeKeyWatch() {
-        val stop = { handler.post { finish(keepAlert = false, dismissActivity = false) } }
+        val stop = { handler.post { finish(keepAlert = false, dismissActivity = false, stopReason = "hardware_button") } }
         session = MediaSession(this, "JamaahAdhan").apply {
             setPlaybackToRemote(
                 object : VolumeProvider(VOLUME_CONTROL_RELATIVE, 1, 1) {
@@ -438,20 +447,13 @@ class AdhanService : Service(), SensorEventListener {
 
     /** Ends a sound that has a time limit (a reminder: 30 seconds). */
     private val capEnd = Runnable {
-        current?.let {
-            NativeDiagnostics.record(
-                this,
-                "adhan_playback_interrupted",
-                mapOf("notificationId" to it.id, "reason" to "maximum_duration_reached"),
-            )
-        }
-        finish(keepAlert = true, dismissActivity = true)
+        finish(keepAlert = true, dismissActivity = true, stopReason = "maximum_duration_reached")
     }
     private var minimumPassed = false
     private var soundDone = false
     private val minimumEnd = Runnable {
         minimumPassed = true
-        if (soundDone) finish(keepAlert = true, dismissActivity = true)
+        if (soundDone) finish(keepAlert = true, dismissActivity = true, stopReason = "minimum_display_passed")
     }
 
     /** The recording ended: finish, unless a full-screen page is still due its minute. */
@@ -459,7 +461,7 @@ class AdhanService : Service(), SensorEventListener {
         current?.let { NativeDiagnostics.record(this, "adhan_playback_completed", alarmEvidence(it)) }
         soundDone = true
         if (current?.fullScreen != true || minimumPassed) {
-            finish(keepAlert = true, dismissActivity = true)
+            finish(keepAlert = true, dismissActivity = true, stopReason = "sound_ended")
         }
     }
 
@@ -484,7 +486,7 @@ class AdhanService : Service(), SensorEventListener {
             if (faceDownSince == 0L) faceDownSince = now
             // Held face down for most of a second, not a phone jostled in a bag.
             if (now - faceDownSince > 700) {
-                finish(keepAlert = false, dismissActivity = false)
+                finish(keepAlert = false, dismissActivity = false, stopReason = "face_down")
             }
         } else {
             faceDownSince = 0L
@@ -505,11 +507,23 @@ class AdhanService : Service(), SensorEventListener {
      * kept alert must therefore stay under the player's id: DETACH releases
      * the foreground service's ownership without taking the notification
      * away, and the fresh content lands in the same slot.
+     *
+     * [stopReason] names who asked: the reason the diagnostics record of a cut
+     * -off playback carries — without it, several places shared one
+     * "service_stopped" label and a report could not tell a user's stop from
+     * the system's (2026-10-30 Fajr report).
      */
-    private fun finish(keepAlert: Boolean = false, dismissActivity: Boolean = true) {
+    private fun finish(
+        keepAlert: Boolean = false,
+        dismissActivity: Boolean = true,
+        stopReason: String,
+    ) {
         val alarm = current
         if (alarm != null && player?.isPlaying == true) {
-            NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(alarm) + mapOf("reason" to "service_stopped"))
+            NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(alarm) + mapOf(
+                "reason" to stopReason,
+                "serviceElapsedMs" to (SystemClock.elapsedRealtime() - commandStartedUptime),
+            ))
         }
         release()
         current = null
@@ -654,6 +668,7 @@ class AdhanService : Service(), SensorEventListener {
         current?.takeIf { player?.isPlaying == true }?.let { alarm ->
             NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(alarm) + mapOf(
                 "reason" to "service_destroyed",
+                "serviceElapsedMs" to (SystemClock.elapsedRealtime() - commandStartedUptime),
             ))
         }
         release()

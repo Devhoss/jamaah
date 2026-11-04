@@ -58,3 +58,38 @@ DateTime _eventTime(Map<String, Object?> event) {
       ? DateTime.tryParse(value) ?? DateTime(0)
       : DateTime(0);
 }
+
+/// Native alarm delivery, in one glance: how far the phone's handover came
+/// off the planned instant, measured by the receiver itself (`entryDeltaMs` on
+/// `adhan_alarm_receiver_fired`, stamped at entry — 2026-10-31). A few minutes
+/// late on a phone that batches alarms is the OnePlus report, answered.
+///
+/// Returns alarms (how many were measured), the worst lateness and worst
+/// earliness in milliseconds, and the last delta; nulls when nothing has been
+/// measured yet. Works with events in either age order — sorted by time.
+Map<String, Object?> deliverySummary(Object? nativeEvents) {
+  if (nativeEvents is! Iterable) return const {'alarms': 'unknown'};
+  final measured = <(DateTime, int)>[];
+  for (final raw in nativeEvents) {
+    if (raw is! Map) continue;
+    final event = Map<String, Object?>.from(raw);
+    if (event['event'] != 'adhan_alarm_receiver_fired') continue;
+    final delta = event['entryDeltaMs'];
+    if (delta is! num) continue;
+    measured.add((_eventTime(event), delta.toInt()));
+  }
+  if (measured.isEmpty) return const {'alarms': 0};
+  measured.sort((a, b) => a.$1.compareTo(b.$1));
+  int maxLate = 0;
+  int maxEarly = 0;
+  for (final (_, delta) in measured) {
+    maxLate = delta > maxLate ? delta : maxLate;
+    maxEarly = delta < maxEarly ? delta : maxEarly;
+  }
+  return {
+    'alarms': measured.length,
+    'maxLateMs': maxLate,
+    'maxEarlyMs': maxEarly,
+    'lastDeltaMs': measured.last.$2,
+  };
+}

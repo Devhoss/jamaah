@@ -382,6 +382,35 @@ class LocalNotificationsGateway implements NotificationGateway {
       _adhan.invokeMethod('openFullScreenSettings');
 
   @override
+  Future<bool?> batteryOptimizationExempt() async {
+    try {
+      return await _adhan.invokeMethod<bool>('batteryOptimizationExempt');
+    } on Object {
+      // An older native side, or no channel: the state cannot be said. The
+      // screen keeps quiet rather than asserting either way.
+      return null;
+    }
+  }
+
+  @override
+  Future<void> scheduleTestAdhan({
+    required DateTime at,
+    required String title,
+    String body = '',
+    String timeLabel = '',
+  }) => _adhan.invokeMethod('scheduleTestAdhan', {
+    'at': at.millisecondsSinceEpoch,
+    'title': title,
+    'body': body,
+    'timeLabel': timeLabel,
+    // The delivery check goes down the main path: the user's real settings
+    // would letter it, but a plain full adhan exercises the alarm-clock
+    // registration and the service start, which is the point.
+    'sound': 'full',
+    'vibrate': true,
+  });
+
+  @override
   Future<bool> canScheduleExact() async {
     await _init();
     return await _android?.canScheduleExactNotifications() ?? false;

@@ -104,6 +104,23 @@ abstract interface class NotificationGateway {
   /// Android 14+ lets the user withdraw full-screen alerts.
   Future<bool> canUseFullScreen();
 
+  /// False when Android still applies battery optimisations to the app (Doze
+  /// may hold alarms), true when the user has granted the exemption, and null
+  /// when the platform cannot say (an older native side, or no channel) — the
+  /// UI then keeps quiet instead of claiming either way (AGENTS.md honesty).
+  Future<bool?> batteryOptimizationExempt();
+
+  /// Schedules one extra alarm-clock Adhan, minutes out, through the native
+  /// store, alarm register and service — exactly the path a prayer alert
+  /// takes — to check how this phone delivers alarms. Called only from
+  /// debug or TEST_ADHAN builds; the next full replacement removes it.
+  Future<void> scheduleTestAdhan({
+    required DateTime at,
+    required String title,
+    String body = '',
+    String timeLabel = '',
+  });
+
   /// False when Android denies exact alarms: notifications then use inexact
   /// timing, and the UI must say so (AGENTS.md).
   Future<bool> canScheduleExact();

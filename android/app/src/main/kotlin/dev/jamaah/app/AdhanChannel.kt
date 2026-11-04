@@ -3,6 +3,7 @@ package dev.jamaah.app
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import android.os.SystemClock
@@ -76,6 +77,47 @@ object AdhanChannel {
                     result.success(null)
                 }
                 "canUseFullScreen" -> result.success(AdhanService.canUseFullScreen(context))
+                "scheduleTestAdhan" -> {
+                    // Debug/instrumentation builds only (the Dart side decides:
+                    // kDebugMode or a TEST_ADHAN dart-define): the method
+                    // channel is reachable only from this app's process, so the
+                    // gate cannot be bypassed from outside. One alarm, minutes
+                    // away, through the real store, registration and service —
+                    // to measure this phone's delivery (2026-10-30 report).
+                    val args = call.arguments as? Map<*, *>
+                    val at = (args?.get("at") as? Number)?.toLong()
+                    if (at == null || at < System.currentTimeMillis()) {
+                        result.error("test_adhan_invalid", "at must be a future epoch millis", null)
+                    } else {
+                        try {
+                            val alarm = AdhanAlarm(
+                                id = uniqueTestAlarmId(context, at),
+                                atMillis = at,
+                                title = args["title"] as? String ?: "Test",
+                                body = args["body"] as? String ?: "",
+                                sound = args["sound"] as? String ?: "full",
+                                recording = args["recording"] as? String ?: "",
+                                raw = args["raw"] as? String ?: "",
+                                ringInSilent = args["ringInSilent"] == true,
+                                fullScreen = args["fullScreen"] == true,
+                                vibrate = args["vibrate"] != false,
+                                maxSeconds = (args["maxSeconds"] as? Number)?.toInt() ?: 0,
+                                stopLabel = args["stopLabel"] as? String ?: "Stop",
+                                timeLabel = args["timeLabel"] as? String ?: "",
+                                kind = "adhan",
+                                prayer = "test",
+                            )
+                            AdhanAlarms.addTest(context, alarm)
+                            result.success(mapOf("id" to alarm.id))
+                        } catch (error: Exception) {
+                            result.error("test_adhan_failed", error.javaClass.simpleName, null)
+                        }
+                    }
+                }
+                "batteryOptimizationExempt" -> {
+                    val power = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                    result.success(power.isIgnoringBatteryOptimizations(context.packageName))
+                }
                 "openFullScreenSettings" -> {
                     if (Build.VERSION.SDK_INT >= 34) {
                         context.startActivity(
@@ -90,6 +132,18 @@ object AdhanChannel {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    /**
+     * An id wide of the planner's own: epoch seconds, unique per invocation;
+     * two calls in the same second (or an id already in the store) walk
+     * forward until free, so the second alarm is not silently swallowed.
+     */
+    private fun uniqueTestAlarmId(context: Context, at: Long): Int {
+        val existing = AdhanAlarms.stored(context).map { it.id }.toSet()
+        var id = ((at / 1000L) % Int.MAX_VALUE).toInt()
+        while (id in existing) id++
+        return id
     }
 
     private fun acquireSyncLock(context: Context): String? = synchronized(syncLeaseLock) {
