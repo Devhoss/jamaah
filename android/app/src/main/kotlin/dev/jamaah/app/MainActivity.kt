@@ -5,6 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.GeomagneticField
 import android.os.Build
+import android.os.Bundle
+import android.os.SystemClock
+import android.view.View
+import android.view.ViewTreeObserver
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -13,6 +17,32 @@ import java.security.MessageDigest
 class MainActivity : FlutterActivity() {
     private var pendingLocation: MethodChannel.Result? = null
     private val soundPicker = SoundPicker(this)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        holdSplashThroughItsAnimation()
+    }
+
+    // Android 12+ drops the platform splash the moment Flutter's first frame
+    // is ready — on a fast cold start that is before the 1 000 ms icon
+    // animation has run, and the story would cut before "you" steps in.
+    // Hold every content frame until the animation's span has elapsed; the
+    // splash then gives way to Flutter's already-prepared first frame. The
+    // cost is at most ~400 ms on a start that would otherwise beat the cut,
+    // nothing on warm starts that begin mid-animation. Decided 2026-11-04.
+    // Animation times live in make_brand.py's SPLASH dict; keep these in step.
+    private fun holdSplashThroughItsAnimation() {
+        val launchedAt = SystemClock.uptimeMillis()
+        val content = findViewById<View>(android.R.id.content)
+        val gate = object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val ready = SystemClock.uptimeMillis() - launchedAt >= SPLASH_ANIMATION_MS
+                if (ready) content.viewTreeObserver.removeOnPreDrawListener(this)
+                return ready
+            }
+        }
+        content.viewTreeObserver.addOnPreDrawListener(gate)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -172,5 +202,9 @@ class MainActivity : FlutterActivity() {
 
     private companion object {
         const val LOCATION_REQUEST = 7301
+
+        // The animated splash's span: make_brand.py's SPLASH asserts its end
+        // exactly here (arch 400, figures 300–680, you 620–1000).
+        const val SPLASH_ANIMATION_MS = 1_000L
     }
 }

@@ -45,6 +45,21 @@ def figure_path(cx, head_r=HEAD_R, body_w=BODY_W):
 # Status-bar icon: all five figures, slimmer, so the gaps survive at 24 dp (~1 dp each).
 STAT_HEAD_R, STAT_BODY_W, STAT_ARCH_W = 2.6, 5.6, 4.5
 
+# Animated splash (Android 12+): the prototype's choreography compressed to the
+# system's ~1 000 ms cut-off — the arch self-draws, four figures pop in 40 ms
+# apart, and you slide in last. splash_targets() asserts the run stays ≤ 1 000:
+# the system drops the splash at the cut, and a half-told story is worse than
+# none. Easing curves use the framework interpolators closest to the
+# prototype's cubic beziers: fast_out_slow_in (draw), overshoot (pop),
+# decelerate_cubic (you).
+SPLASH = {
+    'draw': 400,                          # arch: trimPathEnd 0 -> 1
+    'fig_dur': 260,                       # figures: alpha + scale 0.2 -> 1
+    'fig_offsets': [300, 340, 380, 420],  # 40 ms stagger, left to right
+    'you_start': 620, 'you_dur': 380,     # you: alpha + translateX
+    'you_slide': 14.7,                    # the prototype's 18 px on a 132 px icon
+}                                         # = 13.6 % of the width ≈ 14.7 units on the 108 grid
+
 
 def hexa(h, a=1.0):
     """#RRGGBB -> Android #AARRGGBB."""
@@ -116,6 +131,105 @@ def vd_paths(c1, c2, arch_w, figs, glow, hr=HEAD_R, bw=BODY_W):
     return '\n'.join(out)
 
 
+# ---------------------------------------------------------------- animated splash
+def glow_path(cx=GLOW_C[0], cy=GLOW_C[1], indent='        '):
+    """The glow disc as one path with a radial aapt gradient (as in vd_paths)."""
+    return (f'{indent}<path android:pathData="M{cx - GLOW_R:g},{cy:g} a{GLOW_R:g},{GLOW_R:g} 0 1,0 '
+            f'{2 * GLOW_R:g},0 a{GLOW_R:g},{GLOW_R:g} 0 1,0 {-2 * GLOW_R:g},0 Z">\n'
+            f'{indent}    <aapt:attr name="android:fillColor">\n'
+            f'{indent}        <gradient android:type="radial" android:centerX="{cx:g}" '
+            f'android:centerY="{cy:g}" android:gradientRadius="{GLOW_R:g}">\n'
+            f'{indent}            <item android:offset="0" android:color="{hexa(GLOW, 0.6)}"/>\n'
+            f'{indent}            <item android:offset="1" android:color="{hexa(GLOW, 0.0)}"/>\n'
+            f'{indent}        </gradient>\n'
+            f'{indent}    </aapt:attr>\n'
+            f'{indent}</path>')
+
+
+def vd_groups(c1, c2, arch_w, figs, hr=HEAD_R, bw=BODY_W):
+    """The splash foreground with named layers, so the animated-vector's targets can bind.
+
+    Same geometry and colours as vd_paths; the differences serve the animation:
+    each figure sits in its own group (pivot at the figure's visual centre,
+    where the prototype scales it), and the glow joins the "you" group so it
+    slides in with you, as on the design canvas.
+    """
+    pivot_y = (HEAD_Y - hr + BODY_Y + BODY_H) / 2
+    out = [f'    <path android:name="arch" android:pathData="{ARCH}" android:strokeColor="{c1}" '
+           f'android:strokeWidth="{arch_w:g}" android:strokeLineCap="round" android:strokeLineJoin="round"/>']
+    for i, x in enumerate(figs):
+        out.append(f'    <group android:name="fig{i + 1}" android:pivotX="{x:g}" android:pivotY="{pivot_y:g}">\n'
+                   f'        <path android:fillColor="{c1}" android:pathData="{figure_path(x, hr, bw)}"/>\n'
+                   f'    </group>')
+    out.append(f'    <group android:name="you" android:pivotX="{YOU:g}" android:pivotY="{pivot_y:g}">\n'
+               + glow_path() + '\n'
+               f'        <path android:fillColor="{c2}" android:pathData="{figure_path(YOU, hr, bw)}"/>\n'
+               f'    </group>')
+    return '\n'.join(out)
+
+
+def splash_targets():
+    """<target> animators: the compressed choreography, ending at the 1 000 ms cap."""
+    a = SPLASH
+    ends = [a['draw']] + [f + a['fig_dur'] for f in a['fig_offsets']] + [a['you_start'] + a['you_dur']]
+    assert max(ends) <= 1000, 'animated splash must finish within Android 12\'s ~1 000 ms cut-off'
+
+    def when(offset, duration):
+        return f'android:startOffset="{offset}"\n                android:duration="{duration}"'
+
+    out = [f'''    <target android:name="arch">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="trimPathEnd"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:duration="{a['draw']}"
+                android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>''']
+    for i, off in enumerate(a['fig_offsets']):
+        props = [f'''                <objectAnimator
+                    android:propertyName="alpha"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    {when(off, a['fig_dur'])}
+                    android:interpolator="@android:interpolator/overshoot"/>''']
+        for axis in ('scaleX', 'scaleY'):
+            props.append(f'''                <objectAnimator
+                    android:propertyName="{axis}"
+                    android:valueFrom="0.2"
+                    android:valueTo="1"
+                    {when(off, a['fig_dur'])}
+                    android:interpolator="@android:interpolator/overshoot"/>''')
+        body = '\n'.join(props)
+        out.append(f'''    <target android:name="fig{i + 1}">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+{body}
+            </set>
+        </aapt:attr>
+    </target>''')
+    out.append(f'''    <target android:name="you">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator
+                    android:propertyName="alpha"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    {when(a['you_start'], a['you_dur'])}
+                    android:interpolator="@android:interpolator/decelerate_cubic"/>
+                <objectAnimator
+                    android:propertyName="translateX"
+                    android:valueFrom="{a['you_slide']:g}"
+                    android:valueTo="0"
+                    {when(a['you_start'], a['you_dur'])}
+                    android:interpolator="@android:interpolator/decelerate_cubic"/>
+            </set>
+        </aapt:attr>
+    </target>''')
+    return '\n'.join(out)
+
+
 VD_HEAD = '''<?xml version="1.0" encoding="utf-8"?>
 <!-- Jama’ah icon, Saff + Mihrab (A). Generated by make_brand.py; edit the script, not this file. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -146,6 +260,23 @@ def drawables():
     # the same 2/3 ratio as the launcher, so the foreground geometry fits unchanged.
     write('android/res/drawable/splash_icon.xml',
           VD_HEAD.format(w=288, v=108) + vd_paths(hexa(CREAM), hexa(AMBER), ARCH_W, FIGS, True) + '\n</vector>\n')
+    # Animated splash (Android 12+): the same foreground in named groups, so the
+    # animated-vector's targets can bind. Two files, no nested aapt:attr: a
+    # plain vector (proven compile path, as splash_icon.xml) holds the layers,
+    # and the animated-vector references it and carries the animators inline.
+    write('android/res/drawable/splash_icon_groups.xml',
+          VD_HEAD.format(w=288, v=108).replace(
+              "Jama’ah icon", "Splash icon, named layers for the animated splash") +
+          vd_groups(hexa(CREAM), hexa(AMBER), ARCH_W, FIGS) + '\n</vector>\n')
+    write('android/res/drawable/splash_icon_animated.xml',
+          '''<?xml version="1.0" encoding="utf-8"?>
+<!-- Jama’ah animated splash, Saff + Mihrab (A). Generated by make_brand.py; edit the script, not this file. -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/splash_icon_groups">
+{splash_targets}
+</animated-vector>
+'''.format(splash_targets=splash_targets()))
     # Status bar: white on transparent, the arch and all five figures, slimmer so the gaps survive at 24 dp.
     s = 20 / 58
     tx, ty = 2 - 26 * s, 2 - 22 * s

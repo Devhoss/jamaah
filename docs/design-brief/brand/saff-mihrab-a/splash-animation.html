@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jama’ah · compressed splash (1 000 ms)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F1EC; --ink:#16161C; --ink-soft:#3E3F48; --ink-dim:#5A5B66;
+  --line:#C9C5BC; --chip:#16161C; --chip-ink:#F3F1EC;
+  --splash:#1F2A5E; --cream:#FFF4EA; --amber:#FFC979; --glow:#FFD9A0;
+  --bezel:#1B1C22;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'Instrument Sans',sans-serif;
+  min-height:100vh; display:flex; justify-content:center;
+  padding:52px 32px 64px;
+}
+.page{width:100%; max-width:1080px; display:flex; flex-direction:column; gap:40px}
+
+/* ------------------------------------------------- header */
+header{display:flex; flex-direction:column; gap:6px}
+.kicker{font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim)}
+h1{margin:0; font-family:'Fraunces',serif; font-weight:400; font-size:44px; letter-spacing:-.02em; line-height:1.08}
+.idea{margin:4px 0 0; max-width:780px; font-size:16px; line-height:1.55; color:var(--ink-soft)}
+.idea strong{font-weight:600; color:var(--ink)}
+
+/* ------------------------------------------------- main row */
+.row{display:flex; gap:56px; align-items:flex-start; flex-wrap:wrap}
+
+/* phone mock — from the prototype splash card */
+.phone{
+  position:relative; flex:none; width:250px; height:520px; border-radius:34px;
+  background:var(--splash); display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 0 6px var(--bezel);
+}
+.phone .wordmark{
+  position:absolute; bottom:40px; left:0; right:0; text-align:center;
+  font-family:'Fraunces',serif; font-size:20px; color:rgba(255,246,236,.9);
+}
+.icon-circle{
+  width:132px; height:132px; border-radius:50%; overflow:hidden; flex:none;
+}
+.icon-circle svg{display:block; width:100%; height:100%}
+
+/* ------------------------------------- the animation, compressed */
+/* vars hold unitless milliseconds; calc() turns them into times */
+.stage[data-speed="ship"]{
+  --n-total:1000; --n-cut:1000;
+  --n-arch:0; --n-draw:400;
+  --n-f1:300; --n-f2:340; --n-f3:380; --n-f4:420; --n-fdur:260;
+  --n-you:620; --n-youdur:380;
+}
+.stage[data-speed="proto"]{
+  --n-total:1420; --n-cut:1000;
+  --n-arch:0; --n-draw:520;
+  --n-f1:480; --n-f2:540; --n-f3:600; --n-f4:660; --n-fdur:380;
+  --n-you:800; --n-youdur:620;
+}
+
+@keyframes icDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes icFade{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+@keyframes icJoin{from{opacity:0;transform:translateX(18px)}40%{opacity:1}to{opacity:1;transform:translateX(0)}}
+@keyframes headRun{from{left:0}to{left:100%}}
+
+.stage.play .ic-draw{
+  stroke-dasharray:1;
+  animation:icDraw calc(var(--n-draw)*1ms) cubic-bezier(.65,0,.35,1) calc(var(--n-arch)*1ms) both;
+}
+.stage.play .ic-fade{
+  transform-box:fill-box; transform-origin:center;
+  animation:icFade calc(var(--n-fdur)*1ms) cubic-bezier(.34,1.56,.64,1) both;
+}
+.stage.play .ic-f1{animation-delay:calc(var(--n-f1)*1ms)}
+.stage.play .ic-f2{animation-delay:calc(var(--n-f2)*1ms)}
+.stage.play .ic-f3{animation-delay:calc(var(--n-f3)*1ms)}
+.stage.play .ic-f4{animation-delay:calc(var(--n-f4)*1ms)}
+.stage.play .ic-join-late{
+  transform-box:fill-box; transform-origin:center;
+  animation:icJoin calc(var(--n-youdur)*1ms) cubic-bezier(.22,1,.36,1) calc(var(--n-you)*1ms) both;
+}
+/* playhead: hidden until a run starts; holds at 100 % afterwards */
+.playhead{display:none}
+.stage.play .playhead{
+  display:block;
+  animation:headRun calc(var(--n-total)*1ms) linear both;
+}
+
+/* reduced motion: the splash shows as its final frame */
+.reduced-note{display:none; font-size:13px; color:var(--ink-dim); margin-top:14px}
+@media (prefers-reduced-motion: reduce){
+  .stage.play .ic-draw,.stage.play .ic-fade,.stage.play .ic-join-late{animation:none}
+  .stage.play .playhead{display:none}
+  .reduced-note{display:block}
+}
+
+/* ------------------------------------------------- side column */
+.side{flex:1; min-width:330px; display:flex; flex-direction:column; gap:22px}
+
+.controls{display:flex; gap:8px; flex-wrap:wrap}
+button{
+  font-family:inherit; cursor:pointer;
+  height:36px; padding:0 14px; border-radius:18px; font-size:13px; font-weight:500;
+  border:1px solid var(--line); background:transparent; color:var(--ink);
+}
+button[aria-checked="true"]{border:0; background:var(--chip); color:var(--chip-ink)}
+.replay{height:44px; padding:0 18px; border-radius:22px; margin-top:2px; align-self:flex-start}
+
+/* ------------------------------------------------- timeline */
+.timeline-card{
+  background:#FFFFFF; border-radius:20px; padding:20px 22px 18px;
+  display:flex; flex-direction:column; gap:14px;
+}
+.tl-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px}
+.tl-title{font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-dim)}
+.tl-total{font-family:'Fraunces',serif; font-size:15px; color:var(--ink)}
+
+.timeline{position:relative}
+.track{position:relative; height:26px; display:flex; align-items:center}
+.track + .track{margin-top:6px}
+.track-bg{
+  position:absolute; inset:3px 0; border-radius:6px; background:#EFECE4;
+}
+.track-label{
+  position:relative; z-index:2; font-size:11px; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; color:#8B8878; width:64px; flex:none;
+}
+.lane{position:relative; z-index:1; flex:1; height:100%}
+.bar{
+  position:absolute; top:8px; height:10px; border-radius:5px; background:var(--splash);
+}
+.sg-figures .bar{background:#3A3470; opacity:.45}
+.sg-you .bar{background:var(--amber)}
+
+/* ship-mode geometry: left/width as % of the total, per bar */
+.stage[data-speed="ship"] .sg-arch .bar{left:0%; width:40%}
+.stage[data-speed="ship"] .bar.sg-f1{left:30%; width:26%}
+.stage[data-speed="ship"] .bar.sg-f2{left:34%; width:26%}
+.stage[data-speed="ship"] .bar.sg-f3{left:38%; width:26%}
+.stage[data-speed="ship"] .bar.sg-f4{left:42%; width:26%}
+.stage[data-speed="ship"] .sg-you .bar{left:62%; width:38%}
+.stage[data-speed="ship"] .cut{left:100%}
+/* at the far edge the label tucks inside the card, left of the line */
+.stage[data-speed="ship"] .cut-label{transform:translateX(-100%)}
+
+/* prototype-mode geometry (1 420 ms) */
+.stage[data-speed="proto"] .sg-arch .bar{left:0%; width:36.62%}
+.stage[data-speed="proto"] .bar.sg-f1{left:33.80%; width:26.76%}
+.stage[data-speed="proto"] .bar.sg-f2{left:38.03%; width:26.76%}
+.stage[data-speed="proto"] .bar.sg-f3{left:42.25%; width:26.76%}
+.stage[data-speed="proto"] .bar.sg-f4{left:46.48%; width:26.76%}
+.stage[data-speed="proto"] .sg-you .bar{left:56.34%; width:43.66%}
+.stage[data-speed="proto"] .cut{left:70.42%}
+
+/* Android 12's ~1 s cut-off */
+.cut{
+  position:absolute; top:-6px; bottom:-6px; width:0; z-index:3;
+  border-left:2px dashed #B6533C;
+}
+.cut-label{
+  position:absolute; top:100%; margin-top:6px; transform:translateX(-50%);
+  font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  color:#B6533C; white-space:nowrap;
+}
+.playhead{
+  position:absolute; top:-10px; bottom:-10px; width:0; z-index:4; margin-left:-1px;
+  border-left:2px solid var(--ink); opacity:.85;
+}
+.axis{
+  position:relative; height:16px; margin-top:22px;
+  font-size:10.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums;
+}
+.axis span{position:absolute; transform:translateX(-50%)}
+.axis .a0{left:64px; transform:none}
+.axis .a-end{right:0; transform:none}
+
+.caption{
+  font-size:13px; line-height:1.6; color:var(--ink-soft);
+}
+.caption b{font-weight:600; color:var(--ink)}
+.caption .num{font-variant-numeric:tabular-nums; white-space:nowrap}
+
+/* footer */
+footer{
+  border-top:1px solid var(--line); padding-top:16px;
+  font-size:12.5px; line-height:1.6; color:var(--ink-dim); max-width:860px;
+}
+footer b{font-weight:600; color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <span class="kicker">Saff + Mihrab · A · splash</span>
+    <h1>Splash, compressed to the one-second cut</h1>
+    <p class="idea">The prototype’s splash ran <strong>1 420 ms</strong> — Android&nbsp;12 stops the
+      system splash at about <strong>one second</strong>. Compressed, the arch draws in 400 ms, the row
+      gathers 40 ms apart, and you step in last, landing exactly on the cut. Flip between the
+      shipped speed and the prototype to see what the compression costs.</p>
+  </header>
+
+  <div class="row">
+
+    <!-- phone mock, from the prototype’s splash card -->
+    <div class="phone">
+      <div class="icon-circle">
+        <svg viewBox="18 18 72 72" aria-hidden="true">
+          <defs>
+            <linearGradient id="icBgSaff" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1F2A5E"/>
+              <stop offset="0.35" stop-color="#3A3470"/>
+              <stop offset="0.55" stop-color="#9A4C78"/>
+              <stop offset="0.72" stop-color="#E0805E"/>
+              <stop offset="0.8" stop-color="#8A3E5A"/>
+              <stop offset="1" stop-color="#2A1630"/>
+            </linearGradient>
+            <radialGradient id="icGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#FFD9A0" stop-opacity="0.6"/>
+              <stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect x="0" y="0" width="108" height="108" fill="url(#icBgSaff)"/>
+          <path class="ic-draw" pathLength="1"
+            d="M30 76 V52 C30 40 44 31 54 26 C64 31 78 40 78 52 V76"
+            fill="none" stroke="#FFF4EA" stroke-width="3.2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="ic-fade ic-f1"><circle cx="37" cy="52" r="3.1" fill="#FFF4EA"/><rect x="33.3" y="57" width="7.4" height="15" rx="3.7" fill="#FFF4EA"/></g>
+          <g class="ic-fade ic-f2"><circle cx="45.5" cy="52" r="3.1" fill="#FFF4EA"/><rect x="41.8" y="57" width="7.4" height="15" rx="3.7" fill="#FFF4EA"/></g>
+          <g class="ic-fade ic-f3"><circle cx="54" cy="52" r="3.1" fill="#FFF4EA"/><rect x="50.3" y="57" width="7.4" height="15" rx="3.7" fill="#FFF4EA"/></g>
+          <g class="ic-fade ic-f4"><circle cx="62.5" cy="52" r="3.1" fill="#FFF4EA"/><rect x="58.8" y="57" width="7.4" height="15" rx="3.7" fill="#FFF4EA"/></g>
+          <g class="ic-join-late">
+            <circle cx="71" cy="62" r="12" fill="url(#icGlow)"/>
+            <circle cx="71" cy="52" r="3.1" fill="#FFC979"/><rect x="67.3" y="57" width="7.4" height="15" rx="3.7" fill="#FFC979"/>
+          </g>
+        </svg>
+      </div>
+      <span class="wordmark">Jama’ah</span>
+    </div>
+
+    <div class="side">
+      <div class="controls" role="radiogroup" aria-label="Playback speed">
+        <button role="radio" aria-checked="true"  data-speed-btn="ship">Shipped · 1 000 ms</button>
+        <button role="radio" aria-checked="false" data-speed-btn="proto">Prototype · 1 420 ms</button>
+      </div>
+      <button class="replay" id="replay">Replay splash</button>
+
+      <div class="timeline-card">
+        <div class="tl-head">
+          <span class="tl-title">Compressed timeline</span>
+          <span class="tl-total">ends at <span id="total-label">1 000 ms</span></span>
+        </div>
+        <div class="timeline">
+          <div class="track sg-arch">
+            <div class="track-bg"></div>
+            <span class="track-label">Arch</span>
+            <div class="lane"><div class="bar"></div></div>
+          </div>
+          <div class="track sg-figures">
+            <div class="track-bg"></div>
+            <span class="track-label">Row</span>
+            <div class="lane">
+              <div class="bar sg-f1"></div>
+              <div class="bar sg-f2"></div>
+              <div class="bar sg-f3"></div>
+              <div class="bar sg-f4"></div>
+            </div>
+          </div>
+          <div class="track sg-you">
+            <div class="track-bg"></div>
+            <span class="track-label">You</span>
+            <div class="lane"><div class="bar"></div></div>
+          </div>
+          <div class="cut" id="cut"><span class="cut-label">Android 12 cut-off</span></div>
+          <div class="playhead" id="playhead"></div>
+        </div>
+        <div class="axis">
+          <span class="a0" id="axis-start">0</span>
+          <span class="a-end" id="axis-total">1 000</span>
+        </div>
+        <p class="caption">
+          <b>What was compressed:</b> arch draw <span class="num">520 → 400 ms</span> ·
+          row stagger <span class="num">60 → 40 ms</span> ·
+          figure pop <span class="num">380 → 260 ms</span> ·
+          your entry starts <span class="num">800 → 620 ms</span> and runs
+          <span class="num">620 → 380 ms</span>.
+          Every easing curve is kept — the <em>order</em> (arch, row, you last) is the story,
+          and it survives intact.
+        </p>
+        <p class="reduced-note">Your device asks for reduced motion, so the splash is shown at its
+          final frame — the same way the app honours it.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <b>Ship note.</b> Android&nbsp;12 shows only the icon for this window (~1 s, then it holds the last
+    frame until Flutter’s first frame replaces it) — the wordmark underneath comes from the app’s
+    first frame, not the OS splash. Native route: an <code>animated-vector</code> with
+    <code>trimPathEnd</code> on the arch and alpha/translate on five groups, ending ≤ 1 000 ms,
+    driven by <code>splash_icon.xml</code> regenerated in <code>make_brand.py</code>.
+    You can see it here standalone.
+  </footer>
+</div>
+
+<script>
+(function(){
+  var stage   = document.querySelector('.stage') || document.body;
+  // the stage wrapper that carries data-speed; here: <body>’s page container
+  var root    = document.querySelector('.page');
+  var playhead= document.getElementById('playhead');
+  var cut     = document.getElementById('cut');
+  var totalEl = document.getElementById('total-label');
+  var axisEnd = document.getElementById('axis-total');
+  var TOTAL   = { ship: '1 000 ms', proto: '1 420 ms' };
+  var AXIS    = { ship: '1 000',   proto: '1 420'   };
+
+  root.classList.add('stage');
+  root.dataset.speed = 'ship';
+
+  function replay(){
+    root.classList.remove('play');
+    void root.offsetWidth;           // reflow restarts every animation
+    root.classList.add('play');
+  }
+
+  function setSpeed(mode){
+    root.dataset.speed = mode;
+    totalEl.textContent = TOTAL[mode];
+    axisEnd.textContent = AXIS[mode];
+    document.querySelectorAll('[data-speed-btn]').forEach(function(btn){
+      btn.setAttribute('aria-checked', String(btn.dataset.speedBtn === mode));
+    });
+    replay();
+  }
+
+  document.getElementById('replay').addEventListener('click', replay);
+  document.querySelectorAll('[data-speed-btn]').forEach(function(btn){
+    btn.addEventListener('click', function(){ setSpeed(btn.dataset.speedBtn); });
+  });
+
+  // first run, slightly after load so the fonts settle
+  window.addEventListener('load', function(){ setTimeout(replay, 150); });
+})();
+</script>
+</body>
+</html>

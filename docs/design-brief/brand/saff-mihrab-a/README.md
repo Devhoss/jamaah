@@ -18,7 +18,9 @@ Top row: launcher icon (circle and rounded-square masks, 96 px, 48 px). Bottom r
 | `android/res/drawable/ic_launcher_foreground.xml` | Arch, five figures, glow behind the lit one (108 dp) |
 | `android/res/drawable/ic_launcher_monochrome.xml` | Single-colour layer for Android 13 themed icons |
 | `android/res/drawable/ic_stat_jamaah.xml` | Status-bar icon: white, the arch and all five figures, drawn slimmer (head r 2.6, body 5.6 wide, arch stroke 4.5) so the gaps stay open at 24 dp. Compare: `png/status-bar-compare.png` |
-| `android/res/drawable/splash_icon.xml` | Android 12+ splash icon (288 dp, same geometry) |
+| `android/res/drawable/splash_icon.xml` | Android 12+ splash icon, static (288 dp, same geometry; also the pre-12 layer-list mark and the fallback) |
+| `android/res/drawable/splash_icon_groups.xml` | The same layers in named groups (`arch`, `fig1..4`, `you`), for the animated-vector to target |
+| `android/res/drawable/splash_icon_animated.xml` | Android 12+ splash, animated: arch draws, row gathers, you step in last — 1 000 ms total |
 | `android/res/values/brand_colors.xml` | `brand_splash` #1F2A5E, `brand_cream` #FFF4EA, `brand_amber` #FFC979 |
 | `android/res/mipmap-*/ic_launcher*.png` | Legacy launcher PNGs for Android below 8.0 |
 | `png/playstore-512.png` | Google Play icon (512 × 512, full bleed, no rounding: Play masks it) |
@@ -35,7 +37,8 @@ Top row: launcher icon (circle and rounded-square masks, 96 px, 48 px). Bottom r
 3. Splash, Android 12+: add `values-v31/styles.xml` (and `values-night-v31`) for `LaunchTheme`:
    ```xml
    <item name="android:windowSplashScreenBackground">@color/brand_splash</item>
-   <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+   <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_animated</item>
+   <item name="android:windowSplashScreenAnimationDuration">1000</item>
    ```
    Same colour in light and dark: the splash is the evening sky either way.
 4. Splash before Android 12: `drawable/launch_background.xml` (and `drawable-v21`) becomes a
@@ -67,9 +70,23 @@ Top row: launcher icon (circle and rounded-square masks, 96 px, 48 px). Bottom r
   and body 5.6 wide.
 - Glow: radial #FFD9A0 at 60% → 0, centre (71, 62), r 12, full-colour icon only.
 
-## Optional later: animated splash (Android 12+, ≤ 1000 ms)
+## Animated splash (Android 12+, shipped 2026-11-04)
 
-The design canvas animates it: the arch draws itself (≈ 520 ms), the four figures appear left to
-right (60 ms apart), then you slide in from the right (≈ 620 ms from 800 ms). As an
-`animated-vector` it is a `trimPathEnd` on the arch plus alpha/translate on five groups. Not
-needed for the first release; the static splash above is complete.
+The canvas animates it; the app plays it through the system's splash icon
+(`windowSplashScreenAnimatedIcon` → `splash_icon_animated.xml`). The prototype
+ran 1 420 ms; Android 12 stops the splash at about 1 000 ms, so the choreography
+is compressed with every easing curve kept (demo with timeline:
+`splash-animation.html` in this folder):
+
+| Beat | Times (ms) | Easing (framework interpolators) |
+|---|---|---|
+| Arch self-draws (`trimPathEnd` 0→1) | 0 → 400 | fast_out_slow_in |
+| Figures 1–4 pop in, 40 ms apart | 300–680, 260 ms each | overshoot |
+| You slide in (alpha + translateX ≈ 14.7 units) | 620 → 1 000 | decelerate_cubic |
+
+Everything lives in `make_brand.py`'s `SPLASH` dict: edit there, re-run, copy.
+The script asserts the run ends ≤ 1 000 ms. `MainActivity` holds the splash for
+1 000 ms (`SPLASH_ANIMATION_MS`, keep in step) so a fast cold start can't cut
+the story before you arrive. The wordmark is not part of the OS splash — it
+belongs to the app's first frame. Static `splash_icon.xml` stays for the
+pre-Android 12 layer-list, where drawables don't animate.
