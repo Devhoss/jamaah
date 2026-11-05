@@ -100,9 +100,6 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
         ref.watch(appSettingsProvider).value?.adhanAlerts ??
         SettingsRepository.defaults.adhanAlerts;
     final alert = alerts.alertFor(_prayer);
-    final effective = alerts.soundModeFor(_prayer);
-    // Any sound can ring on silent; only Silent has nothing to ring.
-    final plays = effective != AdhanSoundMode.silent;
     final before = alert.preAdhanMinutes;
     final customSelected =
         _customOpen || (before != null && !_reminderPresets.contains(before));
@@ -167,18 +164,12 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
           title: l10n.alertVibrate,
           value: alert.vibrate,
           onChanged: (on) => _change((a) => a.copyWith(vibrate: on)),
-        ),
-        SettingsSwitchRow(
-          title: l10n.alertRingInSilent,
-          hint: plays
-              ? l10n.alertRingInSilentHint
-              : l10n.alertRingInSilentNeedsSound,
-          value: plays && alert.ringInSilent,
           divider: false,
-          onChanged: plays
-              ? (on) => _change((a) => a.copyWith(ringInSilent: on))
-              : null,
         ),
+        // Ringing on silent lives only on the Adhan alerts page (one switch
+        // for every prayer): a second switch here diverged per prayer and
+        // confused which one wins.
+        SettingsNote(l10n.alertRingInSilentGlobalNote, top: 0),
         SettingsHeading(l10n.alertReminderHeader),
         SettingsNote(l10n.alertReminderHint, top: 0),
         const SizedBox(height: 10),
@@ -214,17 +205,8 @@ class _PrayerAlertPageState extends ConsumerState<PrayerAlertPage> {
             ),
           ],
         ),
-        if (before != null) ...[
-          const SizedBox(height: 8),
-          SettingsSwitchRow(
-            title: l10n.alertPreAdhanRingInSilent,
-            hint: l10n.alertRingInSilentHint,
-            value: alert.preAdhanRingInSilent,
-            divider: false,
-            onChanged: (on) =>
-                _change((a) => a.copyWith(preAdhanRingInSilent: on)),
-          ),
-        ],
+        // Pre-Adhan ringing on silent is global too, like the Adhan's:
+        // set on the Adhan alerts page, not per prayer here.
         if (customSelected) ...[
           const SizedBox(height: 12),
           TextField(

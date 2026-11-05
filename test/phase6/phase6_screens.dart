@@ -61,7 +61,6 @@ final phase6Screens = <String, Future<void> Function(WidgetTester, String)>{
   'Recordings': (tester, _) => _push(tester, const AdhanRecordingsPage()),
   "Jama'ah reminders": (tester, _) =>
       _push(tester, const JamaahRemindersPage()),
-  'Travel': (tester, _) => _push(tester, const TravelPage()),
   'Language and look': (tester, _) => _push(tester, const LanguageLookPage()),
   'Help and about': (tester, _) => _push(tester, const HelpAboutPage()),
   'Late alerts': (tester, _) => _push(tester, const LateAlertsPage()),

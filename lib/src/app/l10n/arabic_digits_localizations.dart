@@ -608,6 +608,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get alertRingInSilentHint => arabicDigits(super.alertRingInSilentHint);
 
   @override
+  String get alertRingInSilentGlobalNote => arabicDigits(super.alertRingInSilentGlobalNote);
+
+  @override
   String get alertRingInSilentNeedsSound => arabicDigits(super.alertRingInSilentNeedsSound);
 
   @override

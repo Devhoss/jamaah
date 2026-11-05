@@ -279,41 +279,32 @@ void main() {
       expect(find.text(t.alertStopPreview), findsNothing);
     });
 
-    testApp('ring in silent needs a sound, the standard one included', (
+    testApp('one prayer points at the global ring-in-silent switches', (
       tester,
     ) async {
       await open(tester);
       await openPrayer(tester, Prayer.isha);
 
-      final ring = switchRow(t.alertRingInSilent);
-      await tap(tester, ring);
-      expect(
-        (await stored()).alertFor(Prayer.isha).ringInSilent,
-        isTrue,
-        reason: 'the standard sound can ring on silent too',
-      );
-
-      await tester.scrollUntilVisible(
-        find.text(t.soundModeSilent),
-        -200,
-        scrollable: find.byType(Scrollable).last,
-      );
-      await tapText(tester, t.soundModeSilent);
-      await reveal(tester, ring);
-      expect(tester.widget<SettingsSwitchRow>(ring).onChanged, isNull);
-      expect(find.text(t.alertRingInSilentNeedsSound), findsOneWidget);
+      // No per-prayer switch any more: ringing on silent is set once, for
+      // every prayer, on the Adhan alerts page.
+      expect(find.text(t.alertRingInSilent), findsNothing);
+      expect(find.text(t.alertPreAdhanRingInSilent), findsNothing);
+      expect(find.text(t.alertRingInSilentGlobalNote), findsOneWidget);
     });
 
-    testApp('the reminder before the Adhan rings on silent on its own', (
+    testApp('the reminder before the Adhan still rings on silent, globally', (
       tester,
     ) async {
       await open(tester);
-      await openPrayer(tester, Prayer.maghrib);
-      await tapText(tester, t.reminderMinutesChip(10));
-      await tap(tester, switchRow(t.alertPreAdhanRingInSilent));
-      final alert = (await stored()).alertFor(Prayer.maghrib);
-      expect(alert.preAdhanRingInSilent, isTrue);
-      expect(alert.ringInSilent, isFalse);
+      await openAlerts(tester);
+      await tap(tester, switchRow(t.settingsPreAdhanRingInSilent));
+      final alerts = (await stored());
+      expect(alerts.ringInSilentFor(RingTarget.preAdhan), RingCoverage.all);
+      expect(
+        alerts.ringInSilentFor(RingTarget.adhan),
+        RingCoverage.none,
+        reason: 'the reminders before have their own global switch',
+      );
     });
 
     testApp('Settings rings every Adhan on silent with one switch', (

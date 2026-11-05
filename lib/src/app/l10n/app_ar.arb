@@ -270,6 +270,7 @@
   "alertVibrate": "اهتزاز",
   "alertRingInSilent": "التنبيه والهاتف صامت",
   "alertRingInSilentHint": "يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع.",
+  "alertRingInSilentGlobalNote": "يتم ضبط الرنين عند الصامت لجميع الصلوات من صفحة تنبيهات الأذان.",
   "alertRingInSilentNeedsSound": "لا صوت في الوضع الصامت ليرنّ.",
   "alertReminderHeader": "تذكير قبل الأذان",
   "alertReminderHint": "تنبيه مستقل، حتى لو كان تنبيه الأذان نفسه متوقفًا.",

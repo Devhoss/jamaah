@@ -1073,6 +1073,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع.';
 
   @override
+  String get alertRingInSilentGlobalNote =>
+      'يتم ضبط الرنين عند الصامت لجميع الصلوات من صفحة تنبيهات الأذان.';
+
+  @override
   String get alertRingInSilentNeedsSound => 'لا صوت في الوضع الصامت ليرنّ.';
 
   @override

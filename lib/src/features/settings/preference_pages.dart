@@ -7,94 +7,13 @@ import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/providers.dart';
 import '../../app/theme/horizon_tokens.dart';
 import '../../data/settings_repository.dart';
-import '../../domain/adhan_alerts.dart';
 import '../components/brand_mark.dart';
-import '../components/travel_switch.dart';
-import '../flight/in_flight_page.dart';
 import '../onboarding/onboarding_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'diagnostics_page.dart';
 import 'settings_kit.dart';
 import 'settings_page.dart';
 import 'update_row.dart';
-
-/// "Off" or "On".
-String travelSummary(AppLocalizations l10n, TravelSettings travel) =>
-    travel.travelMode ? l10n.travelSummaryOn : l10n.travelSummaryOff;
-
-/// Travel (spec §4.9): the switch, and in flight. The place itself is not a
-/// travel option: following the device is automatic.
-class TravelPage extends ConsumerWidget {
-  const TravelPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final type = HorizonTheme.typeOf(context);
-    final s = HorizonTheme.of(context).surfaces;
-    final travel =
-        (ref.watch(appSettingsProvider).value ?? SettingsRepository.defaults)
-            .travel;
-
-    return SettingsScaffold(
-      title: l10n.settingsTravelSection,
-      lead: l10n.settingsTravelLead,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: s.divider)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ExcludeSemantics(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.settingsTravelMode,
-                          style: type.row.copyWith(color: s.onSurface),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.settingsTravelModeHint,
-                          style: type.meta.copyWith(
-                            height: 1.4,
-                            color: s.onSurfaceMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                TravelSwitch(
-                  value: travel.travelMode,
-                  onChanged: (on) => setTravelMode(context, ref, on),
-                  label: l10n.settingsTravelMode,
-                  // On a surface it uses the accent (spec §2.5).
-                  colors: TravelSwitchColors(
-                    ink: s.accent,
-                    deep: s.onAccent,
-                    outline: s.divider,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SettingsLinkRow(
-          title: l10n.inFlightHelpTitle,
-          value: l10n.travelInFlightValue,
-          onTap: () => openInFlight(context),
-          divider: false,
-        ),
-      ],
-    );
-  }
-}
 
 /// "English · Dark".
 String languageLookSummary(

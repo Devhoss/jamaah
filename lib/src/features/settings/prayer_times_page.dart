@@ -86,21 +86,6 @@ class PrayerTimesPage extends ConsumerWidget {
           selected: settings.madhab,
           onChanged: (m) => repo.setPrayerTimesPreferences(madhab: m),
         ),
-        SettingsHeading(l10n.settingsHijri),
-        // ±2 days, each with the date it gives (owner, 2026-10-16).
-        RadioList<int>(
-          options: [
-            for (var d = -kMaxHijriAdjustDays; d <= kMaxHijriAdjustDays; d++)
-              RadioOption(
-                d,
-                hijriLabel(d),
-                description: hijriToday(context, ref, d),
-              ),
-          ],
-          selected: settings.hijriAdjustDays,
-          onChanged: repo.setHijriAdjustDays,
-        ),
-        SettingsNote(l10n.hijriAdjustNote),
         SettingsHeading(l10n.extraOnTodaySection),
         for (final t in ExtraTime.values)
           SettingsSwitchRow(
@@ -119,6 +104,25 @@ class PrayerTimesPage extends ConsumerWidget {
         SettingsDisclosure(
           title: l10n.settingsAdvanced,
           children: [
+            SettingsHeading(l10n.settingsHijri),
+            // ±2 days, each with the date it gives (owner, 2026-10-16).
+            RadioList<int>(
+              options: [
+                for (
+                  var d = -kMaxHijriAdjustDays;
+                  d <= kMaxHijriAdjustDays;
+                  d++
+                )
+                  RadioOption(
+                    d,
+                    hijriLabel(d),
+                    description: hijriToday(context, ref, d),
+                  ),
+              ],
+              selected: settings.hijriAdjustDays,
+              onChanged: repo.setHijriAdjustDays,
+            ),
+            SettingsNote(l10n.hijriAdjustNote),
             SettingsLinkRow(
               title: l10n.settingsHighLatitude,
               value: ruleTitle(l10n, settings.highLatitudeRule),

@@ -1692,6 +1692,12 @@ abstract class AppLocalizations {
   /// **'Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet.'**
   String get alertRingInSilentHint;
 
+  /// No description provided for @alertRingInSilentGlobalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringing on silent is set for all prayers on the Adhan alerts page.'**
+  String get alertRingInSilentGlobalNote;
+
   /// No description provided for @alertRingInSilentNeedsSound.
   ///
   /// In en, this message translates to:

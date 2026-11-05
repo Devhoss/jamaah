@@ -996,6 +996,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet.';
 
   @override
+  String get alertRingInSilentGlobalNote =>
+      'Ringing on silent is set for all prayers on the Adhan alerts page.';
+
+  @override
   String get alertRingInSilentNeedsSound => 'Silent has no sound to ring.';
 
   @override

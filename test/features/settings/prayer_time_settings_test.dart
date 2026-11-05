@@ -192,6 +192,8 @@ void main() {
       adjustDays: -1,
     );
     expect(base, isNot(earlier));
+    // The Hijri adjust lives in Advanced now.
+    await tapText(tester, t.settingsAdvanced);
     expect(find.text(base), findsOneWidget, reason: 'the list shows today');
     expect(find.text(t.hijriAsCalculated), findsOneWidget);
     await tapText(tester, t.hijriEarlier(1));
