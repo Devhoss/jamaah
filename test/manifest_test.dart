@@ -100,6 +100,22 @@ void main() {
     );
   });
 
+  test('the launcher activity is singleTask, so Recents holds one card', () {
+    final text = File(manifest).readAsStringSync();
+    final mainActivity = RegExp(
+      r'<activity[^>]*android:name="\.MainActivity"[^>]*>',
+      dotAll: true,
+    ).firstMatch(text);
+    expect(mainActivity, isNotNull);
+    expect(
+      mainActivity!.group(0),
+      contains('android:launchMode="singleTask"'),
+      reason:
+          'singleTop can leave two Jama\'ah tasks in Recents, and swiping '
+          'one away then leaves the other to resume with no splash',
+    );
+  });
+
   /// geolocator's requestPermission asks for every location permission in the
   /// manifest at once, so with precise declared the startup prompt would offer
   /// precise too. Both levels go through the app's own channel instead.

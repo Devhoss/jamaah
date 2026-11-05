@@ -42,10 +42,15 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round">
+        <!-- singleTask (not the Flutter template's singleTop): there is
+             exactly one Jama'ah task ever, whichever way the app is opened
+             (launcher, notification, shortcut), so Recents never shows two
+             Jama'ah cards and a relaunch always brings that task front.
+             No deep-link routing depends on singleTop re-delivery. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

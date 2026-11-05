@@ -569,19 +569,35 @@ class AdhanService : Service(), SensorEventListener {
                     "errorCode" to error.javaClass.simpleName,
                 ))
             }
-        } else if (alarm != null) {
+        } else {
+            // The player's notification lives under PLAYING_ID, not the
+            // alarm's plan id, and it must go even when this service
+            // instance never started the playback: after the process was
+            // killed mid-play, the foreground notification outlives it in
+            // the shade, and tapping its Stop restarts the service with
+            // current == null. Cancelling only alarm.id left that orphan
+            // in place forever, with a Stop that did nothing.
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            NativeDiagnostics.record(this, "adhan_notification_cancel_requested", alarmEvidence(alarm) + mapOf(
-                "notificationId" to alarm.id, "channelId" to CHANNEL_ID, "reason" to "playback_dismissed",
+            val evidence = alarm?.let { alarmEvidence(it) } ?: mapOf(
+                "alarmId" to null,
+                "correlationId" to "notification_$PLAYING_ID",
+                "syncId" to null,
+                "kind" to null,
+                "prayer" to null,
+                "scheduledAtEpochMillis" to null,
+            )
+            NativeDiagnostics.record(this, "adhan_notification_cancel_requested", evidence + mapOf(
+                "notificationId" to PLAYING_ID, "channelId" to CHANNEL_ID, "reason" to "playback_dismissed",
             ))
             try {
-                manager.cancel(alarm.id)
-                NativeDiagnostics.record(this, "adhan_notification_cancelled", alarmEvidence(alarm) + mapOf(
-                    "notificationId" to alarm.id, "channelId" to CHANNEL_ID, "reason" to "playback_dismissed",
+                manager.cancel(PLAYING_ID)
+                alarm?.let { manager.cancel(it.id) }
+                NativeDiagnostics.record(this, "adhan_notification_cancelled", evidence + mapOf(
+                    "notificationId" to PLAYING_ID, "channelId" to CHANNEL_ID, "reason" to "playback_dismissed",
                 ))
             } catch (error: Exception) {
-                NativeDiagnostics.record(this, "adhan_notification_cancel_failed", alarmEvidence(alarm) + mapOf(
-                    "notificationId" to alarm.id, "errorClass" to error.javaClass.simpleName,
+                NativeDiagnostics.record(this, "adhan_notification_cancel_failed", evidence + mapOf(
+                    "notificationId" to PLAYING_ID, "errorClass" to error.javaClass.simpleName,
                     "errorMessage" to error.message, "errorCode" to error.javaClass.simpleName,
                 ))
             }
@@ -664,12 +680,31 @@ class AdhanService : Service(), SensorEventListener {
         wakeLock = null
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        // Swiping the app away while an Adhan plays must not orphan its
+        // notification: finish now, while we still own it, rather than
+        // leaving the shade entry for a Stop that has to restart us.
+        if (current != null) {
+            finish(keepAlert = false, dismissActivity = true, stopReason = "task_removed")
+        }
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
         current?.takeIf { player?.isPlaying == true }?.let { alarm ->
             NativeDiagnostics.record(this, "adhan_playback_interrupted", alarmEvidence(alarm) + mapOf(
                 "reason" to "service_destroyed",
                 "serviceElapsedMs" to (SystemClock.elapsedRealtime() - commandStartedUptime),
             ))
+        }
+        // Destroyed while still playing (finish never ran): take the
+        // foreground notification with us. When finish already ran,
+        // current is null and the notification is either removed or
+        // detached as a kept alert — leave that state alone.
+        if (current != null) {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.cancel(PLAYING_ID)
+            current?.let { manager.cancel(it.id) }
         }
         release()
         super.onDestroy()
