@@ -1745,6 +1745,12 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get qiblaSteadyNow => arabicDigits(super.qiblaSteadyNow);
 
   @override
+  String get qiblaSavedPlaceNote => arabicDigits(super.qiblaSavedPlaceNote);
+
+  @override
+  String get qiblaAllowLocation => arabicDigits(super.qiblaAllowLocation);
+
+  @override
   String get onbLanguageLabel => arabicDigits(super.onbLanguageLabel);
 
   @override

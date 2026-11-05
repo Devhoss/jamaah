@@ -11,6 +11,7 @@ import '../../app/compass.dart';
 import '../../app/l10n/generated/app_localizations.dart';
 import '../../app/providers.dart';
 import '../../app/theme/horizon_tokens.dart';
+import '../../data/location_permission.dart';
 import '../../domain/place.dart';
 import '../../domain/qibla.dart' as qibla;
 import '../../domain/qibla_words.dart';
@@ -22,21 +23,61 @@ import '../settings/settings_kit.dart';
 /// (AGENTS.md). The sky header names the place and the distance; on the
 /// surface below, the dial.
 ///
-/// The bearing is worked out on the device from the saved place, so it is
-/// always shown, compass or not. With a compass the dial turns with the phone,
-/// corrected from magnetic to true north; without one, the bearing stands on
-/// its own with the direction in words and a line on how to use it.
-class QiblaScreen extends ConsumerWidget {
+/// The bearing is worked out from where the phone actually is (the live
+/// approximate fix, when location is already allowed), so a traveller
+/// faces the Kaaba from here, not from their saved city. Without a live
+/// fix the saved place stands in, clearly labelled, and the tab offers
+/// the location for the direction from where they stand. With a compass
+/// the dial turns with the phone, corrected from magnetic to true north;
+/// without one, the bearing stands on its own with the direction in
+/// words and a line on how to use it.
+class QiblaScreen extends ConsumerStatefulWidget {
   const QiblaScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final place = ref.watch(currentPlaceProvider);
+  ConsumerState<QiblaScreen> createState() => _QiblaScreenState();
+}
+
+class _QiblaScreenState extends ConsumerState<QiblaScreen> {
+  Place? _live;
+
+  @override
+  void initState() {
+    super.initState();
+    _tryLive();
+  }
+
+  /// The device's allowed location only, never a dialog: opening the tab
+  /// is not a moment to ask, and the coarse level is plenty for a bearing.
+  Future<void> _tryLive() async {
+    final reading = await ref
+        .read(placeSourceProvider)
+        .currentPlaceIfAllowed();
+    if (reading is PlaceFound && mounted) {
+      setState(() => _live = reading.place);
+    }
+  }
+
+  /// The tab's one explicit ask, for approximate location only: the dialog
+  /// never offers precise, which is the level prayer times already use.
+  Future<void> _allowLocation() async {
+    await const LocationPermissions().request(precise: false);
+    await _tryLive();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final saved = ref.watch(currentPlaceProvider);
+    final live = _live;
+    final place = live ?? saved;
     if (place == null) return const _NeedsPlace();
+    final usingSaved = live == null;
     // Keyed by the place, so a new place starts a fresh compass session.
     return _QiblaView(
       key: ValueKey((place.latitude, place.longitude)),
       place: place,
+      usingSavedPlace: usingSaved,
+      onAllowLocation: usingSaved ? _allowLocation : null,
     );
   }
 }
@@ -48,9 +89,21 @@ const _noCompassAfter = Duration(seconds: 3);
 const _alignedWithin = 3;
 
 class _QiblaView extends ConsumerStatefulWidget {
-  const _QiblaView({required this.place, super.key});
+  const _QiblaView({
+    required this.place,
+    required this.usingSavedPlace,
+    required this.onAllowLocation,
+    super.key,
+  });
 
   final Place place;
+
+  /// True when the bearing comes from the saved place because no live
+  /// fix was available: the screen says so and offers the location.
+  final bool usingSavedPlace;
+
+  /// Null when the live fix is in hand; the allow-location ask otherwise.
+  final VoidCallback? onAllowLocation;
 
   @override
   ConsumerState<_QiblaView> createState() => _QiblaViewState();
@@ -188,6 +241,20 @@ class _QiblaViewState extends ConsumerState<_QiblaView> {
       onTab: true,
       children: [
         const SizedBox(height: 12),
+        if (widget.usingSavedPlace) ...[
+          SettingsNote(l10n.qiblaSavedPlaceNote, top: 0),
+          if (widget.onAllowLocation != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SettingsTextButton(
+                label: l10n.qiblaAllowLocation,
+                onPressed: widget.onAllowLocation,
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
+        ],
         if (_noCompass) ...[
           dial(turning: false),
           const SizedBox(height: 14),

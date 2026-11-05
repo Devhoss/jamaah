@@ -2854,6 +2854,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qiblaSteadyNow => 'It’s steady now';
 
   @override
+  String get qiblaSavedPlaceNote =>
+      'From your saved place. Allow location for the direction from where you stand.';
+
+  @override
+  String get qiblaAllowLocation => 'Allow location';
+
+  @override
   String get onbLanguageLabel => 'Language · اللغة';
 
   @override

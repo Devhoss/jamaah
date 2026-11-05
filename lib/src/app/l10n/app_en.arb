@@ -1303,6 +1303,8 @@
   "qiblaNoCompassHint": "This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets.",
   "qiblaNeedsMoment": "The compass needs a moment",
   "qiblaSteadyNow": "It’s steady now",
+  "qiblaSavedPlaceNote": "From your saved place. Allow location for the direction from where you stand.",
+  "qiblaAllowLocation": "Allow location",
   "onbLanguageLabel": "Language · اللغة",
   "onbLanguageLater": "You can change it later in Settings.",
   "onbPlaceBody": "Prayer times are calculated on your phone. Precise location helps name your area and choose a local method. Android's geocoding service receives the coordinates to find the place name.",

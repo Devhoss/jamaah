@@ -4660,6 +4660,18 @@ abstract class AppLocalizations {
   /// **'It’s steady now'**
   String get qiblaSteadyNow;
 
+  /// No description provided for @qiblaSavedPlaceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From your saved place. Allow location for the direction from where you stand.'**
+  String get qiblaSavedPlaceNote;
+
+  /// No description provided for @qiblaAllowLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location'**
+  String get qiblaAllowLocation;
+
   /// No description provided for @onbLanguageLabel.
   ///
   /// In en, this message translates to:

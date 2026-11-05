@@ -66,7 +66,11 @@ void main() {
     addTearDown(db.close);
   });
 
-  Future<void> open(WidgetTester tester, {double textScale = 1.0}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    double textScale = 1.0,
+    FakePlaceSource? placeSource,
+  }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -79,7 +83,8 @@ void main() {
             FixedClock(DateTime.utc(2026, 10, 12, 7, 0)),
           ),
           placeSourceProvider.overrideWithValue(
-            FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable)),
+            placeSource ??
+                FakePlaceSource(const PlaceRejected(PlaceFailure.unavailable)),
           ),
           notificationGatewayProvider.overrideWithValue(
             FakeNotificationGateway(),
@@ -200,5 +205,43 @@ void main() {
     await open(tester, textScale: 2.0);
     await heading(tester, 100, accuracy: 45);
     expect(tester.takeException(), isNull);
+  });
+
+  testApp('a live fix replaces the saved place for the bearing', (
+    tester,
+  ) async {
+    // Kochi, India: the traveller's actual position, 4,000+ km from the
+    // Kaaba and a bearing far from Cairo's 136°.
+    const kochi = Place(
+      displayName: 'Kochi, India',
+      latitude: 10.029487,
+      longitude: 76.307628,
+      ianaZone: 'Asia/Kolkata',
+      fromDevice: true,
+    );
+    final source = FakePlaceSource(
+      const PlaceRejected(PlaceFailure.unavailable),
+    )..silentReading = const PlaceFound(kochi);
+    await open(tester, placeSource: source);
+
+    final kochiBearing = qiblaBearingRounded(
+      latitude: kochi.latitude,
+      longitude: kochi.longitude,
+    );
+    expect(find.text(t.qiblaDegrees('$kochiBearing')), findsOneWidget);
+    expect(find.text(t.qiblaDegrees('$bearing')), findsNothing);
+    // No fallback note: the live fix is in hand.
+    expect(find.text(t.qiblaSavedPlaceNote), findsNothing);
+    await heading(tester, 0);
+  });
+
+  testApp('without a live fix the saved place stands, labelled', (
+    tester,
+  ) async {
+    await open(tester);
+    expect(find.text(t.qiblaDegrees('$bearing')), findsOneWidget);
+    expect(find.text(t.qiblaSavedPlaceNote), findsOneWidget);
+    expect(find.text(t.qiblaAllowLocation), findsOneWidget);
+    await heading(tester, 0);
   });
 }

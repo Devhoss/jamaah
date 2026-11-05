@@ -3021,6 +3021,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get qiblaSteadyNow => 'استقرّت البوصلة الآن';
 
   @override
+  String get qiblaSavedPlaceNote =>
+      'من مكانك المحفوظ. اسمح بالموقع للحصول على الاتجاه من حيث تقف.';
+
+  @override
+  String get qiblaAllowLocation => 'السماح بالموقع';
+
+  @override
   String get onbLanguageLabel => 'اللغة · Language';
 
   @override
