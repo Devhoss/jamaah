@@ -2819,7 +2819,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get helpAbout => 'عن التطبيق';
 
   @override
-  String get helpCheckUpdates => 'إصدارات GitHub';
+  String get helpCheckUpdates => 'التحقق من التحديثات';
 
   @override
   String get updateChecking => 'جارٍ التحقق…';

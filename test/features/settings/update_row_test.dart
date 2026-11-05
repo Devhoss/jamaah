@@ -61,7 +61,7 @@ void main() {
     final flow = flowFor(_Lookup(tag: 'v1.0.6'));
     await tester.pumpWidget(harness(flow));
     // The row title is there at once; the answer lands a moment later.
-    expect(find.text('GitHub releases'), findsOneWidget);
+    expect(find.text('Check for updates'), findsOneWidget);
     await tester.pumpAndSettle();
     expect(find.text('Update to 1.0.6'), findsOneWidget);
   });

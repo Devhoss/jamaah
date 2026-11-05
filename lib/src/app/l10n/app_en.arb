@@ -1235,7 +1235,7 @@
   "helpCheckTitle": "Check what is scheduled",
   "helpCheckBody": "The list shows every alert and reminder waiting on this phone, and says if a permission is missing.",
   "helpAbout": "About",
-  "helpCheckUpdates": "GitHub releases",
+  "helpCheckUpdates": "Check for updates",
   "updateChecking": "Checking…",
   "updateUpToDate": "You already have {version}",
   "@updateUpToDate": {"placeholders": {"version": {"type": "String"}}},

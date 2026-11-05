@@ -171,6 +171,29 @@ void main() {
     }
   });
 
+  test('a tap on up-to-date asks again, and finds the newer release', () async {
+    final file = await cacheFile();
+    final lookup = _Lookup(tag: '1.0.5');
+    final flow = UpdateFlow(
+      lookup: lookup,
+      installer: _Installer(),
+      cacheFile: () async => file,
+      runningVersion: '1.0.5',
+    );
+    await flow.check();
+    expect(flow.stage, UpdateStage.upToDate);
+    expect(lookup.lookups, 1);
+
+    // A release published after the session's first check: the tap must
+    // look again instead of sitting on the cached answer.
+    lookup.tag = '1.0.6';
+    await flow.begin();
+    expect(lookup.lookups, 2);
+    expect(flow.stage, UpdateStage.available);
+    expect(flow.latestVersion, '1.0.6');
+    await _removeCacheDir(file);
+  });
+
   test('download then install hand-off carries the checksum', () async {
     final file = await cacheFile();
     final lookup = _Lookup(tag: '1.0.6');

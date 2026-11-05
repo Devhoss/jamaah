@@ -709,7 +709,7 @@
   "helpCheckTitle": "تحقّق ممّا هو مجدول",
   "helpCheckBody": "تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص.",
   "helpAbout": "عن التطبيق",
-  "helpCheckUpdates": "إصدارات GitHub",
+  "helpCheckUpdates": "التحقق من التحديثات",
   "updateChecking": "جارٍ التحقق…",
   "updateUpToDate": "لديك بالفعل {version}",
   "@updateUpToDate": {"placeholders": {"version": {"type": "String"}}},

@@ -161,12 +161,15 @@ class UpdateFlow extends ChangeNotifier {
     switch (_stage) {
       case UpdateStage.unchecked:
       case UpdateStage.lookupFailed:
+      case UpdateStage.upToDate:
+        // A tap on "you already have x" asks again: the once-per-session
+        // answer may predate the latest release, and tapping was a dead
+        // end until the app was killed and reopened.
         return check(again: true);
       case UpdateStage.available:
         return _download();
       case UpdateStage.ready:
         return _handOff();
-      case UpdateStage.upToDate:
       case UpdateStage.checking:
       case UpdateStage.downloading:
       case UpdateStage.downloadFailed:

@@ -36,7 +36,7 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => SettingsRepository(ref.watch(appDatabaseProvider)),
 );
 
-/// The self-update flow (About page's "GitHub releases" row). One instance
+/// The self-update flow (About page's "Check for updates" row). One instance
 /// per session, so one About page after another makes GitHub hear about it
 /// once. Tests override it with a quiet fake — no test reaches the network.
 final updateFlowProvider = Provider<UpdateFlow>((ref) => UpdateFlow());

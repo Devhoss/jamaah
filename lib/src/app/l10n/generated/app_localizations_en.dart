@@ -2652,7 +2652,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpAbout => 'About';
 
   @override
-  String get helpCheckUpdates => 'GitHub releases';
+  String get helpCheckUpdates => 'Check for updates';
 
   @override
   String get updateChecking => 'Checking…';

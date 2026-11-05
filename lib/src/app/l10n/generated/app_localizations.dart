@@ -4309,7 +4309,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCheckUpdates.
   ///
   /// In en, this message translates to:
-  /// **'GitHub releases'**
+  /// **'Check for updates'**
   String get helpCheckUpdates;
 
   /// No description provided for @updateChecking.
