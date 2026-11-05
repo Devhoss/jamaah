@@ -9,7 +9,6 @@ import '../../data/settings_repository.dart';
 import '../../domain/adhan_alerts.dart';
 import '../../domain/adhan_recordings.dart';
 import '../../domain/prayer.dart';
-import '../flight/in_flight_page.dart';
 import 'adhan_alerts_page.dart';
 import 'jamaah_reminder_settings.dart';
 import 'preference_pages.dart';
@@ -102,19 +101,13 @@ class SettingsPage extends ConsumerWidget {
           divider: false,
         ),
         SettingsHeading(l10n.settingsGroupPreferences),
-        // Travel is one switch, not a page: the switch and the in-flight
-        // guide sit right on the hub, where the whole subject is visible.
+        // Travel is one switch, not a page. The in-flight guide lives on
+        // Today while travel is on, so it is not repeated here.
         SettingsSwitchRow(
           title: l10n.settingsTravelMode,
           hint: l10n.settingsTravelModeHint,
           value: settings.travel.travelMode,
           onChanged: (on) => setTravelMode(context, ref, on),
-        ),
-        SettingsLinkRow(
-          title: l10n.inFlightHelpTitle,
-          value: l10n.travelInFlightValue,
-          onTap: () => openInFlight(context),
-          divider: false,
         ),
         SettingsLinkRow(
           title: l10n.settingsLanguageLook,

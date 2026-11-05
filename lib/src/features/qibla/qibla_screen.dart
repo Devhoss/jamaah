@@ -41,21 +41,40 @@ class QiblaScreen extends ConsumerStatefulWidget {
 class _QiblaScreenState extends ConsumerState<QiblaScreen> {
   Place? _live;
 
+  /// False while the live reading is still in flight. The saved place is
+  /// not painted until this resolves: painting it first and switching to
+  /// the live fix a second later made the whole tab jump on every visit
+  /// (the tab is recreated on each switch, so the read starts over).
+  bool _resolved = false;
+  Timer? _giveUp;
+
   @override
   void initState() {
     super.initState();
     _tryLive();
+    // A slow fix must not hold the tab hostage: after this long the saved
+    // place stands in (labelled), and a late live fix still replaces it.
+    _giveUp = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _resolved = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _giveUp?.cancel();
+    super.dispose();
   }
 
   /// The device's allowed location only, never a dialog: opening the tab
   /// is not a moment to ask, and the coarse level is plenty for a bearing.
   Future<void> _tryLive() async {
-    final reading = await ref
-        .read(placeSourceProvider)
-        .currentPlaceIfAllowed();
-    if (reading is PlaceFound && mounted) {
-      setState(() => _live = reading.place);
-    }
+    final reading = await ref.read(placeSourceProvider).currentPlaceIfAllowed();
+    if (!mounted) return;
+    _giveUp?.cancel();
+    setState(() {
+      _resolved = true;
+      if (reading is PlaceFound) _live = reading.place;
+    });
   }
 
   /// The tab's one explicit ask, for approximate location only: the dialog
@@ -68,6 +87,17 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
   @override
   Widget build(BuildContext context) {
     final saved = ref.watch(currentPlaceProvider);
+    if (!_resolved) {
+      final l10n = AppLocalizations.of(context);
+      return SettingsScaffold(
+        title: l10n.tabQibla,
+        onTab: true,
+        children: const [
+          SizedBox(height: 120),
+          Center(child: CircularProgressIndicator()),
+        ],
+      );
+    }
     final live = _live;
     final place = live ?? saved;
     if (place == null) return const _NeedsPlace();
