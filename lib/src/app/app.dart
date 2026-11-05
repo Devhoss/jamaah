@@ -6,7 +6,6 @@ import 'app_shell.dart';
 import 'foreground_clock.dart';
 import 'location_follower.dart';
 import 'notification_scheduler.dart';
-import 'splash_overlay.dart';
 import 'l10n/app_locale.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'providers.dart';
@@ -100,11 +99,6 @@ class JamaahApp extends ConsumerWidget {
       child: FollowLocationKeeper(
         child: NotificationsKeeper(
           child: MaterialApp(
-            // The return splash lives here, not above MaterialApp: the
-            // builder puts it inside MaterialApp (so it has MediaQuery
-            // and Directionality) and above the Navigator, so it covers
-            // dialogs too, like a real splash.
-            builder: (context, child) => SplashOverlay(child: child!),
             onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
