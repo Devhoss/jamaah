@@ -55,6 +55,8 @@ object AdhanChannel {
                         mapOf(
                             "id" to it.id,
                             "at" to it.atMillis,
+                            "title" to it.title,
+                            "body" to it.body,
                             "kind" to it.kind,
                             "prayer" to it.prayer,
                             "syncId" to it.syncId,
