@@ -2737,15 +2737,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'A small event history stays on this phone. Reports include app build, Android version, notification permission status, and recent scheduling outcomes. They exclude your place, mosque, prayer times, notification text, and identity.';
 
   @override
-  String get diagnosticsSentry => 'Send error reports to Sentry';
+  String get diagnosticsSentry => 'Send diagnostics to Sentry';
 
   @override
   String get diagnosticsSentryHint =>
-      'When enabled, app errors are sent automatically so we can investigate crashes.';
+      'When enabled, app errors and anonymous sync-health stats are sent automatically so we can investigate crashes.';
 
   @override
   String get diagnosticsSentryUnavailable =>
-      'Error reporting is not configured in this build.';
+      'Diagnostics reporting is not configured in this build.';
 
   @override
   String get diagnosticsHistory => 'Recent notification activity';

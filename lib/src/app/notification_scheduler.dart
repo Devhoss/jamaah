@@ -307,7 +307,12 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
     try {
       do {
         _again = false;
-        await _syncOnce(trigger: _nextTrigger);
+        // Tier 1: sampled Sentry transaction around the sync (opt-in only,
+        // no-op otherwise). Trigger names are internal strings, never user data.
+        await Diagnostics.traceNotificationSync(
+          _nextTrigger,
+          () => _syncOnce(trigger: _nextTrigger),
+        );
       } while (_again);
     } finally {
       _running = false;
@@ -586,6 +591,12 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
         syncId: syncId,
       );
       debugPrint('Notifications: $report');
+      // Tier 1: Application Metrics beside the on-device record (opt-in only).
+      Diagnostics.trackNotificationSync(
+        trigger: trigger,
+        durationMs: syncTimer.elapsedMilliseconds,
+        failed: false,
+      );
       unawaited(
         Diagnostics.record(
           'notification_sync_completed',
@@ -625,6 +636,11 @@ class NotificationScheduler extends Notifier<NotificationSyncState> {
       state = NotificationSyncState(report: report);
     } on Object catch (error) {
       debugPrint('Notifications: sync failed: $error');
+      Diagnostics.trackNotificationSync(
+        trigger: trigger,
+        durationMs: syncTimer?.elapsedMilliseconds ?? 0,
+        failed: true,
+      );
       unawaited(
         Diagnostics.record(
           'notification_sync_failed',

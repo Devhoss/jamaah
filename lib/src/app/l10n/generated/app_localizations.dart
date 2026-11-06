@@ -4447,19 +4447,19 @@ abstract class AppLocalizations {
   /// No description provided for @diagnosticsSentry.
   ///
   /// In en, this message translates to:
-  /// **'Send error reports to Sentry'**
+  /// **'Send diagnostics to Sentry'**
   String get diagnosticsSentry;
 
   /// No description provided for @diagnosticsSentryHint.
   ///
   /// In en, this message translates to:
-  /// **'When enabled, app errors are sent automatically so we can investigate crashes.'**
+  /// **'When enabled, app errors and anonymous sync-health stats are sent automatically so we can investigate crashes.'**
   String get diagnosticsSentryHint;
 
   /// No description provided for @diagnosticsSentryUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Error reporting is not configured in this build.'**
+  /// **'Diagnostics reporting is not configured in this build.'**
   String get diagnosticsSentryUnavailable;
 
   /// No description provided for @diagnosticsHistory.

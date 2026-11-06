@@ -51,6 +51,41 @@ try {
     Write-Host ''
     Write-Host $apk
     Write-Host $sidecar
+
+    # Tier 0 (2026-11-06): tell Sentry about this release so issues get
+    # "new in release", suspect commits, and deploy markers. Best-effort
+    # only: telemetry must never fail a release build that already succeeded.
+    try {
+        $envFile = Get-Content -LiteralPath '.env' -Raw
+        $token = ([regex]::Match($envFile, '(?m)^SENTRY_AUTH_TOKEN=(.*)$')).Groups[1].Value.Trim()
+        if (-not $token) {
+            Write-Host 'Sentry release tracking skipped (SENTRY_AUTH_TOKEN empty in .env).'
+        } elseif (-not (Get-Command sentry-cli -ErrorAction SilentlyContinue)) {
+            Write-Host 'Sentry release tracking skipped (sentry-cli not on PATH).'
+        } else {
+            $org = ([regex]::Match($envFile, '(?m)^SENTRY_ORG=(.*)$')).Groups[1].Value.Trim()
+            if (-not $org) { $org = 'lonelycactus-e0' }
+            $project = ([regex]::Match($envFile, '(?m)^SENTRY_PROJECT=(.*)$')).Groups[1].Value.Trim()
+            if (-not $project) { $project = 'flutter' }
+            $url = ([regex]::Match($envFile, '(?m)^SENTRY_URL=(.*)$')).Groups[1].Value.Trim()
+            if (-not $url) { $url = 'https://de.sentry.io' }
+            $envName = ([regex]::Match($envFile, '(?m)^SENTRY_ENVIRONMENT=(.*)$')).Groups[1].Value.Trim()
+            if (-not $envName) { $envName = 'tester' }
+            # SDK auto-release is "<package>@<version>+<build>", e.g. dev.jamaah.app@1.0.8+10.
+            $sentryRelease = "dev.jamaah.app@$version"
+            $env:SENTRY_AUTH_TOKEN = $token
+            Write-Host "Creating Sentry release $sentryRelease (org $org, project $project, env $envName)..."
+            # sentry-cli 3.x: --url is a global flag and must precede the
+            # subcommand; --org/--project belong to the subcommand.
+            sentry-cli --url $url releases new $sentryRelease --org $org --project $project
+            sentry-cli --url $url releases set-commits $sentryRelease --auto --org $org --project $project
+            sentry-cli --url $url deploys new -r $sentryRelease -e $envName --org $org --project $project
+            sentry-cli --url $url releases finalize $sentryRelease --org $org --project $project
+            Write-Host 'Sentry release created.'
+        }
+    } catch {
+        Write-Warning "Sentry release tracking failed (non-fatal): $($_.Exception.Message)"
+    }
 } finally {
     Pop-Location
 }

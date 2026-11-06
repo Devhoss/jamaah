@@ -22,6 +22,12 @@ class Diagnostics {
   static const _maxReportBytes = 1024 * 1024;
   static const _maxHistoryBytes = 2 * 1024 * 1024;
   static const _dsn = String.fromEnvironment('SENTRY_DSN');
+  // Tester builds report as 'tester'; a store build would pass
+  // SENTRY_ENVIRONMENT=production via .env. Never derived from user data.
+  static const _environment = String.fromEnvironment(
+    'SENTRY_ENVIRONMENT',
+    defaultValue: 'tester',
+  );
   static bool _sentryEnabled = false;
   static bool _initialized = false;
   static Future<void> _writeQueue = Future<void>.value();
@@ -29,6 +35,11 @@ class Diagnostics {
 
   static bool get canUpload => _dsn.isNotEmpty;
   static bool get sentryEnabled => _sentryEnabled;
+
+  /// True only while the tester has opted in and a DSN is configured. Every
+  /// Sentry metric/span call goes through this gate, so turning the toggle
+  /// off stops all telemetry, not just error events.
+  static bool get telemetryEnabled => _sentryEnabled && canUpload;
 
   static Future<void> initialize({bool enableSentry = true}) async {
     try {
@@ -69,16 +80,79 @@ class Diagnostics {
     if (!canUpload) return;
     await SentryFlutter.init((options) {
       options.dsn = _dsn;
+      options.environment = _environment;
       options.sendDefaultPii = false;
-      options.enableAutoSessionTracking = false;
+      // Release Health (Tier 0, 2026-11-06): session start/exit give the
+      // crash-free rate per release. Still gated by the opt-in toggle above.
+      options.enableAutoSessionTracking = true;
       options.enableAutoNativeBreadcrumbs = false;
       options.enablePrintBreadcrumbs = false;
       options.maxBreadcrumbs = 0;
-      options.tracesSampleRate = 0;
+      // Light tracing only (Tier 1): notification-sync transactions, sampled.
+      // 0.1 keeps a low-volume tester build far inside the 5M free spans.
+      options.tracesSampleRate = 0.1;
       options.attachScreenshot = false;
       options.beforeBreadcrumb = (breadcrumb, hint) => null;
       options.beforeSend = (event, hint) => _sentryEnabled ? event : null;
     });
+    // Privacy-safe tags only: build identity, never location, mosque, or
+    // prayer-schedule data (AGENTS.md Sentry exception, expanded 2026-11-06).
+    await Sentry.configureScope((scope) {
+      scope.setTag('environment', _environment);
+      scope.setTag('app_version', kAppVersion);
+      scope.setTag('git_commit', kGitCommit);
+      scope.setTag('os', Platform.operatingSystem);
+    });
+  }
+
+  /// Application Metrics (Tier 1): one counter + duration distribution per
+  /// notification sync. Attributes are operational only (trigger, status);
+  /// no counts by prayer, mosque, or place ever leave the device.
+  static void trackNotificationSync({
+    required String trigger,
+    required int durationMs,
+    required bool failed,
+  }) {
+    if (!telemetryEnabled) return;
+    final attributes = {
+      'trigger': SentryAttribute.string(trigger),
+      'status': SentryAttribute.string(failed ? 'failed' : 'ok'),
+    };
+    Sentry.metrics.count(
+      failed ? 'notification.sync.failed' : 'notification.sync.completed',
+      1,
+      attributes: attributes,
+    );
+    Sentry.metrics.distribution(
+      'notification.sync.duration',
+      durationMs,
+      unit: SentryMetricUnit.millisecond,
+      attributes: attributes,
+    );
+  }
+
+  /// Runs [body] as a sampled `notification.sync` transaction. No-op wrapper
+  /// when telemetry is off, so callers never branch on the toggle.
+  static Future<T> traceNotificationSync<T>(
+    String trigger,
+    Future<T> Function() body,
+  ) async {
+    if (!telemetryEnabled) return body();
+    final span = Sentry.startTransaction(
+      'notification.sync',
+      'notification.sync',
+    );
+    span.setTag('trigger', trigger);
+    try {
+      final result = await body();
+      span.status = SpanStatus.ok();
+      await span.finish();
+      return result;
+    } on Object {
+      span.status = SpanStatus.internalError();
+      await span.finish();
+      rethrow;
+    }
   }
 
   static Future<void> record(
@@ -116,6 +190,9 @@ class Diagnostics {
       } on Object {
         _writeFailures++;
         // Diagnostics must never interfere with prayer alerts or reminders.
+        if (telemetryEnabled) {
+          Sentry.metrics.count('diagnostics.write_failure', 1);
+        }
       }
     });
     await _writeQueue;

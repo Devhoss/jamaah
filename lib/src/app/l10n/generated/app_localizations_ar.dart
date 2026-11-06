@@ -1115,7 +1115,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsTravelModeHint =>
-      'بعيدًا عن مسجلك: تتوقف تذكيرات الجماعة، ويظهر وضع الطيران. ويمكن تبديله أيضًا من الطائرة أعلى التطبيق.';
+      'يشغّل خيارات السفر أدناه. ويمكن تبديله أيضًا من الطائرة أعلى التطبيق.';
 
   @override
   String get travelModeTurnOn => 'تشغيل وضع السفر';
@@ -1522,7 +1522,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onbTravelBody =>
-      'يوقف وضع السفر تذكيرات جماعة مسجلك أثناء عليك، ويظهر وضع الطيران في الطائرة. أما مواقيت الصلاة فتتتبع موقعك تلقائيًا حيثما حللت.';
+      'يتبع وضع السفر موقعك، فتبقى الأوقات والقبلة صحيحة حيثما حللت. وعلى متن الطائرة يمكنه عرض مواقيت الصلاة على طول الرحلة.';
 
   @override
   String get onbTravelSwitch => 'وضع السفر';
@@ -2749,8 +2749,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsRemindersLead => 'صوت التذكير الذي يسبق إقامة مسجدك.';
 
   @override
-  String get settingsTravelLead =>
-      'بعيدًا عن مسجلك: تتوقف التذكيرات، ووضع الطيران.';
+  String get settingsTravelLead => 'أوقات تتبعك في سفرك.';
 
   @override
   String get settingsLanguageLookLead => 'لغة التطبيق ومظهره.';
@@ -2823,7 +2822,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get helpAbout => 'عن التطبيق';
 
   @override
-  String get helpCheckUpdates => 'التحقق من التحديثات';
+  String get helpCheckUpdates => 'إصدارات GitHub';
 
   @override
   String get updateChecking => 'جارٍ التحقق…';
@@ -2904,15 +2903,15 @@ class AppLocalizationsAr extends AppLocalizations {
       'يبقى سجل صغير للأحداث على هذا الهاتف. يتضمن التقرير إصدار التطبيق وأندرويد وحالة إذن التنبيهات ونتائج الجدولة الأخيرة. ولا يتضمن موقعك أو المسجد أو أوقات الصلاة أو نصوص التنبيهات أو هويتك.';
 
   @override
-  String get diagnosticsSentry => 'إرسال تقارير الأخطاء إلى Sentry';
+  String get diagnosticsSentry => 'إرسال تقارير التشخيص إلى Sentry';
 
   @override
   String get diagnosticsSentryHint =>
-      'عند التفعيل، تُرسل أخطاء التطبيق تلقائيًا لمساعدتنا على معرفة سبب الأعطال.';
+      'عند التفعيل، تُرسل أخطاء التطبيق وإحصاءات المزامنة تلقائيًا دون أي بيانات شخصية، لمساعدتنا على معرفة سبب الأعطال.';
 
   @override
   String get diagnosticsSentryUnavailable =>
-      'تقارير الأخطاء غير مهيأة في هذا الإصدار.';
+      'تقارير التشخيص غير مهيأة في هذا الإصدار.';
 
   @override
   String get diagnosticsHistory => 'نشاط التنبيهات الأخير';
@@ -3078,10 +3077,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onbBatterySettings => 'إعدادات البطارية';
 
   @override
-  String get onbTravelOnSub => 'مفعّل: تتوقف التذكيرات بعيدًا عن مسجلك';
+  String get onbTravelOnSub => 'مفعّل: الأوقات تتبعك';
 
   @override
-  String get onbTravelOffSub => 'متوقف: تبقى التذكيرات كما هي';
+  String get onbTravelOffSub => 'متوقف: تبقى الأوقات حيث ضبطتها';
 
   @override
   String get onbTravelSame => 'المفتاح نفسه موجود أعلى «اليوم».';

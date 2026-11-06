@@ -238,565 +238,588 @@ Terms used throughout: الأذان (Adhan) · الإقامة (Iqama) · تذك�
 | 225 | `scheduledRescheduleNow` | Reschedule now | إعادة الجدولة الآن |
 | 226 | `scheduledBatteryHint` | Some phones stop reminders to save battery. If one doesn't arrive, set Jama’ah's battery use to Unrestricted in the phone's app settings. | توقف بعض الهواتف التذكيرات لتوفير البطارية. إن لم يصل أحدها، فاجعل استخدام البطارية لهذا التطبيق «غير مقيّد» في إعدادات التطبيقات. |
 | 227 | `scheduledOpenAppSettings` | Open app settings | فتح إعدادات التطبيق |
-| 228 | `kindAdhan` | Adhan | الأذان |
-| 229 | `kindPreAdhan` | Reminder before Adhan | تذكير قبل الأذان |
-| 230 | `kindIqama` | Jama’ah reminder | تذكير الجماعة |
-| 231 | `settingsTitle` | Settings | الإعدادات |
-| 232 | `settingsAdhanSection` | Adhan alerts | تنبيهات الأذان |
-| 233 | `settingsDefaultSound` | Default sound | الصوت الافتراضي |
-| 234 | `settingsDefaultSoundHint` | Used by every prayer that doesn't choose its own. | يُستخدم لكل صلاة لم يُختر لها صوت خاص. |
-| 235 | `settingsAlertOff` | Off | متوقف |
-| 236 | `settingsAlertOn` | On · {sound} | مفعّل · {sound} |
-| 237 | `settingsAlertReminderOnly` | Reminder only · {minutes} min before | {minutes, plural, =1{تذكير فقط · قبل دقيقة} =2{تذكير فقط · قبل دقيقتين} few{تذكير فقط · قبل {minutes} دقائق} many{تذكير فقط · قبل {minutes} دقيقة} other{تذكير فقط · قبل {minutes} دقيقة}} |
-| 238 | `settingsAlertOnWithReminder` | On · {sound} · reminder {minutes} min before | {minutes, plural, =1{مفعّل · {sound} · تذكير قبل دقيقة} =2{مفعّل · {sound} · تذكير قبل دقيقتين} few{مفعّل · {sound} · تذكير قبل {minutes} دقائق} many{مفعّل · {sound} · تذكير قبل {minutes} دقيقة} other{مفعّل · {sound} · تذكير قبل {minutes} دقيقة}} |
-| 239 | `settingsIqamaSection` | Jama’ah reminders | تذكيرات الجماعة |
-| 240 | `settingsIqamaBody` | A Jama’ah reminder comes before your mosque’s Iqama time. Iqama times and their reminders belong to each mosque, so you set them on the mosque. | يأتي تذكير الجماعة قبل وقت الإقامة في مسجدك. أوقات الإقامة وتذكيراتها خاصة بكل مسجد، فتُحدَّد من صفحة المسجد. |
-| 241 | `settingsIqamaOpenActive` | Open {mosque} | فتح {mosque} |
-| 242 | `settingsIqamaNoMosque` | Add a mosque to set Jama’ah reminders. | أضف مسجدًا لتحديد تذكيرات الجماعة. |
-| 243 | `settingsTravelSection` | Travel | السفر |
-| 244 | `settingsNotificationsSection` | Notifications | الإشعارات |
-| 245 | `alertPageTitle` | {prayer} | {prayer} |
-| 246 | `alertAdhanSwitch` | Adhan alert | تنبيه الأذان |
-| 247 | `alertAdhanSwitchHint` | A notification at the Adhan time. | إشعار عند وقت الأذان. |
-| 248 | `alertSunriseHint` | Sunrise is not a prayer. An alert marks the end of the time for Fajr. | الشروق ليس صلاة؛ والتنبيه يدل على انتهاء وقت الفجر. |
-| 249 | `alertSoundHeader` | Sound | الصوت |
-| 250 | `alertUseDefault` | Default ({sound}) | الافتراضي ({sound}) |
-| 251 | `alertSilentHint` | Shown in your notifications without any sound. Turning the alert off is different: then nothing shows. | يظهر في إشعاراتك دون صوت. وإيقاف التنبيه أمر مختلف: عندها لا يظهر شيء. |
-| 252 | `alertFullHint` | Plays the whole Adhan, in the recording chosen in Settings. | يُشغّل الأذان كاملًا، بالتسجيل المختار في الإعدادات. |
-| 253 | `alertShortHint` | Plays a short part of the Adhan, chosen in Settings. | يُشغّل جزءًا قصيرًا من الأذان، يُختار في الإعدادات. |
-| 254 | `alertStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
-| 255 | `alertPreview` | Preview | استماع |
-| 256 | `alertStopPreview` | Stop | إيقاف |
-| 257 | `alertVibrate` | Vibrate | اهتزاز |
-| 258 | `alertRingInSilent` | Ring when the phone is on silent | التنبيه والهاتف صامت |
-| 259 | `alertRingInSilentHint` | Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet. | يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع. |
-| 260 | `alertRingInSilentNeedsSound` | Silent has no sound to ring. | لا صوت في الوضع الصامت ليرنّ. |
-| 261 | `alertReminderHeader` | Reminder before the Adhan | تذكير قبل الأذان |
-| 262 | `alertReminderHint` | A separate heads-up, even if the Adhan alert itself is off. | تنبيه مستقل، حتى لو كان تنبيه الأذان نفسه متوقفًا. |
-| 263 | `alertReminderNone` | None | بدون |
-| 264 | `adhanStop` | Stop | إيقاف |
-| 265 | `settingsFullScreen` | Full-screen Adhan | الأذان بملء الشاشة |
-| 266 | `settingsFullScreenHint` | When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too. | عندما يكون الهاتف غير مستخدم، يملأ الأذان الشاشة مع زر إيقاف كبير. ويوقفه أيضًا زرا الصوت أو قلب الهاتف على وجهه. |
-| 267 | `settingsFullScreenDenied` | Your phone doesn't allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification. | هاتفك لا يسمح بالتنبيهات بملء الشاشة لهذا التطبيق، فيظهر الأذان كإشعار عادي. |
-| 268 | `settingsFullScreenAllow` | Allow full-screen alerts | السماح بالتنبيهات بملء الشاشة |
-| 269 | `alertStopHint` | Stop it with either volume key, from the notification, or by turning the phone face down. | أوقفه بأي من زرّي الصوت، أو من الإشعار، أو بقلب الهاتف على وجهه. |
-| 270 | `settingsFollowLocation` | Follow my location | تتبّع موقعي |
-| 271 | `settingsFollowLocationHint` | While travel mode is on, your place updates to where you are when you open the app, so times follow you between cities and time zones. | أثناء وضع السفر، يتحدّث مكانك إلى حيث أنت عند فتح التطبيق، فتتبعك المواقيت بين المدن والمناطق الزمنية. |
-| 272 | `settingsTravelMode` | Travel mode | وضع السفر |
-| 273 | `settingsTravelModeHint` | Turns on the travel options below. The airplane at the top of the app switches it too. | يشغّل خيارات السفر أدناه. ويمكن تبديله أيضًا من الطائرة أعلى التطبيق. |
-| 274 | `travelModeTurnOn` | Turn on travel mode | تشغيل وضع السفر |
-| 275 | `travelModeTurnOff` | Turn off travel mode | إيقاف وضع السفر |
-| 276 | `travelModeOnSnack` | Travel mode on | وضع السفر مفعّل |
-| 277 | `travelModeOffSnack` | Travel mode off | وضع السفر متوقف |
-| 278 | `settingsAppearanceSection` | Appearance | المظهر |
-| 279 | `settingsFullRecording` | Full Adhan recording | تسجيل الأذان الكامل |
-| 280 | `recordingsTitle` | Full Adhan recording | تسجيل الأذان الكامل |
-| 281 | `recordingsBody` | Plays for every alert set to Full Adhan. Short Adhan is chosen separately in Settings. | يُشغَّل لكل تنبيه مضبوط على «الأذان كاملًا». ويُختار الأذان القصير بشكل منفصل في الإعدادات. |
-| 282 | `recordingPlay` | Play | تشغيل |
-| 283 | `recordingStop` | Stop | إيقاف |
-| 284 | `recordingPlayLabel` | Play {name} | تشغيل {name} |
-| 285 | `recordingStopLabel` | Stop {name} | إيقاف {name} |
-| 286 | `settingsTheme` | Theme | السمة |
-| 287 | `settingsLanguage` | Language | اللغة |
-| 288 | `latitudeNorth` | {degrees}°N | {degrees}° شمالًا |
-| 289 | `latitudeSouth` | {degrees}°S | {degrees}° جنوبًا |
-| 290 | `compassNorth` | N | ش |
-| 291 | `compassSouth` | S | ج |
-| 292 | `recordingLength` | {minutes}:{seconds} | {minutes}:{seconds} |
-| 293 | `themeSystem` | Same as the phone | مثل الهاتف |
-| 294 | `themeLight` | Light | فاتحة |
-| 295 | `themeDark` | Dark | داكنة |
-| 296 | `followDenied` | Location wasn't allowed, so the app can't follow you. You can still choose a city. | لم يُسمح بالموقع، فلا يمكن للتطبيق تتبّعك. لا يزال بإمكانك اختيار مدينة. |
-| 297 | `followUnavailable` | Your location couldn't be read right now, so following stays off. Try again in a moment. | تعذّرت قراءة موقعك الآن، لذا يبقى التتبّع متوقفًا. حاول بعد قليل. |
-| 298 | `followingUpdated` | Following your location · updated {ago} | تتبّع موقعك · حُدّث {ago} |
-| 299 | `followingStale` | Couldn't update your location. Using the last one, from {ago}. | تعذّر تحديث موقعك. يُستخدم آخر موقع، من {ago}. |
-| 300 | `agoJustNow` | just now | الآن |
-| 301 | `agoMinutes` | {count} min ago | {count, plural, =1{قبل دقيقة} =2{قبل دقيقتين} few{قبل {count} دقائق} many{قبل {count} دقيقة} other{قبل {count} دقيقة}} |
-| 302 | `agoHours` | {count} h ago | {count, plural, =1{قبل ساعة} =2{قبل ساعتين} few{قبل {count} ساعات} many{قبل {count} ساعة} other{قبل {count} ساعة}} |
-| 303 | `agoDays` | {count} d ago | {count, plural, =1{قبل يوم} =2{قبل يومين} few{قبل {count} أيام} many{قبل {count} يومًا} other{قبل {count} يوم}} |
-| 304 | `previewCity` | Preview another city | معاينة مدينة أخرى |
-| 305 | `previewTitle` | {place} | {place} |
-| 306 | `previewNote` | Prayer times for {place}. Your own place stays {current}. | مواقيت الصلاة في {place}. يبقى مكانك {current}. |
-| 307 | `methodAuto` | Auto detect | تحديد تلقائي |
-| 308 | `methodCustom` | Custom angles | زوايا مخصصة |
-| 309 | `methodEgyptian` | Egyptian General Authority of Survey (EGAS) | الهيئة المصرية العامة للمساحة |
-| 310 | `methodRegionEgyptian` | Africa, Syria, Lebanon | أفريقيا، سوريا، لبنان |
-| 311 | `methodIsna` | Islamic Society of North America (ISNA) | الجمعية الإسلامية لأمريكا الشمالية (ISNA) |
-| 312 | `methodRegionIsna` | North America (US and Canada) | أمريكا الشمالية (الولايات المتحدة وكندا) |
-| 313 | `methodMoonsightingCommittee` | Moonsighting Committee Worldwide (MCW) | لجنة رؤية الهلال العالمية |
-| 314 | `methodRegionMoonsightingCommittee` | Parts of the US, parts of the UK | أجزاء من الولايات المتحدة والمملكة المتحدة |
-| 315 | `methodMuslimWorldLeague` | Muslim World League (MWL) | رابطة العالم الإسلامي |
-| 316 | `methodRegionMuslimWorldLeague` | Europe, Far East, parts of the US, and other countries | أوروبا، الشرق الأقصى، أجزاء من الولايات المتحدة، ودول أخرى |
-| 317 | `methodUmmAlQura` | Umm al-Qura University, Makkah | جامعة أم القرى، مكة المكرمة |
-| 318 | `methodRegionUmmAlQura` | The Arabian Peninsula | شبه الجزيرة العربية |
-| 319 | `methodKarachi` | University of Islamic Sciences, Karachi | جامعة العلوم الإسلامية، كراتشي |
-| 320 | `methodRegionKarachi` | Pakistan, Afghanistan, Bangladesh, India, parts of Europe | باكستان، أفغانستان، بنغلاديش، الهند، أجزاء من أوروبا |
-| 321 | `methodJakim` | Department of Islamic Advancement of Malaysia (JAKIM) | إدارة التنمية الإسلامية الماليزية (JAKIM) |
-| 322 | `methodRegionJakim` | Malaysia | ماليزيا |
-| 323 | `methodSingapore` | Islamic Religious Council of Singapore (MUIS) | المجلس الإسلامي في سنغافورة (MUIS) |
-| 324 | `methodRegionSingapore` | Singapore | سنغافورة |
-| 325 | `methodIndonesia` | Ministry of Religious Affairs of Indonesia (KEMENAG) | وزارة الشؤون الدينية الإندونيسية (KEMENAG) |
-| 326 | `methodRegionIndonesia` | Indonesia | إندونيسيا |
-| 327 | `methodTurkiye` | Presidency of Religious Affairs of Türkiye (Diyanet) | رئاسة الشؤون الدينية التركية (ديانت) |
-| 328 | `methodRegionTurkiye` | Türkiye | تركيا |
-| 329 | `methodFrance` | Union of Islamic Organisations of France (UOIF) | اتحاد المنظمات الإسلامية في فرنسا (UOIF) |
-| 330 | `methodRegionFrance` | France | فرنسا |
-| 331 | `methodKuwait` | Kuwait | الكويت |
-| 332 | `methodRegionKuwait` | Kuwait | الكويت |
-| 333 | `methodQatar` | Qatar | قطر |
-| 334 | `methodRegionQatar` | Qatar | قطر |
-| 335 | `methodDubai` | Dubai (UAE) | دبي (الإمارات) |
-| 336 | `methodRegionDubai` | United Arab Emirates | الإمارات العربية المتحدة |
-| 337 | `methodGulfRegion` | Gulf region | منطقة الخليج |
-| 338 | `methodRegionGulfRegion` | Bahrain, Oman | البحرين، عُمان |
-| 339 | `methodJordan` | Jordan | الأردن |
-| 340 | `methodRegionJordan` | Jordan | الأردن |
-| 341 | `methodAlgeria` | Algeria | الجزائر |
-| 342 | `methodRegionAlgeria` | Algeria | الجزائر |
-| 343 | `methodMorocco` | Morocco | المغرب |
-| 344 | `methodRegionMorocco` | Morocco | المغرب |
-| 345 | `methodTunisia` | Tunisia | تونس |
-| 346 | `methodRegionTunisia` | Tunisia | تونس |
-| 347 | `methodRussia` | Spiritual Administration of Muslims of Russia | الإدارة الدينية لمسلمي روسيا |
-| 348 | `methodRegionRussia` | Russia | روسيا |
-| 349 | `methodPortugal` | Islamic Community of Lisbon | الجالية الإسلامية في لشبونة |
-| 350 | `methodRegionPortugal` | Portugal | البرتغال |
-| 351 | `methodTehran` | Institute of Geophysics, University of Tehran | معهد الجيوفيزياء، جامعة طهران |
-| 352 | `methodRegionTehran` | Iran (Shia) | إيران (الشيعة) |
-| 353 | `methodJafari` | Shia Ithna-Ashari, Leva Institute, Qum | الشيعة الاثنا عشرية، مؤسسة ليفا، قم |
-| 354 | `methodRegionJafari` | Shia communities | المجتمعات الشيعية |
-| 355 | `settingsPrayerTimesSection` | Prayer times | مواقيت الصلاة |
-| 356 | `settingsMethod` | Calculation method | طريقة الحساب |
-| 357 | `settingsAsr` | Asr method | طريقة حساب العصر |
-| 358 | `settingsHighLatitude` | Far north or south | أقصى الشمال أو الجنوب |
-| 359 | `settingsAdjustments` | Adjust times by minutes | ضبط الأوقات بالدقائق |
-| 360 | `settingsHijri` | Hijri date | التاريخ الهجري |
-| 361 | `zoneNotePlace` | Times are local time in {place} ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي في {place} ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
-| 362 | `inFlightTitle` | In flight | على متن الطائرة |
-| 363 | `onbStep` | Step {current} of {total} | الخطوة {current} من {total} |
-| 364 | `onbContinue` | Continue | متابعة |
-| 365 | `onbBack` | Back | رجوع |
-| 366 | `onbNotNow` | Not now | ليس الآن |
-| 367 | `onbStart` | Start | ابدأ |
-| 368 | `onbWelcomeTagline` | Pray together, on time. | نصلّي معًا، في وقتها. |
-| 369 | `onbWelcomeBody` | Know when to pray. Know when your mosque starts. Get a nudge before the congregation. | اعرف متى تصلّي، ومتى تبدأ الجماعة في مسجدك، وتلقَّ تذكيرًا قبلها. |
-| 370 | `onbLanguage` | Language | اللغة |
-| 371 | `onbPlaceFound` | Found you near {city} | وجدناك قرب {city} |
-| 372 | `placeNear` | {place}, near {city} | {place}، قرب {city} |
-| 373 | `onbPlaceDone` | Prayer times for {place} | مواقيت الصلاة في {place} |
-| 374 | `onbMosqueTitle` | Your mosque | مسجدك |
-| 375 | `onbMosqueBody` | Jama’ah means praying together. Add the mosque you pray at to see when its congregation starts, and get a nudge before it. | الجماعة تعني الصلاة معًا. أضف المسجد الذي تصلّي فيه لترى متى تبدأ جماعته، ولتتلقّى تذكيرًا قبلها. |
-| 376 | `onbMosqueDone` | Added: {mosque}. Enter its Iqama times from the Mosques tab. | أُضيف: {mosque}. أدخل أوقات الإقامة فيه من تبويب المساجد. |
-| 377 | `onbAlertsTitle` | Prayer alerts | تنبيهات الصلاة |
-| 378 | `onbAlertsBody` | An alert at each Adhan. You can choose the sound for each prayer later, from Today. | تنبيه عند كل أذان. يمكنك اختيار صوت كل صلاة لاحقًا من «اليوم». |
-| 379 | `onbAlertsSwitch` | Alerts for the five prayers | تنبيهات الصلوات الخمس |
-| 380 | `onbAlertsSwitchHint` | Your phone will ask to allow notifications. | سيطلب هاتفك السماح بالإشعارات. |
-| 381 | `onbAlertsBattery` | Some phones stop apps in the background to save battery. If an alert ever comes late, let Jama’ah run unrestricted. | تُوقف بعض الهواتف التطبيقات في الخلفية لتوفير البطارية. إذا تأخّر تنبيه يومًا، فاسمح لتطبيق «جماعة» بالعمل دون قيود. |
-| 382 | `onbTravelTitle` | Do you travel often? | هل تسافر كثيرًا؟ |
-| 383 | `onbTravelBody` | Travel mode follows your location, so times and the Qibla stay right wherever you land. On a plane it can show prayer times along the route. | يتبع وضع السفر موقعك، فتبقى الأوقات والقبلة صحيحة حيثما حللت. وعلى متن الطائرة يمكنه عرض مواقيت الصلاة على طول الرحلة. |
-| 384 | `onbTravelSwitch` | Travel mode | وضع السفر |
-| 385 | `onbTravelHint` | You can switch it any time with the airplane at the top of the app. | يمكنك تبديله في أي وقت من الطائرة أعلى التطبيق. |
-| 386 | `settingsShowIntro` | Show the introduction again | عرض المقدمة مرة أخرى |
-| 387 | `inFlightHelp` | How it works | طريقة العمل |
-| 388 | `inFlightHelpTitle` | In-flight mode | وضع الطيران |
-| 389 | `inFlightHelpIntro` | Prayer times and the Qibla on a plane, with no internet and without changing your phone's clock. | مواقيت الصلاة والقبلة على متن الطائرة، دون إنترنت ودون تغيير ساعة هاتفك. |
-| 390 | `inFlightHelpStartTitle` | Starting it | طريقة التشغيل |
-| 391 | `inFlightHelpStartBody` | Turn on travel mode with the airplane at the top of the app. On Today, tap “On a flight?”, then “Start GPS” and allow precise location. Sit by a window if you can: the phone's GPS works in airplane mode, but needs a view of the sky and can take a minute or two to find you. | شغّل وضع السفر من الطائرة أعلى التطبيق. ثم في شاشة اليوم اضغط «على متن رحلة؟» ثم «تشغيل GPS» واسمح بالموقع الدقيق. اجلس بجانب النافذة إن أمكن: فـGPS في هاتفك يعمل في وضع الطيران، لكنه يحتاج إلى رؤية السماء وقد يستغرق دقيقة أو دقيقتين لتحديد مكانك. |
-| 392 | `inFlightHelpTimesTitle` | The prayer times | مواقيت الصلاة |
-| 393 | `inFlightHelpTimesBody` | “Now” and “Next” are for where the aircraft is at this moment, shown on your phone's clock. Up high, the sun sets later and rises earlier than on the ground below, so Maghrib and sunrise follow the sun as you see it from the aircraft. Fajr and Isha follow your calculation method. | «الآن» و«التالية» لمكان الطائرة في هذه اللحظة، معروضة بساعة هاتفك. في الارتفاع تغرب الشمس متأخرة وتشرق مبكرة مقارنة بالأرض تحتك، لذا يتبع المغرب والشروق الشمس كما تراها من الطائرة. أما الفجر والعشاء فيتبعان طريقة الحساب التي اخترتها. |
-| 394 | `inFlightHelpRouteTitle` | Along the route | على مسار الرحلة |
-| 395 | `inFlightHelpRouteBody` | While the aircraft is moving, Jama’ah estimates when you will meet the next prayers if it keeps the same course and speed. The estimate updates with each GPS reading, so it gets better as the flight goes on. Flying east, prayers come sooner; flying west, the aircraft almost keeps pace with the sun, so sunset can stay hours away. | أثناء تحرك الطائرة، يقدّر التطبيق متى تدرك الصلوات التالية إن حافظت الطائرة على اتجاهها وسرعتها. ويتحدّث التقدير مع كل قراءة GPS، فيزداد دقة مع تقدّم الرحلة. باتجاه الشرق تأتي الصلوات أبكر؛ وباتجاه الغرب تكاد الطائرة تجاري الشمس، فقد يبقى الغروب بعيدًا ساعات. |
-| 396 | `inFlightHelpQiblaTitle` | The Qibla aboard | القبلة على متن الطائرة |
-| 397 | `inFlightHelpQiblaBody` | The phone's compass is not reliable inside an aircraft, so the arrow uses the direction the aircraft is flying, from GPS. It shows how far to the right or left of the nose the Qibla is. On the ground, or if you prefer, enter the heading shown on the seat-back map. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يعتمد السهم على اتجاه سير الطائرة من GPS، ويبيّن كم تبعد القبلة يمينًا أو يسارًا عن مقدّمة الطائرة. وعلى الأرض، أو إن شئت، أدخل الاتجاه الظاهر على خريطة الشاشة أمامك. |
-| 398 | `inFlightHelpAlertsTitle` | Alerts in flight | التنبيهات أثناء الرحلة |
-| 399 | `inFlightHelpAlertsBody` | While the aircraft is moving, your usual alerts for the place you left are paused, Jama’ah reminders too, and the next prayer along the route is alerted instead, marked as estimated. It uses that prayer's own Adhan settings. The pause ends by itself 90 minutes after the last GPS reading, or when you tap “End in-flight mode”. At home or at the gate nothing is paused. | أثناء تحرك الطائرة تتوقف تنبيهاتك المعتادة للمكان الذي غادرته، ومعها تذكيرات الجماعة، ويُنبَّه بدلًا منها للصلاة التالية على المسار مع الإشارة إلى أنها تقديرية، بإعدادات أذان تلك الصلاة نفسها. ينتهي الإيقاف تلقائيًا بعد ٩٠ دقيقة من آخر قراءة GPS، أو عند الضغط على «إنهاء وضع الطيران». وفي المنزل أو عند البوابة لا يتوقف شيء. |
-| 400 | `inFlightHelpTipsTitle` | Good to know | معلومات مفيدة |
-| 401 | `inFlightHelpTipsBody` | Keep the in-flight screen open for the best updates; with the screen off for long, the phone may pause GPS. Nothing about where you are is sent anywhere. Questions about how to pray aboard, such as shortening or combining prayers, are for your scholar: Jama’ah gives the times and the direction only. | أبقِ شاشة وضع الطيران مفتوحة لأفضل تحديث؛ فإذا أُطفئت الشاشة طويلًا قد يوقف الهاتف GPS. لا يُرسل أي شيء عن مكانك. أما أحكام الصلاة على متن الطائرة، كالقصر والجمع، فارجع فيها إلى أهل العلم: يكتفي التطبيق بالمواقيت والاتجاه. |
-| 402 | `notifInFlightBody` | It's time for {prayer}, estimated for the aircraft's route. | حان موعد {prayer}، بتقدير مسار الطائرة. |
-| 403 | `inFlightAlongRoute` | Along this route: {prayer}, {countdown} | على هذا المسار: {prayer}، {countdown} |
-| 404 | `inFlightAlongRouteThen` | Then {prayer}, about {time} on your phone | ثم {prayer}، نحو {time} على ساعة هاتفك |
-| 405 | `inFlightAboutOnPhone` | About {time} on your phone | نحو {time} على ساعة هاتفك |
-| 406 | `inFlightAssumesCourse` | Assumes the aircraft keeps its course and speed; updated with each GPS fix. | على افتراض أن الطائرة تحافظ على اتجاهها وسرعتها؛ ويتحدّث مع كل قراءة GPS. |
-| 407 | `inFlightAlertsHeld` | Alerts for {place} are paused until {time}. The next prayer along the route is alerted instead. | تنبيهات {place} موقوفة حتى {time}، ويُنبَّه بدلًا منها للصلاة التالية على مسار الرحلة. |
-| 408 | `inFlightEnd` | End in-flight mode | إنهاء وضع الطيران |
-| 409 | `inFlightHeldNote` | In-flight mode: regular alerts are paused until {time}. | وضع الطيران: التنبيهات المعتادة موقوفة حتى {time}. |
-| 410 | `inFlightCardTitle` | On a flight? | على متن رحلة؟ |
-| 411 | `inFlightCardBody` | Prayer times and the Qibla aboard, from GPS, with no network. | مواقيت الصلاة والقبلة على متن الطائرة، من GPS ودون اتصال. |
-| 412 | `inFlightExplainBody` | Jama’ah uses your phone's GPS, which works in airplane mode, to find where the aircraft is. It needs precise location, and works best by a window. Nothing is sent anywhere. | يستخدم التطبيق GPS في هاتفك، وهو يعمل في وضع الطيران، لمعرفة مكان الطائرة. يحتاج إلى الموقع الدقيق، ويعمل أفضل بجانب النافذة. لا يُرسل أي شيء. |
-| 413 | `inFlightStart` | Start GPS | تشغيل GPS |
-| 414 | `inFlightWaiting` | Waiting for GPS… A window seat helps. | بانتظار GPS… المقعد بجانب النافذة يساعد. |
-| 415 | `inFlightServiceOff` | Location is off on this phone. Turn it on to use GPS aboard. | الموقع متوقف في هذا الهاتف. شغّله لاستخدام GPS على متن الطائرة. |
-| 416 | `inFlightNeedsPrecise` | In-flight mode needs precise location. Try again and choose “Precise”. | يحتاج وضع الطيران إلى الموقع الدقيق. حاول مرة أخرى واختر «دقيق». |
-| 417 | `inFlightPermanentlyDenied` | Precise location is turned off for Jama’ah. You can allow it in the app's settings. | الموقع الدقيق متوقف لهذا التطبيق. يمكنك السماح به من إعدادات التطبيق. |
-| 418 | `inFlightOpenSettings` | Open app settings | فتح إعدادات التطبيق |
-| 419 | `inFlightTryAgain` | Try again | حاول مرة أخرى |
-| 420 | `inFlightAltitudeSpeed` | {altitude} m · {speed} km/h | {altitude} م · {speed} كم/س |
-| 421 | `inFlightFixAge` | GPS fix {ago} | قراءة GPS {ago} |
-| 422 | `inFlightFixLost` | GPS lost. Showing the last fix, from {ago}. | انقطع GPS. تُعرض آخر قراءة، {ago}. |
-| 423 | `inFlightNow` | Now: {prayer} | الآن: {prayer} |
-| 424 | `inFlightNoneNow` | No prayer is due now | لا صلاة حان وقتها الآن |
-| 425 | `inFlightNext` | Next: {prayer}, {countdown} | التالية: {prayer}، {countdown} |
-| 426 | `inFlightOnPhone` | {time} on your phone | {time} على ساعة هاتفك |
-| 427 | `inFlightSunsetLater` | {minutes, plural, =1{From up here the sun sets 1 min later than on the ground below.} other{From up here the sun sets {minutes} min later than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقة.} =2{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقتين.} few{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.}} |
-| 428 | `inFlightSunriseEarlier` | {minutes, plural, =1{From up here the sun rises 1 min earlier than on the ground below.} other{From up here the sun rises {minutes} min earlier than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقة.} =2{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقتين.} few{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.}} |
-| 429 | `inFlightMovingNote` | For where the aircraft is now. As it flies on, these times change; this screen keeps them up to date while it is open. | المواقيت لمكان الطائرة الآن، وتتغير مع تقدّمها؛ وتبقى هذه الشاشة محدّثة ما دامت مفتوحة. |
-| 430 | `inFlightTimesHeader` | Today aboard, on your phone's clock | مواقيت اليوم على متن الطائرة، بساعة هاتفك |
-| 431 | `inFlightQiblaHeader` | Qibla aboard | القبلة على متن الطائرة |
-| 432 | `inFlightQiblaRight` | {degrees}° to the right of the nose | {degrees}° إلى يمين مقدّمة الطائرة |
-| 433 | `inFlightQiblaLeft` | {degrees}° to the left of the nose | {degrees}° إلى يسار مقدّمة الطائرة |
-| 434 | `inFlightQiblaAhead` | Straight ahead | أمامك مباشرة |
-| 435 | `inFlightQiblaBehind` | Behind you, towards the tail | خلفك، باتجاه ذيل الطائرة |
-| 436 | `inFlightHeadingGps` | Using the aircraft's GPS course, {degrees}° | باتجاه سير الطائرة من GPS، {degrees}° |
-| 437 | `inFlightHeadingManual` | Using your heading, {degrees}° | بالاتجاه الذي أدخلته، {degrees}° |
-| 438 | `inFlightNoCourse` | The aircraft isn't moving yet, so there is no course. You can enter the heading from the seat-back map. | الطائرة لا تتحرك بعد، فلا يوجد اتجاه سير. يمكنك إدخال الاتجاه من خريطة الشاشة أمامك. |
-| 439 | `inFlightEnterHeading` | Enter heading | إدخال الاتجاه |
-| 440 | `inFlightUseGps` | Use GPS course | استخدام اتجاه GPS |
-| 441 | `inFlightHeadingLabel` | Heading from the seat-back map (0–359°) | الاتجاه من خريطة الشاشة أمامك (0–359°) |
-| 442 | `inFlightHeadingError` | Between 0 and 359 | بين 0 و359 |
-| 443 | `inFlightQiblaBearing` | Qibla bearing {degrees}° from true north | اتجاه القبلة {degrees}° من الشمال الحقيقي |
-| 444 | `inFlightCompassNote` | The phone's compass isn't reliable inside an aircraft, so this uses the aircraft's direction instead. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يُستخدم اتجاه الطائرة بدلًا منها. |
-| 445 | `inFlightDiagramLabel` | Aircraft seen from above, nose up. The arrow points to the Qibla. | الطائرة من الأعلى ومقدّمتها للأعلى. يشير السهم إلى القبلة. |
-| 446 | `zoneNoteHere` | Times are local time where you are ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي حيث أنت ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
-| 447 | `hijriAsCalculated` | As calculated (Umm al-Qura) | كما هو محسوب (أم القرى) |
-| 448 | `hijriLater` | {days, plural, =1{1 day later} other{{days} days later}} | {days, plural, =1{متأخر يومًا} =2{متأخر يومين} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يومًا}} |
-| 449 | `hijriEarlier` | {days, plural, =1{1 day earlier} other{{days} days earlier}} | {days, plural, =1{متقدم يومًا} =2{متقدم يومين} few{متقدم {days} أيام} many{متقدم {days} يومًا} other{متقدم {days} يومًا}} |
-| 450 | `hijriAdjustNote` | Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date. | طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ. |
-| 451 | `methodAngles` | Fajr {fajr}° · Isha {isha}° | الفجر {fajr}° · العشاء {isha}° |
-| 452 | `methodAnglesInterval` | Fajr {fajr}° · Isha {minutes} min after Maghrib | {minutes, plural, =1{الفجر {fajr}° · العشاء بعد المغرب بـدقيقة} =2{الفجر {fajr}° · العشاء بعد المغرب بـدقيقتين} few{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقائق} many{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة} other{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة}} |
-| 453 | `methodUmmAlQuraRamadan` | Isha 120 min after Maghrib during Ramadan | العشاء بعد المغرب بـ120 دقيقة في رمضان |
-| 454 | `methodMoonsightingNote` | Also adjusts Fajr and Isha by season | يعدّل الفجر والعشاء أيضًا حسب الموسم |
-| 455 | `methodAutoResolved` | Uses {method} for {place} | يستخدم {method} في {place} |
-| 456 | `methodAutoNoPlace` | Chooses by your place once one is set | يختار حسب مكانك بعد تحديده |
-| 457 | `customTitle` | Custom angles | زوايا مخصصة |
-| 458 | `customFajr` | Fajr angle (°) | زاوية الفجر (°) |
-| 459 | `customIsha` | Isha angle (°) | زاوية العشاء (°) |
-| 460 | `customIshaByMinutes` | Isha by minutes after Maghrib | العشاء بدقائق بعد المغرب |
-| 461 | `customIshaMinutes` | Minutes after Maghrib | الدقائق بعد المغرب |
-| 462 | `customAngleError` | Between 10° and 22° | بين 10° و22° |
-| 463 | `customMinutesError` | Between 1 and 180 minutes | بين 1 و180 دقيقة |
-| 464 | `asrStandard` | Standard | الجمهور |
-| 465 | `asrStandardHint` | Shafi'i, Maliki, Hanbali: the earlier Asr time | الشافعي والمالكي والحنبلي: وقت العصر الأبكر |
-| 466 | `asrHanafi` | Hanafi | الحنفي |
-| 467 | `asrHanafiHint` | The later Asr time | وقت العصر المتأخر |
-| 468 | `ruleMiddleOfTheNightTitle` | Middle of the night | منتصف الليل |
-| 469 | `ruleSeventhOfTheNightTitle` | One seventh of the night | سُبع الليل |
-| 470 | `ruleTwilightAngleTitle` | Twilight angle | زاوية الشفق |
-| 471 | `ruleMiddleOfTheNightHint` | Fajr and Isha no later than the middle of the night (default) | الفجر والعشاء لا يتجاوزان منتصف الليل (الافتراضي) |
-| 472 | `ruleSeventhOfTheNightHint` | Fajr and Isha within the first and last seventh of the night | الفجر والعشاء ضمن السُّبع الأول والأخير من الليل |
-| 473 | `ruleTwilightAngleHint` | A share of the night proportional to the method's angles | جزء من الليل يتناسب مع زوايا الطريقة |
-| 474 | `highLatitudeSettingsNote` | Only used where the sun stays close to the horizon at night; elsewhere it changes nothing. | تُستخدم فقط حيث تبقى الشمس قريبة من الأفق ليلًا؛ وفي غير ذلك لا تغيّر شيئًا. |
-| 475 | `adjustmentsHint` | Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable. | دقائق تُضاف إلى الوقت المحسوب أو تُطرح منه، مثلًا لمطابقة التقويم المطبوع في مسجدك. |
-| 476 | `adjustmentsMinus` | {prayer}: one minute earlier | {prayer}: تقديم دقيقة |
-| 477 | `adjustmentsPlus` | {prayer}: one minute later | {prayer}: تأخير دقيقة |
-| 478 | `adjustmentsValue` | {minutes} min | {minutes} د |
-| 479 | `adjustmentsNone` | None | لا يوجد |
-| 480 | `adjustmentsReset` | Reset all to 0 | إعادة الكل إلى 0 |
-| 481 | `reminderSoundChime` | Chime | نغمة |
-| 482 | `reminderSoundShortAzan` | Azan Short | أذان قصير |
-| 483 | `reminderSoundShortAllahAkbar` | Azan Allah Akbar HD | الأذان الله أكبر بجودة عالية |
-| 484 | `reminderSoundShortAzanOne` | Azan Short 1 | أذان قصير ١ |
-| 485 | `reminderSoundShortVerseOne` | Adhan Verse 1 | مقطع الأذان الأول |
-| 486 | `reminderSoundShortVerseTwo` | Adhan Verse 2 | مقطع الأذان الثاني |
-| 487 | `shortAdhanClipHint` | Preview this supplied short Adhan recording. | استمع إلى مقطع الأذان القصير هذا. |
-| 488 | `settingsShortAdhan` | Short Adhan | الأذان القصير |
-| 489 | `settingsReminderSound` | Reminder sound | صوت التذكير |
-| 490 | `reminderSoundChimeHint` | A soft two-note chime, different from the Adhan and from other apps. | نغمة هادئة من نوتتين، مختلفة عن الأذان وعن التطبيقات الأخرى. |
-| 491 | `reminderSoundStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
-| 492 | `reminderSoundSilentHint` | Shown in your notifications without any sound. | يظهر في إشعاراتك دون صوت. |
-| 493 | `settingsReminderVibrate` | Vibrate | اهتزاز |
-| 494 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
-| 495 | `settingsPauseAllIqamaHint` | From every mosque. Iqama times are kept, and Adhan alerts carry on. | من كل المساجد. تبقى أوقات الإقامة محفوظة، وتستمر تنبيهات الأذان. |
-| 496 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
-| 497 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
-| 498 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
-| 499 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
-| 500 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
-| 501 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |
-| 502 | `prayerJumuah` | Jumu’ah | الجمعة |
-| 503 | `extraImsak` | Imsak | الإمساك |
-| 504 | `extraDuha` | Duha | الضحى |
-| 505 | `extraQiyam` | Last third of the night | الثلث الأخير من الليل |
-| 506 | `notifImsakBody` | Imsak: stop eating before Fajr. | الإمساك: أمسك عن الطعام قبل الفجر. |
-| 507 | `notifDuhaBody` | The time for Duha prayer has begun. | دخل وقت صلاة الضحى. |
-| 508 | `notifQiyamBody` | The last third of the night has begun. | دخل الثلث الأخير من الليل. |
-| 509 | `channelExtra` | Other times · {sound} | أوقات أخرى · {sound} |
-| 510 | `kindExtra` | Extra time | وقت إضافي |
-| 511 | `settingsExtraTimes` | Extra times | أوقات إضافية |
-| 512 | `extraTimesIntro` | Times beside the five prayers, worked out from your prayer times. They have no Iqama. | أوقات إلى جانب الصلوات الخمس، تُحسب من مواقيت صلاتك. ولا إقامة لها. |
-| 513 | `extraShowOnToday` | Show on Today | إظهار في صفحة اليوم |
-| 514 | `extraAlert` | Alert | تنبيه |
-| 515 | `extraAlertHint` | Uses your Jama’ah reminder sound. | يستخدم صوت تذكير الجماعة. |
-| 516 | `extraImsakRule` | {minutes} min before Fajr | {minutes, plural, =0{عند الفجر} =1{قبل الفجر بدقيقة} =2{قبل الفجر بدقيقتين} few{قبل الفجر بـ{minutes} دقائق} many{قبل الفجر بـ{minutes} دقيقة} other{قبل الفجر بـ{minutes} دقيقة}} |
-| 517 | `extraDuhaRule` | {minutes} min after sunrise | {minutes, plural, =1{دقيقة بعد الشروق} =2{دقيقتين بعد الشروق} few{{minutes} دقائق بعد الشروق} many{{minutes} دقيقة بعد الشروق} other{{minutes} دقيقة بعد الشروق}} |
-| 518 | `extraQiyamRule` | The last third of the time from Maghrib to Fajr. | الثلث الأخير من الوقت بين المغرب والفجر. |
-| 519 | `extraNoneShown` | None shown | لا شيء معروض |
-| 520 | `listSeparator` | ,  | ،  |
-| 521 | `jumuahNotSetNote` | Jumu’ah time not set · showing Dhuhr Iqama | لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر |
-| 522 | `jumuahRowHint` | Fridays, in place of Dhuhr | يوم الجمعة بدلًا من الظهر |
-| 523 | `jumuahRowNotSet` | Jumu’ah time not set | وقت الجمعة غير محدَّد |
-| 524 | `settingsAdhanRingInSilent` | Adhan rings on silent | الأذان يرنّ والهاتف صامت |
-| 525 | `settingsPreAdhanRingInSilent` | Reminders before the Adhan ring on silent | التذكير قبل الأذان يرنّ والهاتف صامت |
-| 526 | `ringInSilentSome` | On for some prayers. Each prayer’s page can change it. | مفعّل لبعض الصلوات. ويمكن تغييره من صفحة كل صلاة. |
-| 527 | `alertPreAdhanRingInSilent` | Reminder rings on silent | التذكير يرنّ والهاتف صامت |
-| 528 | `onbRingInSilent` | Ring even when my phone is on silent | التنبيه حتى لو كان هاتفي صامتًا |
-| 529 | `onbRingInSilentHint` | For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings. | للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات. |
-| 530 | `iqamaModeAfterAdhan` | Minutes after Adhan | دقائق بعد الأذان |
-| 531 | `iqamaModeFixed` | Fixed time | وقت ثابت |
-| 532 | `iqamaMinutesLabel` | Minutes after the Adhan | عدد الدقائق بعد الأذان |
-| 533 | `iqamaAfterAdhanPreview` | Adhan {adhan} + {minutes} min = Iqama {iqama} today | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} اليوم} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} اليوم} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} اليوم} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم}} |
-| 534 | `iqamaMinutesInvalid` | Enter 1 to 90 minutes | أدخل من 1 إلى 90 دقيقة |
-| 535 | `iqamaNeedsAdhan` | Set your location to see today’s time. | حدّد موقعك لترى وقت اليوم. |
-| 536 | `rowAfterAdhan` | {minutes} min after Adhan | {minutes, plural, =1{دقيقة بعد الأذان} =2{دقيقتين بعد الأذان} few{{minutes} دقائق بعد الأذان} many{{minutes} دقيقة بعد الأذان} other{{minutes} دقيقة بعد الأذان}} |
-| 537 | `enterAllFive` | Enter minutes for all five | إدخال الدقائق للصلوات الخمس |
-| 538 | `enterAllFiveTitle` | Iqama: minutes after the Adhan | الإقامة: الدقائق بعد الأذان |
-| 539 | `enterAllFiveHint` | As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are. | كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها. |
-| 540 | `iqamaAfterAdhanPreviewTomorrow` | Adhan {adhan} + {minutes} min = Iqama {iqama} tomorrow | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} غدًا} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} غدًا} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} غدًا} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا}} |
-| 541 | `reminderSoundCustom` | Your own sound | صوتك الخاص |
-| 542 | `reminderSoundCustomHint` | A file from your phone. Plays for up to 30 seconds. | ملف من هاتفك. يُشغَّل حتى 30 ثانية. |
-| 543 | `reminderSoundCustomNamed` | Your own: {name} | صوتك: {name} |
-| 544 | `recordingsYours` | Your recordings | تسجيلاتك |
-| 545 | `soundAddFromPhone` | Add from your phone | إضافة من هاتفك |
-| 546 | `soundRename` | Rename | إعادة التسمية |
-| 547 | `soundDelete` | Delete | حذف |
-| 548 | `soundName` | Name | الاسم |
-| 549 | `soundDeleteConfirm` | Delete “{name}”? Anything using it goes back to the built-in sound. | حذف «{name}»؟ ما يستخدمه يعود إلى الصوت المدمج. |
-| 550 | `soundCouldNotAdd` | That file could not be added. | تعذّرت إضافة هذا الملف. |
-| 551 | `recordingPreviewFailed` | This recording could not be played. | تعذّر تشغيل هذا التسجيل. |
-| 552 | `soundOptions` | Options for {name} | خيارات {name} |
-| 553 | `prayerRecording` | Recording | التسجيل |
-| 554 | `prayerRecordingSame` | Same as in Settings ({name}) | كما في الإعدادات ({name}) |
-| 555 | `prayerRecordingHint` | Plays when this prayer’s sound is Full Adhan. | يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل. |
-| 556 | `recordingsForPrayer` | Recording for {prayer} | تسجيل {prayer} |
-| 557 | `heroKickerTomorrow` | Next prayer · tomorrow | الصلاة القادمة · غدًا |
-| 558 | `heroKickerHeld` | {prayer} · Iqama {countdown} | {prayer} · الإقامة {countdown} |
-| 559 | `heroKickerAdhan` | Adhan | الأذان |
-| 560 | `heroKickerInForce` | In force at {time} | الوقت الحاضر عند {time} |
-| 561 | `heroKickerSunrise` | Sunrise · not a prayer | الشروق · ليس وقت صلاة |
-| 562 | `heroBackToNow` | Back to now | العودة إلى الآن |
-| 563 | `heroMeta` | {period} · {relative} | {period} · {relative} |
-| 564 | `heroAdhanAgo` | Adhan {ago} | الأذان {ago} |
-| 565 | `sunNow` | Now {time} | الآن {time} |
-| 566 | `sunPathLabel` | Look through the day | تصفّح اليوم |
-| 567 | `sunPathValue` | {time}, {prayer} | {time}، {prayer} |
-| 568 | `placeSubline` | {date} · {hijri} | {date} · {hijri} |
-| 569 | `placeButtonSemantics` | Place: {place}. Change place | المكان: {place}. تغيير المكان |
-| 570 | `moreNotes` | {count, plural, =1{1 more note} other{{count} more notes}} | {count, plural, =1{ملاحظة أخرى} =2{ملاحظتان أخريان} few{{count} ملاحظات أخرى} many{{count} ملاحظة أخرى} other{{count} ملاحظة أخرى}} |
-| 571 | `notesTitle` | Notes | ملاحظات |
-| 572 | `ticketKicker` | Iqama · {mosque} | الإقامة · {mosque} |
-| 573 | `jumuahTicketKicker` | Khutbah · {mosque} | الخطبة · {mosque} |
-| 574 | `jumuahTicketSemantics` | Khutbah at {mosque}: {time}, {relative}. {rule}. {reminder}. | الخطبة في {mosque}: {time}، {relative}. {rule}. {reminder}. |
-| 575 | `jumuahTicketUnsetSemantics` | Khutbah at {mosque}: not configured. Set time | الخطبة في {mosque}: غير محدّدة. حدّد الوقت |
-| 576 | `ticketWhen` | · {relative} | · {relative} |
-| 577 | `ticketRuleAfter` | {minutes, plural, =1{Adhan + 1 min · set by you} other{Adhan + {minutes} min · set by you}} | {minutes, plural, =1{الأذان + دقيقة · حدّدتها أنت} =2{الأذان + دقيقتين · حدّدتها أنت} few{الأذان + {minutes} دقائق · حدّدتها أنت} many{الأذان + {minutes} دقيقة · حدّدتها أنت} other{الأذان + {minutes} دقيقة · حدّدتها أنت}} |
-| 578 | `ticketRuleFixed` | Fixed time · set by you | وقت ثابت · حدّدته أنت |
-| 579 | `ticketReminder` | Reminder {time} | التذكير {time} |
-| 580 | `ticketNoReminder` | No reminder | بلا تذكير |
-| 581 | `ticketSetTime` | Set time | حدّد الوقت |
-| 582 | `ticketSunrise` | Sunrise ends the time for Fajr. It has no Iqama. | بالشروق ينتهي وقت الفجر. لا إقامة له. |
-| 583 | `ticketNoMosque` | Add your mosque to see when its congregation starts. | أضف مسجدك لترى متى تبدأ صلاة الجماعة فيه. |
-| 584 | `ticketJumuahNotSet` | Jumu’ah time not set · Dhuhr Iqama {time} | لم يُحدَّد وقت الجمعة · إقامة الظهر {time} |
-| 585 | `ticketSemantics` | Iqama at {mosque}: {time}, {relative}. {rule}. {reminder}. | الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}. |
-| 586 | `ticketUnsetSemantics` | Iqama at {mosque}: not configured. Set time | الإقامة في {mosque}: غير محدّدة. حدّد الوقت |
-| 587 | `alertShortFull` | Full | كامل |
-| 588 | `alertShortShort` | Short | قصير |
-| 589 | `alertShortStandard` | Standard | عادي |
-| 590 | `alertShortSilent` | Silent | صامت |
-| 591 | `alertShortOff` | Off | إيقاف |
-| 592 | `alertSheetTitle` | {prayer} alert | تنبيه {prayer} |
-| 593 | `alertSheetAdhan` | Adhan {time} | الأذان {time} |
-| 594 | `alertGroupSound` | Notify with sound | تنبيه بصوت |
-| 595 | `alertGroupQuiet` | Notify without sound | تنبيه بلا صوت |
-| 596 | `alertDescSilent` | Shown in the notification shade, no sound | يظهر في الإشعارات بلا صوت |
-| 597 | `alertDescOff` | No notification at all | لا إشعار على الإطلاق |
-| 598 | `alertDefaultMark` | {label} · Default | {label} · الافتراضي |
-| 599 | `alertDefaultSuffix` | {label} · default | {label} · الافتراضي |
-| 600 | `alertDone` | Done | تم |
-| 601 | `alertButtonSemantics` | {prayer} Adhan alert: {mode}. Change | تنبيه أذان {prayer}: {mode}. تغيير |
-| 602 | `rowIqamaNotSet` | Iqama not set | الإقامة غير محدّدة |
-| 603 | `sunLabelCombined` | {prayer} · {time} | {prayer} · {time} |
-| 604 | `placeNearCity` | Near {city} | قرب {city} |
-| 605 | `mosquesLead` | Today and your Jama’ah reminders follow your active mosque, now {mosque}. | يتبع «اليوم» وتذكيرات الجماعة مسجدك النشط، وهو الآن {mosque}. |
-| 606 | `mosquesLeadNoActive` | Make one mosque active and Today follows it. | اجعل أحد المساجد نشطًا ليتبعه «اليوم». |
-| 607 | `mosquesFindNearby` | Find nearby | ابحث بالقرب منك |
-| 608 | `mosquesAddManually` | Add manually | أضف يدويًا |
-| 609 | `mosqueSourceGoogleUnverified` | From Google Maps · not verified | من خرائط Google · غير موثّق |
-| 610 | `mosqueSourceOsmUnverified` | From OpenStreetMap · not verified | من OpenStreetMap · غير موثّق |
-| 611 | `mosqueNoIqamaYet` | No Iqama set yet | لم تُحدَّد أي إقامة بعد |
-| 612 | `mosqueActiveLong` | Active · Today uses this mosque | نشط · «اليوم» يستخدم هذا المسجد |
-| 613 | `mosqueMakeActive` | Make active | اجعله نشطًا |
-| 614 | `mosqueMadeActive` | {mosque} is now your active mosque | أصبح {mosque} مسجدك النشط |
-| 615 | `mosquesFooter` | Mosques found online show where they came from and are not verified. Your Iqama times stay on this phone. | المساجد التي تُعثر عليها عبر الإنترنت تُظهر مصدرها وهي غير موثّقة. أوقات الإقامة التي تُدخلها تبقى على هذا الهاتف. |
-| 616 | `mosquesEmptyTitle` | There’s a place for you | لك مكانٌ في الصف |
-| 617 | `mosquesEmptyBody` | Add the mosque you pray at. Jama’ah will show when its congregation starts and remind you before it. | أضف المسجد الذي تصلّي فيه. سيُظهر «جماعة» موعد بدء صلاة الجماعة فيه ويذكّرك قبلها. |
-| 618 | `mosquesEmptyFind` | Find mosques nearby | ابحث عن مساجد قريبة |
-| 619 | `mosquesEmptyAdd` | Add one yourself | أضف مسجدًا بنفسك |
-| 620 | `mosquesEmptyNote` | You enter its Iqama times. Nothing is guessed, and nothing leaves your phone. | أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك. |
-| 621 | `mosqueRowSemantics` | {mosque}. {source}. {count} | {mosque}. {source}. {count} |
-| 622 | `mosqueKicker` | Your mosque | مسجدك |
-| 623 | `mosqueNextJamaah` | Next Jama’ah · {prayer} {time} · {relative} | الجماعة القادمة · {prayer} {time} · {relative} |
-| 624 | `mosqueNoNextJamaah` | No more Jama’ah set for today | لا جماعة أخرى محدّدة لليوم |
-| 625 | `mosquePauseTitle` | Pause Jama’ah reminders | إيقاف تذكيرات الجماعة مؤقتًا |
-| 626 | `mosquePauseHint` | Your Iqama times and settings are kept. | تبقى أوقات الإقامة وإعداداتك محفوظة. |
-| 627 | `scheduleSection` | Iqama schedule | جدول الإقامة |
-| 628 | `scheduleTapHint` | Tap a prayer to set it | اضغط على صلاة لتحديدها |
-| 629 | `rowAdhanPlus` | {minutes, plural, =1{Adhan + 1 min} other{Adhan + {minutes} min}} | {minutes, plural, =1{الأذان + دقيقة} =2{الأذان + دقيقتين} few{الأذان + {minutes} دقائق} many{الأذان + {minutes} دقيقة} other{الأذان + {minutes} دقيقة}} |
-| 630 | `rowFixedTime` | Fixed time | وقت ثابت |
-| 631 | `rowPausedReminder` | Paused · Reminder at {time} | متوقف مؤقتًا · التذكير {time} |
-| 632 | `reminderSwitchNeedsIqama` | {prayer} Jama’ah reminder, available once an Iqama time is set | تذكير جماعة {prayer}، متاح بعد تحديد وقت الإقامة |
-| 633 | `scheduleNeverFills` | The app never fills in an Iqama. | التطبيق لا يملأ أي إقامة من عنده. |
-| 634 | `removeThisMosque` | Remove this mosque | إزالة هذا المسجد |
-| 635 | `mosqueBack` | Back to Mosques | العودة إلى المساجد |
-| 636 | `iqamaRowSet` | Edit {prayer} Iqama | تعديل إقامة {prayer} |
-| 637 | `iqamaRowUnset` | Set {prayer} Iqama | تحديد إقامة {prayer} |
-| 638 | `scheduleFooter` | Set by you · last updated {date}. The app never fills in an Iqama. | حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده. |
-| 639 | `iqamaEditorSub` | {mosque} · Adhan {time} today | {mosque} · الأذان {time} اليوم |
-| 640 | `iqamaEditorSubFriday` | {mosque} · Fridays, in place of Dhuhr | {mosque} · أيام الجمعة، بدل الظهر |
-| 641 | `iqamaModeAfterDesc` | Moves with the Adhan | يتحرّك مع الأذان |
-| 642 | `iqamaModeFixedDesc` | Same time every day | الوقت نفسه كل يوم |
-| 643 | `iqamaMinutesEmpty` | Choose how many minutes after the Adhan this mosque starts. Nothing is saved until you do. | اختر كم دقيقة بعد الأذان تبدأ الإقامة في هذا المسجد. لا يُحفظ شيء حتى تختار. |
-| 644 | `iqamaFixedEmptyNote` | Nothing is saved until you choose a time. | لا يُحفظ شيء حتى تختار وقتًا. |
-| 645 | `iqamaFixedNote` | The same time every day, whatever the Adhan. | الوقت نفسه كل يوم، أيًّا كان وقت الأذان. |
-| 646 | `iqamaReminderTitle` | Jama’ah reminder | تذكير الجماعة |
-| 647 | `iqamaReminderHint` | A nudge before the congregation starts | تنبيه قبل أن تبدأ صلاة الجماعة |
-| 648 | `iqamaSaved` | {prayer} Iqama saved | حُفظت إقامة {prayer} |
-| 649 | `clearThisIqama` | Clear this Iqama | مسح هذه الإقامة |
-| 650 | `iqamaFewerMinutes` | One minute less | دقيقة أقل |
-| 651 | `iqamaMoreMinutes` | One minute more | دقيقة أكثر |
-| 652 | `iqamaEarlier` | {minutes, plural, =1{1 minute earlier} other{{minutes} minutes earlier}} | {minutes, plural, =1{تقديم دقيقة} =2{تقديم دقيقتين} few{تقديم {minutes} دقائق} many{تقديم {minutes} دقيقة} other{تقديم {minutes} دقيقة}} |
-| 653 | `iqamaLater` | {minutes, plural, =1{1 minute later} other{{minutes} minutes later}} | {minutes, plural, =1{تأخير دقيقة} =2{تأخير دقيقتين} few{تأخير {minutes} دقائق} many{تأخير {minutes} دقيقة} other{تأخير {minutes} دقيقة}} |
-| 654 | `settingsBack` | Back | رجوع |
-| 655 | `settingsGroupEveryDay` | Every day | كل يوم |
-| 656 | `settingsGroupPreferences` | Preferences | التفضيلات |
-| 657 | `settingsGroupHelp` | Help | المساعدة |
-| 658 | `settingsLanguageLook` | Language and look | اللغة والمظهر |
-| 659 | `settingsHelpAbout` | Help and about | المساعدة وعن التطبيق |
-| 660 | `settingsHubFooter` | Iqama times live on each mosque, in the Mosques tab, not here. | أوقات الإقامة محفوظة في كل مسجد، في تبويب «المساجد»، لا هنا. |
-| 661 | `settingsPrayerTimesSummary` | {method} · Asr {asr} | {method} · العصر {asr} |
-| 662 | `settingsAlertsSummary` | {sound} · {on} of {total} on | {sound} · {on} من {total} مفعّلة |
-| 663 | `settingsSummaryPair` | {first} · {second} | {first} · {second} |
-| 664 | `settingsRemindersPausedShort` | All paused | كلها موقوفة مؤقتًا |
-| 665 | `settingsNoActiveMosque` | No active mosque | لا مسجد نشط |
-| 666 | `travelSummaryOff` | Off | متوقف |
-| 667 | `travelSummaryOn` | On | مفعّل |
-| 668 | `travelSummaryFollowing` | On · following your location | مفعّل · يتبع موقعك |
-| 669 | `settingsHelpSummary` | Introduction, late alerts, about | المقدمة، والتنبيهات المتأخرة، وعن التطبيق |
-| 670 | `settingsPrayerTimesLead` | How the times on Today are worked out. | كيف تُحسب الأوقات في «اليوم». |
-| 671 | `settingsAlertsLead` | What you hear at each Adhan. | ما تسمعه عند كل أذان. |
-| 672 | `settingsRemindersLead` | How the reminder before your mosque’s Iqama sounds. | صوت التذكير الذي يسبق إقامة مسجدك. |
-| 673 | `settingsTravelLead` | Times that follow you on a journey. | أوقات تتبعك في سفرك. |
-| 674 | `settingsLanguageLookLead` | The app’s language and theme. | لغة التطبيق ومظهره. |
-| 675 | `settingsHelpLead` | Getting started, late alerts, and this build. | البداية، والتنبيهات المتأخرة، وهذا الإصدار. |
-| 676 | `extraOnTodaySection` | Extra times on Today | أوقات إضافية في «اليوم» |
-| 677 | `extraAlertsAndTiming` | Alerts and timing | التنبيهات والتوقيت |
-| 678 | `extraNoAlerts` | No alerts | بلا تنبيهات |
-| 679 | `extraAlertsFor` | Alerts: {names} | التنبيهات: {names} |
-| 680 | `settingsAdvanced` | Advanced | متقدّم |
-| 681 | `highLatitudeLead` | When the night is short, Fajr and Isha need a rule. | حين يقصر الليل، يحتاج الفجر والعشاء إلى قاعدة. |
-| 682 | `alertsEachPrayer` | Each prayer | كل صلاة |
-| 683 | `alertsAlsoFromToday` | Also from Today: tap the sound beside any prayer. | ومن «اليوم» أيضًا: انقر الصوت بجانب أي صلاة. |
-| 684 | `alertsRecordings` | Recordings | التسجيلات |
-| 685 | `alertsSilentSection` | On the lock screen and on silent | على شاشة القفل وفي الوضع الصامت |
-| 686 | `settingsRemindersOnMosque` | Iqama times and which prayers remind you are set on each mosque. | أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد. |
-| 687 | `followNeedsTravel` | Available while travel mode is on. | متاح أثناء تفعيل وضع السفر. |
-| 688 | `travelInFlightValue` | Prayer times and the Qibla on a plane | أوقات الصلاة والقبلة على متن الطائرة |
-| 689 | `themeSkyNote` | The sky always follows the time of day. Dark keeps it dimmer. | السماء تتبع وقت النهار دائمًا، والوضع الداكن يجعلها أخفت. |
-| 690 | `helpLateAlerts` | Alerts arriving late? | هل تصل التنبيهات متأخرة؟ |
-| 691 | `helpLateAlertsLead` | Most often the phone is saving battery. | غالبًا ما يكون الهاتف يوفّر البطارية. |
-| 692 | `helpBatteryTitle` | Battery use | استخدام البطارية |
-| 693 | `helpCheckTitle` | Check what is scheduled | تحقّق ممّا هو مجدول |
-| 694 | `helpCheckBody` | The list shows every alert and reminder waiting on this phone, and says if a permission is missing. | تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص. |
-| 695 | `helpAbout` | About | عن التطبيق |
-| 696 | `helpCheckUpdates` | GitHub releases | إصدارات GitHub |
-| 697 | `helpUpdatesUnavailable` | Could not open the releases page. | تعذّر فتح صفحة الإصدارات. |
-| 698 | `diagnosticsTitle` | Diagnostics | التشخيص |
-| 699 | `diagnosticsLead` | Help us understand notification problems on this phone. | ساعدنا على فهم مشكلات التنبيهات على هذا الهاتف. |
-| 700 | `diagnosticsPrivacy` | A small event history stays on this phone. Reports include app build, Android version, notification permission status, and recent scheduling outcomes. They exclude your place, mosque, prayer times, notification text, and identity. | يبقى سجل صغير للأحداث على هذا الهاتف. يتضمن التقرير إصدار التطبيق وأندرويد وحالة إذن التنبيهات ونتائج الجدولة الأخيرة. ولا يتضمن موقعك أو المسجد أو أوقات الصلاة أو نصوص التنبيهات أو هويتك. |
-| 701 | `diagnosticsSentry` | Send error reports to Sentry | إرسال تقارير الأخطاء إلى Sentry |
-| 702 | `diagnosticsSentryHint` | When enabled, app errors are sent automatically so we can investigate crashes. | عند التفعيل، تُرسل أخطاء التطبيق تلقائيًا لمساعدتنا على معرفة سبب الأعطال. |
-| 703 | `diagnosticsSentryUnavailable` | Error reporting is not configured in this build. | تقارير الأخطاء غير مهيأة في هذا الإصدار. |
-| 704 | `diagnosticsHistory` | Recent notification activity | نشاط التنبيهات الأخير |
-| 705 | `diagnosticsEmpty` | No diagnostic events yet. | لا توجد أحداث تشخيصية بعد. |
-| 706 | `diagnosticsSend` | Prepare a diagnostic report | إعداد تقرير تشخيصي |
-| 707 | `diagnosticsSending` | Preparing… | جارٍ الإعداد… |
-| 708 | `diagnosticsConfirmTitle` | Share diagnostic report? | مشاركة التقرير التشخيصي؟ |
-| 709 | `diagnosticsConfirmBody` | The report contains app and Android versions plus recent notification scheduling and permission events. It contains no place, mosque, prayer times, notification text, or account identity. Continue only if you are comfortable sharing this information. | يتضمن التقرير إصداري التطبيق وأندرويد وأحداث جدولة التنبيهات والأذونات الأخيرة. ولا يتضمن الموقع أو المسجد أو أوقات الصلاة أو نص التنبيهات أو هوية الحساب. تابع فقط إذا كنت توافق على مشاركة هذه المعلومات. |
-| 710 | `diagnosticsUpload` | Send to Sentry | إرسال إلى Sentry |
-| 711 | `diagnosticsShare` | Open share sheet | فتح قائمة المشاركة |
-| 712 | `diagnosticsReportTitle` | Jama’ah diagnostic report | تقرير تشخيص تطبيق جماعة |
-| 713 | `diagnosticsUploaded` | Diagnostic report sent. | أُرسل التقرير التشخيصي. |
-| 714 | `diagnosticsEventIdLabel` | Sentry event ID (select to copy) | معرّف الحدث في Sentry (حدّد للنسخ) |
-| 715 | `diagnosticsShareOpened` | Choose an app to share the report. | اختر تطبيقًا لمشاركة التقرير. |
-| 716 | `diagnosticsSendFailed` | Could not prepare or send the report. | تعذر إعداد التقرير أو إرساله. |
-| 717 | `methodListLead` | Each method's angles, and where it is used. | زوايا كل طريقة، وأين تُستعمل. |
-| 718 | `compassEast` | E | ق |
-| 719 | `compassWest` | W | غ |
-| 720 | `qiblaLead` | From {place} · {distance} km to the Kaaba | من {place} · {distance} كم إلى الكعبة |
-| 721 | `compassPointNorth` | North | الشمال |
-| 722 | `compassPointNorthEast` | North-east | الشمال الشرقي |
-| 723 | `compassPointEast` | East | الشرق |
-| 724 | `compassPointSouthEast` | South-east | الجنوب الشرقي |
-| 725 | `compassPointSouth` | South | الجنوب |
-| 726 | `compassPointSouthWest` | South-west | الجنوب الغربي |
-| 727 | `compassPointWest` | West | الغرب |
-| 728 | `compassPointNorthWest` | North-west | الشمال الغربي |
-| 729 | `compassLowerNorth` | north | الشمال |
-| 730 | `compassLowerEast` | east | الشرق |
-| 731 | `compassLowerSouth` | south | الجنوب |
-| 732 | `compassLowerWest` | west | الغرب |
-| 733 | `compassLeanToward` | {point}, a little towards the {toward} | {point}، مع ميل قليل نحو {toward} |
-| 734 | `compassLeanMore` | {point}, a little more {more} than {less} | {point}، أقرب قليلًا إلى {more} منه إلى {less} |
-| 735 | `qiblaNoCompassHint` | This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets. | لا بوصلة في هذا الهاتف، فلا يستطيع السهم أن يتبعك. وجّهه نحو اتجاه تعرفه، كجهة غروب الشمس. |
-| 736 | `qiblaNeedsMoment` | The compass needs a moment | البوصلة تحتاج إلى لحظة |
-| 737 | `qiblaSteadyNow` | It’s steady now | استقرّت البوصلة الآن |
-| 738 | `onbLanguageLabel` | Language · اللغة | اللغة · Language |
-| 739 | `onbLanguageLater` | You can change it later in Settings. | يمكنك تغييرها لاحقًا من الإعدادات. |
-| 740 | `onbPlaceBody` | Prayer times are calculated on your phone. Precise location helps name your area and choose a local method. Android's geocoding service receives the coordinates to find the place name. | تُحسب مواقيت الصلاة على هاتفك. يساعد الموقع الدقيق على تحديد منطقتك واختيار طريقة محلية. تستقبل خدمة الترميز الجغرافي في Android الإحداثيات لتحديد اسم المكان. |
-| 741 | `onbPlaceDetails` | Method: {method} · next Adhan {prayer} {time} | الطريقة: {method} · الأذان القادم {prayer} {time} |
-| 742 | `onbPlaceNotRight` | Not right? Choose a city | ليس صحيحًا؟ اختر مدينة |
-| 743 | `onbMosqueRowOpen` | A row of worshippers, with one place open for you | صفّ من المصلّين، فيه مكان شاغر لك |
-| 744 | `onbMosqueRowFull` | A full row, with you in it | صفّ مكتمل، وأنت فيه |
-| 745 | `onbMosqueAdded` | {mosque} added | أُضيف {mosque} |
-| 746 | `onbMosqueAddedBody` | Its Iqama times are not configured yet. Set them from the Mosques tab whenever you are ready. | لم تُضبط أوقات الإقامة فيه بعد. اضبطها من تبويب «المساجد» متى شئت. |
-| 747 | `onbAlertsFiveHint` | Fajr, Dhuhr, Asr, Maghrib and Isha | الفجر والظهر والعصر والمغرب والعشاء |
-| 748 | `onbAllowNote` | Android will ask if Jama’ah may send notifications. Without it, alerts can’t appear. | سيسألك أندرويد إن كان يُسمح لتطبيق «جماعة» بإرسال الإشعارات. ومن دون ذلك لا تظهر التنبيهات. |
-| 749 | `onbNotificationsAllowed` | Notifications allowed | الإشعارات مسموح بها |
-| 750 | `onbBatterySettings` | Battery settings | إعدادات البطارية |
-| 751 | `onbTravelOnSub` | On: times follow you | مفعّل: الأوقات تتبعك |
-| 752 | `onbTravelOffSub` | Off: times stay where you set them | متوقف: تبقى الأوقات حيث ضبطتها |
-| 753 | `onbTravelSame` | The same switch sits at the top of Today. | المفتاح نفسه موجود أعلى «اليوم». |
-| 754 | `inFlightStartTitle` | Prayer times at 11,000 metres | مواقيت الصلاة على ارتفاع ١١٬٠٠٠ متر |
-| 755 | `inFlightStartLead` | Worked out from your phone’s GPS. It works in airplane mode, with no network. | تُحسب من نظام GPS في هاتفك، وهو يعمل في وضع الطيران دون شبكة. |
-| 756 | `inFlightWindowNote` | Sit by a window if you can. The first fix can take a few minutes. | اجلس قرب النافذة إن استطعت. قد يستغرق تحديد الموقع الأول بضع دقائق. |
-| 757 | `inFlightLookingTitle` | Looking for satellites | نبحث عن الأقمار الصناعية |
-| 758 | `inFlightKeepLooking` | Keep the phone near a window, screen up. | أبقِ الهاتف قرب النافذة وشاشته إلى الأعلى. |
-| 759 | `inFlightAircraftTime` | Aircraft time {time} ({offset}), from your position | توقيت الطائرة {time} ({offset})، حسب موقعك |
-| 760 | `inFlightPosition` | {lat} · {lon} | {lat} · {lon} |
-| 761 | `inFlightLatNorth` | {degrees}° N | {degrees}° ش |
-| 762 | `inFlightLatSouth` | {degrees}° S | {degrees}° ج |
-| 763 | `inFlightLonEast` | {degrees}° E | {degrees}° ق |
-| 764 | `inFlightLonWest` | {degrees}° W | {degrees}° غ |
-| 765 | `inFlightAlongTitle` | Along the route | على طول الرحلة |
-| 766 | `inFlightEstimates` | Estimates | تقديرات |
-| 767 | `inFlightHeadingHint` | Aircraft heading: from the seat-back map, or ask the crew. | اتجاه الطائرة: من خريطة المقعد، أو اسأل الطاقم. |
-| 768 | `inFlightQiblaWords` | {words} · {degrees}° | {words} · {degrees}° |
-| 769 | `qiblaDirStraightAhead` | Straight ahead | أمامك مباشرة |
-| 770 | `qiblaDirAheadRight` | Ahead, to your right | أمامك، إلى يمينك |
-| 771 | `qiblaDirRight` | To your right | إلى يمينك |
-| 772 | `qiblaDirBehindRight` | Behind you, to the right | خلفك، إلى اليمين |
-| 773 | `qiblaDirBehind` | Behind you | خلفك |
-| 774 | `qiblaDirBehindLeft` | Behind you, to the left | خلفك، إلى اليسار |
-| 775 | `qiblaDirLeft` | To your left | إلى يسارك |
-| 776 | `qiblaDirAheadLeft` | Ahead, to your left | أمامك، إلى يسارك |
-| 777 | `adhanScreenKicker` | It’s time for | حان وقت |
-| 778 | `adhanScreenAdhanAt` | Adhan · {time} | الأذان · {time} |
-| 779 | `adhanScreenIqamaIn` | Iqama at {mosque} · {time}, {countdown} | الإقامة في {mosque} · {time}، {countdown} |
-| 780 | `adhanScreenIqamaAt` | Iqama at {mosque} · {time} | الإقامة في {mosque} · {time} |
-| 781 | `adhanScreenNoIqama` | No Iqama set at {mosque} | لا وقت إقامة محدّد في {mosque} |
-| 782 | `adhanScreenHint` | Volume keys or turning the phone face down also stop it. | أزرار الصوت أو قلب الهاتف على وجهه توقفه أيضًا. |
-| 783 | `adhanScreenStopped` | Adhan stopped | توقّف الأذان |
-| 784 | `adhanScreenDismiss` | Dismiss | إغلاق |
-| 785 | `adhanScreenStopLabel` | Stop the {prayer} Adhan | أوقف أذان {prayer} |
-| 786 | `onbExactNote` | For alerts at the very minute, Android also asks you to let Jama’ah set alarms. Without it, an alert can come a few minutes late. | لتصل التنبيهات في دقيقتها تمامًا، يطلب أندرويد أيضًا أن تسمح لتطبيق «جماعة» بضبط المنبّهات. ومن دون ذلك قد يتأخّر التنبيه بضع دقائق. |
-| 787 | `onbExactAllow` | Allow on-time alerts | اسمح بالتنبيهات في وقتها |
-| 788 | `onbExactHow` | Turn on the switch on the next screen, then come back. | فعّل المفتاح في الشاشة التالية، ثم عُد. |
-| 789 | `onbExactAllowed` | On-time alerts allowed | التنبيهات في وقتها مسموح بها |
+| 228 | `scheduledBatteryExempt` | Battery optimisation is lifted: Jama’ah's alerts come through while the phone sleeps. | تحسين البطارية غير مفعَّل لهذا التطبيق، فيمرّ تنبيهه أثناء ركود الهاتف. |
+| 229 | `scheduledBatteryRestricted` | Battery optimisation is still on: the phone may hold alarms back for minutes. If that happens, allow Jama’ah below. | تحسين البطارية ما زال مفعَّلًا، وقد يحتجز الهاتف المنبّهات دقائق. إن حدث ذلك، فاسمح بتطبيق Jama’ah أدناه. |
+| 230 | `scheduledTestAdhanTitle` | Test adhan | أذان تجريبي |
+| 231 | `scheduledTestAdhanButton` | Schedule a test adhan (2 minutes) | جدولة أذان تجريبي (بعد دقيقتين) |
+| 232 | `scheduledTestAdhanNote` | Debug tool: adds one real alarm-clock adhan two minutes out, through the same alarms and sound as a prayer alert — a delivery check, not a prayer. The next reschedule removes it. | أداة التشخيص: تضيف أذانًا واحدًا حقيقيًا عبر نظام المنبّه قبل دقيقتين، بالمسار نفسه الذي يسير فيه تنبيه الصلاة — اختبار للتسليم لا لصلاة. تزيله إعادة الجدولة التالية. |
+| 233 | `scheduledTestAdhanBody` | Delivery test — two minutes after {time}. | اختبار تسليم — بعد دقيقتين من {time}. |
+| 234 | `kindAdhan` | Adhan | الأذان |
+| 235 | `kindPreAdhan` | Reminder before Adhan | تذكير قبل الأذان |
+| 236 | `kindIqama` | Jama’ah reminder | تذكير الجماعة |
+| 237 | `settingsTitle` | Settings | الإعدادات |
+| 238 | `settingsAdhanSection` | Adhan alerts | تنبيهات الأذان |
+| 239 | `settingsDefaultSound` | Default sound | الصوت الافتراضي |
+| 240 | `settingsDefaultSoundHint` | Used by every prayer that doesn't choose its own. | يُستخدم لكل صلاة لم يُختر لها صوت خاص. |
+| 241 | `settingsAlertOff` | Off | متوقف |
+| 242 | `settingsAlertOn` | On · {sound} | مفعّل · {sound} |
+| 243 | `settingsAlertReminderOnly` | Reminder only · {minutes} min before | {minutes, plural, =1{تذكير فقط · قبل دقيقة} =2{تذكير فقط · قبل دقيقتين} few{تذكير فقط · قبل {minutes} دقائق} many{تذكير فقط · قبل {minutes} دقيقة} other{تذكير فقط · قبل {minutes} دقيقة}} |
+| 244 | `settingsAlertOnWithReminder` | On · {sound} · reminder {minutes} min before | {minutes, plural, =1{مفعّل · {sound} · تذكير قبل دقيقة} =2{مفعّل · {sound} · تذكير قبل دقيقتين} few{مفعّل · {sound} · تذكير قبل {minutes} دقائق} many{مفعّل · {sound} · تذكير قبل {minutes} دقيقة} other{مفعّل · {sound} · تذكير قبل {minutes} دقيقة}} |
+| 245 | `settingsIqamaSection` | Jama’ah reminders | تذكيرات الجماعة |
+| 246 | `settingsIqamaBody` | A Jama’ah reminder comes before your mosque’s Iqama time. Iqama times and their reminders belong to each mosque, so you set them on the mosque. | يأتي تذكير الجماعة قبل وقت الإقامة في مسجدك. أوقات الإقامة وتذكيراتها خاصة بكل مسجد، فتُحدَّد من صفحة المسجد. |
+| 247 | `settingsIqamaOpenActive` | Open {mosque} | فتح {mosque} |
+| 248 | `settingsIqamaNoMosque` | Add a mosque to set Jama’ah reminders. | أضف مسجدًا لتحديد تذكيرات الجماعة. |
+| 249 | `settingsTravelSection` | Travel | السفر |
+| 250 | `settingsNotificationsSection` | Notifications | الإشعارات |
+| 251 | `alertPageTitle` | {prayer} | {prayer} |
+| 252 | `alertAdhanSwitch` | Adhan alert | تنبيه الأذان |
+| 253 | `alertAdhanSwitchHint` | A notification at the Adhan time. | إشعار عند وقت الأذان. |
+| 254 | `alertSunriseHint` | Sunrise is not a prayer. An alert marks the end of the time for Fajr. | الشروق ليس صلاة؛ والتنبيه يدل على انتهاء وقت الفجر. |
+| 255 | `alertSoundHeader` | Sound | الصوت |
+| 256 | `alertUseDefault` | Default ({sound}) | الافتراضي ({sound}) |
+| 257 | `alertSilentHint` | Shown in your notifications without any sound. Turning the alert off is different: then nothing shows. | يظهر في إشعاراتك دون صوت. وإيقاف التنبيه أمر مختلف: عندها لا يظهر شيء. |
+| 258 | `alertFullHint` | Plays the whole Adhan, in the recording chosen in Settings. | يُشغّل الأذان كاملًا، بالتسجيل المختار في الإعدادات. |
+| 259 | `alertShortHint` | Plays a short part of the Adhan, chosen in Settings. | يُشغّل جزءًا قصيرًا من الأذان، يُختار في الإعدادات. |
+| 260 | `alertStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
+| 261 | `alertPreview` | Preview | استماع |
+| 262 | `alertStopPreview` | Stop | إيقاف |
+| 263 | `alertVibrate` | Vibrate | اهتزاز |
+| 264 | `alertRingInSilent` | Ring when the phone is on silent | التنبيه والهاتف صامت |
+| 265 | `alertRingInSilentHint` | Plays through the alarm volume, so you hear it on silent or vibrate. If Do Not Disturb blocks alarms, it stays quiet. | يُشغَّل بصوت المنبّه، فتسمعه والهاتف صامت أو على الاهتزاز. وإن كان وضع «عدم الإزعاج» يمنع المنبّهات فلن يُسمع. |
+| 266 | `alertRingInSilentGlobalNote` | Ringing on silent is set for all prayers on the Adhan alerts page. | يتم ضبط الرنين عند الصامت لجميع الصلوات من صفحة تنبيهات الأذان. |
+| 267 | `alertRingInSilentNeedsSound` | Silent has no sound to ring. | لا صوت في الوضع الصامت ليرنّ. |
+| 268 | `alertReminderHeader` | Reminder before the Adhan | تذكير قبل الأذان |
+| 269 | `alertReminderHint` | A separate heads-up, even if the Adhan alert itself is off. | تنبيه مستقل، حتى لو كان تنبيه الأذان نفسه متوقفًا. |
+| 270 | `alertReminderNone` | None | بدون |
+| 271 | `adhanStop` | Stop | إيقاف |
+| 272 | `settingsFullScreen` | Full-screen Adhan | الأذان بملء الشاشة |
+| 273 | `settingsFullScreenHint` | When the phone is idle, the Adhan fills the screen with a large Stop. The volume keys, or turning the phone face down, stop it too. | عندما يكون الهاتف غير مستخدم، يملأ الأذان الشاشة مع زر إيقاف كبير. ويوقفه أيضًا زرا الصوت أو قلب الهاتف على وجهه. |
+| 274 | `settingsFullScreenDenied` | Your phone doesn't allow full-screen alerts for Jama’ah, so the Adhan shows as a regular notification. | هاتفك لا يسمح بالتنبيهات بملء الشاشة لهذا التطبيق، فيظهر الأذان كإشعار عادي. |
+| 275 | `settingsFullScreenAllow` | Allow full-screen alerts | السماح بالتنبيهات بملء الشاشة |
+| 276 | `alertStopHint` | Stop it with either volume key, from the notification, or by turning the phone face down. | أوقفه بأي من زرّي الصوت، أو من الإشعار، أو بقلب الهاتف على وجهه. |
+| 277 | `settingsTravelMode` | Travel mode | وضع السفر |
+| 278 | `settingsTravelModeHint` | Away from your mosque: Jama’ah reminders pause, and in-flight mode appears. The airplane at the top of the app switches it too. | يشغّل خيارات السفر أدناه. ويمكن تبديله أيضًا من الطائرة أعلى التطبيق. |
+| 279 | `travelModeTurnOn` | Turn on travel mode | تشغيل وضع السفر |
+| 280 | `travelModeTurnOff` | Turn off travel mode | إيقاف وضع السفر |
+| 281 | `travelModeOnSnack` | Travel mode on | وضع السفر مفعّل |
+| 282 | `travelModeOffSnack` | Travel mode off | وضع السفر متوقف |
+| 283 | `settingsAppearanceSection` | Appearance | المظهر |
+| 284 | `settingsFullRecording` | Full Adhan recording | تسجيل الأذان الكامل |
+| 285 | `recordingsTitle` | Full Adhan recording | تسجيل الأذان الكامل |
+| 286 | `recordingsBody` | Plays for every alert set to Full Adhan. Short Adhan is chosen separately in Settings. | يُشغَّل لكل تنبيه مضبوط على «الأذان كاملًا». ويُختار الأذان القصير بشكل منفصل في الإعدادات. |
+| 287 | `recordingPlay` | Play | تشغيل |
+| 288 | `recordingStop` | Stop | إيقاف |
+| 289 | `recordingPlayLabel` | Play {name} | تشغيل {name} |
+| 290 | `recordingStopLabel` | Stop {name} | إيقاف {name} |
+| 291 | `settingsTheme` | Theme | السمة |
+| 292 | `settingsLanguage` | Language | اللغة |
+| 293 | `latitudeNorth` | {degrees}°N | {degrees}° شمالًا |
+| 294 | `latitudeSouth` | {degrees}°S | {degrees}° جنوبًا |
+| 295 | `compassNorth` | N | ش |
+| 296 | `compassSouth` | S | ج |
+| 297 | `recordingLength` | {minutes}:{seconds} | {minutes}:{seconds} |
+| 298 | `themeSystem` | Same as the phone | مثل الهاتف |
+| 299 | `themeLight` | Light | فاتحة |
+| 300 | `themeDark` | Dark | داكنة |
+| 301 | `followOfferNote` | Your phone is now near {place}, not where your saved place is. Use it for prayer times? | هاتفك الآن قرب {place}، بعيدًا عن مكانك المحفوظ. أتريد استخدامه لمواقيت الصلاة؟ |
+| 302 | `followOfferUse` | Use it | استخدمه |
+| 303 | `followOfferDismiss` | Not now | ليس الآن |
+| 304 | `followingUpdated` | Following your location · updated {ago} | تتبّع موقعك · حُدّث {ago} |
+| 305 | `followingStale` | Couldn't update your location. Using the last one, from {ago}. | تعذّر تحديث موقعك. يُستخدم آخر موقع، من {ago}. |
+| 306 | `agoJustNow` | just now | الآن |
+| 307 | `agoMinutes` | {count} min ago | {count, plural, =1{قبل دقيقة} =2{قبل دقيقتين} few{قبل {count} دقائق} many{قبل {count} دقيقة} other{قبل {count} دقيقة}} |
+| 308 | `agoHours` | {count} h ago | {count, plural, =1{قبل ساعة} =2{قبل ساعتين} few{قبل {count} ساعات} many{قبل {count} ساعة} other{قبل {count} ساعة}} |
+| 309 | `agoDays` | {count} d ago | {count, plural, =1{قبل يوم} =2{قبل يومين} few{قبل {count} أيام} many{قبل {count} يومًا} other{قبل {count} يوم}} |
+| 310 | `previewCity` | Preview another city | معاينة مدينة أخرى |
+| 311 | `previewTitle` | {place} | {place} |
+| 312 | `previewNote` | Prayer times for {place}. Your own place stays {current}. | مواقيت الصلاة في {place}. يبقى مكانك {current}. |
+| 313 | `methodAuto` | Auto detect | تحديد تلقائي |
+| 314 | `methodCustom` | Custom angles | زوايا مخصصة |
+| 315 | `methodEgyptian` | Egyptian General Authority of Survey (EGAS) | الهيئة المصرية العامة للمساحة |
+| 316 | `methodRegionEgyptian` | Africa, Syria, Lebanon | أفريقيا، سوريا، لبنان |
+| 317 | `methodIsna` | Islamic Society of North America (ISNA) | الجمعية الإسلامية لأمريكا الشمالية (ISNA) |
+| 318 | `methodRegionIsna` | North America (US and Canada) | أمريكا الشمالية (الولايات المتحدة وكندا) |
+| 319 | `methodMoonsightingCommittee` | Moonsighting Committee Worldwide (MCW) | لجنة رؤية الهلال العالمية |
+| 320 | `methodRegionMoonsightingCommittee` | Parts of the US, parts of the UK | أجزاء من الولايات المتحدة والمملكة المتحدة |
+| 321 | `methodMuslimWorldLeague` | Muslim World League (MWL) | رابطة العالم الإسلامي |
+| 322 | `methodRegionMuslimWorldLeague` | Europe, Far East, parts of the US, and other countries | أوروبا، الشرق الأقصى، أجزاء من الولايات المتحدة، ودول أخرى |
+| 323 | `methodUmmAlQura` | Umm al-Qura University, Makkah | جامعة أم القرى، مكة المكرمة |
+| 324 | `methodRegionUmmAlQura` | The Arabian Peninsula | شبه الجزيرة العربية |
+| 325 | `methodKarachi` | University of Islamic Sciences, Karachi | جامعة العلوم الإسلامية، كراتشي |
+| 326 | `methodRegionKarachi` | Pakistan, Afghanistan, Bangladesh, India, parts of Europe | باكستان، أفغانستان، بنغلاديش، الهند، أجزاء من أوروبا |
+| 327 | `methodJakim` | Department of Islamic Advancement of Malaysia (JAKIM) | إدارة التنمية الإسلامية الماليزية (JAKIM) |
+| 328 | `methodRegionJakim` | Malaysia | ماليزيا |
+| 329 | `methodSingapore` | Islamic Religious Council of Singapore (MUIS) | المجلس الإسلامي في سنغافورة (MUIS) |
+| 330 | `methodRegionSingapore` | Singapore | سنغافورة |
+| 331 | `methodIndonesia` | Ministry of Religious Affairs of Indonesia (KEMENAG) | وزارة الشؤون الدينية الإندونيسية (KEMENAG) |
+| 332 | `methodRegionIndonesia` | Indonesia | إندونيسيا |
+| 333 | `methodTurkiye` | Presidency of Religious Affairs of Türkiye (Diyanet) | رئاسة الشؤون الدينية التركية (ديانت) |
+| 334 | `methodRegionTurkiye` | Türkiye | تركيا |
+| 335 | `methodFrance` | Union of Islamic Organisations of France (UOIF) | اتحاد المنظمات الإسلامية في فرنسا (UOIF) |
+| 336 | `methodRegionFrance` | France | فرنسا |
+| 337 | `methodKuwait` | Kuwait | الكويت |
+| 338 | `methodRegionKuwait` | Kuwait | الكويت |
+| 339 | `methodQatar` | Qatar | قطر |
+| 340 | `methodRegionQatar` | Qatar | قطر |
+| 341 | `methodDubai` | Dubai (UAE) | دبي (الإمارات) |
+| 342 | `methodRegionDubai` | United Arab Emirates | الإمارات العربية المتحدة |
+| 343 | `methodGulfRegion` | Gulf region | منطقة الخليج |
+| 344 | `methodRegionGulfRegion` | Bahrain, Oman | البحرين، عُمان |
+| 345 | `methodJordan` | Jordan | الأردن |
+| 346 | `methodRegionJordan` | Jordan | الأردن |
+| 347 | `methodAlgeria` | Algeria | الجزائر |
+| 348 | `methodRegionAlgeria` | Algeria | الجزائر |
+| 349 | `methodMorocco` | Morocco | المغرب |
+| 350 | `methodRegionMorocco` | Morocco | المغرب |
+| 351 | `methodTunisia` | Tunisia | تونس |
+| 352 | `methodRegionTunisia` | Tunisia | تونس |
+| 353 | `methodRussia` | Spiritual Administration of Muslims of Russia | الإدارة الدينية لمسلمي روسيا |
+| 354 | `methodRegionRussia` | Russia | روسيا |
+| 355 | `methodPortugal` | Islamic Community of Lisbon | الجالية الإسلامية في لشبونة |
+| 356 | `methodRegionPortugal` | Portugal | البرتغال |
+| 357 | `methodTehran` | Institute of Geophysics, University of Tehran | معهد الجيوفيزياء، جامعة طهران |
+| 358 | `methodRegionTehran` | Iran (Shia) | إيران (الشيعة) |
+| 359 | `methodJafari` | Shia Ithna-Ashari, Leva Institute, Qum | الشيعة الاثنا عشرية، مؤسسة ليفا، قم |
+| 360 | `methodRegionJafari` | Shia communities | المجتمعات الشيعية |
+| 361 | `settingsPrayerTimesSection` | Prayer times | مواقيت الصلاة |
+| 362 | `settingsMethod` | Calculation method | طريقة الحساب |
+| 363 | `settingsAsr` | Asr method | طريقة حساب العصر |
+| 364 | `settingsHighLatitude` | Far north or south | أقصى الشمال أو الجنوب |
+| 365 | `settingsAdjustments` | Adjust times by minutes | ضبط الأوقات بالدقائق |
+| 366 | `settingsHijri` | Hijri date | التاريخ الهجري |
+| 367 | `zoneNotePlace` | Times are local time in {place} ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي في {place} ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
+| 368 | `inFlightTitle` | In flight | على متن الطائرة |
+| 369 | `onbStep` | Step {current} of {total} | الخطوة {current} من {total} |
+| 370 | `onbContinue` | Continue | متابعة |
+| 371 | `onbBack` | Back | رجوع |
+| 372 | `onbNotNow` | Not now | ليس الآن |
+| 373 | `onbStart` | Start | ابدأ |
+| 374 | `onbWelcomeTagline` | Pray together, on time. | نصلّي معًا، في وقتها. |
+| 375 | `onbWelcomeBody` | Know when to pray. Know when your mosque starts. Get a nudge before the congregation. | اعرف متى تصلّي، ومتى تبدأ الجماعة في مسجدك، وتلقَّ تذكيرًا قبلها. |
+| 376 | `onbLanguage` | Language | اللغة |
+| 377 | `onbPlaceFound` | Found you near {city} | وجدناك قرب {city} |
+| 378 | `placeNear` | {place}, near {city} | {place}، قرب {city} |
+| 379 | `onbPlaceDone` | Prayer times for {place} | مواقيت الصلاة في {place} |
+| 380 | `onbMosqueTitle` | Your mosque | مسجدك |
+| 381 | `onbMosqueBody` | Jama’ah means praying together. Add the mosque you pray at to see when its congregation starts, and get a nudge before it. | الجماعة تعني الصلاة معًا. أضف المسجد الذي تصلّي فيه لترى متى تبدأ جماعته، ولتتلقّى تذكيرًا قبلها. |
+| 382 | `onbMosqueDone` | Added: {mosque}. Enter its Iqama times from the Mosques tab. | أُضيف: {mosque}. أدخل أوقات الإقامة فيه من تبويب المساجد. |
+| 383 | `onbAlertsTitle` | Prayer alerts | تنبيهات الصلاة |
+| 384 | `onbAlertsBody` | An alert at each Adhan. You can choose the sound for each prayer later, from Today. | تنبيه عند كل أذان. يمكنك اختيار صوت كل صلاة لاحقًا من «اليوم». |
+| 385 | `onbAlertsSwitch` | Alerts for the five prayers | تنبيهات الصلوات الخمس |
+| 386 | `onbAlertsSwitchHint` | Your phone will ask to allow notifications. | سيطلب هاتفك السماح بالإشعارات. |
+| 387 | `onbAlertsBattery` | Some phones stop apps in the background to save battery. If an alert ever comes late, let Jama’ah run unrestricted. | تُوقف بعض الهواتف التطبيقات في الخلفية لتوفير البطارية. إذا تأخّر تنبيه يومًا، فاسمح لتطبيق «جماعة» بالعمل دون قيود. |
+| 388 | `onbTravelTitle` | Do you travel often? | هل تسافر كثيرًا؟ |
+| 389 | `onbTravelBody` | Travel mode pauses your mosque’s Jama’ah reminders while you are away, and in-flight mode appears on a plane. Prayer times follow your location by themselves, wherever you land. | يتبع وضع السفر موقعك، فتبقى الأوقات والقبلة صحيحة حيثما حللت. وعلى متن الطائرة يمكنه عرض مواقيت الصلاة على طول الرحلة. |
+| 390 | `onbTravelSwitch` | Travel mode | وضع السفر |
+| 391 | `onbTravelHint` | You can switch it any time with the airplane at the top of the app. | يمكنك تبديله في أي وقت من الطائرة أعلى التطبيق. |
+| 392 | `settingsShowIntro` | Show the introduction again | عرض المقدمة مرة أخرى |
+| 393 | `inFlightHelp` | How it works | طريقة العمل |
+| 394 | `inFlightHelpTitle` | In-flight mode | وضع الطيران |
+| 395 | `inFlightHelpIntro` | Prayer times and the Qibla on a plane, with no internet and without changing your phone's clock. | مواقيت الصلاة والقبلة على متن الطائرة، دون إنترنت ودون تغيير ساعة هاتفك. |
+| 396 | `inFlightHelpStartTitle` | Starting it | طريقة التشغيل |
+| 397 | `inFlightHelpStartBody` | Turn on travel mode with the airplane at the top of the app. On Today, tap “On a flight?”, then “Start GPS” and allow precise location. Sit by a window if you can: the phone's GPS works in airplane mode, but needs a view of the sky and can take a minute or two to find you. | شغّل وضع السفر من الطائرة أعلى التطبيق. ثم في شاشة اليوم اضغط «على متن رحلة؟» ثم «تشغيل GPS» واسمح بالموقع الدقيق. اجلس بجانب النافذة إن أمكن: فـGPS في هاتفك يعمل في وضع الطيران، لكنه يحتاج إلى رؤية السماء وقد يستغرق دقيقة أو دقيقتين لتحديد مكانك. |
+| 398 | `inFlightHelpTimesTitle` | The prayer times | مواقيت الصلاة |
+| 399 | `inFlightHelpTimesBody` | “Now” and “Next” are for where the aircraft is at this moment, shown on your phone's clock. Up high, the sun sets later and rises earlier than on the ground below, so Maghrib and sunrise follow the sun as you see it from the aircraft. Fajr and Isha follow your calculation method. | «الآن» و«التالية» لمكان الطائرة في هذه اللحظة، معروضة بساعة هاتفك. في الارتفاع تغرب الشمس متأخرة وتشرق مبكرة مقارنة بالأرض تحتك، لذا يتبع المغرب والشروق الشمس كما تراها من الطائرة. أما الفجر والعشاء فيتبعان طريقة الحساب التي اخترتها. |
+| 400 | `inFlightHelpRouteTitle` | Along the route | على مسار الرحلة |
+| 401 | `inFlightHelpRouteBody` | While the aircraft is moving, Jama’ah estimates when you will meet the next prayers if it keeps the same course and speed. The estimate updates with each GPS reading, so it gets better as the flight goes on. Flying east, prayers come sooner; flying west, the aircraft almost keeps pace with the sun, so sunset can stay hours away. | أثناء تحرك الطائرة، يقدّر التطبيق متى تدرك الصلوات التالية إن حافظت الطائرة على اتجاهها وسرعتها. ويتحدّث التقدير مع كل قراءة GPS، فيزداد دقة مع تقدّم الرحلة. باتجاه الشرق تأتي الصلوات أبكر؛ وباتجاه الغرب تكاد الطائرة تجاري الشمس، فقد يبقى الغروب بعيدًا ساعات. |
+| 402 | `inFlightHelpQiblaTitle` | The Qibla aboard | القبلة على متن الطائرة |
+| 403 | `inFlightHelpQiblaBody` | The phone's compass is not reliable inside an aircraft, so the arrow uses the direction the aircraft is flying, from GPS. It shows how far to the right or left of the nose the Qibla is. On the ground, or if you prefer, enter the heading shown on the seat-back map. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يعتمد السهم على اتجاه سير الطائرة من GPS، ويبيّن كم تبعد القبلة يمينًا أو يسارًا عن مقدّمة الطائرة. وعلى الأرض، أو إن شئت، أدخل الاتجاه الظاهر على خريطة الشاشة أمامك. |
+| 404 | `inFlightHelpAlertsTitle` | Alerts in flight | التنبيهات أثناء الرحلة |
+| 405 | `inFlightHelpAlertsBody` | While the aircraft is moving, your usual alerts for the place you left are paused, Jama’ah reminders too, and the next prayer along the route is alerted instead, marked as estimated. It uses that prayer's own Adhan settings. The pause ends by itself 90 minutes after the last GPS reading, or when you tap “End in-flight mode”. At home or at the gate nothing is paused. | أثناء تحرك الطائرة تتوقف تنبيهاتك المعتادة للمكان الذي غادرته، ومعها تذكيرات الجماعة، ويُنبَّه بدلًا منها للصلاة التالية على المسار مع الإشارة إلى أنها تقديرية، بإعدادات أذان تلك الصلاة نفسها. ينتهي الإيقاف تلقائيًا بعد ٩٠ دقيقة من آخر قراءة GPS، أو عند الضغط على «إنهاء وضع الطيران». وفي المنزل أو عند البوابة لا يتوقف شيء. |
+| 406 | `inFlightHelpTipsTitle` | Good to know | معلومات مفيدة |
+| 407 | `inFlightHelpTipsBody` | Keep the in-flight screen open for the best updates; with the screen off for long, the phone may pause GPS. Nothing about where you are is sent anywhere. Questions about how to pray aboard, such as shortening or combining prayers, are for your scholar: Jama’ah gives the times and the direction only. | أبقِ شاشة وضع الطيران مفتوحة لأفضل تحديث؛ فإذا أُطفئت الشاشة طويلًا قد يوقف الهاتف GPS. لا يُرسل أي شيء عن مكانك. أما أحكام الصلاة على متن الطائرة، كالقصر والجمع، فارجع فيها إلى أهل العلم: يكتفي التطبيق بالمواقيت والاتجاه. |
+| 408 | `notifInFlightBody` | It's time for {prayer}, estimated for the aircraft's route. | حان موعد {prayer}، بتقدير مسار الطائرة. |
+| 409 | `inFlightAlongRoute` | Along this route: {prayer}, {countdown} | على هذا المسار: {prayer}، {countdown} |
+| 410 | `inFlightAlongRouteThen` | Then {prayer}, about {time} on your phone | ثم {prayer}، نحو {time} على ساعة هاتفك |
+| 411 | `inFlightAboutOnPhone` | About {time} on your phone | نحو {time} على ساعة هاتفك |
+| 412 | `inFlightAssumesCourse` | Assumes the aircraft keeps its course and speed; updated with each GPS fix. | على افتراض أن الطائرة تحافظ على اتجاهها وسرعتها؛ ويتحدّث مع كل قراءة GPS. |
+| 413 | `inFlightAlertsHeld` | Alerts for {place} are paused until {time}. The next prayer along the route is alerted instead. | تنبيهات {place} موقوفة حتى {time}، ويُنبَّه بدلًا منها للصلاة التالية على مسار الرحلة. |
+| 414 | `inFlightEnd` | End in-flight mode | إنهاء وضع الطيران |
+| 415 | `inFlightHeldNote` | In-flight mode: regular alerts are paused until {time}. | وضع الطيران: التنبيهات المعتادة موقوفة حتى {time}. |
+| 416 | `inFlightCardTitle` | On a flight? | على متن رحلة؟ |
+| 417 | `inFlightCardBody` | Prayer times and the Qibla aboard, from GPS, with no network. | مواقيت الصلاة والقبلة على متن الطائرة، من GPS ودون اتصال. |
+| 418 | `inFlightExplainBody` | Jama’ah uses your phone's GPS, which works in airplane mode, to find where the aircraft is. It needs precise location, and works best by a window. Nothing is sent anywhere. | يستخدم التطبيق GPS في هاتفك، وهو يعمل في وضع الطيران، لمعرفة مكان الطائرة. يحتاج إلى الموقع الدقيق، ويعمل أفضل بجانب النافذة. لا يُرسل أي شيء. |
+| 419 | `inFlightStart` | Start GPS | تشغيل GPS |
+| 420 | `inFlightWaiting` | Waiting for GPS… A window seat helps. | بانتظار GPS… المقعد بجانب النافذة يساعد. |
+| 421 | `inFlightServiceOff` | Location is off on this phone. Turn it on to use GPS aboard. | الموقع متوقف في هذا الهاتف. شغّله لاستخدام GPS على متن الطائرة. |
+| 422 | `inFlightNeedsPrecise` | In-flight mode needs precise location. Try again and choose “Precise”. | يحتاج وضع الطيران إلى الموقع الدقيق. حاول مرة أخرى واختر «دقيق». |
+| 423 | `inFlightPermanentlyDenied` | Precise location is turned off for Jama’ah. You can allow it in the app's settings. | الموقع الدقيق متوقف لهذا التطبيق. يمكنك السماح به من إعدادات التطبيق. |
+| 424 | `inFlightOpenSettings` | Open app settings | فتح إعدادات التطبيق |
+| 425 | `inFlightTryAgain` | Try again | حاول مرة أخرى |
+| 426 | `inFlightAltitudeSpeed` | {altitude} m · {speed} km/h | {altitude} م · {speed} كم/س |
+| 427 | `inFlightFixAge` | GPS fix {ago} | قراءة GPS {ago} |
+| 428 | `inFlightFixLost` | GPS lost. Showing the last fix, from {ago}. | انقطع GPS. تُعرض آخر قراءة، {ago}. |
+| 429 | `inFlightNow` | Now: {prayer} | الآن: {prayer} |
+| 430 | `inFlightNoneNow` | No prayer is due now | لا صلاة حان وقتها الآن |
+| 431 | `inFlightNext` | Next: {prayer}, {countdown} | التالية: {prayer}، {countdown} |
+| 432 | `inFlightOnPhone` | {time} on your phone | {time} على ساعة هاتفك |
+| 433 | `inFlightSunsetLater` | {minutes, plural, =1{From up here the sun sets 1 min later than on the ground below.} other{From up here the sun sets {minutes} min later than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقة.} =2{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـدقيقتين.} few{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تغرب الشمس بعد غروبها على الأرض بـ{minutes} دقيقة.}} |
+| 434 | `inFlightSunriseEarlier` | {minutes, plural, =1{From up here the sun rises 1 min earlier than on the ground below.} other{From up here the sun rises {minutes} min earlier than on the ground below.}} | {minutes, plural, =1{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقة.} =2{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـدقيقتين.} few{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقائق.} many{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.} other{من هذا الارتفاع تشرق الشمس قبل شروقها على الأرض بـ{minutes} دقيقة.}} |
+| 435 | `inFlightMovingNote` | For where the aircraft is now. As it flies on, these times change; this screen keeps them up to date while it is open. | المواقيت لمكان الطائرة الآن، وتتغير مع تقدّمها؛ وتبقى هذه الشاشة محدّثة ما دامت مفتوحة. |
+| 436 | `inFlightTimesHeader` | Today aboard, on your phone's clock | مواقيت اليوم على متن الطائرة، بساعة هاتفك |
+| 437 | `inFlightQiblaHeader` | Qibla aboard | القبلة على متن الطائرة |
+| 438 | `inFlightQiblaRight` | {degrees}° to the right of the nose | {degrees}° إلى يمين مقدّمة الطائرة |
+| 439 | `inFlightQiblaLeft` | {degrees}° to the left of the nose | {degrees}° إلى يسار مقدّمة الطائرة |
+| 440 | `inFlightQiblaAhead` | Straight ahead | أمامك مباشرة |
+| 441 | `inFlightQiblaBehind` | Behind you, towards the tail | خلفك، باتجاه ذيل الطائرة |
+| 442 | `inFlightHeadingGps` | Using the aircraft's GPS course, {degrees}° | باتجاه سير الطائرة من GPS، {degrees}° |
+| 443 | `inFlightHeadingManual` | Using your heading, {degrees}° | بالاتجاه الذي أدخلته، {degrees}° |
+| 444 | `inFlightNoCourse` | The aircraft isn't moving yet, so there is no course. You can enter the heading from the seat-back map. | الطائرة لا تتحرك بعد، فلا يوجد اتجاه سير. يمكنك إدخال الاتجاه من خريطة الشاشة أمامك. |
+| 445 | `inFlightEnterHeading` | Enter heading | إدخال الاتجاه |
+| 446 | `inFlightUseGps` | Use GPS course | استخدام اتجاه GPS |
+| 447 | `inFlightHeadingLabel` | Heading from the seat-back map (0–359°) | الاتجاه من خريطة الشاشة أمامك (0–359°) |
+| 448 | `inFlightHeadingError` | Between 0 and 359 | بين 0 و359 |
+| 449 | `inFlightQiblaBearing` | Qibla bearing {degrees}° from true north | اتجاه القبلة {degrees}° من الشمال الحقيقي |
+| 450 | `inFlightCompassNote` | The phone's compass isn't reliable inside an aircraft, so this uses the aircraft's direction instead. | بوصلة الهاتف غير موثوقة داخل الطائرة، لذا يُستخدم اتجاه الطائرة بدلًا منها. |
+| 451 | `inFlightDiagramLabel` | Aircraft seen from above, nose up. The arrow points to the Qibla. | الطائرة من الأعلى ومقدّمتها للأعلى. يشير السهم إلى القبلة. |
+| 452 | `zoneNoteHere` | Times are local time where you are ({placeOffset}). Your phone's clock is on {phoneOffset}. | المواقيت بالتوقيت المحلي حيث أنت ({placeOffset})، وساعة هاتفك على {phoneOffset}. |
+| 453 | `hijriAsCalculated` | As calculated (Umm al-Qura) | كما هو محسوب (أم القرى) |
+| 454 | `hijriLater` | {days, plural, =1{1 day later} other{{days} days later}} | {days, plural, =1{متأخر يومًا} =2{متأخر يومين} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يومًا}} |
+| 455 | `hijriEarlier` | {days, plural, =1{1 day earlier} other{{days} days earlier}} | {days, plural, =1{متقدم يومًا} =2{متقدم يومين} few{متقدم {days} أيام} many{متقدم {days} يومًا} other{متقدم {days} يومًا}} |
+| 456 | `hijriAdjustNote` | Match the date your country announces. Kuwait and others start each month by moon sighting, which can differ from the calculation by a day or two. Prayer times stay as they are, except that with Umm al-Qura, Ramadan's later Isha follows this date. | طابِق التاريخ الذي تعلنه بلدك. تبدأ الكويت وغيرها كل شهر برؤية الهلال، وقد يختلف ذلك عن الحساب بيوم أو يومين. لا تتغير مواقيت الصلاة، إلا أن عشاء رمضان المتأخر في طريقة أم القرى يتبع هذا التاريخ. |
+| 457 | `methodAngles` | Fajr {fajr}° · Isha {isha}° | الفجر {fajr}° · العشاء {isha}° |
+| 458 | `methodAnglesInterval` | Fajr {fajr}° · Isha {minutes} min after Maghrib | {minutes, plural, =1{الفجر {fajr}° · العشاء بعد المغرب بـدقيقة} =2{الفجر {fajr}° · العشاء بعد المغرب بـدقيقتين} few{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقائق} many{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة} other{الفجر {fajr}° · العشاء بعد المغرب بـ{minutes} دقيقة}} |
+| 459 | `methodUmmAlQuraRamadan` | Isha 120 min after Maghrib during Ramadan | العشاء بعد المغرب بـ120 دقيقة في رمضان |
+| 460 | `methodMoonsightingNote` | Also adjusts Fajr and Isha by season | يعدّل الفجر والعشاء أيضًا حسب الموسم |
+| 461 | `methodAutoResolved` | Uses {method} for {place} | يستخدم {method} في {place} |
+| 462 | `methodAutoNoPlace` | Chooses by your place once one is set | يختار حسب مكانك بعد تحديده |
+| 463 | `customTitle` | Custom angles | زوايا مخصصة |
+| 464 | `customFajr` | Fajr angle (°) | زاوية الفجر (°) |
+| 465 | `customIsha` | Isha angle (°) | زاوية العشاء (°) |
+| 466 | `customIshaByMinutes` | Isha by minutes after Maghrib | العشاء بدقائق بعد المغرب |
+| 467 | `customIshaMinutes` | Minutes after Maghrib | الدقائق بعد المغرب |
+| 468 | `customAngleError` | Between 10° and 22° | بين 10° و22° |
+| 469 | `customMinutesError` | Between 1 and 180 minutes | بين 1 و180 دقيقة |
+| 470 | `asrStandard` | Standard | الجمهور |
+| 471 | `asrStandardHint` | Shafi'i, Maliki, Hanbali: the earlier Asr time | الشافعي والمالكي والحنبلي: وقت العصر الأبكر |
+| 472 | `asrHanafi` | Hanafi | الحنفي |
+| 473 | `asrHanafiHint` | The later Asr time | وقت العصر المتأخر |
+| 474 | `ruleMiddleOfTheNightTitle` | Middle of the night | منتصف الليل |
+| 475 | `ruleSeventhOfTheNightTitle` | One seventh of the night | سُبع الليل |
+| 476 | `ruleTwilightAngleTitle` | Twilight angle | زاوية الشفق |
+| 477 | `ruleMiddleOfTheNightHint` | Fajr and Isha no later than the middle of the night (default) | الفجر والعشاء لا يتجاوزان منتصف الليل (الافتراضي) |
+| 478 | `ruleSeventhOfTheNightHint` | Fajr and Isha within the first and last seventh of the night | الفجر والعشاء ضمن السُّبع الأول والأخير من الليل |
+| 479 | `ruleTwilightAngleHint` | A share of the night proportional to the method's angles | جزء من الليل يتناسب مع زوايا الطريقة |
+| 480 | `highLatitudeSettingsNote` | Only used where the sun stays close to the horizon at night; elsewhere it changes nothing. | تُستخدم فقط حيث تبقى الشمس قريبة من الأفق ليلًا؛ وفي غير ذلك لا تغيّر شيئًا. |
+| 481 | `adjustmentsHint` | Minutes added to or taken from the calculated time, for example to match your mosque's printed timetable. | دقائق تُضاف إلى الوقت المحسوب أو تُطرح منه، مثلًا لمطابقة التقويم المطبوع في مسجدك. |
+| 482 | `adjustmentsMinus` | {prayer}: one minute earlier | {prayer}: تقديم دقيقة |
+| 483 | `adjustmentsPlus` | {prayer}: one minute later | {prayer}: تأخير دقيقة |
+| 484 | `adjustmentsValue` | {minutes} min | {minutes} د |
+| 485 | `adjustmentsNone` | None | لا يوجد |
+| 486 | `adjustmentsReset` | Reset all to 0 | إعادة الكل إلى 0 |
+| 487 | `reminderSoundChime` | Chime | نغمة |
+| 488 | `reminderSoundShortAzan` | Azan Short | أذان قصير |
+| 489 | `reminderSoundShortAllahAkbar` | Azan Allah Akbar HD | الأذان الله أكبر بجودة عالية |
+| 490 | `reminderSoundShortAzanOne` | Azan Short 1 | أذان قصير ١ |
+| 491 | `reminderSoundShortVerseOne` | Adhan Verse 1 | مقطع الأذان الأول |
+| 492 | `reminderSoundShortVerseTwo` | Adhan Verse 2 | مقطع الأذان الثاني |
+| 493 | `shortAdhanClipHint` | Preview this supplied short Adhan recording. | استمع إلى مقطع الأذان القصير هذا. |
+| 494 | `settingsShortAdhan` | Short Adhan | الأذان القصير |
+| 495 | `settingsReminderSound` | Reminder sound | صوت التذكير |
+| 496 | `reminderSoundChimeHint` | A soft two-note chime, different from the Adhan and from other apps. | نغمة هادئة من نوتتين، مختلفة عن الأذان وعن التطبيقات الأخرى. |
+| 497 | `reminderSoundStandardHint` | Your phone's usual notification sound. | صوت الإشعارات المعتاد في هاتفك. |
+| 498 | `reminderSoundSilentHint` | Shown in your notifications without any sound. | يظهر في إشعاراتك دون صوت. |
+| 499 | `settingsReminderVibrate` | Vibrate | اهتزاز |
+| 500 | `settingsPauseAllIqama` | Pause all Jama’ah reminders | إيقاف جميع تذكيرات الجماعة مؤقتًا |
+| 501 | `settingsPauseAllIqamaHint` | From every mosque. Iqama times are kept, and Adhan alerts carry on. | من كل المساجد. تبقى أوقات الإقامة محفوظة، وتستمر تنبيهات الأذان. |
+| 502 | `mosquePauseReminders` | Pause this mosque's reminders | إيقاف تذكيرات هذا المسجد مؤقتًا |
+| 503 | `mosquePauseRemindersHint` | Its Iqama times and reminder settings are kept. Applies while this is your active mosque. | تبقى أوقات الإقامة وإعدادات التذكير محفوظة. ويسري ذلك ما دام هذا مسجدك النشط. |
+| 504 | `mosquePauseAllOn` | All Jama’ah reminders are paused in Settings. | جميع تذكيرات الجماعة موقوفة مؤقتًا من الإعدادات. |
+| 505 | `pausedAllNote` | All Jama’ah reminders are paused. | جميع تذكيرات الجماعة موقوفة مؤقتًا. |
+| 506 | `pausedMosqueNote` | {mosque}'s Jama’ah reminders are paused. | تذكيرات الجماعة في {mosque} موقوفة مؤقتًا. |
+| 507 | `tagRemindersPaused` | Reminders paused | التذكيرات موقوفة |
+| 508 | `prayerJumuah` | Jumu’ah | الجمعة |
+| 509 | `extraImsak` | Imsak | الإمساك |
+| 510 | `extraDuha` | Duha | الضحى |
+| 511 | `extraQiyam` | Last third of the night | الثلث الأخير من الليل |
+| 512 | `notifImsakBody` | Imsak: stop eating before Fajr. | الإمساك: أمسك عن الطعام قبل الفجر. |
+| 513 | `notifDuhaBody` | The time for Duha prayer has begun. | دخل وقت صلاة الضحى. |
+| 514 | `notifQiyamBody` | The last third of the night has begun. | دخل الثلث الأخير من الليل. |
+| 515 | `channelExtra` | Other times · {sound} | أوقات أخرى · {sound} |
+| 516 | `kindExtra` | Extra time | وقت إضافي |
+| 517 | `settingsExtraTimes` | Extra times | أوقات إضافية |
+| 518 | `extraTimesIntro` | Times beside the five prayers, worked out from your prayer times. They have no Iqama. | أوقات إلى جانب الصلوات الخمس، تُحسب من مواقيت صلاتك. ولا إقامة لها. |
+| 519 | `extraShowOnToday` | Show on Today | إظهار في صفحة اليوم |
+| 520 | `extraAlert` | Alert | تنبيه |
+| 521 | `extraAlertHint` | Uses your Jama’ah reminder sound. | يستخدم صوت تذكير الجماعة. |
+| 522 | `extraImsakRule` | {minutes} min before Fajr | {minutes, plural, =0{عند الفجر} =1{قبل الفجر بدقيقة} =2{قبل الفجر بدقيقتين} few{قبل الفجر بـ{minutes} دقائق} many{قبل الفجر بـ{minutes} دقيقة} other{قبل الفجر بـ{minutes} دقيقة}} |
+| 523 | `extraDuhaRule` | {minutes} min after sunrise | {minutes, plural, =1{دقيقة بعد الشروق} =2{دقيقتين بعد الشروق} few{{minutes} دقائق بعد الشروق} many{{minutes} دقيقة بعد الشروق} other{{minutes} دقيقة بعد الشروق}} |
+| 524 | `extraQiyamRule` | The last third of the time from Maghrib to Fajr. | الثلث الأخير من الوقت بين المغرب والفجر. |
+| 525 | `extraNoneShown` | None shown | لا شيء معروض |
+| 526 | `listSeparator` | ,  | ،  |
+| 527 | `jumuahNotSetNote` | Jumu’ah time not set · showing Dhuhr Iqama | لم يُحدَّد وقت الجمعة · يُعرض وقت إقامة الظهر |
+| 528 | `jumuahRowHint` | Fridays, in place of Dhuhr | يوم الجمعة بدلًا من الظهر |
+| 529 | `jumuahRowNotSet` | Jumu’ah time not set | وقت الجمعة غير محدَّد |
+| 530 | `settingsAdhanRingInSilent` | Adhan rings on silent | الأذان يرنّ والهاتف صامت |
+| 531 | `settingsPreAdhanRingInSilent` | Reminders before the Adhan ring on silent | التذكير قبل الأذان يرنّ والهاتف صامت |
+| 532 | `ringInSilentSome` | On for some prayers. Each prayer’s page can change it. | مفعّل لبعض الصلوات. ويمكن تغييره من صفحة كل صلاة. |
+| 533 | `alertPreAdhanRingInSilent` | Reminder rings on silent | التذكير يرنّ والهاتف صامت |
+| 534 | `onbRingInSilent` | Ring even when my phone is on silent | التنبيه حتى لو كان هاتفي صامتًا |
+| 535 | `onbRingInSilentHint` | For the Adhan, the reminder before it and Jama’ah reminders, through the alarm volume. You can change each one in Settings. | للأذان والتذكير قبله وتذكيرات الجماعة، بصوت المنبّه. ويمكنك تغيير كل منها في الإعدادات. |
+| 536 | `iqamaModeAfterAdhan` | Minutes after Adhan | دقائق بعد الأذان |
+| 537 | `iqamaModeFixed` | Fixed time | وقت ثابت |
+| 538 | `iqamaMinutesLabel` | Minutes after the Adhan | عدد الدقائق بعد الأذان |
+| 539 | `iqamaAfterAdhanPreview` | Adhan {adhan} + {minutes} min = Iqama {iqama} today | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} اليوم} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} اليوم} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} اليوم} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} اليوم}} |
+| 540 | `iqamaMinutesInvalid` | Enter 1 to 90 minutes | أدخل من 1 إلى 90 دقيقة |
+| 541 | `iqamaNeedsAdhan` | Set your location to see today’s time. | حدّد موقعك لترى وقت اليوم. |
+| 542 | `rowAfterAdhan` | {minutes} min after Adhan | {minutes, plural, =1{دقيقة بعد الأذان} =2{دقيقتين بعد الأذان} few{{minutes} دقائق بعد الأذان} many{{minutes} دقيقة بعد الأذان} other{{minutes} دقيقة بعد الأذان}} |
+| 543 | `enterAllFive` | Enter minutes for all five | إدخال الدقائق للصلوات الخمس |
+| 544 | `enterAllFiveTitle` | Iqama: minutes after the Adhan | الإقامة: الدقائق بعد الأذان |
+| 545 | `enterAllFiveHint` | As your mosque publishes them, e.g. Fajr 22. Empty fields stay as they are. | كما يعلنها مسجدك، مثل الفجر 22. وتبقى الحقول الفارغة على حالها. |
+| 546 | `iqamaAfterAdhanPreviewTomorrow` | Adhan {adhan} + {minutes} min = Iqama {iqama} tomorrow | {minutes, plural, =1{الأذان {adhan} + دقيقة = الإقامة {iqama} غدًا} =2{الأذان {adhan} + دقيقتين = الإقامة {iqama} غدًا} few{الأذان {adhan} + {minutes} دقائق = الإقامة {iqama} غدًا} many{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا} other{الأذان {adhan} + {minutes} دقيقة = الإقامة {iqama} غدًا}} |
+| 547 | `reminderSoundCustom` | Your own sound | صوتك الخاص |
+| 548 | `reminderSoundCustomHint` | A file from your phone. Plays for up to 30 seconds. | ملف من هاتفك. يُشغَّل حتى 30 ثانية. |
+| 549 | `reminderSoundCustomNamed` | Your own: {name} | صوتك: {name} |
+| 550 | `recordingsYours` | Your recordings | تسجيلاتك |
+| 551 | `soundAddFromPhone` | Add from your phone | إضافة من هاتفك |
+| 552 | `soundRename` | Rename | إعادة التسمية |
+| 553 | `soundDelete` | Delete | حذف |
+| 554 | `soundName` | Name | الاسم |
+| 555 | `soundDeleteConfirm` | Delete “{name}”? Anything using it goes back to the built-in sound. | حذف «{name}»؟ ما يستخدمه يعود إلى الصوت المدمج. |
+| 556 | `soundCouldNotAdd` | That file could not be added. | تعذّرت إضافة هذا الملف. |
+| 557 | `recordingPreviewFailed` | This recording could not be played. | تعذّر تشغيل هذا التسجيل. |
+| 558 | `soundOptions` | Options for {name} | خيارات {name} |
+| 559 | `prayerRecording` | Recording | التسجيل |
+| 560 | `prayerRecordingSame` | Same as in Settings ({name}) | كما في الإعدادات ({name}) |
+| 561 | `prayerRecordingHint` | Plays when this prayer’s sound is Full Adhan. | يُشغَّل عندما يكون صوت هذه الصلاة الأذان الكامل. |
+| 562 | `recordingsForPrayer` | Recording for {prayer} | تسجيل {prayer} |
+| 563 | `heroKickerTomorrow` | Next prayer · tomorrow | الصلاة القادمة · غدًا |
+| 564 | `heroKickerHeld` | {prayer} · Iqama {countdown} | {prayer} · الإقامة {countdown} |
+| 565 | `heroKickerAdhan` | Adhan | الأذان |
+| 566 | `heroKickerInForce` | In force at {time} | الوقت الحاضر عند {time} |
+| 567 | `heroKickerSunrise` | Sunrise · not a prayer | الشروق · ليس وقت صلاة |
+| 568 | `heroBackToNow` | Back to now | العودة إلى الآن |
+| 569 | `heroMeta` | {period} · {relative} | {period} · {relative} |
+| 570 | `heroAdhanAgo` | Adhan {ago} | الأذان {ago} |
+| 571 | `sunNow` | Now {time} | الآن {time} |
+| 572 | `sunPathLabel` | Look through the day | تصفّح اليوم |
+| 573 | `sunPathValue` | {time}, {prayer} | {time}، {prayer} |
+| 574 | `placeSubline` | {date} · {hijri} | {date} · {hijri} |
+| 575 | `placeButtonSemantics` | Place: {place}. Change place | المكان: {place}. تغيير المكان |
+| 576 | `moreNotes` | {count, plural, =1{1 more note} other{{count} more notes}} | {count, plural, =1{ملاحظة أخرى} =2{ملاحظتان أخريان} few{{count} ملاحظات أخرى} many{{count} ملاحظة أخرى} other{{count} ملاحظة أخرى}} |
+| 577 | `notesTitle` | Notes | ملاحظات |
+| 578 | `ticketKicker` | Iqama · {mosque} | الإقامة · {mosque} |
+| 579 | `jumuahTicketKicker` | Khutbah · {mosque} | الخطبة · {mosque} |
+| 580 | `jumuahTicketSemantics` | Khutbah at {mosque}: {time}, {relative}. {rule}. {reminder}. | الخطبة في {mosque}: {time}، {relative}. {rule}. {reminder}. |
+| 581 | `jumuahTicketUnsetSemantics` | Khutbah at {mosque}: not configured. Set time | الخطبة في {mosque}: غير محدّدة. حدّد الوقت |
+| 582 | `ticketWhen` | · {relative} | · {relative} |
+| 583 | `ticketRuleAfter` | {minutes, plural, =1{Adhan + 1 min · set by you} other{Adhan + {minutes} min · set by you}} | {minutes, plural, =1{الأذان + دقيقة · حدّدتها أنت} =2{الأذان + دقيقتين · حدّدتها أنت} few{الأذان + {minutes} دقائق · حدّدتها أنت} many{الأذان + {minutes} دقيقة · حدّدتها أنت} other{الأذان + {minutes} دقيقة · حدّدتها أنت}} |
+| 584 | `ticketRuleFixed` | Fixed time · set by you | وقت ثابت · حدّدته أنت |
+| 585 | `ticketReminder` | Reminder {time} | التذكير {time} |
+| 586 | `ticketNoReminder` | No reminder | بلا تذكير |
+| 587 | `ticketSetTime` | Set time | حدّد الوقت |
+| 588 | `ticketSunrise` | Sunrise ends the time for Fajr. It has no Iqama. | بالشروق ينتهي وقت الفجر. لا إقامة له. |
+| 589 | `ticketNoMosque` | Add your mosque to see when its congregation starts. | أضف مسجدك لترى متى تبدأ صلاة الجماعة فيه. |
+| 590 | `ticketJumuahNotSet` | Jumu’ah time not set · Dhuhr Iqama {time} | لم يُحدَّد وقت الجمعة · إقامة الظهر {time} |
+| 591 | `ticketSemantics` | Iqama at {mosque}: {time}, {relative}. {rule}. {reminder}. | الإقامة في {mosque}: {time}، {relative}. {rule}. {reminder}. |
+| 592 | `ticketUnsetSemantics` | Iqama at {mosque}: not configured. Set time | الإقامة في {mosque}: غير محدّدة. حدّد الوقت |
+| 593 | `alertShortFull` | Full | كامل |
+| 594 | `alertShortShort` | Short | قصير |
+| 595 | `alertShortStandard` | Standard | عادي |
+| 596 | `alertShortSilent` | Silent | صامت |
+| 597 | `alertShortOff` | Off | إيقاف |
+| 598 | `alertSheetTitle` | {prayer} alert | تنبيه {prayer} |
+| 599 | `alertSheetAdhan` | Adhan {time} | الأذان {time} |
+| 600 | `alertGroupSound` | Notify with sound | تنبيه بصوت |
+| 601 | `alertGroupQuiet` | Notify without sound | تنبيه بلا صوت |
+| 602 | `alertDescSilent` | Shown in the notification shade, no sound | يظهر في الإشعارات بلا صوت |
+| 603 | `alertDescOff` | No notification at all | لا إشعار على الإطلاق |
+| 604 | `alertDefaultMark` | {label} · Default | {label} · الافتراضي |
+| 605 | `alertDefaultSuffix` | {label} · default | {label} · الافتراضي |
+| 606 | `alertDone` | Done | تم |
+| 607 | `alertButtonSemantics` | {prayer} Adhan alert: {mode}. Change | تنبيه أذان {prayer}: {mode}. تغيير |
+| 608 | `rowIqamaNotSet` | Iqama not set | الإقامة غير محدّدة |
+| 609 | `sunLabelCombined` | {prayer} · {time} | {prayer} · {time} |
+| 610 | `placeNearCity` | Near {city} | قرب {city} |
+| 611 | `mosquesLead` | Today and your Jama’ah reminders follow your active mosque, now {mosque}. | يتبع «اليوم» وتذكيرات الجماعة مسجدك النشط، وهو الآن {mosque}. |
+| 612 | `mosquesLeadNoActive` | Make one mosque active and Today follows it. | اجعل أحد المساجد نشطًا ليتبعه «اليوم». |
+| 613 | `mosquesFindNearby` | Find nearby | ابحث بالقرب منك |
+| 614 | `mosquesAddManually` | Add manually | أضف يدويًا |
+| 615 | `mosqueSourceGoogleUnverified` | From Google Maps · not verified | من خرائط Google · غير موثّق |
+| 616 | `mosqueSourceOsmUnverified` | From OpenStreetMap · not verified | من OpenStreetMap · غير موثّق |
+| 617 | `mosqueNoIqamaYet` | No Iqama set yet | لم تُحدَّد أي إقامة بعد |
+| 618 | `mosqueActiveLong` | Active · Today uses this mosque | نشط · «اليوم» يستخدم هذا المسجد |
+| 619 | `mosqueMakeActive` | Make active | اجعله نشطًا |
+| 620 | `mosqueMadeActive` | {mosque} is now your active mosque | أصبح {mosque} مسجدك النشط |
+| 621 | `mosquesFooter` | Mosques found online show where they came from and are not verified. Your Iqama times stay on this phone. | المساجد التي تُعثر عليها عبر الإنترنت تُظهر مصدرها وهي غير موثّقة. أوقات الإقامة التي تُدخلها تبقى على هذا الهاتف. |
+| 622 | `mosquesEmptyTitle` | There’s a place for you | لك مكانٌ في الصف |
+| 623 | `mosquesEmptyBody` | Add the mosque you pray at. Jama’ah will show when its congregation starts and remind you before it. | أضف المسجد الذي تصلّي فيه. سيُظهر «جماعة» موعد بدء صلاة الجماعة فيه ويذكّرك قبلها. |
+| 624 | `mosquesEmptyFind` | Find mosques nearby | ابحث عن مساجد قريبة |
+| 625 | `mosquesEmptyAdd` | Add one yourself | أضف مسجدًا بنفسك |
+| 626 | `mosquesEmptyNote` | You enter its Iqama times. Nothing is guessed, and nothing leaves your phone. | أنت من يُدخل أوقات الإقامة. لا شيء يُخمَّن، ولا شيء يغادر هاتفك. |
+| 627 | `mosqueRowSemantics` | {mosque}. {source}. {count} | {mosque}. {source}. {count} |
+| 628 | `mosqueKicker` | Your mosque | مسجدك |
+| 629 | `mosqueNextJamaah` | Next Jama’ah · {prayer} {time} · {relative} | الجماعة القادمة · {prayer} {time} · {relative} |
+| 630 | `mosqueNoNextJamaah` | No more Jama’ah set for today | لا جماعة أخرى محدّدة لليوم |
+| 631 | `mosquePauseTitle` | Pause Jama’ah reminders | إيقاف تذكيرات الجماعة مؤقتًا |
+| 632 | `mosquePauseHint` | Your Iqama times and settings are kept. | تبقى أوقات الإقامة وإعداداتك محفوظة. |
+| 633 | `scheduleSection` | Iqama schedule | جدول الإقامة |
+| 634 | `scheduleTapHint` | Tap a prayer to set it | اضغط على صلاة لتحديدها |
+| 635 | `rowAdhanPlus` | {minutes, plural, =1{Adhan + 1 min} other{Adhan + {minutes} min}} | {minutes, plural, =1{الأذان + دقيقة} =2{الأذان + دقيقتين} few{الأذان + {minutes} دقائق} many{الأذان + {minutes} دقيقة} other{الأذان + {minutes} دقيقة}} |
+| 636 | `rowFixedTime` | Fixed time | وقت ثابت |
+| 637 | `rowPausedReminder` | Paused · Reminder at {time} | متوقف مؤقتًا · التذكير {time} |
+| 638 | `reminderSwitchNeedsIqama` | {prayer} Jama’ah reminder, available once an Iqama time is set | تذكير جماعة {prayer}، متاح بعد تحديد وقت الإقامة |
+| 639 | `scheduleNeverFills` | The app never fills in an Iqama. | التطبيق لا يملأ أي إقامة من عنده. |
+| 640 | `removeThisMosque` | Remove this mosque | إزالة هذا المسجد |
+| 641 | `mosqueBack` | Back to Mosques | العودة إلى المساجد |
+| 642 | `iqamaRowSet` | Edit {prayer} Iqama | تعديل إقامة {prayer} |
+| 643 | `iqamaRowUnset` | Set {prayer} Iqama | تحديد إقامة {prayer} |
+| 644 | `scheduleFooter` | Set by you · last updated {date}. The app never fills in an Iqama. | حدّدتها أنت · آخر تحديث {date}. التطبيق لا يملأ أي إقامة من عنده. |
+| 645 | `iqamaEditorSub` | {mosque} · Adhan {time} today | {mosque} · الأذان {time} اليوم |
+| 646 | `iqamaEditorSubFriday` | {mosque} · Fridays, in place of Dhuhr | {mosque} · أيام الجمعة، بدل الظهر |
+| 647 | `iqamaModeAfterDesc` | Moves with the Adhan | يتحرّك مع الأذان |
+| 648 | `iqamaModeFixedDesc` | Same time every day | الوقت نفسه كل يوم |
+| 649 | `iqamaMinutesEmpty` | Choose how many minutes after the Adhan this mosque starts. Nothing is saved until you do. | اختر كم دقيقة بعد الأذان تبدأ الإقامة في هذا المسجد. لا يُحفظ شيء حتى تختار. |
+| 650 | `iqamaFixedEmptyNote` | Nothing is saved until you choose a time. | لا يُحفظ شيء حتى تختار وقتًا. |
+| 651 | `iqamaFixedNote` | The same time every day, whatever the Adhan. | الوقت نفسه كل يوم، أيًّا كان وقت الأذان. |
+| 652 | `iqamaReminderTitle` | Jama’ah reminder | تذكير الجماعة |
+| 653 | `iqamaReminderHint` | A nudge before the congregation starts | تنبيه قبل أن تبدأ صلاة الجماعة |
+| 654 | `iqamaSaved` | {prayer} Iqama saved | حُفظت إقامة {prayer} |
+| 655 | `clearThisIqama` | Clear this Iqama | مسح هذه الإقامة |
+| 656 | `iqamaFewerMinutes` | One minute less | دقيقة أقل |
+| 657 | `iqamaMoreMinutes` | One minute more | دقيقة أكثر |
+| 658 | `iqamaEarlier` | {minutes, plural, =1{1 minute earlier} other{{minutes} minutes earlier}} | {minutes, plural, =1{تقديم دقيقة} =2{تقديم دقيقتين} few{تقديم {minutes} دقائق} many{تقديم {minutes} دقيقة} other{تقديم {minutes} دقيقة}} |
+| 659 | `iqamaLater` | {minutes, plural, =1{1 minute later} other{{minutes} minutes later}} | {minutes, plural, =1{تأخير دقيقة} =2{تأخير دقيقتين} few{تأخير {minutes} دقائق} many{تأخير {minutes} دقيقة} other{تأخير {minutes} دقيقة}} |
+| 660 | `settingsBack` | Back | رجوع |
+| 661 | `settingsGroupEveryDay` | Every day | كل يوم |
+| 662 | `settingsGroupPreferences` | Preferences | التفضيلات |
+| 663 | `settingsGroupHelp` | Help | المساعدة |
+| 664 | `settingsLanguageLook` | Language and look | اللغة والمظهر |
+| 665 | `settingsHelpAbout` | Help and about | المساعدة وعن التطبيق |
+| 666 | `settingsHubFooter` | Iqama times live on each mosque, in the Mosques tab, not here. | أوقات الإقامة محفوظة في كل مسجد، في تبويب «المساجد»، لا هنا. |
+| 667 | `settingsPrayerTimesSummary` | {method} · Asr {asr} | {method} · العصر {asr} |
+| 668 | `settingsAlertsSummary` | {sound} · {on} of {total} on | {sound} · {on} من {total} مفعّلة |
+| 669 | `settingsSummaryPair` | {first} · {second} | {first} · {second} |
+| 670 | `settingsRemindersPausedShort` | All paused | كلها موقوفة مؤقتًا |
+| 671 | `settingsNoActiveMosque` | No active mosque | لا مسجد نشط |
+| 672 | `travelSummaryOff` | Off | متوقف |
+| 673 | `travelSummaryOn` | On | مفعّل |
+| 674 | `settingsHelpSummary` | Introduction, late alerts, about | المقدمة، والتنبيهات المتأخرة، وعن التطبيق |
+| 675 | `settingsPrayerTimesLead` | How the times on Today are worked out. | كيف تُحسب الأوقات في «اليوم». |
+| 676 | `settingsAlertsLead` | What you hear at each Adhan. | ما تسمعه عند كل أذان. |
+| 677 | `settingsRemindersLead` | How the reminder before your mosque’s Iqama sounds. | صوت التذكير الذي يسبق إقامة مسجدك. |
+| 678 | `settingsTravelLead` | Away from your mosque: reminders pause, and in flight. | أوقات تتبعك في سفرك. |
+| 679 | `settingsLanguageLookLead` | The app’s language and theme. | لغة التطبيق ومظهره. |
+| 680 | `settingsHelpLead` | Getting started, late alerts, and this build. | البداية، والتنبيهات المتأخرة، وهذا الإصدار. |
+| 681 | `extraOnTodaySection` | Extra times on Today | أوقات إضافية في «اليوم» |
+| 682 | `extraAlertsAndTiming` | Alerts and timing | التنبيهات والتوقيت |
+| 683 | `extraNoAlerts` | No alerts | بلا تنبيهات |
+| 684 | `extraAlertsFor` | Alerts: {names} | التنبيهات: {names} |
+| 685 | `settingsAdvanced` | Advanced | متقدّم |
+| 686 | `highLatitudeLead` | When the night is short, Fajr and Isha need a rule. | حين يقصر الليل، يحتاج الفجر والعشاء إلى قاعدة. |
+| 687 | `alertsEachPrayer` | Each prayer | كل صلاة |
+| 688 | `alertsAlsoFromToday` | Also from Today: tap the sound beside any prayer. | ومن «اليوم» أيضًا: انقر الصوت بجانب أي صلاة. |
+| 689 | `alertsRecordings` | Recordings | التسجيلات |
+| 690 | `alertsSilentSection` | On the lock screen and on silent | على شاشة القفل وفي الوضع الصامت |
+| 691 | `settingsRemindersOnMosque` | Iqama times and which prayers remind you are set on each mosque. | أوقات الإقامة والصلوات التي تذكّرك تُضبط في كل مسجد. |
+| 692 | `travelInFlightValue` | Prayer times and the Qibla on a plane | أوقات الصلاة والقبلة على متن الطائرة |
+| 693 | `themeSkyNote` | The sky always follows the time of day. Dark keeps it dimmer. | السماء تتبع وقت النهار دائمًا، والوضع الداكن يجعلها أخفت. |
+| 694 | `helpLateAlerts` | Alerts arriving late? | هل تصل التنبيهات متأخرة؟ |
+| 695 | `helpLateAlertsLead` | Most often the phone is saving battery. | غالبًا ما يكون الهاتف يوفّر البطارية. |
+| 696 | `helpBatteryTitle` | Battery use | استخدام البطارية |
+| 697 | `helpCheckTitle` | Check what is scheduled | تحقّق ممّا هو مجدول |
+| 698 | `helpCheckBody` | The list shows every alert and reminder waiting on this phone, and says if a permission is missing. | تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص. |
+| 699 | `helpAbout` | About | عن التطبيق |
+| 700 | `helpCheckUpdates` | Check for updates | إصدارات GitHub |
+| 701 | `updateChecking` | Checking… | جارٍ التحقق… |
+| 702 | `updateUpToDate` | You already have {version} | لديك بالفعل {version} |
+| 703 | `updateAvailable` | Update to {version} | التحديث إلى {version} |
+| 704 | `updateAvailableOnSite` | {version} · open the releases page | {version} · افتح صفحة الإصدارات |
+| 705 | `updateDownloading` | Downloading… {percent}% | جارٍ التنزيل… ‏{percent}٪ |
+| 706 | `updateDownloadingUnknown` | Downloading… | جارٍ التنزيل… |
+| 707 | `updateReady` | Downloaded · tap to install | تم التنزيل · انقر للتثبيت |
+| 708 | `updateLookupFailed` | Couldn't reach GitHub. Tap to try again. | تعذّر الوصول إلى GitHub. انقر للمحاولة من جديد. |
+| 709 | `updateNoChecksum` | No checksum published — open the releases page | لا توجد بصمة تحقق — افتح صفحة الإصدارات |
+| 710 | `updateBroken` | Download interrupted. Tap to try again. | انقطع التنزيل. انقر للمحاولة من جديد. |
+| 711 | `updateConfirmTitle` | Update to {version}? | التحديث إلى {version}؟ |
+| 712 | `updateConfirmBody` | {version} downloads from GitHub Releases and is checked before installing. The app restarts during the install. | يُنزَّل {version} من إصدارات GitHub ويُتحقَّق منه قبل التثبيت. يعيد التطبيق تشغيل نفسه أثناء التثبيت. |
+| 713 | `updateStart` | Update | تحديث |
+| 714 | `updateStopTitle` | Stop the download? | إيقاف التنزيل؟ |
+| 715 | `updateKeep` | Keep downloading | متابعة التنزيل |
+| 716 | `updateStop` | Stop | إيقاف |
+| 717 | `updateInstallFailed` | The install didn't start. Try again. | لم يبدأ التثبيت. حاول من جديد. |
+| 718 | `helpUpdatesUnavailable` | Could not open the releases page. | تعذّر فتح صفحة الإصدارات. |
+| 719 | `diagnosticsTitle` | Diagnostics | التشخيص |
+| 720 | `diagnosticsLead` | Help us understand notification problems on this phone. | ساعدنا على فهم مشكلات التنبيهات على هذا الهاتف. |
+| 721 | `diagnosticsPrivacy` | A small event history stays on this phone. Reports include app build, Android version, notification permission status, and recent scheduling outcomes. They exclude your place, mosque, prayer times, notification text, and identity. | يبقى سجل صغير للأحداث على هذا الهاتف. يتضمن التقرير إصدار التطبيق وأندرويد وحالة إذن التنبيهات ونتائج الجدولة الأخيرة. ولا يتضمن موقعك أو المسجد أو أوقات الصلاة أو نصوص التنبيهات أو هويتك. |
+| 722 | `diagnosticsSentry` | Send diagnostics to Sentry | إرسال تقارير التشخيص إلى Sentry |
+| 723 | `diagnosticsSentryHint` | When enabled, app errors and anonymous sync-health stats are sent automatically so we can investigate crashes. | عند التفعيل، تُرسل أخطاء التطبيق وإحصاءات المزامنة تلقائيًا دون أي بيانات شخصية، لمساعدتنا على معرفة سبب الأعطال. |
+| 724 | `diagnosticsSentryUnavailable` | Diagnostics reporting is not configured in this build. | تقارير التشخيص غير مهيأة في هذا الإصدار. |
+| 725 | `diagnosticsHistory` | Recent notification activity | نشاط التنبيهات الأخير |
+| 726 | `diagnosticsEmpty` | No diagnostic events yet. | لا توجد أحداث تشخيصية بعد. |
+| 727 | `diagnosticsSend` | Prepare a diagnostic report | إعداد تقرير تشخيصي |
+| 728 | `diagnosticsSending` | Preparing… | جارٍ الإعداد… |
+| 729 | `diagnosticsConfirmTitle` | Share diagnostic report? | مشاركة التقرير التشخيصي؟ |
+| 730 | `diagnosticsConfirmBody` | The report contains app and Android versions plus recent notification scheduling and permission events. It contains no place, mosque, prayer times, notification text, or account identity. Continue only if you are comfortable sharing this information. | يتضمن التقرير إصداري التطبيق وأندرويد وأحداث جدولة التنبيهات والأذونات الأخيرة. ولا يتضمن الموقع أو المسجد أو أوقات الصلاة أو نص التنبيهات أو هوية الحساب. تابع فقط إذا كنت توافق على مشاركة هذه المعلومات. |
+| 731 | `diagnosticsUpload` | Send to Sentry | إرسال إلى Sentry |
+| 732 | `diagnosticsShare` | Open share sheet | فتح قائمة المشاركة |
+| 733 | `diagnosticsReportTitle` | Jama’ah diagnostic report | تقرير تشخيص تطبيق جماعة |
+| 734 | `diagnosticsUploaded` | Diagnostic report sent. | أُرسل التقرير التشخيصي. |
+| 735 | `diagnosticsEventIdLabel` | Sentry event ID (select to copy) | معرّف الحدث في Sentry (حدّد للنسخ) |
+| 736 | `diagnosticsShareOpened` | Choose an app to share the report. | اختر تطبيقًا لمشاركة التقرير. |
+| 737 | `diagnosticsSendFailed` | Could not prepare or send the report. | تعذر إعداد التقرير أو إرساله. |
+| 738 | `methodListLead` | Each method's angles, and where it is used. | زوايا كل طريقة، وأين تُستعمل. |
+| 739 | `compassEast` | E | ق |
+| 740 | `compassWest` | W | غ |
+| 741 | `qiblaLead` | From {place} · {distance} km to the Kaaba | من {place} · {distance} كم إلى الكعبة |
+| 742 | `compassPointNorth` | North | الشمال |
+| 743 | `compassPointNorthEast` | North-east | الشمال الشرقي |
+| 744 | `compassPointEast` | East | الشرق |
+| 745 | `compassPointSouthEast` | South-east | الجنوب الشرقي |
+| 746 | `compassPointSouth` | South | الجنوب |
+| 747 | `compassPointSouthWest` | South-west | الجنوب الغربي |
+| 748 | `compassPointWest` | West | الغرب |
+| 749 | `compassPointNorthWest` | North-west | الشمال الغربي |
+| 750 | `compassLowerNorth` | north | الشمال |
+| 751 | `compassLowerEast` | east | الشرق |
+| 752 | `compassLowerSouth` | south | الجنوب |
+| 753 | `compassLowerWest` | west | الغرب |
+| 754 | `compassLeanToward` | {point}, a little towards the {toward} | {point}، مع ميل قليل نحو {toward} |
+| 755 | `compassLeanMore` | {point}, a little more {more} than {less} | {point}، أقرب قليلًا إلى {more} منه إلى {less} |
+| 756 | `qiblaNoCompassHint` | This phone has no compass, so the arrow can’t follow you. Line it up with a direction you know, such as where the sun sets. | لا بوصلة في هذا الهاتف، فلا يستطيع السهم أن يتبعك. وجّهه نحو اتجاه تعرفه، كجهة غروب الشمس. |
+| 757 | `qiblaNeedsMoment` | The compass needs a moment | البوصلة تحتاج إلى لحظة |
+| 758 | `qiblaSteadyNow` | It’s steady now | استقرّت البوصلة الآن |
+| 759 | `qiblaSavedPlaceNote` | From your saved place. Allow location for the direction from where you stand. | من مكانك المحفوظ. اسمح بالموقع للحصول على الاتجاه من حيث تقف. |
+| 760 | `qiblaAllowLocation` | Allow location | السماح بالموقع |
+| 761 | `onbLanguageLabel` | Language · اللغة | اللغة · Language |
+| 762 | `onbLanguageLater` | You can change it later in Settings. | يمكنك تغييرها لاحقًا من الإعدادات. |
+| 763 | `onbPlaceBody` | Prayer times are calculated on your phone. Precise location helps name your area and choose a local method. Android's geocoding service receives the coordinates to find the place name. | تُحسب مواقيت الصلاة على هاتفك. يساعد الموقع الدقيق على تحديد منطقتك واختيار طريقة محلية. تستقبل خدمة الترميز الجغرافي في Android الإحداثيات لتحديد اسم المكان. |
+| 764 | `onbPlaceDetails` | Method: {method} · next Adhan {prayer} {time} | الطريقة: {method} · الأذان القادم {prayer} {time} |
+| 765 | `onbPlaceNotRight` | Not right? Choose a city | ليس صحيحًا؟ اختر مدينة |
+| 766 | `onbMosqueRowOpen` | A row of worshippers, with one place open for you | صفّ من المصلّين، فيه مكان شاغر لك |
+| 767 | `onbMosqueRowFull` | A full row, with you in it | صفّ مكتمل، وأنت فيه |
+| 768 | `onbMosqueAdded` | {mosque} added | أُضيف {mosque} |
+| 769 | `onbMosqueAddedBody` | Its Iqama times are not configured yet. Set them from the Mosques tab whenever you are ready. | لم تُضبط أوقات الإقامة فيه بعد. اضبطها من تبويب «المساجد» متى شئت. |
+| 770 | `onbAlertsFiveHint` | Fajr, Dhuhr, Asr, Maghrib and Isha | الفجر والظهر والعصر والمغرب والعشاء |
+| 771 | `onbAllowNote` | Android will ask if Jama’ah may send notifications. Without it, alerts can’t appear. | سيسألك أندرويد إن كان يُسمح لتطبيق «جماعة» بإرسال الإشعارات. ومن دون ذلك لا تظهر التنبيهات. |
+| 772 | `onbNotificationsAllowed` | Notifications allowed | الإشعارات مسموح بها |
+| 773 | `onbBatterySettings` | Battery settings | إعدادات البطارية |
+| 774 | `onbTravelOnSub` | On: reminders pause away from your mosque | مفعّل: الأوقات تتبعك |
+| 775 | `onbTravelOffSub` | Off: reminders stay as usual | متوقف: تبقى الأوقات حيث ضبطتها |
+| 776 | `onbTravelSame` | The same switch sits at the top of Today. | المفتاح نفسه موجود أعلى «اليوم». |
+| 777 | `inFlightStartTitle` | Prayer times at 11,000 metres | مواقيت الصلاة على ارتفاع ١١٬٠٠٠ متر |
+| 778 | `inFlightStartLead` | Worked out from your phone’s GPS. It works in airplane mode, with no network. | تُحسب من نظام GPS في هاتفك، وهو يعمل في وضع الطيران دون شبكة. |
+| 779 | `inFlightWindowNote` | Sit by a window if you can. The first fix can take a few minutes. | اجلس قرب النافذة إن استطعت. قد يستغرق تحديد الموقع الأول بضع دقائق. |
+| 780 | `inFlightLookingTitle` | Looking for satellites | نبحث عن الأقمار الصناعية |
+| 781 | `inFlightKeepLooking` | Keep the phone near a window, screen up. | أبقِ الهاتف قرب النافذة وشاشته إلى الأعلى. |
+| 782 | `inFlightAircraftTime` | Aircraft time {time} ({offset}), from your position | توقيت الطائرة {time} ({offset})، حسب موقعك |
+| 783 | `inFlightPosition` | {lat} · {lon} | {lat} · {lon} |
+| 784 | `inFlightLatNorth` | {degrees}° N | {degrees}° ش |
+| 785 | `inFlightLatSouth` | {degrees}° S | {degrees}° ج |
+| 786 | `inFlightLonEast` | {degrees}° E | {degrees}° ق |
+| 787 | `inFlightLonWest` | {degrees}° W | {degrees}° غ |
+| 788 | `inFlightAlongTitle` | Along the route | على طول الرحلة |
+| 789 | `inFlightEstimates` | Estimates | تقديرات |
+| 790 | `inFlightHeadingHint` | Aircraft heading: from the seat-back map, or ask the crew. | اتجاه الطائرة: من خريطة المقعد، أو اسأل الطاقم. |
+| 791 | `inFlightQiblaWords` | {words} · {degrees}° | {words} · {degrees}° |
+| 792 | `qiblaDirStraightAhead` | Straight ahead | أمامك مباشرة |
+| 793 | `qiblaDirAheadRight` | Ahead, to your right | أمامك، إلى يمينك |
+| 794 | `qiblaDirRight` | To your right | إلى يمينك |
+| 795 | `qiblaDirBehindRight` | Behind you, to the right | خلفك، إلى اليمين |
+| 796 | `qiblaDirBehind` | Behind you | خلفك |
+| 797 | `qiblaDirBehindLeft` | Behind you, to the left | خلفك، إلى اليسار |
+| 798 | `qiblaDirLeft` | To your left | إلى يسارك |
+| 799 | `qiblaDirAheadLeft` | Ahead, to your left | أمامك، إلى يسارك |
+| 800 | `adhanScreenKicker` | It’s time for | حان وقت |
+| 801 | `adhanScreenAdhanAt` | Adhan · {time} | الأذان · {time} |
+| 802 | `adhanScreenIqamaIn` | Iqama at {mosque} · {time}, {countdown} | الإقامة في {mosque} · {time}، {countdown} |
+| 803 | `adhanScreenIqamaAt` | Iqama at {mosque} · {time} | الإقامة في {mosque} · {time} |
+| 804 | `adhanScreenNoIqama` | No Iqama set at {mosque} | لا وقت إقامة محدّد في {mosque} |
+| 805 | `adhanScreenHint` | Volume keys or turning the phone face down also stop it. | أزرار الصوت أو قلب الهاتف على وجهه توقفه أيضًا. |
+| 806 | `adhanScreenStopped` | Adhan stopped | توقّف الأذان |
+| 807 | `adhanScreenDismiss` | Dismiss | إغلاق |
+| 808 | `adhanScreenStopLabel` | Stop the {prayer} Adhan | أوقف أذان {prayer} |
+| 809 | `onbExactNote` | For alerts at the very minute, Android also asks you to let Jama’ah set alarms. Without it, an alert can come a few minutes late. | لتصل التنبيهات في دقيقتها تمامًا، يطلب أندرويد أيضًا أن تسمح لتطبيق «جماعة» بضبط المنبّهات. ومن دون ذلك قد يتأخّر التنبيه بضع دقائق. |
+| 810 | `onbExactAllow` | Allow on-time alerts | اسمح بالتنبيهات في وقتها |
+| 811 | `onbExactHow` | Turn on the switch on the next screen, then come back. | فعّل المفتاح في الشاشة التالية، ثم عُد. |
+| 812 | `onbExactAllowed` | On-time alerts allowed | التنبيهات في وقتها مسموح بها |
