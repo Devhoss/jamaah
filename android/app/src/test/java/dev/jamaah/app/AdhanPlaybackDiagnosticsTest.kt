@@ -49,6 +49,21 @@ class AdhanPlaybackDiagnosticsTest {
     }
 
     @Test
+    fun descriptorPathMatchesThePackedEntryForSpacedNames() {
+        // Flutter packs "Mansour Al Salimi.mp3" as "Mansour%20Al%20Salimi.mp3";
+        // the native lookup must ask for the packed name, not the literal one,
+        // or the open throws and playback falls back to the short Adhan.
+        assertEquals(
+            "flutter_assets/audio/full/Mansour%20Al%20Salimi.mp3",
+            AdhanPlaybackDiagnostics.flutterAssetDescriptorPath("audio/full/Mansour Al Salimi.mp3"),
+        )
+        assertEquals(
+            "flutter_assets/audio/fajr/muezzin%20fajr.mp3",
+            AdhanPlaybackDiagnostics.flutterAssetDescriptorPath("audio/fajr/muezzin fajr.mp3"),
+        )
+    }
+
+    @Test
     fun playbackFailureDetailsRetainMediaErrorCodesAndExceptionDetails() {
         assertEquals(
             mapOf("reason" to "media_error", "errorCode" to 100, "extraCode" to -19),

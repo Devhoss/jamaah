@@ -21,7 +21,24 @@ internal object AdhanPlaybackDiagnostics {
     fun usesFlutterAsset(sound: String, recording: String): Boolean =
         !isUserFile(recording) && (sound == "full" || sound == "short") && recording.isNotEmpty()
 
-    fun flutterAssetDescriptorPath(asset: String): String = "flutter_assets/$asset"
+    // Flutter packs asset entries with spaces percent-encoded
+    // ("Mansour%20Al%20Salimi.mp3"), but AssetManager matches entry names
+    // exactly: a literal-space lookup throws, and AdhanService then falls
+    // back to the short Adhan (tester report, Fajr in the Philippines).
+    // Encode like Flutter does when the entry was packed.
+    fun flutterAssetDescriptorPath(asset: String): String {
+        val out = StringBuilder("flutter_assets/")
+        for (c in asset) {
+            val unreserved = c in 'A'..'Z' || c in 'a'..'z' || c in '0'..'9' ||
+                c == '-' || c == '_' || c == '.' || c == '~' || c == '/'
+            if (unreserved) out.append(c)
+            else for (b in c.toString().toByteArray(Charsets.UTF_8)) {
+                out.append('%')
+                out.append("%02X".format(b.toInt() and 0xFF))
+            }
+        }
+        return out.toString()
+    }
 
     fun failureDetails(
         reason: String,
