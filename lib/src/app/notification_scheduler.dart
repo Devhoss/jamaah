@@ -67,8 +67,13 @@ List<PlannedNotification> buildNotificationPlan({
       ),
       adhanAlerts: alerts,
       activeMosque: activeMosque,
-      // Paused for every mosque, or for the active one (2026-10-13).
+      // Paused while away (travel mode), paused for every mosque, or for
+      // the active one (2026-10-13). Travel mode alone paused nothing
+      // before: the planner only read pauseAll, so a traveller with the
+      // menu switch on still got home-mosque reminders (see the
+      // TravelSettings doc, which always promised this pause).
       iqamaRemindersPaused:
+          travel.travelMode ||
           travel.pauseAllIqamaReminders ||
           (activeMosque?.remindersPaused ?? false),
       jamaahReminders: reminders,

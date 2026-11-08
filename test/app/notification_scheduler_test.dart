@@ -368,6 +368,10 @@ void main() {
 
       final home = planWith(const TravelSettings());
       final all = planWith(const TravelSettings(pauseAllIqamaReminders: true));
+      // Travel mode on its own pauses too: the switch says the user is
+      // away from the mosque, and the scheduler must honour that without
+      // the separate pause-all switch.
+      final away = planWith(const TravelSettings(travelMode: true));
       final thisMosque = planWith(
         const TravelSettings(),
         active: mosque.copyWith(remindersPaused: true),
@@ -376,7 +380,7 @@ void main() {
         home.where((n) => n.kind == NotificationKind.iqama),
         hasLength(kPlanWindowDays),
       );
-      for (final paused in [all, thisMosque]) {
+      for (final paused in [all, away, thisMosque]) {
         expect(paused.where((n) => n.kind == NotificationKind.iqama), isEmpty);
         expect(
           paused.where((n) => n.kind == NotificationKind.adhan),
