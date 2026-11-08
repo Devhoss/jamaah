@@ -2659,6 +2659,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpCheckUpdates => 'Check for updates';
 
   @override
+  String get helpReleaseNotes => 'Release notes';
+
+  @override
   String get updateChecking => 'Checking…';
 
   @override

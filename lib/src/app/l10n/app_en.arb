@@ -1237,6 +1237,7 @@
   "helpCheckBody": "The list shows every alert and reminder waiting on this phone, and says if a permission is missing.",
   "helpAbout": "About",
   "helpCheckUpdates": "Check for updates",
+  "helpReleaseNotes": "Release notes",
   "updateChecking": "Checking…",
   "updateUpToDate": "You already have {version}",
   "@updateUpToDate": {"placeholders": {"version": {"type": "String"}}},

@@ -700,6 +700,7 @@
   "helpCheckBody": "تعرض القائمة كل تنبيه وتذكير ينتظر على هذا الهاتف، وتخبرك إن كان هناك إذن ناقص.",
   "helpAbout": "عن التطبيق",
   "helpCheckUpdates": "إصدارات GitHub",
+  "helpReleaseNotes": "ملاحظات الإصدار",
   "updateChecking": "جارٍ التحقق…",
   "updateUpToDate": "لديك بالفعل {version}",
   "updateAvailable": "التحديث إلى {version}",

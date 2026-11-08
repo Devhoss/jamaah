@@ -2825,6 +2825,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get helpCheckUpdates => 'إصدارات GitHub';
 
   @override
+  String get helpReleaseNotes => 'ملاحظات الإصدار';
+
+  @override
   String get updateChecking => 'جارٍ التحقق…';
 
   @override

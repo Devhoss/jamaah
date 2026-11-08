@@ -1601,6 +1601,9 @@ class AppLocalizationsArDigits extends AppLocalizationsAr {
   String get helpCheckUpdates => arabicDigits(super.helpCheckUpdates);
 
   @override
+  String get helpReleaseNotes => arabicDigits(super.helpReleaseNotes);
+
+  @override
   String get updateChecking => arabicDigits(super.updateChecking);
 
   @override

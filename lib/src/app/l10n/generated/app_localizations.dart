@@ -4318,6 +4318,12 @@ abstract class AppLocalizations {
   /// **'Check for updates'**
   String get helpCheckUpdates;
 
+  /// No description provided for @helpReleaseNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Release notes'**
+  String get helpReleaseNotes;
+
   /// No description provided for @updateChecking.
   ///
   /// In en, this message translates to:

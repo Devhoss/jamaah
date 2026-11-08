@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/app.dart';
 import '../../app/build_info.dart';
@@ -103,6 +104,16 @@ class HelpAboutPage extends ConsumerWidget {
         ),
         SettingsHeading(l10n.helpAbout),
         UpdateRow(flow: ref.watch(updateFlowProvider)),
+        // The changelog lives with the release it describes: the row
+        // under Check for updates opens the releases page, where each
+        // release's notes are written for the user to read.
+        SettingsLinkRow(
+          title: l10n.helpReleaseNotes,
+          onTap: () => launchUrl(
+            Uri.parse(ref.read(updateFlowProvider).lookup.releasesUrl),
+            mode: LaunchMode.externalApplication,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 10),
           child: Align(
