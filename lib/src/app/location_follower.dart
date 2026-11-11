@@ -67,7 +67,28 @@ class LocationFollower {
             // true, so it goes.
             await _settings.saveFollowOffer(null);
           case FollowDecision.replace:
-            await _settings.setLocation(place.toStored());
+            // The fix is the saved place already, and a geocode fallback
+            // returned the zone name for the label: keep the good name the
+            // user already has instead of overwriting it with the zone.
+            // setLocation rewrites the settings row, so skip the write
+            // entirely when nothing actually changed.
+            final label = place.displayName;
+            final effective =
+                saved != null &&
+                    label == saved.ianaZone &&
+                    saved.displayName.isNotEmpty &&
+                    saved.displayName != saved.ianaZone
+                ? saved.copyWith(
+                    latitude: place.latitude,
+                    longitude: place.longitude,
+                    ianaZone: place.ianaZone,
+                    countryCode: place.countryCode,
+                    fromDevice: place.fromDevice,
+                  )
+                : place;
+            if (saved == null || effective.toStored() != saved.toStored()) {
+              await _settings.setLocation(effective.toStored());
+            }
             await _settings.saveFollowOffer(null);
           case FollowDecision.offer:
             // The saved place was picked by hand: stand the fix as an offer

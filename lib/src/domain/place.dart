@@ -59,6 +59,26 @@ class Place {
   String toString() =>
       'Place($displayName, $ianaZone, ${latitude.toStringAsFixed(3)}, '
       '${longitude.toStringAsFixed(3)}, ${fromDevice ? "device" : "list"})';
+
+  /// A copy with the given fields replaced. Used by the follow check to keep
+  /// a good saved name while taking fresh coordinates and zone from the fix.
+  Place copyWith({
+    String? displayName,
+    double? latitude,
+    double? longitude,
+    String? ianaZone,
+    bool? fromDevice,
+    String? userName,
+    String? countryCode,
+  }) => Place(
+    displayName: displayName ?? this.displayName,
+    latitude: latitude ?? this.latitude,
+    longitude: longitude ?? this.longitude,
+    ianaZone: ianaZone ?? this.ianaZone,
+    fromDevice: fromDevice ?? this.fromDevice,
+    userName: userName ?? this.userName,
+    countryCode: countryCode ?? this.countryCode,
+  );
 }
 
 /// Why the device could not give us a place.

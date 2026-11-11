@@ -1,16 +1,18 @@
 import 'discovery.dart';
 import 'place.dart';
 
-/// How far the phone must have moved before following moves the saved place.
-/// Prayer times shift by about a minute per 15–20 km east-west, so a few
-/// kilometres around town changes nothing worth a new place, while a new city
-/// does.
+/// How far the phone must have moved before a [FollowDecision.offer] is stood
+/// for a hand-picked place. Prayer times shift about 2.5 seconds per km
+/// east-west at Cairo's latitude, so the gate is about distance, not minutes.
 const followThresholdKm = 10.0;
 
 /// What a follow check does with a fresh fix from the device (2026-11-02:
 /// following is automatic, never a travel option).
 enum FollowDecision {
   /// The saved place still stands: only the "updated" time moves on.
+  /// Only ever applies to a pinned (hand-picked) place; a device place
+  /// always takes the fresh fix (below), so its name and coordinates can
+  /// never go stale behind a small move.
   keep,
 
   /// The phone is somewhere else: the fix becomes the saved place, with its
@@ -26,25 +28,20 @@ enum FollowDecision {
 
 /// Decides whether [fix] replaces [saved].
 ///
-/// A place the device supplied moves with the phone: replaced when the phone
-/// has moved more than [followThresholdKm], or into another time zone (a
-/// flight that lands near the border of a zone still changes the clock).
-///
-/// A place picked by hand is pinned: never replaced silently. A fix that
-/// would replace it [FollowDecision.offer]s instead — also on a time-zone
+/// A place the device supplied moves with the phone: the fresh fix always
+/// replaces it, so the saved name, coordinates and zone track the phone on
+/// every check, however small the move. Only a pinned (hand-picked) place is
+/// gated by [followThresholdKm]: it is never replaced silently, and a fix
+/// that would move it [FollowDecision.offer]s instead — also on a time-zone
 /// change, because a zone move is a strong signal that the pinned place no
-/// longer matches reality.
+/// longer matches reality. A pinned place that has not moved stays
+/// ([FollowDecision.keep]).
 FollowDecision decideFollow({required Place? saved, required Place fix}) {
   if (saved == null) return FollowDecision.replace;
-  final moved = _moved(saved, fix);
-  if (!moved) return FollowDecision.keep;
-  return saved.fromDevice ? FollowDecision.replace : FollowDecision.offer;
-}
-
-/// Whether [fix] is not where [saved] is: another zone, or more than
-/// [followThresholdKm] away on the same zone.
-bool _moved(Place saved, Place fix) {
-  if (saved.ianaZone != fix.ianaZone) return true;
+  if (saved.fromDevice) return FollowDecision.replace;
+  // A pinned place only offers when the fix is somewhere else: another zone,
+  // or more than followThresholdKm away on the same zone.
+  if (saved.ianaZone != fix.ianaZone) return FollowDecision.offer;
   final km =
       distanceMeters(
         fromLatitude: saved.latitude,
@@ -53,7 +50,8 @@ bool _moved(Place saved, Place fix) {
         toLongitude: fix.longitude,
       ) /
       1000;
-  return km > followThresholdKm;
+  if (km > followThresholdKm) return FollowDecision.offer;
+  return FollowDecision.keep;
 }
 
 /// A follow fix that was not applied because the saved place was pinned

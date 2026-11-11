@@ -25,10 +25,10 @@ void main() {
   final cairo = device(30.0444, 31.2357, 'Africa/Cairo');
   final pickedCairo = picked(30.0444, 31.2357, 'Africa/Cairo');
 
-  test('a few kilometres around town keeps a device place', () {
+  test('a few kilometres around town replaces a device place', () {
     expect(
       decideFollow(saved: cairo, fix: device(30.0800, 31.2800, 'Africa/Cairo')),
-      FollowDecision.keep,
+      FollowDecision.replace,
     );
   });
 
@@ -46,6 +46,15 @@ void main() {
     // Alexandria, about 180 km away.
     expect(
       decideFollow(saved: cairo, fix: device(31.2001, 29.9187, 'Africa/Cairo')),
+      FollowDecision.replace,
+    );
+  });
+
+  test('the same spot replaces a device place, so the name stays fresh', () {
+    // The fix may equal the saved place; a device place is always replaced
+    // so the follower can take the fresh name and coordinates.
+    expect(
+      decideFollow(saved: cairo, fix: device(30.0444, 31.2357, 'Africa/Cairo')),
       FollowDecision.replace,
     );
   });

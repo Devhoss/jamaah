@@ -157,7 +157,7 @@ void main() {
     },
   );
 
-  test('a few kilometres keeps the place but records the check', () async {
+  test('a few kilometres still updates the device place', () async {
     source.silentReading = const PlaceFound(
       Place(
         displayName: 'Africa/Cairo',
@@ -170,9 +170,31 @@ void main() {
     await follower().refresh();
 
     final snapshot = await settings.read();
-    expect(snapshot.location!.latitude, devicePlace.latitude);
+    expect(snapshot.location!.latitude, 30.06);
     expect(snapshot.placeCheckedAt, clock.nowUtc());
     expect(snapshot.placeCheckFailed, isFalse);
+  });
+
+  test('a geocode fallback keeps the good name, takes the new coordinates', () async {
+    await settings.setLocation(
+      devicePlace
+          .copyWith(displayName: 'Cairo, Egypt')
+          .toStored(),
+    );
+    source.silentReading = const PlaceFound(
+      Place(
+        displayName: 'Africa/Cairo',
+        latitude: 30.06,
+        longitude: 31.25,
+        ianaZone: 'Africa/Cairo',
+        fromDevice: true,
+      ),
+    );
+    await follower().refresh();
+
+    final stored = (await settings.read()).location!;
+    expect(stored.placeLabel, 'Cairo, Egypt');
+    expect(stored.latitude, 30.06);
   });
 
   test('no fix keeps the last place and says the check failed', () async {
